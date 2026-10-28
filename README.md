@@ -4,7 +4,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Fase:** fundação técnica e protótipo inicial.
+**Fase:** protótipo jogável com combate e ondas em desenvolvimento.
 
 - Plataforma principal: computador, com controles de teclado.
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
@@ -21,9 +21,17 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - `Espaço`: disparar.
 - `P`: pausar ou retomar.
 
+## Mecânicas atuais
+
+- Movimento da nave e disparo de projéteis.
+- Inimigos com colisões e dano à integridade.
+- Invulnerabilidade temporária com efeito visual de piscar após receber dano.
+- XP, níveis, pontuação e missão inicial.
+- Ondas de inimigos com intervalos e dificuldade progressiva.
+
 ## Organização
 
-- `src/core/`: ciclo principal e estado do jogo.
+- `src/core/`: ciclo principal, estado do jogo e gerenciador de ondas.
 - `src/player/`: nave do jogador.
 - `src/enemies/`: lógica de inimigos.
 - `src/combat/`: projéteis e colisões.

@@ -11,4 +11,5 @@ export function updateHud(game) {
   document.querySelector('#mission-progress').textContent = `${game.mission.progress}/${game.mission.target}`;
   if (game.mission.completed) document.querySelector('#mission-progress').textContent = 'CONCLUÍDA';
   document.querySelector('#status-label').textContent = game.status === 'running' ? 'SISTEMA ONLINE' : game.status.toUpperCase();
+  document.querySelector('#wave-label').textContent = game.waveManager.getLabel();
 }
