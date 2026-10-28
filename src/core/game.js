@@ -40,6 +40,9 @@ export class Game {
     this.levelUpParticles = [];
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
+    this.hudUpdateInterval = 0.1;
+    this.hudUpdateTimer = 0;
+    this.backgroundCanvas = document.createElement('canvas');
     this.bindOverlayElements();
   }
 
@@ -52,7 +55,8 @@ export class Game {
   resize() {
     const previousLandscape = this.width > this.height;
     const rect = this.canvas.getBoundingClientRect();
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const maxRatio = window.matchMedia('(pointer: coarse)').matches ? 1.5 : 2;
+    const ratio = Math.min(window.devicePixelRatio || 1, maxRatio);
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
     const isLandscape = this.width > this.height;
@@ -63,8 +67,40 @@ export class Game {
     this.canvas.width = Math.round(this.width * ratio);
     this.canvas.height = Math.round(this.height * ratio);
     this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    this.pixelRatio = ratio;
+    this.cacheBackground();
     this.player.fitToArena(this.width, this.height);
     this.renderFrame(0);
+  }
+
+  cacheBackground() {
+    const ratio = this.pixelRatio || 1;
+    const canvas = this.backgroundCanvas;
+    canvas.width = this.canvas.width;
+    canvas.height = this.canvas.height;
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    const bg = ctx.createLinearGradient(0, 0, 0, this.height);
+    bg.addColorStop(0, '#071126');
+    bg.addColorStop(1, '#050813');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, this.width, this.height);
+    ctx.strokeStyle = '#1a3450';
+    ctx.globalAlpha = 0.45;
+    ctx.lineWidth = 1;
+    for (let x = 0; x < this.width; x += 42) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, this.height);
+      ctx.stroke();
+    }
+    for (let y = 0; y < this.height; y += 42) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(this.width, y);
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
   }
 
   start() {
@@ -73,6 +109,7 @@ export class Game {
     this.status = 'running';
     this.hideOverlays();
     this.lastTime = performance.now();
+    this.hudUpdateTimer = 0;
     cancelAnimationFrame(this.animationId);
     this.animationId = requestAnimationFrame((time) => this.loop(time));
     updateHud(this);
@@ -100,6 +137,7 @@ export class Game {
     this.levelUpParticles = [];
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
+    this.hudUpdateTimer = 0;
     document.querySelector('#level-up-toast').classList.remove('level-up-active');
     document.querySelector('#damage-feedback').classList.remove('damage-active');
     this.status = 'ready';
@@ -197,7 +235,11 @@ export class Game {
     this.lastTime = time;
     this.update(dt);
     this.renderFrame(dt);
-    updateHud(this);
+    this.hudUpdateTimer += dt;
+    if (this.hudUpdateTimer >= this.hudUpdateInterval) {
+      this.hudUpdateTimer %= this.hudUpdateInterval;
+      updateHud(this);
+    }
 
     if (this.status === 'running') {
       this.animationId = requestAnimationFrame((next) => this.loop(next));
@@ -215,8 +257,11 @@ export class Game {
 
     this.player.update(dt, this.keys, this.width, this.height);
     this.levelUpToastTimer = Math.max(0, this.levelUpToastTimer - dt);
+    const previousDamageFeedbackTimer = this.damageFeedbackTimer;
     this.damageFeedbackTimer = Math.max(0, this.damageFeedbackTimer - dt);
-    if (this.damageFeedbackTimer === 0) document.querySelector('#damage-feedback').classList.remove('damage-active');
+    if (previousDamageFeedbackTimer > 0 && this.damageFeedbackTimer === 0) {
+      document.querySelector('#damage-feedback').classList.remove('damage-active');
+    }
     this.levelUpParticles.forEach((particle) => {
       particle.x += particle.vx * dt;
       particle.y += particle.vy * dt;
@@ -285,34 +330,15 @@ export class Game {
     if (!this.ctx || !this.width || !this.height) return;
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
-    const bg = ctx.createLinearGradient(0, 0, 0, this.height);
-    bg.addColorStop(0, '#071126');
-    bg.addColorStop(1, '#050813');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, this.width, this.height);
+    if (this.backgroundCanvas.width && this.backgroundCanvas.height) {
+      ctx.drawImage(this.backgroundCanvas, 0, 0, this.width, this.height);
+    }
 
     this.stars.forEach((star) => {
       ctx.globalAlpha = star.alpha;
       ctx.fillStyle = '#a9d7ff';
       ctx.fillRect(star.x * this.width, star.y * this.height, star.size, star.size);
     });
-
-    ctx.globalAlpha = 1;
-    ctx.strokeStyle = '#1a3450';
-    ctx.globalAlpha = .45;
-    ctx.lineWidth = 1;
-    for (let x = 0; x < this.width; x += 42) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, this.height);
-      ctx.stroke();
-    }
-    for (let y = 0; y < this.height; y += 42) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(this.width, y);
-      ctx.stroke();
-    }
 
     ctx.globalAlpha = 1;
     this.projectiles.forEach((shot) => shot.draw(ctx));
@@ -330,8 +356,6 @@ export class Game {
       ctx.translate(particle.x, particle.y);
       ctx.rotate((1 - particle.life / particle.maxLife) * Math.PI);
       ctx.fillStyle = '#ffe68a';
-      ctx.shadowColor = '#ffc94d';
-      ctx.shadowBlur = 10;
       ctx.beginPath();
       ctx.moveTo(0, -particle.size * 1.8);
       ctx.lineTo(particle.size * 0.45, -particle.size * 0.45);
