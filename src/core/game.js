@@ -1,11 +1,11 @@
-import { Player } from '../player/player.js?v=0.9.1';
-import { Enemy } from '../enemies/enemy.js?v=0.9.1';
-import { Projectile } from '../combat/projectile.js?v=0.9.1';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.9.1';
-import { Progression } from '../progression/progression.js?v=0.9.1';
-import { Mission } from '../missions/missions.js?v=0.9.1';
-import { WaveManager } from './wave-manager.js?v=0.9.1';
-import { updateHud } from '../ui/hud.js?v=0.9.1';
+import { Player } from '../player/player.js?v=0.9.2';
+import { Enemy } from '../enemies/enemy.js?v=0.9.2';
+import { Projectile } from '../combat/projectile.js?v=0.9.2';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.9.2';
+import { Progression } from '../progression/progression.js?v=0.9.2';
+import { Mission } from '../missions/missions.js?v=0.9.2';
+import { WaveManager } from './wave-manager.js?v=0.9.2';
+import { updateHud } from '../ui/hud.js?v=0.9.2';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -198,13 +198,18 @@ export class Game {
     return keyMap[code] ?? key.toLowerCase();
   }
 
+  restartFeedbackAnimation(element, className) {
+    // Cancel any running CSS animation and restart it without forcing a synchronous layout.
+    element.classList.remove(className);
+    element.getAnimations().forEach((animation) => animation.cancel());
+    element.classList.add(className);
+  }
+
   triggerLevelUp(levelsGained) {
     this.levelUpToastTimer = 1.35;
     const toast = document.querySelector('#level-up-toast');
     toast.textContent = levelsGained > 1 ? `✦ NÍVEIS +${levelsGained}` : '✦ NÍVEL AUMENTADO';
-    toast.classList.remove('level-up-active');
-    void toast.offsetWidth;
-    toast.classList.add('level-up-active');
+    this.restartFeedbackAnimation(toast, 'level-up-active');
 
     for (let i = 0; i < 22; i += 1) {
       const angle = (Math.PI * 2 * i) / 22 + rand(-0.15, 0.15);
@@ -241,9 +246,7 @@ export class Game {
     }
     const feedback = document.querySelector('#damage-feedback');
     feedback.textContent = `INTEGRIDADE -${amount}`;
-    feedback.classList.remove('damage-active');
-    void feedback.offsetWidth;
-    feedback.classList.add('damage-active');
+    this.restartFeedbackAnimation(feedback, 'damage-active');
   }
 
   setAimFromPointer(event) {
