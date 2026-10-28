@@ -1,5 +1,5 @@
-import { Game } from './src/core/game.js?v=0.11.0';
-import { gameAudio } from './src/audio/game-audio.js?v=0.11.0';
+import { Game } from './src/core/game.js?v=0.11.1';
+import { gameAudio } from './src/audio/game-audio.js?v=0.11.1';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
@@ -66,7 +66,7 @@ function returnToMainMenu() {
 document.querySelector('#pause-menu-button').addEventListener('click', returnToMainMenu);
 document.querySelector('#gameover-menu-button').addEventListener('click', returnToMainMenu);
 
-const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'effects-setting': 'full', 'sound-setting': 'on' };
+const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'effects-setting': 'full', 'sound-setting': 'on', 'sound-volume-setting': '75' };
 function applySettings() {
   const scale = Number(document.querySelector('#hud-scale-setting').value) / 100;
   const opacity = Number(document.querySelector('#hud-opacity-setting').value) / 100;
@@ -74,6 +74,7 @@ function applySettings() {
   document.documentElement.style.setProperty('--hud-opacity', String(opacity));
   document.documentElement.dataset.effects = document.querySelector('#effects-setting').value;
   document.documentElement.dataset.sound = document.querySelector('#sound-setting').value;
+  gameAudio.setVolume(Number(document.querySelector('#sound-volume-setting').value) / 100);
   gameAudio.setEnabled(document.querySelector('#sound-setting').value === 'on');
   Object.entries(settingDefaults).forEach(([id]) => localStorage.setItem('gd-setting-' + id, document.querySelector('#' + id).value));
 }
