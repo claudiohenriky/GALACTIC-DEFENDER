@@ -1,11 +1,11 @@
-import { Player } from '../player/player.js?v=0.9.2';
-import { Enemy } from '../enemies/enemy.js?v=0.9.2';
-import { Projectile } from '../combat/projectile.js?v=0.9.2';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.9.2';
-import { Progression } from '../progression/progression.js?v=0.9.2';
-import { Mission } from '../missions/missions.js?v=0.9.2';
-import { WaveManager } from './wave-manager.js?v=0.9.2';
-import { updateHud } from '../ui/hud.js?v=0.9.2';
+import { Player } from '../player/player.js?v=0.10.0';
+import { Enemy } from '../enemies/enemy.js?v=0.10.0';
+import { Projectile } from '../combat/projectile.js?v=0.10.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.10.0';
+import { Progression } from '../progression/progression.js?v=0.10.0';
+import { Mission } from '../missions/missions.js?v=0.10.0';
+import { WaveManager } from './wave-manager.js?v=0.10.0';
+import { updateHud } from '../ui/hud.js?v=0.10.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -20,7 +20,7 @@ export class Game {
     this.player = new Player(this.width, this.height);
 
     this.progression = new Progression();
-    this.mission = new Mission(10);
+    this.mission = new Mission();
     this.waveManager = new WaveManager();
     this.enemies = [];
     this.projectiles = [];
@@ -136,7 +136,7 @@ export class Game {
   reset() {
     this.player = new Player(this.width, this.height);
     this.progression = new Progression();
-    this.mission = new Mission(10);
+    this.mission = new Mission();
     this.waveManager.reset();
     this.enemies = [];
     this.projectiles = [];
@@ -153,7 +153,6 @@ export class Game {
     document.querySelector('#damage-feedback').classList.remove('damage-active');
     this.status = 'ready';
     this.clearInput();
-    document.querySelector('#mission-progress').textContent = '0/10';
     updateHud(this);
     this.renderFrame(0);
   }
@@ -224,6 +223,23 @@ export class Game {
         maxLife: life,
         size: rand(2, 4.5)
       });
+    }
+  }
+
+  handleMissionCompletion(completion) {
+    if (!completion) return;
+    this.score += completion.score;
+    const levelsGained = this.progression.addXp(completion.xp);
+    if (levelsGained > 0) this.triggerLevelUp(levelsGained);
+    let total = 0;
+    try { total = Number(localStorage.getItem('gd-missions-completed') || 0) + 1; localStorage.setItem('gd-missions-completed', String(total)); } catch { total = completion.completionNumber; }
+    const unlocked = this.progression.recordMissionCompletion(total);
+    const toast = document.querySelector('#mission-toast');
+    toast.textContent = `MISSÃO CONCLUÍDA · +${completion.xp} XP · +${completion.score} PTS`;
+    this.restartFeedbackAnimation(toast, 'mission-toast-active');
+    if (unlocked.length) {
+      document.querySelector('#title-unlock-label').textContent = `NOVO TÍTULO: ${unlocked[unlocked.length - 1].name}`;
+      document.querySelector('#title-unlock-toast').classList.remove('hidden');
     }
   }
 
@@ -357,7 +373,7 @@ export class Game {
             this.destroyed += 1;
             const levelsGained = this.progression.addXp(25);
             if (levelsGained > 0) this.triggerLevelUp(levelsGained);
-            this.mission.registerKill();
+            this.handleMissionCompletion(this.mission.registerKill());
           }
           break;
         }
@@ -381,6 +397,8 @@ export class Game {
         if (this.player.takeDamage(shot.damage)) this.triggerDamageFeedback(shot.damage);
       }
     }
+
+    this.handleMissionCompletion(this.mission.update(dt, this.waveManager.wave));
 
     this.projectiles = this.projectiles.filter((shot) =>
       shot.active && shot.x > -20 && shot.x < this.width + 20 && shot.y > -20 && shot.y < this.height + 20
