@@ -177,7 +177,6 @@ export class Game {
       this.resume();
     }
 
-    if (event.code === 'Enter' && this.status === 'ready') this.start();
   }
 
   handleKeyUp(event) {
