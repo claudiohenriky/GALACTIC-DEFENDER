@@ -6,14 +6,14 @@
   <meta name="theme-color" content="#070b18">
   <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.9.2">
-  <script type="module" src="./main.js?v=0.9.2"></script>
+  <link rel="stylesheet" href="./style.css?v=0.10.0">
+  <script type="module" src="./main.js?v=0.10.0"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PRÉ-ALFA · 0.9.2</span>
+      <span class="build-tag">PRÉ-ALFA · 0.10.0</span>
     </header>
 
     <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
@@ -48,7 +48,7 @@
       <section id="about-panel" class="menu-panel hidden" aria-labelledby="about-title">
         <div class="panel-heading"><div><p class="eyebrow">SOBRE O PROJETO</p><h2 id="about-title">Construído para evoluir</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar informações">×</button></div>
         <p class="menu-description">GALACTIC-DEFENDER é um jogo de ação espacial para navegador, desenvolvido com HTML, CSS e JavaScript, sem frameworks externos.</p>
-        <p class="menu-note">Versão 0.9.2 · Projeto em desenvolvimento · Créditos e documentação serão ampliados durante a preparação da versão estável.</p>
+        <p class="menu-note">Versão 0.10.0 · Missões, recompensas e títulos em desenvolvimento · Créditos e documentação serão ampliados durante a preparação da versão estável.</p>
         <button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button>
       </section>
     </section>
@@ -56,8 +56,11 @@
       <aside class="side-panel briefing">
         <p class="eyebrow">MISSÃO ATUAL</p>
         <h1>Defenda a<br><span>galáxia.</span></h1>
-        <p class="muted">Intercepta os hostis, sobrevive e aumenta tua pontuação.</p>
-        <div class="mission-card"><span class="mission-icon">◎</span><div><strong>Primeiro contato</strong><small>Destrua 10 inimigos</small></div><span id="mission-progress" class="mission-count">0/10</span></div>
+        <p class="muted">Complete objetivos, receba recompensas e conquiste títulos de piloto.</p>
+        <div class="mission-card"><span class="mission-icon">◎</span><div class="mission-copy"><strong id="mission-name">Primeiro contato</strong><small id="mission-description">Destrua 5 inimigos</small><small id="mission-reward">+40 XP · +150 PTS</small></div><span id="mission-progress" class="mission-count">0 / 5</span></div>
+        <div class="mission-difficulty" id="mission-difficulty">FÁCIL</div>
+        <div class="mission-toast" id="mission-toast" role="status" aria-live="polite"></div>
+        <div class="title-unlock-toast hidden" id="title-unlock-toast" role="status"><strong id="title-unlock-label">NOVO TÍTULO</strong><button type="button" id="dismiss-title-toast" class="text-button">OK</button></div>
         <div class="control-list"><p class="eyebrow">CONTROLES</p><div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>Mover nave</span></div><div><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd><span>Alternativa</span></div><div><kbd>MOUSE</kbd><span>Mirar</span></div><div><kbd>ESPAÇO</kbd><span>Disparar</span></div><div><kbd>P</kbd><span>Pausar</span></div></div>
       </aside>
       <section class="arena-wrap">
@@ -81,7 +84,7 @@
         </div></div>
         <div class="arena-footer"><span><i class="legend-dot player-dot"></i> SUA NAVE</span><span><i class="legend-dot enemy-dot"></i> HOSTIS</span><span>BUILD 001</span></div>
       </section>
-      <aside class="side-panel stats-panel"><p class="eyebrow">TELEMETRIA</p><div class="stat-block"><span>PONTUAÇÃO</span><strong id="score-value">000000</strong></div><div class="stat-block"><span>INIMIGOS</span><strong id="enemy-value">00</strong></div><div class="stat-block"><span>NÍVEL</span><strong id="level-value">01</strong></div><div class="stat-block"><span>INTEGRIDADE</span><strong id="health-value">100<span class="unit">%</span></strong><div class="health-track"><div id="health-bar" class="health-fill"></div></div></div><div class="xp-block"><div><span>EXPERIÊNCIA</span><span id="xp-label">0 / 100</span></div><div class="xp-track"><div id="xp-bar" class="xp-fill"></div></div></div><div class="rank-card"><span class="rank-star">✦</span><div><small>CLASSE DO PILOTO</small><strong id="rank-label">RECRUTA</strong></div></div></aside>
+      <aside class="side-panel stats-panel"><p class="eyebrow">TELEMETRIA</p><div class="stat-block"><span>PONTUAÇÃO</span><strong id="score-value">000000</strong></div><div class="stat-block"><span>INIMIGOS</span><strong id="enemy-value">00</strong></div><div class="stat-block"><span>NÍVEL</span><strong id="level-value">01</strong></div><div class="stat-block"><span>INTEGRIDADE</span><strong id="health-value">100<span class="unit">%</span></strong><div class="health-track"><div id="health-bar" class="health-fill"></div></div></div><div class="xp-block"><div><span>EXPERIÊNCIA</span><span id="xp-label">0 / 100</span></div><div class="xp-track"><div id="xp-bar" class="xp-fill"></div></div></div><div class="rank-card"><span class="rank-star">✦</span><div><small>CLASSE DO PILOTO</small><strong id="rank-label">RECRUTA</strong><small class="pilot-title" id="pilot-title-label">RECRUTA</small></div></div></aside>
     </section>
     <footer class="page-footer"><span>GALACTIC-DEFENDER <span class="muted">/ PROJETO EM DESENVOLVIMENTO</span></span><span>FEITO PARA EXPLORAR · TESTAR · EVOLUIR</span></footer>
   </main>
