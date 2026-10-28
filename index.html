@@ -6,16 +6,53 @@
   <meta name="theme-color" content="#070b18">
   <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.7.0">
-  <script type="module" src="./main.js?v=0.7.0"></script>
+  <link rel="stylesheet" href="./style.css?v=0.8.0">
+  <script type="module" src="./main.js?v=0.8.0"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PROTÓTIPO · 0.7.0</span>
+      <span class="build-tag">PRÉ-ALFA · 0.8.0</span>
     </header>
-    <section class="game-layout" aria-label="Área do jogo">
+
+    <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
+      <div class="menu-copy">
+        <p class="eyebrow">SISTEMA DE DEFESA GALÁCTICA</p>
+        <h1 id="menu-title">GALACTIC<span> DEFENDER</span></h1>
+        <p class="menu-description">A galáxia precisa de você, piloto. Prepare sua nave e sobreviva às ondas hostis.</p>
+        <div class="platform-choice" role="group" aria-label="Plataforma de jogo">
+          <span class="platform-label">MODO DE CONTROLE</span>
+          <div class="platform-options">
+            <button type="button" class="platform-option" data-platform-choice="pc" aria-pressed="false"><span aria-hidden="true">⌨</span><strong>PC</strong><small>Teclado e mouse</small></button>
+            <button type="button" class="platform-option" data-platform-choice="mobile" aria-pressed="false"><span aria-hidden="true">▣</span><strong>Mobile</strong><small>Toque e joystick</small></button>
+          </div>
+          <p id="platform-detection-note" class="menu-note">Detectando dispositivo… Você pode alterar essa escolha.</p>
+        </div>
+        <div class="menu-actions">
+          <button id="menu-play-button" class="primary-button menu-play" type="button">JOGAR <span>↗</span></button>
+          <button id="menu-settings-button" class="secondary-button" type="button">CONFIGURAÇÕES</button>
+          <button id="menu-about-button" class="text-button" type="button">SOBRE O JOGO</button>
+        </div>
+      </div>
+      <div class="menu-art" aria-hidden="true"><div class="menu-orbit orbit-one"></div><div class="menu-orbit orbit-two"></div><div class="menu-planet"></div><div class="menu-ship">✦</div><span class="menu-coordinate">SECTOR 01 / EARTH DEFENSE</span></div>
+      <section id="settings-panel" class="menu-panel hidden" aria-labelledby="settings-title">
+        <div class="panel-heading"><div><p class="eyebrow">PREFERÊNCIAS DO PILOTO</p><h2 id="settings-title">Configurações</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar configurações">×</button></div>
+        <label class="setting-row" for="hud-scale-setting"><span><strong>Tamanho da HUD</strong><small>Ajusta o tamanho dos indicadores.</small></span><input id="hud-scale-setting" type="range" min="80" max="130" value="100"></label>
+        <label class="setting-row" for="hud-opacity-setting"><span><strong>Transparência da HUD</strong><small>Controla a opacidade da interface.</small></span><input id="hud-opacity-setting" type="range" min="35" max="100" value="100"></label>
+        <label class="setting-row" for="effects-setting"><span><strong>Efeitos visuais</strong><small>Reduz efeitos para priorizar desempenho.</small></span><select id="effects-setting"><option value="full">Completos</option><option value="reduced">Reduzidos</option></select></label>
+        <label class="setting-row" for="sound-setting"><span><strong>Áudio do jogo</strong><small>Preparado para os controles de som.</small></span><select id="sound-setting"><option value="on">Ativado</option><option value="off">Desativado</option></select></label>
+        <div class="panel-actions"><button id="settings-reset-button" class="secondary-button" type="button">RESTAURAR PADRÕES</button><button class="primary-button" type="button" data-close-panel>CONCLUÍDO</button></div>
+        <p class="menu-note">As opções visuais serão aplicadas nesta etapa; áudio e efeitos serão conectados às mecânicas nas próximas entregas.</p>
+      </section>
+      <section id="about-panel" class="menu-panel hidden" aria-labelledby="about-title">
+        <div class="panel-heading"><div><p class="eyebrow">SOBRE O PROJETO</p><h2 id="about-title">Construído para evoluir</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar informações">×</button></div>
+        <p class="menu-description">GALACTIC-DEFENDER é um jogo de ação espacial para navegador, desenvolvido com HTML, CSS e JavaScript, sem frameworks externos.</p>
+        <p class="menu-note">Versão 0.8.0 · Projeto em desenvolvimento · Créditos e documentação serão ampliados durante a preparação da versão estável.</p>
+        <button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button>
+      </section>
+    </section>
+    <section class="game-layout is-hidden" aria-label="Área do jogo">
       <aside class="side-panel briefing">
         <p class="eyebrow">MISSÃO ATUAL</p>
         <h1>Defenda a<br><span>galáxia.</span></h1>
@@ -34,7 +71,7 @@
           <div id="level-up-toast" class="level-up-toast" role="status" aria-live="polite">✦ NÍVEL AUMENTADO</div>
           <div id="damage-feedback" class="damage-feedback" role="status" aria-live="polite"></div>
           <button id="fullscreen-button" class="fullscreen-button" type="button" aria-label="Ativar tela cheia" title="Tela cheia">⛶</button>
-          <div class="orientation-hint" aria-hidden="true">GIRE O CELULAR NA HORIZONTAL PARA JOGAR MELHOR</div><div id="start-overlay" class="overlay"><div class="overlay-symbol">✦</div><p class="eyebrow">SINAL DETECTADO</p><h2>Pronto para<br><span>decolar?</span></h2><p>O setor precisa de você, piloto.</p><button id="start-button" class="primary-button" type="button">INICIAR MISSÃO <span>↗</span></button></div><div id="pause-overlay" class="overlay hidden"><div class="overlay-symbol">Ⅱ</div><p class="eyebrow">SISTEMA EM ESPERA</p><h2>Missão<br><span>pausada.</span></h2><p>Pressione P para continuar.</p><button id="resume-button" class="primary-button" type="button">RETOMAR <span>↗</span></button></div><div id="gameover-overlay" class="overlay hidden"><div class="overlay-symbol">✧</div><p class="eyebrow">SINAL PERDIDO</p><h2>Fim da<br><span>missão.</span></h2><p id="final-score">Pontuação: 0</p><button id="restart-button" class="primary-button" type="button">TENTAR NOVAMENTE <span>↗</span></button></div>
+          <div class="orientation-hint" aria-hidden="true">GIRE O CELULAR NA HORIZONTAL PARA JOGAR MELHOR</div><div id="start-overlay" class="overlay"><div class="overlay-symbol">✦</div><p class="eyebrow">SINAL DETECTADO</p><h2>Pronto para<br><span>decolar?</span></h2><p>O setor precisa de você, piloto.</p><button id="start-button" class="primary-button" type="button">INICIAR MISSÃO <span>↗</span></button></div><div id="pause-overlay" class="overlay hidden"><div class="overlay-symbol">Ⅱ</div><p class="eyebrow">SISTEMA EM ESPERA</p><h2>Missão<br><span>pausada.</span></h2><p>Pressione P para continuar.</p><button id="resume-button" class="primary-button" type="button">RETOMAR <span>↗</span></button><button id="pause-menu-button" class="secondary-button overlay-secondary" type="button">VOLTAR AO MENU</button></div><div id="gameover-overlay" class="overlay hidden"><div class="overlay-symbol">✧</div><p class="eyebrow">SINAL PERDIDO</p><h2>Fim da<br><span>missão.</span></h2><p id="final-score">Pontuação: 0</p><button id="restart-button" class="primary-button" type="button">TENTAR NOVAMENTE <span>↗</span></button><button id="gameover-menu-button" class="secondary-button overlay-secondary" type="button">VOLTAR AO MENU</button></div>
         <div id="touch-controls" class="touch-controls" aria-label="Controles de toque da nave">
           <div id="virtual-joystick" class="virtual-joystick" role="application" aria-label="Joystick virtual: arraste para movimentar a nave">
             <div class="joystick-ring"><div id="joystick-thumb" class="joystick-thumb"></div></div>
