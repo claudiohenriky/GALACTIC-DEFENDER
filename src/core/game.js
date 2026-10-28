@@ -1,11 +1,11 @@
-import { Player } from '../player/player.js';
-import { Enemy } from '../enemies/enemy.js';
-import { Projectile } from '../combat/projectile.js';
-import { EnemyProjectile } from '../combat/enemy-projectile.js';
-import { Progression } from '../progression/progression.js';
-import { Mission } from '../missions/missions.js';
-import { WaveManager } from './wave-manager.js';
-import { updateHud } from '../ui/hud.js';
+import { Player } from '../player/player.js?v=0.5.1';
+import { Enemy } from '../enemies/enemy.js?v=0.5.1';
+import { Projectile } from '../combat/projectile.js?v=0.5.1';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.5.1';
+import { Progression } from '../progression/progression.js?v=0.5.1';
+import { Mission } from '../missions/missions.js?v=0.5.1';
+import { WaveManager } from './wave-manager.js?v=0.5.1';
+import { updateHud } from '../ui/hud.js?v=0.5.1';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
