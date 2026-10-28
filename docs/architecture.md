@@ -21,7 +21,7 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - Controles de toque usam Pointer Events e reutilizam as mesmas entradas lógicas do teclado, permitindo movimento simultâneo e disparo.
 - `requestAnimationFrame` com delta time limitado para reduzir saltos após quedas de FPS.
 - O sistema de ondas é separado do ciclo principal para facilitar balanceamento e expansão.
-- A lógica inicial prioriza teclado e desktop; a adaptação para controles móveis será tratada separadamente após os testes básicos.
+- Teclado e controles de toque compartilham o mesmo conjunto de entradas; os controles de toque aparecem em dispositivos com ponteiro de toque.
 
 ## Próximas validações
 
