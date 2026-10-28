@@ -6,14 +6,15 @@
   <meta name="theme-color" content="#070b18">
   <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.12.0">
-  <script type="module" src="./main.js?v=0.12.0"></script>
+  <link rel="stylesheet" href="./style.css?v=0.13.0">
+  <link rel="stylesheet" href="./src/ui/version-history.css?v=0.13.0">
+  <script type="module" src="./main.js?v=0.13.0"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PRÉ-ALFA · 0.12.0</span>
+      <span class="build-tag">PRÉ-ALFA · 0.13.0</span>
     </header>
 
     <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
@@ -33,6 +34,7 @@
           <button id="menu-play-button" class="primary-button menu-play" type="button">JOGAR <span>↗</span></button>
           <button id="menu-settings-button" class="secondary-button" type="button">CONFIGURAÇÕES</button>
           <button id="menu-about-button" class="text-button" type="button">SOBRE O JOGO</button>
+          <button id="menu-history-button" class="text-button" type="button">HISTÓRICO DE VERSÕES</button>
         </div>
       </div>
       <div class="menu-art" aria-hidden="true"><div class="menu-orbit orbit-one"></div><div class="menu-orbit orbit-two"></div><div class="menu-planet"></div><div class="menu-ship">✦</div><span class="menu-coordinate">SECTOR 01 / EARTH DEFENSE</span></div>
@@ -49,8 +51,20 @@
       <section id="about-panel" class="menu-panel hidden" aria-labelledby="about-title">
         <div class="panel-heading"><div><p class="eyebrow">SOBRE O PROJETO</p><h2 id="about-title">Construído para evoluir</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar informações">×</button></div>
         <p class="menu-description">GALACTIC-DEFENDER é um jogo de ação espacial para navegador, desenvolvido com HTML, CSS e JavaScript, sem frameworks externos.</p>
-        <p class="menu-note">Versão 0.12.0 · Missões, áudio sintetizado e novos inimigos em desenvolvimento · Créditos e documentação serão ampliados durante a preparação da versão estável.</p>
+        <p class="menu-note">Versão 0.13.0 · Missões, áudio sintetizado e novos inimigos em desenvolvimento · Créditos e documentação serão ampliados durante a preparação da versão estável.</p>
         <button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button>
+      <section id="version-history-panel" class="menu-panel version-history-panel hidden" aria-labelledby="version-history-title">
+        <div class="panel-heading"><div><p class="eyebrow">REGISTRO DE DESENVOLVIMENTO</p><h2 id="version-history-title">Histórico de versões</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar histórico de versões">×</button></div>
+        <p class="menu-description">Novidades, ajustes e correções do GALACTIC-DEFENDER, da versão mais recente para a mais antiga.</p>
+        <div id="version-history-list" class="version-history-list">
+          <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.13.0</strong><span>EM DESENVOLVIMENTO</span></div><ul><li>Preparação de chefes e ondas especiais.</li><li>Ajuste dos perseguidores vermelhos para começar a atirar a partir da onda 2, com alcance um pouco maior e intervalo menor entre disparos.</li><li>Adição do histórico de versões acessível pelo menu principal.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.12.0</strong><span>PROGRESSÃO</span></div><ul><li>Ao subir de nível, escolha uma melhoria: dano, velocidade ou escudo com reparo parcial.</li><li>Escolhas acumuladas são apresentadas uma por vez; a progressão continua após as escolhas.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.11.1</strong><span>ÁUDIO</span></div><ul><li>Melhoria no equilíbrio do volume da música e do feedback sonoro de dano.</li><li>Controle de volume geral nas configurações, com preferência salva no navegador.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.11.0</strong><span>COMBATE E ÁUDIO</span></div><ul><li>Adição de música e efeitos sonoros sintetizados com Web Audio API.</li><li>Adição do interceptador ciano: rápido, frágil e focado em pressionar o jogador pelo movimento.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.10.0</strong><span>MISSÕES</span></div><ul><li>Missões rotativas com diferentes objetivos e níveis de dificuldade.</li><li>Recompensas de XP e pontuação, além de títulos desbloqueáveis para o piloto.</li></ul></article>
+        </div>
+        <p class="menu-note">O histórico será atualizado a cada versão. Versões antigas ficam disponíveis abaixo das mais recentes.</p>
+        <div class="panel-actions"><button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button></div>
       </section>
     </section>
     <section class="game-layout is-hidden" aria-label="Área do jogo">
