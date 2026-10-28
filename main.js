@@ -38,7 +38,12 @@ document.querySelector('#menu-play-button').addEventListener('click', () => {
   closeMenuPanels();
   mainMenu.classList.add('is-hidden');
   gameLayout.classList.remove('is-hidden');
-  game.start();
+  // The canvas is initially inside a hidden layout, so wait for the browser to lay it out
+  // before sizing it and starting the animation loop. This avoids a blank/white arena on mobile.
+  requestAnimationFrame(() => {
+    game.resize();
+    game.start();
+  });
 });
 document.querySelector('#menu-settings-button').addEventListener('click', () => {
   aboutPanel.classList.add('hidden');
