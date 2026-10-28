@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão:** `0.3.1` — ajuste de ergonomia dos controles e expansão adicional da arena mobile.
+**Versão:** `0.4.0` — primeiro inimigo de ataque à distância e projéteis hostis.
 
-**Fase:** refinamento de controles e área de combate mobile após testes da versão `0.3.0`.
+**Fase:** expansão da IA inimiga e dos padrões de combate.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: teclado no computador e botões de toque na arena em dispositivos compatíveis.
@@ -29,7 +29,9 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 ## Mecânicas atuais
 
 - Movimento da nave e disparo de projéteis.
-- Inimigos perseguem a nave com movimento gradual; colisões causam dano à integridade.
+- Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
+- A partir da onda 2, alguns inimigos sentinelas tentam manter distância e disparam projéteis direcionados à posição da nave no momento do disparo.
+- Projéteis inimigos causam 10 pontos de dano em impacto direto e respeitam a invulnerabilidade temporária.
 - Inimigos não causam dano automático ao ultrapassar a borda da arena.
 - Invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis, pontuação e missão inicial.
@@ -54,7 +56,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - `src/core/`: ciclo principal, estado do jogo e gerenciador de ondas.
 - `src/player/`: nave do jogador.
 - `src/enemies/`: lógica de inimigos.
-- `src/combat/`: projéteis e colisões.
+- `src/combat/`: projéteis do jogador, projéteis inimigos e colisões.
 - `src/progression/`: experiência e evolução.
 - `src/missions/`: objetivos e recompensas.
 - `src/ui/`: HUD e interface.
