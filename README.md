@@ -15,7 +15,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local (por exemplo, a extensão Live Server do VS Code). Abrir `index.html` diretamente como `file://` pode bloquear os módulos.
 
-## Controles previstos
+## Controles
 
 - `WASD` ou setas: mover a nave.
 - `Espaço`: disparar.

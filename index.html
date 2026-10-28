@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#070b18">
+  <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
+  <title>GALACTIC-DEFENDER</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./main.js"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
+      <span class="build-tag">PROTÓTIPO · 0.1.0</span>
+    </header>
+    <section class="game-layout" aria-label="Área do jogo">
+      <aside class="side-panel briefing">
+        <p class="eyebrow">MISSÃO ATUAL</p>
+        <h1>Defenda a<br><span>galáxia.</span></h1>
+        <p class="muted">Intercepta os hostis, sobrevive e aumenta tua pontuação.</p>
+        <div class="mission-card"><span class="mission-icon">◎</span><div><strong>Primeiro contato</strong><small>Destrua 10 inimigos</small></div><span id="mission-progress" class="mission-count">0/10</span></div>
+        <div class="control-list"><p class="eyebrow">CONTROLES</p><div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>Mover nave</span></div><div><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd><span>Alternativa</span></div><div><kbd>ESPAÇO</kbd><span>Disparar</span></div><div><kbd>P</kbd><span>Pausar</span></div></div>
+      </aside>
+      <section class="arena-wrap">
+        <div class="arena-status"><span><i class="status-dot"></i><span id="status-label">SISTEMA PRONTO</span></span><span id="wave-label">SETOR 01</span></div>
+        <div class="canvas-frame"><canvas id="game-canvas" aria-label="Jogo espacial. Use o teclado para controlar a nave."></canvas><div id="start-overlay" class="overlay"><div class="overlay-symbol">✦</div><p class="eyebrow">SINAL DETECTADO</p><h2>Pronto para<br><span>decolar?</span></h2><p>O setor precisa de você, piloto.</p><button id="start-button" class="primary-button" type="button">INICIAR MISSÃO <span>↗</span></button></div><div id="pause-overlay" class="overlay hidden"><div class="overlay-symbol">Ⅱ</div><p class="eyebrow">SISTEMA EM ESPERA</p><h2>Missão<br><span>pausada.</span></h2><p>Pressione P para continuar.</p><button id="resume-button" class="primary-button" type="button">RETOMAR <span>↗</span></button></div><div id="gameover-overlay" class="overlay hidden"><div class="overlay-symbol">✧</div><p class="eyebrow">SINAL PERDIDO</p><h2>Fim da<br><span>missão.</span></h2><p id="final-score">Pontuação: 0</p><button id="restart-button" class="primary-button" type="button">TENTAR NOVAMENTE <span>↗</span></button></div></div>
+        <div class="arena-footer"><span><i class="legend-dot player-dot"></i> SUA NAVE</span><span><i class="legend-dot enemy-dot"></i> HOSTIS</span><span>BUILD 001</span></div>
+      </section>
+      <aside class="side-panel stats-panel"><p class="eyebrow">TELEMETRIA</p><div class="stat-block"><span>PONTUAÇÃO</span><strong id="score-value">000000</strong></div><div class="stat-block"><span>INIMIGOS</span><strong id="enemy-value">00</strong></div><div class="stat-block"><span>NÍVEL</span><strong id="level-value">01</strong></div><div class="stat-block"><span>INTEGRIDADE</span><strong id="health-value">100<span class="unit">%</span></strong><div class="health-track"><div id="health-bar" class="health-fill"></div></div></div><div class="xp-block"><div><span>EXPERIÊNCIA</span><span id="xp-label">0 / 100</span></div><div class="xp-track"><div id="xp-bar" class="xp-fill"></div></div></div><div class="rank-card"><span class="rank-star">✦</span><div><small>CLASSE DO PILOTO</small><strong id="rank-label">RECRUTA</strong></div></div></aside>
+    </section>
+    <footer class="page-footer"><span>GALACTIC-DEFENDER <span class="muted">/ PROJETO EM DESENVOLVIMENTO</span></span><span>FEITO PARA EXPLORAR · TESTAR · EVOLUIR</span></footer>
+  </main>
+</body>
+</html>
