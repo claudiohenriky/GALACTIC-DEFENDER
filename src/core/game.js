@@ -150,7 +150,9 @@ export class Game {
     this.damageSparks = [];
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
+    this.pendingUpgradeChoices = 0;
     this.hudUpdateTimer = 0;
+    document.querySelector('#upgrade-overlay').classList.add('hidden');
     document.querySelector('#level-up-toast').classList.remove('level-up-active');
     document.querySelector('#damage-feedback').classList.remove('damage-active');
     this.status = 'ready';
