@@ -8,7 +8,7 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - `src/core/game.js`: estado global, ciclo de animação, geração e colisões.
 - `src/core/wave-manager.js`: contagem de inimigos por onda, intervalos e escalada de dificuldade.
 - `src/player/player.js`: movimento, integridade, invulnerabilidade temporária e desenho da nave.
-- `src/enemies/enemy.js`: movimento e desenho dos inimigos.
+- `src/enemies/enemy.js`: movimento de perseguição, limites da arena e desenho dos inimigos.
 - `src/combat/projectile.js`: projéteis do jogador.
 - `src/progression/progression.js`: experiência, níveis e classes de piloto.
 - `src/missions/missions.js`: progresso de objetivo e estado de conclusão.
@@ -25,6 +25,9 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - Controles de toque usam Pointer Events e reutilizam as mesmas entradas lógicas do teclado, permitindo movimento simultâneo e disparo.
 - `requestAnimationFrame` com delta time limitado para reduzir saltos após quedas de FPS.
 - O sistema de ondas é separado do ciclo principal para facilitar balanceamento e expansão.
+- Os inimigos perseguem gradualmente a posição atual da nave; a velocidade escala moderadamente com a onda.
+- Sair da borda não causa dano automático. O dano acontece por colisão direta com a nave; uma futura base defensiva deverá ter sistema de vida próprio.
+- Em telas móveis estreitas, a proporção da arena aumenta o espaço vertical; botões de toque maiores melhoram a área de acionamento.
 - Teclado e controles de toque compartilham o mesmo conjunto de entradas; os controles de toque aparecem em dispositivos com ponteiro de toque.
 
 ## Desempenho do Canvas
@@ -42,5 +45,5 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 3. Confirmar que as ondas aguardam todos os inimigos e avançam após o intervalo.
 4. Testar pausa/retomada e comportamento ao mudar de aba.
 5. Testar HUD, feedback de dano, partículas de nível e tela cheia em diferentes tamanhos de tela.
-6. Revisar o feedback de dano quando inimigos escapam pela borda inferior; agora a perda é sinalizada visualmente.
+6. Balancear a velocidade de perseguição e a dificuldade conforme o comportamento observado em dispositivos reais.
 7. Evoluir missões, recompensas e títulos depois que o ciclo principal estiver estável.
