@@ -1,11 +1,11 @@
-import { Player } from '../player/player.js?v=0.6.0';
-import { Enemy } from '../enemies/enemy.js?v=0.6.0';
-import { Projectile } from '../combat/projectile.js?v=0.6.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.6.0';
-import { Progression } from '../progression/progression.js?v=0.6.0';
-import { Mission } from '../missions/missions.js?v=0.6.0';
-import { WaveManager } from './wave-manager.js?v=0.6.0';
-import { updateHud } from '../ui/hud.js?v=0.6.0';
+import { Player } from '../player/player.js?v=0.7.0';
+import { Enemy } from '../enemies/enemy.js?v=0.7.0';
+import { Projectile } from '../combat/projectile.js?v=0.7.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.7.0';
+import { Progression } from '../progression/progression.js?v=0.7.0';
+import { Mission } from '../missions/missions.js?v=0.7.0';
+import { WaveManager } from './wave-manager.js?v=0.7.0';
+import { updateHud } from '../ui/hud.js?v=0.7.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -33,6 +33,7 @@ export class Game {
       alpha: rand(.2, .9)
     }));
     this.keys = new Set();
+    this.joystick = { x: 0, y: 0 };
     // Mouse aim is optional: until a mouse moves over the arena, shots keep their original upward direction.
     this.aim = { x: this.width / 2, y: 0, active: false };
     this.status = 'ready';
@@ -242,6 +243,8 @@ export class Game {
 
   clearInput() {
     this.keys.clear();
+    this.joystick.x = 0;
+    this.joystick.y = 0;
   }
 
   renderIntro() {
@@ -274,7 +277,7 @@ export class Game {
       }
     });
 
-    this.player.update(dt, this.keys, this.width, this.height);
+    this.player.update(dt, this.keys, this.width, this.height, this.joystick);
     this.levelUpToastTimer = Math.max(0, this.levelUpToastTimer - dt);
     const previousDamageFeedbackTimer = this.damageFeedbackTimer;
     this.damageFeedbackTimer = Math.max(0, this.damageFeedbackTimer - dt);
