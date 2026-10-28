@@ -149,3 +149,77 @@
   .fullscreen-button { top:8px; right:8px; }
   .orientation-hint { display:none; }
 }
+
+
+/* v0.7.0: analog joystick for mobile landscape gameplay. */
+.virtual-joystick {
+  position:relative;
+  display:flex;
+  flex:0 0 auto;
+  width:clamp(132px, 20vh, 176px);
+  height:clamp(132px, 20vh, 176px);
+  align-items:center;
+  justify-content:center;
+  pointer-events:auto;
+  touch-action:none;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.joystick-ring {
+  position:absolute;
+  inset:8px;
+  display:grid;
+  place-items:center;
+  border:2px solid #5a7794b8;
+  border-radius:50%;
+  background:radial-gradient(circle, #1a3048a8 0%, #0a1628c9 72%);
+  box-shadow:inset 0 0 20px #0005, 0 4px 18px #0004;
+  touch-action:none;
+}
+.joystick-ring::before,.joystick-ring::after {
+  content:"";
+  position:absolute;
+  background:#6c8ba344;
+  pointer-events:none;
+}
+.joystick-ring::before { width:1px; height:72%; }
+.joystick-ring::after { height:1px; width:72%; }
+.joystick-thumb {
+  position:relative;
+  z-index:1;
+  width:44%;
+  height:44%;
+  border:2px solid #58e4e8;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 28%, #3d7185, #17364c 70%);
+  box-shadow:0 0 16px #58e4e833, inset 0 1px 3px #ffffff25;
+  will-change:transform;
+  pointer-events:none;
+}
+.joystick-caption {
+  position:absolute;
+  bottom:0;
+  color:#b8c8e4;
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.2em;
+  text-shadow:0 2px 5px #000;
+  pointer-events:none;
+}
+.virtual-joystick.is-active .joystick-ring {
+  border-color:#58e4e8;
+  background:radial-gradient(circle, #23455aa8 0%, #0a1628dc 72%);
+}
+@media (hover:none) and (pointer:coarse) {
+  .touch-controls { align-items:flex-end; }
+  .touch-dpad { display:none!important; }
+  .virtual-joystick { margin-bottom:2px; }
+}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px) {
+  .virtual-joystick { width:clamp(126px, 23vh, 168px); height:clamp(126px, 23vh, 168px); }
+  .touch-controls { min-height:0; }
+}
+@media (hover:none) and (pointer:coarse) and (orientation:portrait) {
+  .virtual-joystick { width:clamp(132px, 30vw, 164px); height:clamp(132px, 30vw, 164px); }
+}
