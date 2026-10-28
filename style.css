@@ -85,3 +85,36 @@
     backdrop-filter:none;
   }
 }
+
+
+/* Mobile landscape refinement: preserve thumb reach while reducing arena obstruction. */
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .touch-controls{
+    padding: max(8px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-right)) 8px max(12px, env(safe-area-inset-left));
+    gap: 10px;
+  }
+  .touch-dpad{
+    grid-template-columns: repeat(3, 48px);
+    grid-template-rows: repeat(2, 44px);
+    gap: 4px;
+  }
+  .touch-controls .touch-button{
+    opacity: .72;
+  }
+  .touch-fire{
+    min-width: 88px;
+    min-height: 54px;
+    padding: 0 10px;
+    font-size: 10px;
+  }
+  .touch-controls .touch-button:active,
+  .touch-controls .touch-button.is-pressed{
+    opacity: .98;
+  }
+  .in-game-hud{
+    width: min(58%, 420px);
+  }
+  .hud-readout-heading{
+    font-size: 8px;
+  }
+}
