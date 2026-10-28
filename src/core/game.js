@@ -1,11 +1,12 @@
-import { Player } from '../player/player.js?v=0.10.0';
-import { Enemy } from '../enemies/enemy.js?v=0.10.0';
-import { Projectile } from '../combat/projectile.js?v=0.10.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.10.0';
-import { Progression } from '../progression/progression.js?v=0.10.0';
-import { Mission } from '../missions/missions.js?v=0.10.0';
-import { WaveManager } from './wave-manager.js?v=0.10.0';
-import { updateHud } from '../ui/hud.js?v=0.10.0';
+import { Player } from '../player/player.js?v=0.11.0';
+import { Enemy } from '../enemies/enemy.js?v=0.11.0';
+import { Projectile } from '../combat/projectile.js?v=0.11.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.11.0';
+import { Progression } from '../progression/progression.js?v=0.11.0';
+import { Mission } from '../missions/missions.js?v=0.11.0';
+import { WaveManager } from './wave-manager.js?v=0.11.0';
+import { updateHud } from '../ui/hud.js?v=0.11.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.11.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -342,6 +343,7 @@ export class Game {
       const muzzleX = this.player.x + Math.cos(angle) * muzzleDistance;
       const muzzleY = this.player.y + Math.sin(angle) * muzzleDistance;
       this.projectiles.push(new Projectile(muzzleX, muzzleY, angle));
+      gameAudio.playPlayerShot();
       this.shotClock = .22;
     }
 
@@ -349,7 +351,10 @@ export class Game {
     if (this.waveManager.update(dt, this.enemies.length)) {
       const margin = Math.min(20, this.width / 2);
       const spawnX = rand(margin, Math.max(margin, this.width - margin));
-      const type = this.waveManager.wave >= 2 && Math.random() < 0.3 ? 'sentinel' : 'chaser';
+      const roll = Math.random();
+      const type = this.waveManager.wave >= 2 && roll < 0.25
+        ? 'sentinel'
+        : this.waveManager.wave >= 2 && roll < 0.43 ? 'interceptor' : 'chaser';
       this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave, type));
     }
 
@@ -357,7 +362,10 @@ export class Game {
     this.enemyProjectiles.forEach((shot) => shot.update(dt));
     this.enemies.forEach((enemy) => {
       const shot = enemy.update(dt, this.player.x, this.player.y, this.width, this.height);
-      if (shot) this.enemyProjectiles.push(new EnemyProjectile(shot.x, shot.y, shot.targetX, shot.targetY, shot));
+      if (shot) {
+        this.enemyProjectiles.push(new EnemyProjectile(shot.x, shot.y, shot.targetX, shot.targetY, shot));
+        gameAudio.playEnemyShot(shot.color);
+      }
     });
 
     // Resolve projectile hits once, awarding score, XP, and mission progress.
@@ -385,7 +393,7 @@ export class Game {
       if (!enemy.active) continue;
       if (Math.hypot(this.player.x - enemy.x, this.player.y - enemy.y) < enemy.radius + this.player.radius) {
         enemy.active = false;
-        if (this.player.takeDamage(18)) this.triggerDamageFeedback(18);
+        if (this.player.takeDamage(18)) { this.triggerDamageFeedback(18); gameAudio.playDamage(); }
       }
     }
 
@@ -394,7 +402,7 @@ export class Game {
       if (!shot.active) continue;
       if (Math.hypot(this.player.x - shot.x, this.player.y - shot.y) < this.player.radius + shot.radius) {
         shot.active = false;
-        if (this.player.takeDamage(shot.damage)) this.triggerDamageFeedback(shot.damage);
+        if (this.player.takeDamage(shot.damage)) { this.triggerDamageFeedback(shot.damage); gameAudio.playDamage(); }
       }
     }
 
