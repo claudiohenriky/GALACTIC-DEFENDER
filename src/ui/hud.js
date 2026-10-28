@@ -31,7 +31,12 @@ export function updateHud(game) {
   setText('#arena-wave-value', String(game.waveManager.wave).padStart(2, '0'));
   setText('#arena-score-value', String(game.score).padStart(6, '0'));
   setText('#rank-label', game.progression.getRank());
-  setText('#mission-progress', game.mission.completed ? 'CONCLUÍDA' : `${game.mission.progress}/${game.mission.target}`);
+  setText('#mission-name', game.mission.current.name);
+  setText('#mission-description', game.mission.current.description);
+  setText('#mission-difficulty', game.mission.current.difficulty);
+  setText('#mission-progress', game.mission.getDisplayProgress());
+  setText('#mission-reward', `+${game.mission.current.xp} XP · +${game.mission.current.score} PTS`);
+  setText('#pilot-title-label', game.progression.getTitle().name.toUpperCase());
   setText('#status-label', game.status === 'running' ? 'SISTEMA ONLINE' : game.status.toUpperCase());
   setText('#wave-label', game.waveManager.getLabel());
 }
