@@ -1,6 +1,7 @@
 import { Player } from '../player/player.js';
 import { Enemy } from '../enemies/enemy.js';
 import { Projectile } from '../combat/projectile.js';
+import { EnemyProjectile } from '../combat/enemy-projectile.js';
 import { Progression } from '../progression/progression.js';
 import { Mission } from '../missions/missions.js';
 import { WaveManager } from './wave-manager.js';
@@ -23,6 +24,7 @@ export class Game {
     this.waveManager = new WaveManager();
     this.enemies = [];
     this.projectiles = [];
+    this.enemyProjectiles = [];
     this.stars = Array.from({ length: 95 }, () => ({
       x: Math.random(),
       y: Math.random(),
@@ -131,6 +133,7 @@ export class Game {
     this.waveManager.reset();
     this.enemies = [];
     this.projectiles = [];
+    this.enemyProjectiles = [];
     this.score = 0;
     this.destroyed = 0;
     this.shotClock = 0;
@@ -279,11 +282,16 @@ export class Game {
     if (this.waveManager.update(dt, this.enemies.length)) {
       const margin = Math.min(20, this.width / 2);
       const spawnX = rand(margin, Math.max(margin, this.width - margin));
-      this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave));
+      const type = this.waveManager.wave >= 2 && Math.random() < 0.3 ? 'sentinel' : 'chaser';
+      this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave, type));
     }
 
     this.projectiles.forEach((shot) => shot.update(dt));
-    this.enemies.forEach((enemy) => enemy.update(dt, this.player.x, this.player.y, this.width, this.height));
+    this.enemyProjectiles.forEach((shot) => shot.update(dt));
+    this.enemies.forEach((enemy) => {
+      const shot = enemy.update(dt, this.player.x, this.player.y, this.width, this.height);
+      if (shot) this.enemyProjectiles.push(new EnemyProjectile(shot.x, shot.y, shot.targetX, shot.targetY));
+    });
 
     // Resolve projectile hits once, awarding score, XP, and mission progress.
     for (const shot of this.projectiles) {
@@ -311,7 +319,19 @@ export class Game {
       }
     }
 
+    // Enemy shots deal damage on direct impact and respect the player's invulnerability window.
+    for (const shot of this.enemyProjectiles) {
+      if (!shot.active) continue;
+      if (Math.hypot(this.player.x - shot.x, this.player.y - shot.y) < this.player.radius + shot.radius) {
+        shot.active = false;
+        if (this.player.takeDamage(10)) this.triggerDamageFeedback(10);
+      }
+    }
+
     this.projectiles = this.projectiles.filter((shot) => shot.active && shot.y > -20);
+    this.enemyProjectiles = this.enemyProjectiles.filter((shot) =>
+      shot.active && shot.x > -20 && shot.x < this.width + 20 && shot.y > -20 && shot.y < this.height + 20
+    );
     this.enemies = this.enemies.filter((enemy) => enemy.active);
     if (this.player.health <= 0) this.endGame();
   }
@@ -339,6 +359,7 @@ export class Game {
 
     ctx.globalAlpha = 1;
     this.projectiles.forEach((shot) => shot.draw(ctx));
+    this.enemyProjectiles.forEach((shot) => shot.draw(ctx));
     this.enemies.forEach((enemy) => enemy.draw(ctx));
 
     // Blink during the brief invulnerability window after taking damage.
