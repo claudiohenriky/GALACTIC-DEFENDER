@@ -3,6 +3,7 @@ import { Enemy } from '../enemies/enemy.js';
 import { Projectile } from '../combat/projectile.js';
 import { Progression } from '../progression/progression.js';
 import { Mission } from '../missions/missions.js';
+import { WaveManager } from './wave-manager.js';
 import { updateHud } from '../ui/hud.js';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
@@ -12,7 +13,6 @@ export class Game {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
 
-    // Read the rendered arena size before placing the player.
     const rect = this.canvas.getBoundingClientRect();
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
@@ -20,6 +20,7 @@ export class Game {
 
     this.progression = new Progression();
     this.mission = new Mission(10);
+    this.waveManager = new WaveManager();
     this.enemies = [];
     this.projectiles = [];
     this.stars = Array.from({ length: 95 }, () => ({
@@ -33,7 +34,6 @@ export class Game {
     this.status = 'ready';
     this.score = 0;
     this.destroyed = 0;
-    this.spawnClock = 0;
     this.shotClock = 0;
     this.lastTime = 0;
     this.animationId = 0;
@@ -54,8 +54,6 @@ export class Game {
     this.canvas.width = Math.round(this.width * ratio);
     this.canvas.height = Math.round(this.height * ratio);
     this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-    // Keep the ship inside the visible arena after a resize or orientation change.
     this.player.fitToArena(this.width, this.height);
     this.renderFrame(0);
   }
@@ -84,11 +82,11 @@ export class Game {
     this.player = new Player(this.width, this.height);
     this.progression = new Progression();
     this.mission = new Mission(10);
+    this.waveManager.reset();
     this.enemies = [];
     this.projectiles = [];
     this.score = 0;
     this.destroyed = 0;
-    this.spawnClock = 0;
     this.shotClock = 0;
     this.status = 'ready';
     this.clearInput();
@@ -165,12 +163,11 @@ export class Game {
       this.shotClock = .22;
     }
 
-    this.spawnClock -= dt;
-    if (this.spawnClock <= 0 && this.enemies.length < 12) {
+    // WaveManager decides when an enemy should spawn and when the next wave begins.
+    if (this.waveManager.update(dt, this.enemies.length)) {
       const margin = Math.min(20, this.width / 2);
       const spawnX = rand(margin, Math.max(margin, this.width - margin));
-      this.enemies.push(new Enemy(spawnX, -20, this.progression.level));
-      this.spawnClock = Math.max(.38, 1.05 - this.progression.level * .04);
+      this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave));
     }
 
     this.projectiles.forEach((shot) => shot.update(dt));
@@ -192,15 +189,15 @@ export class Game {
       }
     }
 
-    // An enemy can damage the player only once because it is deactivated on impact/escape.
+    // An enemy that reaches or collides with the player is resolved only once.
     for (const enemy of this.enemies) {
       if (!enemy.active) continue;
       if (Math.hypot(this.player.x - enemy.x, this.player.y - enemy.y) < enemy.radius + this.player.radius) {
         enemy.active = false;
-        this.player.health = Math.max(0, this.player.health - 18);
+        this.player.takeDamage(18);
       } else if (enemy.y > this.height + 30) {
         enemy.active = false;
-        this.player.health = Math.max(0, this.player.health - 8);
+        this.player.takeDamage(8);
       }
     }
 
@@ -252,6 +249,10 @@ export class Game {
     ctx.globalAlpha = 1;
     this.projectiles.forEach((shot) => shot.draw(ctx));
     this.enemies.forEach((enemy) => enemy.draw(ctx));
-    this.player.draw(ctx);
+
+    // Blink during the brief invulnerability window after taking damage.
+    const playerVisible = this.player.invulnerabilityTimer <= 0 ||
+      Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
+    this.player.draw(ctx, playerVisible);
   }
 }

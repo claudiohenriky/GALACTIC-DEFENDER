@@ -3,6 +3,8 @@ export class Player {
     this.radius = 13;
     this.speed = 250;
     this.health = 100;
+    this.invulnerabilityDuration = 1.25;
+    this.invulnerabilityTimer = 0;
     this.x = width / 2;
     this.y = height * 0.78;
     this.fitToArena(width, height);
@@ -14,6 +16,8 @@ export class Player {
   }
 
   update(dt, keys, width, height) {
+    this.invulnerabilityTimer = Math.max(0, this.invulnerabilityTimer - dt);
+
     let dx = 0, dy = 0;
     if (keys.has('a') || keys.has('arrowleft')) dx -= 1;
     if (keys.has('d') || keys.has('arrowright')) dx += 1;
@@ -27,7 +31,17 @@ export class Player {
     this.fitToArena(width, height);
   }
 
-  draw(ctx) {
+  takeDamage(amount) {
+    // A hit starts a short invulnerability window; repeated hits during it are ignored.
+    if (this.invulnerabilityTimer > 0 || this.health <= 0) return false;
+    this.health = Math.max(0, this.health - amount);
+    this.invulnerabilityTimer = this.invulnerabilityDuration;
+    return true;
+  }
+
+  draw(ctx, visible = true) {
+    if (!visible) return;
+
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.shadowBlur = 22;
