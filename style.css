@@ -5,3 +5,71 @@
 .touch-controls{display:none;align-items:center;justify-content:space-between;gap:18px;padding:14px 4px 8px;user-select:none;-webkit-user-select:none;touch-action:none}.touch-dpad{display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,46px);gap:5px}.touch-button{display:flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border:1px solid #36516f;border-radius:10px;background:#14223a;color:var(--text);font:800 16px/1 system-ui,sans-serif;box-shadow:0 3px 0 #080e1b;touch-action:none;-webkit-tap-highlight-color:transparent}.touch-button:active,.touch-button.is-pressed{background:#24516a;border-color:var(--cyan);color:var(--cyan);transform:translateY(1px);box-shadow:0 1px 0 #080e1b}.touch-up{grid-column:2;grid-row:1}.touch-left{grid-column:1;grid-row:2}.touch-down{grid-column:2;grid-row:2}.touch-right{grid-column:3;grid-row:2}.touch-fire{min-width:92px;min-height:64px;padding:0 14px;border-color:#a44764;background:#4b1c34;color:#ffdce5;font-size:11px;letter-spacing:.08em}.touch-fire:active,.touch-fire.is-pressed{background:#792b49;border-color:#ff718d;color:#fff}
 @media (hover:none) and (pointer:coarse){.touch-controls{display:flex}}
 @media(max-width:380px){.touch-dpad{grid-template-columns:repeat(3,42px);grid-template-rows:repeat(2,42px);gap:4px}.touch-fire{min-width:82px;min-height:58px;font-size:10px}.touch-controls{gap:10px}}
+
+
+/* In-arena telemetry keeps essential status visible without scrolling. */
+.canvas-frame{isolation:isolate}
+.in-game-hud{position:absolute;z-index:3;top:12px;left:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;width:min(68%,440px);pointer-events:none}
+.hud-readout{min-width:0;padding:8px 10px;background:#07101bd9;border:1px solid #36516f;border-radius:7px;backdrop-filter:blur(6px);box-shadow:0 4px 16px #0004}
+.hud-readout-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;font-size:9px;font-weight:800;letter-spacing:.08em;color:#b8c8e4}
+.hud-readout-heading strong{font-size:10px;color:#f1f6ff;white-space:nowrap}
+.hud-readout-heading b{color:var(--cyan)}
+.hud-meter{height:5px;overflow:hidden;border-radius:99px;background:#27334b}
+.hud-meter>div{height:100%;width:100%;border-radius:inherit;transition:width .18s,background .18s}
+.health-meter>div{background:linear-gradient(90deg,#39cda7,#8cf5c7)}
+.xp-meter>div{width:0;background:linear-gradient(90deg,#7188ff,#58e4e8)}
+.hud-health.is-critical .health-meter>div{background:linear-gradient(90deg,#ff526f,#ff9c6b)}
+.hud-health.is-critical .hud-readout-heading strong{color:#ff9c9c}
+.fullscreen-button{position:absolute;z-index:6;top:12px;right:12px;width:38px;height:38px;display:grid;place-items:center;border:1px solid #47617f;border-radius:8px;background:#07101bd9;color:var(--text);font-size:23px;line-height:1;cursor:pointer;backdrop-filter:blur(6px);-webkit-tap-highlight-color:transparent}
+.fullscreen-button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.level-up-toast,.damage-feedback{position:absolute;z-index:5;left:50%;top:27%;transform:translate(-50%,-8px);opacity:0;pointer-events:none;white-space:nowrap;font-size:clamp(11px,2vw,17px);font-weight:900;letter-spacing:.14em;text-shadow:0 2px 12px #000b}
+.level-up-toast{color:#ffe68a}
+.level-up-toast.level-up-active{animation:level-up-pop 1.35s ease-out both}
+.damage-feedback{top:43%;color:#ff9b9b}
+.damage-feedback.damage-active{animation:damage-pop .85s ease-out both}
+.orientation-hint{display:none}
+@keyframes level-up-pop{0%{opacity:0;transform:translate(-50%,8px) scale(.75);filter:brightness(1)}18%{opacity:1;transform:translate(-50%,0) scale(1.08);filter:brightness(1.5)}65%{opacity:1;transform:translate(-50%,-5px) scale(1)}100%{opacity:0;transform:translate(-50%,-18px) scale(.96);filter:brightness(1)}}
+@keyframes damage-pop{0%{opacity:0;transform:translate(-50%,8px) scale(.9)}20%{opacity:1;transform:translate(-50%,0) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-8px)}}
+@media (hover:none) and (pointer:coarse){
+  .touch-controls{position:absolute;z-index:4;left:0;right:0;bottom:0;justify-content:space-between;padding:12px 14px 14px;gap:12px;pointer-events:none}
+  .touch-controls .touch-button{pointer-events:auto;opacity:.84;backdrop-filter:blur(4px)}
+  .touch-dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(2,42px);gap:4px}
+  .touch-fire{min-width:82px;min-height:58px}
+  .orientation-hint{display:block;position:absolute;z-index:3;top:60px;left:50%;transform:translateX(-50%);max-width:calc(100% - 24px);padding:6px 9px;border:1px solid #36516f;border-radius:5px;background:#07101bc9;color:#c4d2e9;font-size:8px;font-weight:800;letter-spacing:.08em;text-align:center;pointer-events:none}
+  .in-game-hud{top:12px;left:10px;width:min(70%,460px);gap:5px}
+  .hud-readout{padding:7px 8px}
+  .hud-readout-heading{font-size:8px;letter-spacing:.04em}
+}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape){
+  .app-shell{max-width:none;padding:0}
+  .topbar,.page-footer,.arena-status,.arena-footer,.side-panel{display:none!important}
+  .game-layout{display:block;padding:0;margin:0}
+  .arena-wrap{width:100vw;height:100dvh}
+  .canvas-frame{width:100%;height:100dvh;border:0;border-radius:0}
+  .canvas-frame canvas{width:100%;height:100%;aspect-ratio:auto;max-height:none;object-fit:fill}
+  .touch-controls{padding:8px 14px 10px}
+  .touch-dpad{grid-template-columns:repeat(3,42px);grid-template-rows:repeat(2,38px)}
+  .touch-fire{min-width:78px;min-height:52px}
+  .in-game-hud{top:8px;left:10px;width:min(62%,440px)}
+  .hud-readout{padding:6px 8px}
+  .orientation-hint{display:none}
+  .fullscreen-button{top:8px;right:8px;width:34px;height:34px}
+}
+.canvas-frame:fullscreen{width:100vw;height:100dvh;border:0;border-radius:0;background:#050a16}
+.canvas-frame:fullscreen canvas{width:100%;height:100%;aspect-ratio:auto;max-height:none;object-fit:fill}
+.canvas-frame:fullscreen .orientation-hint{display:none}
+@media (hover:none) and (pointer:coarse) and (orientation:portrait){
+  .canvas-frame:fullscreen .orientation-hint{display:block;top:50%;left:50%;transform:translate(-50%,-50%);padding:12px 15px;font-size:11px}
+}
+@media(max-width:380px){
+  .in-game-hud{width:calc(100% - 64px);grid-template-columns:1fr 1fr}
+  .hud-readout{padding:6px}
+  .hud-readout-heading{gap:4px;font-size:7px}
+  .hud-readout-heading strong{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){.level-up-toast.level-up-active,.damage-feedback.damage-active{animation:none;opacity:1}}
+
+/* Menus must sit above in-arena controls until the player resumes. */
+.overlay{z-index:5}
+
+.hud-meta{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 10px;border:1px solid #36516f;border-radius:6px;background:#07101bc9;color:#9eb1d0;font-size:8px;font-weight:800;letter-spacing:.1em;backdrop-filter:blur(6px)}.hud-meta b{margin-left:4px;color:var(--cyan);font-variant-numeric:tabular-nums}

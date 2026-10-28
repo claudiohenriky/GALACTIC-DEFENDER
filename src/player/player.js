@@ -6,7 +6,7 @@ export class Player {
     this.invulnerabilityDuration = 1.25;
     this.invulnerabilityTimer = 0;
     this.x = width / 2;
-    this.y = height * 0.78;
+    this.y = height * (width > height ? 0.66 : 0.78);
     this.fitToArena(width, height);
   }
 
