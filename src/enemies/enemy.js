@@ -48,7 +48,7 @@ export class Enemy {
 
       // Chasers only gain a weak ranged attack from wave 3 onward.
       this.fireCooldown -= dt;
-      if (this.level >= 3 && distance > 90 && this.fireCooldown <= 0) {
+      if (this.level >= 3 && distance > Math.max(160, width * 0.28) && this.fireCooldown <= 0) {
         this.fireCooldown = 4.2 + Math.random() * 1.6;
         const damage = this.radius >= 12 ? 5 : this.radius >= 11 ? 4 : 3;
         return {

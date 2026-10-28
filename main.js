@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.5.1';
+import { Game } from './src/core/game.js?v=0.6.0';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
