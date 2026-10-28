@@ -4,7 +4,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em preparação:** `0.5.0` — ataques fracos dos perseguidores, mira por mouse e ajustes de controles mobile. A publicação deve ser validada no GitHub Pages.
+**Versão em preparação:** `0.5.1` — ataques fracos dos perseguidores, mira por mouse e ajustes de controles mobile. A versão `0.5.1` adiciona versionamento de URLs dos arquivos estáticos e módulos para evitar que o navegador reutilize recursos antigos em cache.
 
 **Fase:** expansão da IA inimiga e dos padrões de combate.
 
@@ -29,7 +29,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Mecânicas atuais
 
-> **Validação pendente:** a mira pelo mouse, os novos disparos dos perseguidores e os ajustes de controles mobile foram integrados em `main`; a versão `0.5.0` deve ser testada no GitHub Pages antes de ser considerada validada.
+> **Validação pendente:** a mira pelo mouse, os novos disparos dos perseguidores e os ajustes de controles mobile foram integrados em `main`; a versão `0.5.1` deve ser testada no GitHub Pages antes de ser considerada validada. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para forçar o navegador a buscar os arquivos atualizados.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
