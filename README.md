@@ -36,7 +36,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Mecânicas atuais
 
- > **Validação:** a v0.11.0 passou no teste manual informado; a v0.13.0 adiciona controle de volume e reforço de música/dano. Validar a publicação após o merge. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
+ > **Validação:** a v0.11.0 passou no teste manual informado; a v0.11.1 ajustou o volume do áudio e a v0.12.0 adicionou as escolhas de melhoria. A v0.13.0 ainda precisa de validação manual no navegador e no GitHub Pages após a integração. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
