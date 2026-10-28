@@ -33,6 +33,8 @@ export class Game {
       alpha: rand(.2, .9)
     }));
     this.keys = new Set();
+    // Mouse aim is optional: until a mouse moves over the arena, shots keep their original upward direction.
+    this.aim = { x: this.width / 2, y: 0, active: false };
     this.status = 'ready';
     this.score = 0;
     this.destroyed = 0;
@@ -224,6 +226,20 @@ export class Game {
     feedback.classList.add('damage-active');
   }
 
+  setAimFromPointer(event) {
+    if (event.pointerType !== 'mouse') return;
+    const rect = this.canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    this.aim.x = Math.max(0, Math.min(this.width, event.clientX - rect.left));
+    this.aim.y = Math.max(0, Math.min(this.height, event.clientY - rect.top));
+    this.aim.active = true;
+  }
+
+  getAimAngle() {
+    if (!this.aim.active) return -Math.PI / 2;
+    return Math.atan2(this.aim.y - this.player.y, this.aim.x - this.player.x);
+  }
+
   clearInput() {
     this.keys.clear();
   }
@@ -274,7 +290,11 @@ export class Game {
 
     this.shotClock -= dt;
     if (this.keys.has('space') && this.shotClock <= 0) {
-      this.projectiles.push(new Projectile(this.player.x, this.player.y - 16));
+      const angle = this.getAimAngle();
+      const muzzleDistance = 17;
+      const muzzleX = this.player.x + Math.cos(angle) * muzzleDistance;
+      const muzzleY = this.player.y + Math.sin(angle) * muzzleDistance;
+      this.projectiles.push(new Projectile(muzzleX, muzzleY, angle));
       this.shotClock = .22;
     }
 
@@ -328,7 +348,9 @@ export class Game {
       }
     }
 
-    this.projectiles = this.projectiles.filter((shot) => shot.active && shot.y > -20);
+    this.projectiles = this.projectiles.filter((shot) =>
+      shot.active && shot.x > -20 && shot.x < this.width + 20 && shot.y > -20 && shot.y < this.height + 20
+    );
     this.enemyProjectiles = this.enemyProjectiles.filter((shot) =>
       shot.active && shot.x > -20 && shot.x < this.width + 20 && shot.y > -20 && shot.y < this.height + 20
     );
@@ -366,6 +388,26 @@ export class Game {
     const playerVisible = this.player.invulnerabilityTimer <= 0 ||
       Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
     this.player.draw(ctx, playerVisible);
+
+    // Draw a restrained reticle only after mouse aiming has been activated.
+    if (this.aim.active && this.status === 'running') {
+      ctx.save();
+      ctx.strokeStyle = '#8cf5c7';
+      ctx.globalAlpha = 0.8;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(this.aim.x, this.aim.y, 7, 0, Math.PI * 2);
+      ctx.moveTo(this.aim.x - 11, this.aim.y);
+      ctx.lineTo(this.aim.x - 4, this.aim.y);
+      ctx.moveTo(this.aim.x + 4, this.aim.y);
+      ctx.lineTo(this.aim.x + 11, this.aim.y);
+      ctx.moveTo(this.aim.x, this.aim.y - 11);
+      ctx.lineTo(this.aim.x, this.aim.y - 4);
+      ctx.moveTo(this.aim.x, this.aim.y + 4);
+      ctx.lineTo(this.aim.x, this.aim.y + 11);
+      ctx.stroke();
+      ctx.restore();
+    }
 
     // Short-lived gold particles make level gains visible without blocking play.
     this.levelUpParticles.forEach((particle) => {
