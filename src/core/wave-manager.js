@@ -10,7 +10,8 @@ export class WaveManager {
     this.enemyCount = 5;
     this.spawnedCount = 0;
     this.state = 'spawning';
-    this.timer = 0.7;
+    // Give the player time to orient themselves before the first hostile appears.
+    this.timer = 2.2;
   }
 
   update(dt, activeEnemyCount) {
@@ -21,7 +22,7 @@ export class WaveManager {
         this.enemyCount = Math.min(5 + (this.wave - 1) * 2, 18);
         this.spawnedCount = 0;
         this.state = 'spawning';
-        this.timer = 1.4;
+        this.timer = 1.6;
       }
       return false;
     }
@@ -36,7 +37,8 @@ export class WaveManager {
     this.timer -= dt;
     if (this.timer <= 0 && this.spawnedCount < this.enemyCount) {
       this.spawnedCount += 1;
-      this.timer = Math.max(0.35, 0.9 - (this.wave - 1) * 0.035);
+      // Keep the opening wave readable; later waves gradually become faster.
+      this.timer = Math.max(0.75, 1.25 - (this.wave - 1) * 0.025);
       return true;
     }
 
