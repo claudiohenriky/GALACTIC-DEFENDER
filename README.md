@@ -9,7 +9,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 **Fase:** expansão da IA inimiga e dos padrões de combate.
 
 - Plataforma: navegadores modernos em computador e celular.
-- Controles: teclado no computador e botões de toque na arena em dispositivos compatíveis.
+- Controles: teclado para movimentação, mouse para mirar e botões de toque em dispositivos compatíveis. A mira por mouse está sendo preparada para a próxima versão e ainda precisa ser validada antes de entrar em `main`.
 - Tela cheia: botão no canto superior da arena; em celulares, a orientação horizontal é recomendada.
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
@@ -22,11 +22,14 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 ## Controles
 
 - `WASD` ou setas: mover a nave.
+- `Mouse`: mirar (implementação proposta para a próxima versão; ainda em validação na branch de trabalho).
 - `Espaço`: disparar.
 - `P`: pausar ou retomar (teclado).
 - Celular: use as setas na tela para mover e o botão **DISPARAR** para atirar.
 
 ## Mecânicas atuais
+
+> **Em desenvolvimento:** a mira por mouse está isolada em uma branch de funcionalidade e não faz parte da versão oficial `0.4.0` até ser testada e integrada.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
