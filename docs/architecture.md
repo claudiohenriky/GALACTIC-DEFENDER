@@ -27,6 +27,14 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - O sistema de ondas é separado do ciclo principal para facilitar balanceamento e expansão.
 - Teclado e controles de toque compartilham o mesmo conjunto de entradas; os controles de toque aparecem em dispositivos com ponteiro de toque.
 
+## Desempenho do Canvas
+
+- O fundo e a grade estáticos são pré-renderizados em um canvas auxiliar e reutilizados durante os quadros da partida.
+- A escala de pixels do Canvas é limitada a 1,5 em dispositivos com ponteiro de toque e a 2 em outros dispositivos para controlar o custo de renderização.
+- A HUD HTML atualiza no máximo a cada 100 ms durante a partida e evita reescrever texto ou largura quando os valores não mudaram.
+- Brilhos de nave, inimigos e projéteis foram reduzidos; a chama da nave usa uma oscilação determinística em vez de gerar aleatoriedade a cada quadro.
+- Essas mudanças são hipóteses de otimização e precisam ser verificadas em dispositivos reais; não representam garantia universal de FPS.
+
 ## Próximas validações
 
 1. Confirmar carregamento de todos os módulos em HTTP/HTTPS.
