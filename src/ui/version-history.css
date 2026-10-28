@@ -1,0 +1,11 @@
+/* Version history panel */
+.version-history-panel{max-height:min(82vh,760px);overflow:auto}
+.version-history-list{display:grid;gap:10px;margin:18px 0}
+.version-entry{padding:13px 14px;border:1px solid #263a59;border-radius:8px;background:#0e1a2d}
+.version-entry-current{border-color:#6d5595;background:linear-gradient(120deg,#211a36,#10182a)}
+.version-entry-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.version-entry-heading strong{font-size:15px;letter-spacing:.02em;color:#eaf3ff}
+.version-entry-heading span{font-size:8px;font-weight:850;letter-spacing:.1em;color:#9eeced;border:1px solid #365b70;border-radius:4px;padding:5px 7px}
+.version-entry ul{padding-left:18px;margin:10px 0 0;color:#a8b7d0;font-size:11px;line-height:1.65}
+.version-entry li+li{margin-top:4px}
+@media(max-width:700px){.version-history-panel{inset:8px;max-height:calc(100dvh - 16px)}.version-entry{padding:11px}.version-entry ul{font-size:10px}}
