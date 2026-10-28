@@ -1,5 +1,5 @@
-import { Game } from './src/core/game.js?v=0.12.0';
-import { gameAudio } from './src/audio/game-audio.js?v=0.12.0';
+import { Game } from './src/core/game.js?v=0.13.0';
+import { gameAudio } from './src/audio/game-audio.js?v=0.13.0';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
@@ -11,6 +11,7 @@ const platformButtons = [...document.querySelectorAll('[data-platform-choice]')]
 const platformNote = document.querySelector('#platform-detection-note');
 const settingsPanel = document.querySelector('#settings-panel');
 const aboutPanel = document.querySelector('#about-panel');
+const versionHistoryPanel = document.querySelector('#version-history-panel');
 document.querySelectorAll('[data-upgrade]').forEach((button) => button.addEventListener('click', () => game.chooseUpgrade(button.dataset.upgrade)));
 document.querySelector('#dismiss-title-toast').addEventListener('click', () => document.querySelector('#title-unlock-toast').classList.add('hidden'));
 
@@ -34,6 +35,7 @@ function setPlatform(platform, persist = true) {
 function closeMenuPanels() {
   settingsPanel.classList.add('hidden');
   aboutPanel.classList.add('hidden');
+  versionHistoryPanel.classList.add('hidden');
 }
 setPlatform(detectPlatform(), false);
 platformButtons.forEach((button) => button.addEventListener('click', () => setPlatform(button.dataset.platformChoice)));
@@ -51,11 +53,18 @@ document.querySelector('#menu-play-button').addEventListener('click', () => {
 });
 document.querySelector('#menu-settings-button').addEventListener('click', () => {
   aboutPanel.classList.add('hidden');
+  versionHistoryPanel.classList.add('hidden');
   settingsPanel.classList.remove('hidden');
 });
 document.querySelector('#menu-about-button').addEventListener('click', () => {
   settingsPanel.classList.add('hidden');
+  versionHistoryPanel.classList.add('hidden');
   aboutPanel.classList.remove('hidden');
+});
+document.querySelector('#menu-history-button').addEventListener('click', () => {
+  settingsPanel.classList.add('hidden');
+  aboutPanel.classList.add('hidden');
+  versionHistoryPanel.classList.remove('hidden');
 });
 document.querySelectorAll('[data-close-panel]').forEach((button) => button.addEventListener('click', closeMenuPanels));
 function returnToMainMenu() {
