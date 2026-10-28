@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão:** `0.2.0` — protótipo jogável com controles de teclado e toque.
+**Versão:** `0.3.0` — perseguição básica de inimigos e arena mobile ampliada.
 
-**Fase:** otimização do ciclo de renderização e validação de desempenho em dispositivos móveis.
+**Fase:** primeira inteligência de perseguição, ajuste de controles mobile e expansão da arena em telas estreitas.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: teclado no computador e botões de toque na arena em dispositivos compatíveis.
@@ -29,7 +29,8 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 ## Mecânicas atuais
 
 - Movimento da nave e disparo de projéteis.
-- Inimigos com colisões e dano à integridade.
+- Inimigos perseguem a nave com movimento gradual; colisões causam dano à integridade.
+- Inimigos não causam dano automático ao ultrapassar a borda da arena.
 - Invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis, pontuação e missão inicial.
 - HUD compacta dentro da arena com integridade, XP, nível, onda e pontuação sempre visíveis.
@@ -38,17 +39,15 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Ondas de inimigos com intervalos e dificuldade progressiva.
 - Controles por toque para testar a jogabilidade em telas móveis.
 
-## Otimização em andamento
+## Desempenho e controles mobile
 
 - Atualização dos indicadores HTML limitada a 10 vezes por segundo, com escrita no DOM somente quando o valor muda.
 - Fundo e grade do Canvas desenhados em uma camada em cache, em vez de reconstruídos a cada quadro.
 - Densidade de pixels limitada a 1,5 em dispositivos com ponteiro de toque para reduzir o custo de renderização em celulares.
 - Efeitos de brilho reduzidos, desfoque de camadas da HUD desativado em dispositivos de toque e animação da chama da nave sem números aleatórios por quadro.
-- A meta desta etapa é reduzir travamentos sem remover mecânicas; a melhoria precisa ser confirmada por testes no aparelho, pois o desempenho varia por navegador e dispositivo.
-
-## Ponto de atenção conhecido
-
-- A regra atual ainda causa 8 pontos de dano quando um inimigo sai pela parte inferior. Ela será revista numa atualização de jogabilidade: a intenção é que os inimigos tentem atacar a nave, enquanto a perda de uma base com vida própria seja uma mecânica separada de um futuro modo de defesa. Essa mudança não faz parte desta etapa de otimização.
+- Os controles de toque foram ampliados para facilitar os comandos em telas pequenas.
+- Em telas móveis estreitas, a arena usa uma proporção mais alta para oferecer mais espaço vertical de combate.
+- O fundo em cache, a densidade de pixels limitada e os efeitos reduzidos continuam sendo medidas de otimização; o desempenho deve ser validado em dispositivos reais.
 
 ## Organização
 
