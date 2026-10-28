@@ -9,7 +9,8 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 **Fase:** validação de jogabilidade em computador e dispositivos móveis.
 
 - Plataforma: navegadores modernos em computador e celular.
-- Controles: teclado no computador e botões de toque em dispositivos compatíveis.
+- Controles: teclado no computador e botões de toque na arena em dispositivos compatíveis.
+- Tela cheia: botão no canto superior da arena; em celulares, a orientação horizontal é recomendada.
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
 - Estrutura modular, sem frameworks ou dependências externas.
@@ -31,12 +32,15 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Inimigos com colisões e dano à integridade.
 - Invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis, pontuação e missão inicial.
+- HUD compacta dentro da arena com integridade e XP sempre visíveis.
+- Feedback visual de dano e efeito de partículas douradas ao subir de nível.
+- Modo de tela cheia com tentativa opcional de bloquear a orientação em paisagem.
 - Ondas de inimigos com intervalos e dificuldade progressiva.
 - Controles por toque para testar a jogabilidade em telas móveis.
 
 ## Ponto de atenção conhecido
 
-- A integridade também perde 8 pontos quando um inimigo atravessa toda a arena e sai pela parte inferior. Como isso ocorre fora da área visível, o dano pode parecer sem causa; revisar o feedback visual e o balanceamento numa próxima etapa.
+- A integridade também perde 8 pontos quando um inimigo atravessa toda a arena e sai pela parte inferior. O jogo agora sinaliza visualmente o dano, mas a regra de balanceamento poderá ser revisada depois.
 
 ## Organização
 
