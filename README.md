@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão atual:** `0.9.2` — manutenção de desempenho, evitando recálculos forçados de layout ao reiniciar animações de feedback.
+**Versão em desenvolvimento:** `0.10.0` — missões com dificuldade, recompensas e títulos de piloto.
 
-**Fase:** manutenção de desempenho 0.9.2 em revisão; aguardando testes manuais no GitHub Pages.
+**Fase:** primeira implementação do sistema de missões e progressão; validação manual no GitHub Pages pendente.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: teclado para movimentação, mouse para mirar e joystick virtual analógico e botão de disparo em dispositivos compatíveis. A mira por mouse foi integrada em `main` e aguarda validação manual no computador.
@@ -36,7 +36,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Mecânicas atuais
 
- > **Validação manual pendente:** testar no GitHub Pages o lobby, a partida, o retorno ao menu, as configurações e os controles em mobile e desktop. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
+ > **Validação manual pendente:** testar no GitHub Pages o progresso das missões, recompensas, desbloqueio de títulos e reinício de partida em mobile e desktop. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
@@ -45,7 +45,10 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - A partir da onda 3, perseguidores também podem disparar projéteis mais lentos, causando de 3 a 5 pontos de dano conforme o tamanho do inimigo; o disparo exige distância e tem intervalo longo.
 - Inimigos não causam dano automático ao ultrapassar a borda da arena.
 - Proteção inicial de 3 segundos ao surgir e invulnerabilidade temporária com efeito visual de piscar após receber dano.
-- XP, níveis, pontuação e missão inicial.
+- XP, níveis e pontuação.
+- Missões rotativas: eliminar inimigos, sobreviver por tempo determinado e alcançar ondas específicas, com dificuldades fácil, média e difícil.
+- Recompensas de missão em XP e pontuação; a conclusão avança para o próximo objetivo.
+- Títulos de piloto desbloqueáveis por total de missões concluídas, armazenados localmente no navegador.
 - HUD compacta dentro da arena com integridade, XP, nível, onda e pontuação sempre visíveis.
 - Feedback de dano com faíscas vermelhas de baixo custo, brilho de borda discreto e animações reiniciadas sem recálculo síncrono de layout.
 - Barras compactas de vida sobre os inimigos; perseguidores resistem a dois disparos e sentinelas a cinco.
@@ -70,7 +73,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - `src/enemies/`: lógica de inimigos.
 - `src/combat/`: projéteis do jogador, projéteis inimigos e colisões.
 - `src/progression/`: experiência e evolução.
-- `src/missions/`: objetivos e recompensas.
+- `src/missions/`: objetivos, dificuldade, progresso e recompensas.
 - `src/ui/`: HUD e interface.
 - `docs/`: documentação técnica.
 
