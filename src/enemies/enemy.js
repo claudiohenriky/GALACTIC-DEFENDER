@@ -13,7 +13,7 @@ export class Enemy {
       ? 1.8
       : type === 'sentinel'
         ? 1.1 + Math.random() * 0.8
-        : 3.8 + Math.random() * 1.8;
+        : 2.4 + Math.random() * 0.8;
     this.active = true;
   }
 
