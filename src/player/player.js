@@ -44,7 +44,7 @@ export class Player {
 
     ctx.save();
     ctx.translate(this.x, this.y);
-    ctx.shadowBlur = 22;
+    ctx.shadowBlur = 8;
     ctx.shadowColor = '#58e4e8';
     ctx.fillStyle = '#58e4e8';
     ctx.beginPath();
