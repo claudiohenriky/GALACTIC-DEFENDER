@@ -3,10 +3,13 @@ export class Enemy {
     this.x = x;
     this.y = y;
     this.type = type;
+    this.level = level;
     this.radius = type === 'sentinel' ? 12 : 10 + Math.random() * 3;
     this.speed = (type === 'sentinel' ? 42 : 48 + Math.random() * 24) + Math.min(level, 8) * 2;
     this.phase = Math.random() * Math.PI * 2;
-    this.fireCooldown = 1.1 + Math.random() * 0.8;
+    this.fireCooldown = type === 'sentinel'
+      ? 1.1 + Math.random() * 0.8
+      : 3.8 + Math.random() * 1.8;
     this.active = true;
   }
 
@@ -26,12 +29,40 @@ export class Enemy {
 
       if (this.fireCooldown <= 0 && this.y > 18) {
         this.fireCooldown = 2.2;
-        return { x: this.x, y: this.y + this.radius, targetX, targetY };
+        return {
+          x: this.x,
+          y: this.y + this.radius,
+          targetX,
+          targetY,
+          damage: 10,
+          speed: 190,
+          radius: 4,
+          color: '#ffe0a8',
+          glowColor: '#ffad55'
+        };
       }
     } else {
       // Chasers pursue the ship directly with a small lateral drift.
       this.x += (dx / distance) * this.speed * dt + drift * dt;
       this.y += (dy / distance) * this.speed * dt;
+
+      // Chasers only gain a weak ranged attack from wave 3 onward.
+      this.fireCooldown -= dt;
+      if (this.level >= 3 && distance > 90 && this.fireCooldown <= 0) {
+        this.fireCooldown = 4.2 + Math.random() * 1.6;
+        const damage = this.radius >= 12 ? 5 : this.radius >= 11 ? 4 : 3;
+        return {
+          x: this.x,
+          y: this.y + this.radius,
+          targetX,
+          targetY,
+          damage,
+          speed: 135,
+          radius: 3,
+          color: '#ff9ab0',
+          glowColor: '#ff718d'
+        };
+      }
     }
 
     // Keep enemies in the arena so reaching an edge never deals automatic damage.
