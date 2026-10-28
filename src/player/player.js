@@ -3,8 +3,9 @@ export class Player {
     this.radius = 13;
     this.speed = 250;
     this.health = 100;
-    this.invulnerabilityDuration = 1.25;
-    this.invulnerabilityTimer = 0;
+    this.invulnerabilityDuration = 3;
+    // Temporary spawn protection prevents an unavoidable hit while the pilot gets oriented.
+    this.invulnerabilityTimer = 3;
     this.flamePhase = 0;
     this.x = width / 2;
     this.y = height * (width > height ? 0.66 : 0.78);

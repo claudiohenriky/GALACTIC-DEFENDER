@@ -1,11 +1,11 @@
-import { Player } from '../player/player.js?v=0.7.0';
-import { Enemy } from '../enemies/enemy.js?v=0.7.0';
-import { Projectile } from '../combat/projectile.js?v=0.7.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.7.0';
-import { Progression } from '../progression/progression.js?v=0.7.0';
-import { Mission } from '../missions/missions.js?v=0.7.0';
-import { WaveManager } from './wave-manager.js?v=0.7.0';
-import { updateHud } from '../ui/hud.js?v=0.7.0';
+import { Player } from '../player/player.js?v=0.8.0';
+import { Enemy } from '../enemies/enemy.js?v=0.8.0';
+import { Projectile } from '../combat/projectile.js?v=0.8.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.8.0';
+import { Progression } from '../progression/progression.js?v=0.8.0';
+import { Mission } from '../missions/missions.js?v=0.8.0';
+import { WaveManager } from './wave-manager.js?v=0.8.0';
+import { updateHud } from '../ui/hud.js?v=0.8.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -58,6 +58,7 @@ export class Game {
   }
 
   resize() {
+    const wasUninitialized = this.width <= 1 || this.height <= 1;
     const previousLandscape = this.width > this.height;
     const rect = this.canvas.getBoundingClientRect();
     const maxRatio = window.matchMedia('(pointer: coarse)').matches ? 1.5 : 2;
@@ -65,7 +66,9 @@ export class Game {
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
     const isLandscape = this.width > this.height;
-    if (previousLandscape !== isLandscape) {
+    // The canvas may be measured while its parent menu hides it (1x1 px).
+    // Place the ship at a proper gameplay position once real dimensions are available.
+    if (wasUninitialized || previousLandscape !== isLandscape) {
       this.player.y = this.height * (isLandscape ? 0.66 : 0.78);
       this.player.x = this.width / 2;
     }
@@ -177,7 +180,6 @@ export class Game {
       this.resume();
     }
 
-    if (event.code === 'Enter' && this.status === 'ready') this.start();
   }
 
   handleKeyUp(event) {
