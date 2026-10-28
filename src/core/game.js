@@ -1,11 +1,11 @@
-import { Player } from '../player/player.js?v=0.8.0';
-import { Enemy } from '../enemies/enemy.js?v=0.8.0';
-import { Projectile } from '../combat/projectile.js?v=0.8.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.8.0';
-import { Progression } from '../progression/progression.js?v=0.8.0';
-import { Mission } from '../missions/missions.js?v=0.8.0';
-import { WaveManager } from './wave-manager.js?v=0.8.0';
-import { updateHud } from '../ui/hud.js?v=0.8.0';
+import { Player } from '../player/player.js?v=0.9.0';
+import { Enemy } from '../enemies/enemy.js?v=0.9.0';
+import { Projectile } from '../combat/projectile.js?v=0.9.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.9.0';
+import { Progression } from '../progression/progression.js?v=0.9.0';
+import { Mission } from '../missions/missions.js?v=0.9.0';
+import { WaveManager } from './wave-manager.js?v=0.9.0';
+import { updateHud } from '../ui/hud.js?v=0.9.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -43,6 +43,7 @@ export class Game {
     this.lastTime = 0;
     this.animationId = 0;
     this.levelUpParticles = [];
+    this.damageSparks = [];
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
     this.hudUpdateInterval = 0.1;
@@ -144,6 +145,7 @@ export class Game {
     this.destroyed = 0;
     this.shotClock = 0;
     this.levelUpParticles = [];
+    this.damageSparks = [];
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
     this.hudUpdateTimer = 0;
@@ -222,6 +224,21 @@ export class Game {
 
   triggerDamageFeedback(amount) {
     this.damageFeedbackTimer = 0.85;
+    // Brief red electrical sparks around the ship communicate a hit without obscuring play.
+    for (let i = 0; i < 12; i += 1) {
+      const angle = rand(0, Math.PI * 2);
+      const speed = rand(35, 115);
+      const life = rand(0.18, 0.42);
+      this.damageSparks.push({
+        x: this.player.x + Math.cos(angle) * rand(7, 15),
+        y: this.player.y + Math.sin(angle) * rand(7, 15),
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life,
+        maxLife: life,
+        length: rand(3, 8)
+      });
+    }
     const feedback = document.querySelector('#damage-feedback');
     feedback.textContent = `INTEGRIDADE -${amount}`;
     feedback.classList.remove('damage-active');
@@ -286,6 +303,12 @@ export class Game {
     if (previousDamageFeedbackTimer > 0 && this.damageFeedbackTimer === 0) {
       document.querySelector('#damage-feedback').classList.remove('damage-active');
     }
+    this.damageSparks.forEach((spark) => {
+      spark.x += spark.vx * dt;
+      spark.y += spark.vy * dt;
+      spark.life -= dt;
+    });
+    this.damageSparks = this.damageSparks.filter((spark) => spark.life > 0);
     this.levelUpParticles.forEach((particle) => {
       particle.x += particle.vx * dt;
       particle.y += particle.vy * dt;
@@ -324,12 +347,15 @@ export class Game {
       for (const enemy of this.enemies) {
         if (enemy.active && Math.hypot(shot.x - enemy.x, shot.y - enemy.y) < enemy.radius + shot.radius) {
           shot.active = false;
-          enemy.active = false;
-          this.score += 100;
-          this.destroyed += 1;
-          const levelsGained = this.progression.addXp(25);
-          if (levelsGained > 0) this.triggerLevelUp(levelsGained);
-          this.mission.registerKill();
+          enemy.health = Math.max(0, enemy.health - (shot.damage ?? 1));
+          if (enemy.health <= 0) {
+            enemy.active = false;
+            this.score += 100;
+            this.destroyed += 1;
+            const levelsGained = this.progression.addXp(25);
+            if (levelsGained > 0) this.triggerLevelUp(levelsGained);
+            this.mission.registerKill();
+          }
           break;
         }
       }
@@ -393,6 +419,36 @@ export class Game {
     const playerVisible = this.player.invulnerabilityTimer <= 0 ||
       Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
     this.player.draw(ctx, playerVisible);
+
+    // Red circuit sparks and a brief edge flash make incoming damage easier to notice.
+    this.damageSparks.forEach((spark) => {
+      const fade = Math.max(0, spark.life / spark.maxLife);
+      ctx.save();
+      ctx.translate(spark.x, spark.y);
+      ctx.rotate(Math.atan2(spark.vy, spark.vx));
+      ctx.globalAlpha = fade;
+      ctx.strokeStyle = '#ff526f';
+      ctx.shadowColor = '#ff304f';
+      ctx.shadowBlur = 7;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(-spark.length * 0.6, 0);
+      ctx.lineTo(-spark.length * 0.15, -2);
+      ctx.lineTo(spark.length, 0);
+      ctx.stroke();
+      ctx.restore();
+    });
+    if (this.damageFeedbackTimer > 0) {
+      const flash = this.damageFeedbackTimer / 0.85;
+      ctx.save();
+      ctx.globalAlpha = flash * 0.48;
+      ctx.strokeStyle = '#ff344f';
+      ctx.shadowColor = '#ff1f43';
+      ctx.shadowBlur = 18;
+      ctx.lineWidth = 7;
+      ctx.strokeRect(4, 4, this.width - 8, this.height - 8);
+      ctx.restore();
+    }
 
     // Draw a restrained reticle only after mouse aiming has been activated.
     if (this.aim.active && this.status === 'running') {

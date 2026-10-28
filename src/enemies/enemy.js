@@ -5,6 +5,8 @@ export class Enemy {
     this.type = type;
     this.level = level;
     this.radius = type === 'sentinel' ? 12 : 10 + Math.random() * 3;
+    this.maxHealth = type === 'sentinel' ? 5 : 2;
+    this.health = this.maxHealth;
     this.speed = (type === 'sentinel' ? 42 : 48 + Math.random() * 24) + Math.min(level, 8) * 2;
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'sentinel'
@@ -98,6 +100,13 @@ export class Enemy {
     ctx.closePath();
     ctx.fill();
     ctx.shadowBlur = 0;
+    // Compact health bar: durable enemies remain readable without a large UI label.
+    const barWidth = this.radius * 2.2;
+    const barY = this.radius + 5;
+    ctx.fillStyle = '#182338';
+    ctx.fillRect(-barWidth / 2, barY, barWidth, 3);
+    ctx.fillStyle = this.health / this.maxHealth <= 0.35 ? '#ff526f' : '#8cf5c7';
+    ctx.fillRect(-barWidth / 2, barY, barWidth * (this.health / this.maxHealth), 3);
     ctx.fillStyle = '#fff0f4';
     ctx.fillRect(-2, -2, 4, 4);
     ctx.restore();

@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão atual:** `0.8.0` — lobby principal, seleção de plataforma PC/mobile, configurações visuais iniciais, correção de dimensionamento da arena ao iniciar e proteção temporária ao nascer. A primeira onda começa mais devagar para dar tempo de orientação ao jogador.
+**Versão atual:** `0.9.0` — HUD de arena mais compacta, feedback elétrico de dano, barras de vida nos inimigos e área de combate ampliada em telas maiores.
 
-**Fase:** versão 0.8.0 integrada em `main`; validação manual no GitHub Pages em andamento.
+**Fase:** versão 0.9.0 em branch de desenvolvimento; aguarda revisão, merge e testes manuais no GitHub Pages.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: teclado para movimentação, mouse para mirar e joystick virtual analógico e botão de disparo em dispositivos compatíveis. A mira por mouse foi integrada em `main` e aguarda validação manual no computador.
@@ -47,7 +47,8 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Proteção inicial de 3 segundos ao surgir e invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis, pontuação e missão inicial.
 - HUD compacta dentro da arena com integridade, XP, nível, onda e pontuação sempre visíveis.
-- Feedback visual de dano e efeito de partículas douradas ao subir de nível.
+- Feedback de dano com faíscas vermelhas, brilho de borda e efeito de partículas douradas ao subir de nível.
+- Barras compactas de vida sobre os inimigos; perseguidores resistem a dois disparos e sentinelas a cinco.
 - Modo de tela cheia com tentativa opcional de bloquear a orientação em paisagem.
 - Ondas de inimigos com intervalos e dificuldade progressiva.
 - Joystick virtual analógico para movimento com intensidade variável e botão de disparo separado em telas móveis.
