@@ -3,6 +3,8 @@ export class Player {
     this.radius = 13;
     this.speed = 250;
     this.health = 100;
+    this.weaponDamage = 1;
+    this.shieldCharges = 0;
     this.invulnerabilityDuration = 1.25;
     // Temporary spawn protection prevents an unavoidable hit while the pilot gets oriented.
     this.invulnerabilityTimer = 3;
@@ -47,6 +49,7 @@ export class Player {
   }
 
   takeDamage(amount) {
+    if (this.shieldCharges > 0 && this.health > 0) { this.shieldCharges -= 1; return false; }
     // A hit starts a short invulnerability window; repeated hits during it are ignored.
     if (this.invulnerabilityTimer > 0 || this.health <= 0) return false;
     this.health = Math.max(0, this.health - amount);
