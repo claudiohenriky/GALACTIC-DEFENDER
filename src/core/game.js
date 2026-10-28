@@ -37,6 +37,9 @@ export class Game {
     this.shotClock = 0;
     this.lastTime = 0;
     this.animationId = 0;
+    this.levelUpParticles = [];
+    this.levelUpToastTimer = 0;
+    this.damageFeedbackTimer = 0;
     this.bindOverlayElements();
   }
 
@@ -88,6 +91,11 @@ export class Game {
     this.score = 0;
     this.destroyed = 0;
     this.shotClock = 0;
+    this.levelUpParticles = [];
+    this.levelUpToastTimer = 0;
+    this.damageFeedbackTimer = 0;
+    document.querySelector('#level-up-toast').classList.remove('level-up-active');
+    document.querySelector('#damage-feedback').classList.remove('damage-active');
     this.status = 'ready';
     this.clearInput();
     document.querySelector('#mission-progress').textContent = '0/10';
@@ -106,7 +114,8 @@ export class Game {
       event.preventDefault();
     }
 
-    this.keys.add(event.code.toLowerCase());
+    const key = this.normalizeKey(event.code, event.key);
+    this.keys.add(key);
     if (event.repeat) return;
 
     if (event.code === 'KeyP' && this.status === 'running') {
@@ -122,7 +131,50 @@ export class Game {
   }
 
   handleKeyUp(event) {
-    this.keys.delete(event.code.toLowerCase());
+    this.keys.delete(this.normalizeKey(event.code, event.key));
+  }
+
+  normalizeKey(code, key = '') {
+    const keyMap = {
+      KeyW: 'w', KeyA: 'a', KeyS: 's', KeyD: 'd',
+      ArrowUp: 'arrowup', ArrowDown: 'arrowdown',
+      ArrowLeft: 'arrowleft', ArrowRight: 'arrowright',
+      Space: 'space'
+    };
+    return keyMap[code] ?? key.toLowerCase();
+  }
+
+  triggerLevelUp(levelsGained) {
+    this.levelUpToastTimer = 1.35;
+    const toast = document.querySelector('#level-up-toast');
+    toast.textContent = levelsGained > 1 ? `✦ NÍVEIS +${levelsGained}` : '✦ NÍVEL AUMENTADO';
+    toast.classList.remove('level-up-active');
+    void toast.offsetWidth;
+    toast.classList.add('level-up-active');
+
+    for (let i = 0; i < 22; i += 1) {
+      const angle = (Math.PI * 2 * i) / 22 + rand(-0.15, 0.15);
+      const speed = rand(32, 105);
+      const life = rand(0.45, 0.95);
+      this.levelUpParticles.push({
+        x: this.player.x + rand(-7, 7),
+        y: this.player.y + rand(-7, 7),
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        life,
+        maxLife: life,
+        size: rand(2, 4.5)
+      });
+    }
+  }
+
+  triggerDamageFeedback(amount) {
+    this.damageFeedbackTimer = 0.85;
+    const feedback = document.querySelector('#damage-feedback');
+    feedback.textContent = `INTEGRIDADE -${amount}`;
+    feedback.classList.remove('damage-active');
+    void feedback.offsetWidth;
+    feedback.classList.add('damage-active');
   }
 
   clearInput() {
@@ -156,6 +208,15 @@ export class Game {
     });
 
     this.player.update(dt, this.keys, this.width, this.height);
+    this.levelUpToastTimer = Math.max(0, this.levelUpToastTimer - dt);
+    this.damageFeedbackTimer = Math.max(0, this.damageFeedbackTimer - dt);
+    if (this.damageFeedbackTimer === 0) document.querySelector('#damage-feedback').classList.remove('damage-active');
+    this.levelUpParticles.forEach((particle) => {
+      particle.x += particle.vx * dt;
+      particle.y += particle.vy * dt;
+      particle.life -= dt;
+    });
+    this.levelUpParticles = this.levelUpParticles.filter((particle) => particle.life > 0);
 
     this.shotClock -= dt;
     if (this.keys.has('space') && this.shotClock <= 0) {
@@ -182,7 +243,8 @@ export class Game {
           enemy.active = false;
           this.score += 100;
           this.destroyed += 1;
-          this.progression.addXp(25);
+          const levelsGained = this.progression.addXp(25);
+          if (levelsGained > 0) this.triggerLevelUp(levelsGained);
           this.mission.registerKill();
           break;
         }
@@ -194,10 +256,10 @@ export class Game {
       if (!enemy.active) continue;
       if (Math.hypot(this.player.x - enemy.x, this.player.y - enemy.y) < enemy.radius + this.player.radius) {
         enemy.active = false;
-        this.player.takeDamage(18);
+        if (this.player.takeDamage(18)) this.triggerDamageFeedback(18);
       } else if (enemy.y > this.height + 30) {
         enemy.active = false;
-        this.player.takeDamage(8);
+        if (this.player.takeDamage(8)) this.triggerDamageFeedback(8);
       }
     }
 
@@ -254,5 +316,28 @@ export class Game {
     const playerVisible = this.player.invulnerabilityTimer <= 0 ||
       Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
     this.player.draw(ctx, playerVisible);
+
+    // Short-lived gold particles make level gains visible without blocking play.
+    this.levelUpParticles.forEach((particle) => {
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
+      ctx.translate(particle.x, particle.y);
+      ctx.rotate((1 - particle.life / particle.maxLife) * Math.PI);
+      ctx.fillStyle = '#ffe68a';
+      ctx.shadowColor = '#ffc94d';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(0, -particle.size * 1.8);
+      ctx.lineTo(particle.size * 0.45, -particle.size * 0.45);
+      ctx.lineTo(particle.size * 1.8, 0);
+      ctx.lineTo(particle.size * 0.45, particle.size * 0.45);
+      ctx.lineTo(0, particle.size * 1.8);
+      ctx.lineTo(-particle.size * 0.45, particle.size * 0.45);
+      ctx.lineTo(-particle.size * 1.8, 0);
+      ctx.lineTo(-particle.size * 0.45, -particle.size * 0.45);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    });
   }
 }
