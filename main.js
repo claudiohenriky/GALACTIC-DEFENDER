@@ -39,6 +39,3 @@ touchButtons.forEach((button) => {
   button.addEventListener('lostpointercapture', release);
   button.addEventListener('contextmenu', (event) => event.preventDefault());
 });
-window.addEventListener('pointerup', () => {
-  touchButtons.forEach(releaseTouchButton);
-});
