@@ -20,6 +20,34 @@ window.addEventListener('resize', () => game.resize());
 game.resize();
 game.renderIntro();
 
+const canvasFrame = document.querySelector('.canvas-frame');
+const fullscreenButton = document.querySelector('#fullscreen-button');
+
+fullscreenButton.addEventListener('click', async () => {
+  try {
+    if (!document.fullscreenElement) {
+      await canvasFrame.requestFullscreen();
+      try {
+        await screen.orientation?.lock?.('landscape');
+      } catch {
+        // Orientation locking is optional; the player can rotate the device manually.
+      }
+    } else {
+      await document.exitFullscreen();
+    }
+  } catch {
+    // Fullscreen may be blocked by browser or device settings.
+  }
+});
+
+document.addEventListener('fullscreenchange', () => {
+  const isFullscreen = Boolean(document.fullscreenElement);
+  fullscreenButton.textContent = isFullscreen ? '×' : '⛶';
+  fullscreenButton.setAttribute('aria-label', isFullscreen ? 'Sair da tela cheia' : 'Ativar tela cheia');
+  fullscreenButton.title = isFullscreen ? 'Sair da tela cheia' : 'Tela cheia';
+  game.resize();
+});
+
 
 // Mobile touch controls reuse the same input keys as the keyboard controls.
 const touchButtons = document.querySelectorAll('.touch-button[data-key]');
