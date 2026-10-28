@@ -3,6 +3,7 @@ export class Projectile {
     this.x = x;
     this.y = y;
     this.radius = 3;
+    this.damage = 1;
     this.speed = 440;
     this.angle = angle;
     this.vx = Math.cos(angle) * this.speed;
