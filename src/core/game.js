@@ -1,12 +1,12 @@
-import { Player } from '../player/player.js?v=0.11.1';
-import { Enemy } from '../enemies/enemy.js?v=0.11.1';
-import { Projectile } from '../combat/projectile.js?v=0.11.1';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.11.1';
-import { Progression } from '../progression/progression.js?v=0.11.1';
-import { Mission } from '../missions/missions.js?v=0.11.1';
-import { WaveManager } from './wave-manager.js?v=0.11.1';
-import { updateHud } from '../ui/hud.js?v=0.11.1';
-import { gameAudio } from '../audio/game-audio.js?v=0.11.1';
+import { Player } from '../player/player.js?v=0.12.0';
+import { Enemy } from '../enemies/enemy.js?v=0.12.0';
+import { Projectile } from '../combat/projectile.js?v=0.12.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.12.0';
+import { Progression } from '../progression/progression.js?v=0.12.0';
+import { Mission } from '../missions/missions.js?v=0.12.0';
+import { WaveManager } from './wave-manager.js?v=0.12.0';
+import { updateHud } from '../ui/hud.js?v=0.12.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.12.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -47,6 +47,7 @@ export class Game {
     this.damageSparks = [];
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
+    this.pendingUpgradeChoices = 0;
     this.hudUpdateInterval = 0.1;
     this.hudUpdateTimer = 0;
     this.backgroundCanvas = document.createElement('canvas');
@@ -149,7 +150,9 @@ export class Game {
     this.damageSparks = [];
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
+    this.pendingUpgradeChoices = 0;
     this.hudUpdateTimer = 0;
+    document.querySelector('#upgrade-overlay').classList.add('hidden');
     document.querySelector('#level-up-toast').classList.remove('level-up-active');
     document.querySelector('#damage-feedback').classList.remove('damage-active');
     this.status = 'ready';
@@ -206,6 +209,11 @@ export class Game {
   }
 
   triggerLevelUp(levelsGained) {
+    this.pendingUpgradeChoices += levelsGained;
+    this.status = 'upgrade';
+    cancelAnimationFrame(this.animationId);
+    document.querySelector('#upgrade-overlay').classList.remove('hidden');
+    document.querySelector('#upgrade-level-label').textContent = `NÍVEL ${this.progression.level} · ESCOLHA ${this.pendingUpgradeChoices > 1 ? 'UMA MELHORIA' : 'SUA MELHORIA'}`;
     this.levelUpToastTimer = 1.35;
     const toast = document.querySelector('#level-up-toast');
     toast.textContent = levelsGained > 1 ? `✦ NÍVEIS +${levelsGained}` : '✦ NÍVEL AUMENTADO';
@@ -225,6 +233,23 @@ export class Game {
         size: rand(2, 4.5)
       });
     }
+  }
+
+  chooseUpgrade(type) {
+    if (this.status !== 'upgrade' || this.pendingUpgradeChoices < 1) return;
+    if (type === 'damage') this.player.weaponDamage = Math.min(4, this.player.weaponDamage + 1);
+    if (type === 'speed') this.player.speed = Math.min(340, this.player.speed + 22);
+    if (type === 'shield') { this.player.shieldCharges = Math.min(3, this.player.shieldCharges + 1); this.player.health = Math.min(100, this.player.health + 25); }
+    this.pendingUpgradeChoices -= 1;
+    updateHud(this);
+    if (this.pendingUpgradeChoices > 0) {
+      document.querySelector('#upgrade-level-label').textContent = `NÍVEL ${this.progression.level} · FALTAM ${this.pendingUpgradeChoices} ESCOLHAS`;
+      return;
+    }
+    document.querySelector('#upgrade-overlay').classList.add('hidden');
+    this.status = 'running';
+    this.lastTime = performance.now();
+    this.animationId = requestAnimationFrame((time) => this.loop(time));
   }
 
   handleMissionCompletion(completion) {
@@ -342,7 +367,9 @@ export class Game {
       const muzzleDistance = 17;
       const muzzleX = this.player.x + Math.cos(angle) * muzzleDistance;
       const muzzleY = this.player.y + Math.sin(angle) * muzzleDistance;
-      this.projectiles.push(new Projectile(muzzleX, muzzleY, angle));
+      const projectile = new Projectile(muzzleX, muzzleY, angle);
+      projectile.damage = this.player.weaponDamage;
+      this.projectiles.push(projectile);
       gameAudio.playPlayerShot();
       this.shotClock = .22;
     }
