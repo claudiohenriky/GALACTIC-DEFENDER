@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.9.2';
+import { Game } from './src/core/game.js?v=0.10.0';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
@@ -10,6 +10,7 @@ const platformButtons = [...document.querySelectorAll('[data-platform-choice]')]
 const platformNote = document.querySelector('#platform-detection-note');
 const settingsPanel = document.querySelector('#settings-panel');
 const aboutPanel = document.querySelector('#about-panel');
+document.querySelector('#dismiss-title-toast').addEventListener('click', () => document.querySelector('#title-unlock-toast').classList.add('hidden'));
 
 function detectPlatform() {
   const saved = localStorage.getItem('gd-platform');
