@@ -17,6 +17,8 @@ export function updateHud(game) {
   document.querySelector('#arena-level-value').textContent = String(game.progression.level).padStart(2, '0');
   document.querySelector('#arena-xp-label').textContent = `${game.progression.xp} / ${game.progression.nextLevelXp}`;
   document.querySelector('#arena-xp-bar').style.width = `${xpPercent}%`;
+  document.querySelector('#arena-wave-value').textContent = String(game.waveManager.wave).padStart(2, '0');
+  document.querySelector('#arena-score-value').textContent = String(game.score).padStart(6, '0');
   document.querySelector('#rank-label').textContent = game.progression.getRank();
   document.querySelector('#mission-progress').textContent = `${game.mission.progress}/${game.mission.target}`;
   if (game.mission.completed) document.querySelector('#mission-progress').textContent = 'CONCLUÍDA';
