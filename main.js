@@ -1,5 +1,5 @@
-import { Game } from './src/core/game.js?v=0.11.1';
-import { gameAudio } from './src/audio/game-audio.js?v=0.11.1';
+import { Game } from './src/core/game.js?v=0.12.0';
+import { gameAudio } from './src/audio/game-audio.js?v=0.12.0';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
@@ -11,6 +11,7 @@ const platformButtons = [...document.querySelectorAll('[data-platform-choice]')]
 const platformNote = document.querySelector('#platform-detection-note');
 const settingsPanel = document.querySelector('#settings-panel');
 const aboutPanel = document.querySelector('#about-panel');
+document.querySelectorAll('[data-upgrade]').forEach((button) => button.addEventListener('click', () => game.chooseUpgrade(button.dataset.upgrade)));
 document.querySelector('#dismiss-title-toast').addEventListener('click', () => document.querySelector('#title-unlock-toast').classList.add('hidden'));
 
 function detectPlatform() {
