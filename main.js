@@ -1,4 +1,5 @@
-import { Game } from './src/core/game.js?v=0.10.0';
+import { Game } from './src/core/game.js?v=0.11.0';
+import { gameAudio } from './src/audio/game-audio.js?v=0.11.0';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
@@ -36,6 +37,7 @@ function closeMenuPanels() {
 setPlatform(detectPlatform(), false);
 platformButtons.forEach((button) => button.addEventListener('click', () => setPlatform(button.dataset.platformChoice)));
 document.querySelector('#menu-play-button').addEventListener('click', () => {
+  gameAudio.start();
   closeMenuPanels();
   mainMenu.classList.add('is-hidden');
   gameLayout.classList.remove('is-hidden');
@@ -72,6 +74,7 @@ function applySettings() {
   document.documentElement.style.setProperty('--hud-opacity', String(opacity));
   document.documentElement.dataset.effects = document.querySelector('#effects-setting').value;
   document.documentElement.dataset.sound = document.querySelector('#sound-setting').value;
+  gameAudio.setEnabled(document.querySelector('#sound-setting').value === 'on');
   Object.entries(settingDefaults).forEach(([id]) => localStorage.setItem('gd-setting-' + id, document.querySelector('#' + id).value));
 }
 Object.keys(settingDefaults).forEach((id) => {
@@ -90,8 +93,8 @@ applySettings();
 // Mouse position controls aim only; keyboard and touch inputs still control movement and firing.
 canvas.addEventListener('pointermove', (event) => game.setAimFromPointer(event));
 
-document.querySelector('#start-button').addEventListener('click', () => game.start());
-document.querySelector('#resume-button').addEventListener('click', () => game.resume());
+document.querySelector('#start-button').addEventListener('click', () => { gameAudio.start(); game.start(); });
+document.querySelector('#resume-button').addEventListener('click', () => { gameAudio.start(); game.resume(); });
 document.querySelector('#restart-button').addEventListener('click', () => game.restart());
 window.addEventListener('keydown', (event) => {
   if (event.code === 'Space' || event.code.startsWith('Arrow')) event.preventDefault();
