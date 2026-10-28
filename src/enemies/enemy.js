@@ -4,14 +4,16 @@ export class Enemy {
     this.y = y;
     this.type = type;
     this.level = level;
-    this.radius = type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
-    this.maxHealth = type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
+    this.radius = type === 'boss' ? 23 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
+    this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
-    this.speed = (type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * 2;
+    this.speed = (type === 'boss' ? 34 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * 2;
     this.phase = Math.random() * Math.PI * 2;
-    this.fireCooldown = type === 'sentinel'
-      ? 1.1 + Math.random() * 0.8
-      : 3.8 + Math.random() * 1.8;
+    this.fireCooldown = type === 'boss'
+      ? 1.8
+      : type === 'sentinel'
+        ? 1.1 + Math.random() * 0.8
+        : 2.4 + Math.random() * 0.8;
     this.active = true;
   }
 
@@ -22,7 +24,28 @@ export class Enemy {
     const distance = Math.hypot(dx, dy) || 1;
     const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'interceptor' ? 5 : 9);
 
-    if (this.type === 'interceptor') {
+    if (this.type === 'boss') {
+      // Bosses enter the arena, strafe horizontally and fire aimed heavy shots.
+      const desiredY = Math.max(58, height * 0.16);
+      this.x += Math.sin(this.phase * 0.75) * this.speed * 1.8 * dt;
+      this.y += (desiredY - this.y) * Math.min(1, dt * 1.4);
+      this.x = Math.max(this.radius + 4, Math.min(width - this.radius - 4, this.x));
+      this.fireCooldown -= dt;
+      if (this.fireCooldown <= 0 && this.y > 18) {
+        this.fireCooldown = 1.65;
+        return {
+          x: this.x,
+          y: this.y + this.radius,
+          targetX,
+          targetY,
+          damage: 8,
+          speed: 165,
+          radius: 5,
+          color: '#d59bff',
+          glowColor: '#a85cff'
+        };
+      }
+    } else if (this.type === 'interceptor') {
       // Interceptors are fragile, fast enemies that pressure the pilot through movement.
       this.x += (dx / distance) * this.speed * dt + drift * dt;
       this.y += (dy / distance) * this.speed * dt;
@@ -52,10 +75,10 @@ export class Enemy {
       this.x += (dx / distance) * this.speed * dt + drift * dt;
       this.y += (dy / distance) * this.speed * dt;
 
-      // Chasers only gain a weak ranged attack from wave 3 onward.
+      // Chasers gain a weak ranged attack from wave 2 onward.
       this.fireCooldown -= dt;
-      if (this.level >= 3 && distance > Math.max(160, width * 0.28) && this.fireCooldown <= 0) {
-        this.fireCooldown = 4.2 + Math.random() * 1.6;
+      if (this.level >= 2 && distance > Math.max(185, width * 0.31) && this.fireCooldown <= 0) {
+        this.fireCooldown = 3.2 + Math.random() * 1.0;
         const damage = this.radius >= 12 ? 5 : this.radius >= 11 ? 4 : 3;
         return {
           x: this.x,
@@ -78,9 +101,10 @@ export class Enemy {
   }
 
   draw(ctx) {
+    const boss = this.type === 'boss';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
-    const color = ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
+    const color = boss ? '#d59bff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(Math.PI);
@@ -88,7 +112,15 @@ export class Enemy {
     ctx.shadowColor = color;
     ctx.fillStyle = color;
     ctx.beginPath();
-    if (interceptor) {
+    if (boss) {
+      ctx.moveTo(0, -this.radius * 1.25);
+      ctx.lineTo(this.radius * 0.78, -this.radius * 0.65);
+      ctx.lineTo(this.radius, this.radius * 0.15);
+      ctx.lineTo(this.radius * 0.62, this.radius * 0.9);
+      ctx.lineTo(-this.radius * 0.62, this.radius * 0.9);
+      ctx.lineTo(-this.radius, this.radius * 0.15);
+      ctx.lineTo(-this.radius * 0.78, -this.radius * 0.65);
+    } else if (interceptor) {
       ctx.moveTo(0, -this.radius * 1.35);
       ctx.lineTo(this.radius * 0.8, 0);
       ctx.lineTo(0, this.radius * 1.15);
@@ -109,6 +141,13 @@ export class Enemy {
     }
     ctx.closePath();
     ctx.fill();
+    if (boss) {
+      ctx.strokeStyle = '#f1d7ff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fillStyle = '#f7eaff';
+      ctx.fillRect(-4, -4, 8, 8);
+    }
     ctx.shadowBlur = 0;
     // Compact health bar: durable enemies remain readable without a large UI label.
     const barWidth = this.radius * 2.2;

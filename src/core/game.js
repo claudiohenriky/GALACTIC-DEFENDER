@@ -1,12 +1,12 @@
-import { Player } from '../player/player.js?v=0.12.0';
-import { Enemy } from '../enemies/enemy.js?v=0.12.0';
-import { Projectile } from '../combat/projectile.js?v=0.12.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.12.0';
-import { Progression } from '../progression/progression.js?v=0.12.0';
-import { Mission } from '../missions/missions.js?v=0.12.0';
-import { WaveManager } from './wave-manager.js?v=0.12.0';
-import { updateHud } from '../ui/hud.js?v=0.12.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.12.0';
+import { Player } from '../player/player.js?v=0.13.0';
+import { Enemy } from '../enemies/enemy.js?v=0.13.0';
+import { Projectile } from '../combat/projectile.js?v=0.13.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.13.0';
+import { Progression } from '../progression/progression.js?v=0.13.0';
+import { Mission } from '../missions/missions.js?v=0.13.0';
+import { WaveManager } from './wave-manager.js?v=0.13.0';
+import { updateHud } from '../ui/hud.js?v=0.13.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.13.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -379,7 +379,8 @@ export class Game {
       const margin = Math.min(20, this.width / 2);
       const spawnX = rand(margin, Math.max(margin, this.width - margin));
       const roll = Math.random();
-      const type = this.waveManager.wave >= 2 && roll < 0.25
+      const bossWave = this.waveManager.wave % 5 === 0;
+      const type = bossWave ? 'boss' : this.waveManager.wave >= 2 && roll < 0.25
         ? 'sentinel'
         : this.waveManager.wave >= 2 && roll < 0.43 ? 'interceptor' : 'chaser';
       this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave, type));
