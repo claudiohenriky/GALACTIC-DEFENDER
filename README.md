@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão atual:** `0.9.0` — HUD de arena mais compacta, feedback elétrico de dano, barras de vida nos inimigos e área de combate ampliada em telas maiores.
+**Versão atual:** `0.9.1` — correção do feedback visual de dano, redução do efeito vermelho, HUD mais compacta e arena ampliada em telas maiores.
 
-**Fase:** versão 0.9.0 em branch de desenvolvimento; aguarda revisão, merge e testes manuais no GitHub Pages.
+**Fase:** versão 0.9.1 em correção; aguardando revisão e testes manuais no GitHub Pages.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: teclado para movimentação, mouse para mirar e joystick virtual analógico e botão de disparo em dispositivos compatíveis. A mira por mouse foi integrada em `main` e aguarda validação manual no computador.
@@ -47,7 +47,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Proteção inicial de 3 segundos ao surgir e invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis, pontuação e missão inicial.
 - HUD compacta dentro da arena com integridade, XP, nível, onda e pontuação sempre visíveis.
-- Feedback de dano com faíscas vermelhas, brilho de borda e efeito de partículas douradas ao subir de nível.
+- Feedback de dano com faíscas vermelhas de baixo custo, brilho de borda discreto e efeito de partículas douradas ao subir de nível.
 - Barras compactas de vida sobre os inimigos; perseguidores resistem a dois disparos e sentinelas a cinco.
 - Modo de tela cheia com tentativa opcional de bloquear a orientação em paisagem.
 - Ondas de inimigos com intervalos e dificuldade progressiva.
@@ -60,7 +60,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Densidade de pixels limitada a 1,5 em dispositivos com ponteiro de toque para reduzir o custo de renderização em celulares.
 - Efeitos de brilho reduzidos, desfoque de camadas da HUD desativado em dispositivos de toque e animação da chama da nave sem números aleatórios por quadro.
 - Os controles de toque receberam um novo aumento de área de acionamento, com ajuste específico para telas estreitas e orientação horizontal.
-- Em telas móveis estreitas, a arena usa proporção `10:19` para oferecer mais espaço vertical de combate sem alterar a escala lógica do jogo.
+- Em telas móveis estreitas, a arena usa proporção `9:20` para oferecer mais espaço vertical de combate sem alterar a escala lógica do jogo.
 - O fundo em cache, a densidade de pixels limitada e os efeitos reduzidos continuam sendo medidas de otimização; o desempenho deve ser validado em dispositivos reais.
 
 ## Organização
