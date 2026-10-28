@@ -4,12 +4,12 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em preparação:** `0.6.0` — ataques dos perseguidores a maior distância e layout horizontal mobile com arena ampliada e controles de toque maiores. Os URLs dos arquivos estáticos e módulos continuam versionados para evitar reutilização de recursos antigos em cache.
+**Versão em preparação:** `0.7.0` — ataques dos perseguidores a maior distância e layout horizontal mobile com arena ampliada e controles de toque maiores. Os URLs dos arquivos estáticos e módulos continuam versionados para evitar reutilização de recursos antigos em cache.
 
-**Fase:** expansão da IA inimiga e dos padrões de combate.
+**Fase:** aprimoramento dos controles móveis com joystick analógico.
 
 - Plataforma: navegadores modernos em computador e celular.
-- Controles: teclado para movimentação, mouse para mirar e botões de toque em dispositivos compatíveis. A mira por mouse foi integrada em `main` e aguarda validação manual no computador.
+- Controles: teclado para movimentação, mouse para mirar e joystick virtual analógico e botão de disparo em dispositivos compatíveis. A mira por mouse foi integrada em `main` e aguarda validação manual no computador.
 - Tela cheia: botão no canto superior da arena; em celulares, a orientação horizontal é recomendada.
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
@@ -25,11 +25,11 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - `Mouse`: mirar; `Espaço`: disparar na direção da mira.
 - `Espaço`: disparar.
 - `P`: pausar ou retomar (teclado).
-- Celular: use as setas na tela para mover e o botão **DISPARAR** para atirar.
+- Celular: arraste o joystick virtual para movimentar a nave em qualquer direção e use **DISPARAR** para atirar.
 
 ## Mecânicas atuais
 
-> **Validação pendente:** a mira pelo mouse, os novos disparos dos perseguidores e os ajustes de layout horizontal e controles mobile foram integrados na branch de trabalho e aguardam revisão; a versão `0.6.0` deve ser testada no GitHub Pages antes de ser considerada validada. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para forçar o navegador a buscar os arquivos atualizados.
+> **Validação pendente:** a mira pelo mouse, os novos disparos dos perseguidores e os ajustes de layout horizontal e controles mobile foram integrados na branch de trabalho e aguardam revisão; a versão `0.7.0` deve ser testada no GitHub Pages antes de ser considerada validada. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para forçar o navegador a buscar os arquivos atualizados.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
@@ -43,7 +43,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Feedback visual de dano e efeito de partículas douradas ao subir de nível.
 - Modo de tela cheia com tentativa opcional de bloquear a orientação em paisagem.
 - Ondas de inimigos com intervalos e dificuldade progressiva.
-- Controles por toque para testar a jogabilidade em telas móveis.
+- Joystick virtual analógico para movimento com intensidade variável e botão de disparo separado em telas móveis.
 
 ## Desempenho e controles mobile
 
