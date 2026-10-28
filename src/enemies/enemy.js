@@ -4,10 +4,10 @@ export class Enemy {
     this.y = y;
     this.type = type;
     this.level = level;
-    this.radius = type === 'sentinel' ? 12 : 10 + Math.random() * 3;
-    this.maxHealth = type === 'sentinel' ? 5 : 2;
+    this.radius = type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
+    this.maxHealth = type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
-    this.speed = (type === 'sentinel' ? 42 : 48 + Math.random() * 24) + Math.min(level, 8) * 2;
+    this.speed = (type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * 2;
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'sentinel'
       ? 1.1 + Math.random() * 0.8
@@ -16,13 +16,17 @@ export class Enemy {
   }
 
   update(dt, targetX, targetY, width, height) {
-    this.phase += dt * (this.type === 'sentinel' ? 1.4 : 2);
+    this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'interceptor' ? 3.2 : 2);
     const dx = targetX - this.x;
     const dy = targetY - this.y;
     const distance = Math.hypot(dx, dy) || 1;
-    const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : 9);
+    const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'interceptor' ? 5 : 9);
 
-    if (this.type === 'sentinel') {
+    if (this.type === 'interceptor') {
+      // Interceptors are fragile, fast enemies that pressure the pilot through movement.
+      this.x += (dx / distance) * this.speed * dt + drift * dt;
+      this.y += (dy / distance) * this.speed * dt;
+    } else if (this.type === 'sentinel') {
       // Ranged enemies try to keep a firing lane above the ship instead of rushing it.
       const desiredY = Math.max(42, targetY - Math.min(175, height * 0.3));
       this.x += (dx / distance) * this.speed * dt + drift * dt;
@@ -75,7 +79,8 @@ export class Enemy {
 
   draw(ctx) {
     const ranged = this.type === 'sentinel';
-    const color = ranged ? '#ffbd69' : '#ff718d';
+    const interceptor = this.type === 'interceptor';
+    const color = ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(Math.PI);
@@ -83,7 +88,12 @@ export class Enemy {
     ctx.shadowColor = color;
     ctx.fillStyle = color;
     ctx.beginPath();
-    if (ranged) {
+    if (interceptor) {
+      ctx.moveTo(0, -this.radius * 1.35);
+      ctx.lineTo(this.radius * 0.8, 0);
+      ctx.lineTo(0, this.radius * 1.15);
+      ctx.lineTo(-this.radius * 0.8, 0);
+    } else if (ranged) {
       ctx.moveTo(0, -this.radius);
       ctx.lineTo(this.radius, -3);
       ctx.lineTo(this.radius * 0.65, this.radius);

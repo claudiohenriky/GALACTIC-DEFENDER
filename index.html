@@ -6,14 +6,14 @@
   <meta name="theme-color" content="#070b18">
   <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.10.0">
-  <script type="module" src="./main.js?v=0.10.0"></script>
+  <link rel="stylesheet" href="./style.css?v=0.11.0">
+  <script type="module" src="./main.js?v=0.11.0"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PRÉ-ALFA · 0.10.0</span>
+      <span class="build-tag">PRÉ-ALFA · 0.11.0</span>
     </header>
 
     <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
@@ -41,14 +41,14 @@
         <label class="setting-row" for="hud-scale-setting"><span><strong>Tamanho da HUD</strong><small>Ajusta o tamanho dos indicadores.</small></span><input id="hud-scale-setting" type="range" min="80" max="130" value="100"></label>
         <label class="setting-row" for="hud-opacity-setting"><span><strong>Transparência da HUD</strong><small>Controla a opacidade da interface.</small></span><input id="hud-opacity-setting" type="range" min="35" max="100" value="100"></label>
         <label class="setting-row" for="effects-setting"><span><strong>Efeitos visuais</strong><small>Reduz efeitos para priorizar desempenho.</small></span><select id="effects-setting"><option value="full">Completos</option><option value="reduced">Reduzidos</option></select></label>
-        <label class="setting-row" for="sound-setting"><span><strong>Áudio do jogo</strong><small>Preparado para os controles de som.</small></span><select id="sound-setting"><option value="on">Ativado</option><option value="off">Desativado</option></select></label>
+        <label class="setting-row" for="sound-setting"><span><strong>Áudio do jogo</strong><small>Ativa ou desativa a música e os efeitos sonoros.</small></span><select id="sound-setting"><option value="on">Ativado</option><option value="off">Desativado</option></select></label>
         <div class="panel-actions"><button id="settings-reset-button" class="secondary-button" type="button">RESTAURAR PADRÕES</button><button class="primary-button" type="button" data-close-panel>CONCLUÍDO</button></div>
-        <p class="menu-note">As opções visuais serão aplicadas nesta etapa; áudio e efeitos serão conectados às mecânicas nas próximas entregas.</p>
+        <p class="menu-note">A música começa quando você inicia o jogo. Você pode desativar todo o áudio a qualquer momento.</p>
       </section>
       <section id="about-panel" class="menu-panel hidden" aria-labelledby="about-title">
         <div class="panel-heading"><div><p class="eyebrow">SOBRE O PROJETO</p><h2 id="about-title">Construído para evoluir</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar informações">×</button></div>
         <p class="menu-description">GALACTIC-DEFENDER é um jogo de ação espacial para navegador, desenvolvido com HTML, CSS e JavaScript, sem frameworks externos.</p>
-        <p class="menu-note">Versão 0.10.0 · Missões, recompensas e títulos em desenvolvimento · Créditos e documentação serão ampliados durante a preparação da versão estável.</p>
+        <p class="menu-note">Versão 0.11.0 · Missões, áudio sintetizado e novos inimigos em desenvolvimento · Créditos e documentação serão ampliados durante a preparação da versão estável.</p>
         <button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button>
       </section>
     </section>

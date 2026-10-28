@@ -4,7 +4,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em desenvolvimento:** `0.10.0` — missões com dificuldade, recompensas e títulos de piloto.
+**Versão em desenvolvimento:** `0.11.0` — áudio sintetizado, inimigo interceptador e progressão por missões.
 
 **Fase:** primeira implementação do sistema de missões e progressão; validação manual no GitHub Pages pendente.
 
@@ -19,7 +19,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 - O menu principal separa o lobby da arena e oferece acesso a Jogar, Configurações e Sobre o jogo.
 - A preferência PC/mobile é detectada automaticamente na primeira visita e pode ser alterada manualmente; a escolha fica salva no navegador.
-- As configurações de tamanho e transparência da HUD são aplicadas à interface e persistidas localmente. As opções de áudio e redução de efeitos ainda serão conectadas às mecânicas nas próximas etapas.
+- As configurações de tamanho e transparência da HUD são aplicadas à interface e persistidas localmente. O áudio é gerado localmente com Web Audio API; a preferência de áudio pode ser ativada ou desativada nas configurações.
 - O armazenamento é local ao navegador e não sincroniza preferências entre dispositivos.
 
 ## Executar localmente
@@ -36,16 +36,18 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Mecânicas atuais
 
- > **Validação manual pendente:** testar no GitHub Pages o progresso das missões, recompensas, desbloqueio de títulos e reinício de partida em mobile e desktop. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
+ > **Validação manual pendente:** testar áudio, novo interceptador, progresso das missões, recompensas, desbloqueio de títulos e reinício de partida em mobile e desktop. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
+- A partir da onda 2, interceptadores ciano, rápidos e frágeis pressionam a nave com movimento agressivo.
 - A partir da onda 2, alguns inimigos sentinelas tentam manter distância e disparam projéteis direcionados à posição da nave no momento do disparo.
 - Projéteis dos sentinelas causam 10 pontos de dano em impacto direto e respeitam a invulnerabilidade temporária.
 - A partir da onda 3, perseguidores também podem disparar projéteis mais lentos, causando de 3 a 5 pontos de dano conforme o tamanho do inimigo; o disparo exige distância e tem intervalo longo.
 - Inimigos não causam dano automático ao ultrapassar a borda da arena.
 - Proteção inicial de 3 segundos ao surgir e invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis e pontuação.
+- Música ambiente espacial sintetizada e efeitos distintos para disparos do jogador, tiros inimigos e dano, gerados pela Web Audio API sem arquivos de áudio externos.
 - Missões rotativas: eliminar inimigos, sobreviver por tempo determinado e alcançar ondas específicas, com dificuldades fácil, média e difícil.
 - Recompensas de missão em XP e pontuação; a conclusão avança para o próximo objetivo.
 - Títulos de piloto desbloqueáveis por total de missões concluídas, armazenados localmente no navegador.
@@ -72,6 +74,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - `src/player/`: nave do jogador.
 - `src/enemies/`: lógica de inimigos.
 - `src/combat/`: projéteis do jogador, projéteis inimigos e colisões.
+- `src/audio/`: música e efeitos sonoros sintetizados.
 - `src/progression/`: experiência e evolução.
 - `src/missions/`: objetivos, dificuldade, progresso e recompensas.
 - `src/ui/`: HUD e interface.
