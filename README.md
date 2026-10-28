@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão:** `0.3.0` — perseguição básica de inimigos e arena mobile ampliada.
+**Versão:** `0.3.1` — ajuste de ergonomia dos controles e expansão adicional da arena mobile.
 
-**Fase:** primeira inteligência de perseguição, ajuste de controles mobile e expansão da arena em telas estreitas.
+**Fase:** refinamento de controles e área de combate mobile após testes da versão `0.3.0`.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: teclado no computador e botões de toque na arena em dispositivos compatíveis.
@@ -45,8 +45,8 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Fundo e grade do Canvas desenhados em uma camada em cache, em vez de reconstruídos a cada quadro.
 - Densidade de pixels limitada a 1,5 em dispositivos com ponteiro de toque para reduzir o custo de renderização em celulares.
 - Efeitos de brilho reduzidos, desfoque de camadas da HUD desativado em dispositivos de toque e animação da chama da nave sem números aleatórios por quadro.
-- Os controles de toque foram ampliados para facilitar os comandos em telas pequenas.
-- Em telas móveis estreitas, a arena usa uma proporção mais alta para oferecer mais espaço vertical de combate.
+- Os controles de toque receberam um novo aumento de área de acionamento, com ajuste específico para telas estreitas e orientação horizontal.
+- Em telas móveis estreitas, a arena usa proporção `10:19` para oferecer mais espaço vertical de combate sem alterar a escala lógica do jogo.
 - O fundo em cache, a densidade de pixels limitada e os efeitos reduzidos continuam sendo medidas de otimização; o desempenho deve ser validado em dispositivos reais.
 
 ## Organização
