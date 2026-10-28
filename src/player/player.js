@@ -5,6 +5,7 @@ export class Player {
     this.health = 100;
     this.invulnerabilityDuration = 1.25;
     this.invulnerabilityTimer = 0;
+    this.flamePhase = 0;
     this.x = width / 2;
     this.y = height * (width > height ? 0.66 : 0.78);
     this.fitToArena(width, height);
@@ -17,6 +18,7 @@ export class Player {
 
   update(dt, keys, width, height) {
     this.invulnerabilityTimer = Math.max(0, this.invulnerabilityTimer - dt);
+    this.flamePhase += dt;
 
     let dx = 0, dy = 0;
     if (keys.has('a') || keys.has('arrowleft')) dx -= 1;
@@ -66,7 +68,7 @@ export class Player {
 
     ctx.fillStyle = '#7c9cff';
     ctx.beginPath();
-    ctx.ellipse(0, 14, 3, 6 + Math.random() * 3, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 14, 3, 6 + Math.sin(this.flamePhase * 18) * 1.5, 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   }
