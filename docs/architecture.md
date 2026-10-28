@@ -27,7 +27,7 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - O sistema de ondas é separado do ciclo principal para facilitar balanceamento e expansão.
 - Os inimigos perseguem gradualmente a posição atual da nave; a velocidade escala moderadamente com a onda.
 - Sair da borda não causa dano automático. O dano acontece por colisão direta com a nave; uma futura base defensiva deverá ter sistema de vida próprio.
-- Em telas móveis estreitas, a proporção da arena aumenta o espaço vertical; botões de toque maiores melhoram a área de acionamento.
+- Em telas móveis estreitas, a proporção `10:19` aumenta o espaço vertical da arena; botões de toque ampliados têm ajustes separados para telas estreitas e orientação horizontal.
 - Teclado e controles de toque compartilham o mesmo conjunto de entradas; os controles de toque aparecem em dispositivos com ponteiro de toque.
 
 ## Desempenho do Canvas
