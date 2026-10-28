@@ -4,6 +4,9 @@ import { Game } from './src/core/game.js';
 const canvas = document.querySelector('#game-canvas');
 const game = new Game(canvas);
 
+// Mouse position controls aim only; keyboard and touch inputs still control movement and firing.
+canvas.addEventListener('pointermove', (event) => game.setAimFromPointer(event));
+
 document.querySelector('#start-button').addEventListener('click', () => game.start());
 document.querySelector('#resume-button').addEventListener('click', () => game.resume());
 document.querySelector('#restart-button').addEventListener('click', () => game.restart());

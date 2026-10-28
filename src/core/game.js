@@ -348,7 +348,9 @@ export class Game {
       }
     }
 
-    this.projectiles = this.projectiles.filter((shot) => shot.active && shot.y > -20);
+    this.projectiles = this.projectiles.filter((shot) =>
+      shot.active && shot.x > -20 && shot.x < this.width + 20 && shot.y > -20 && shot.y < this.height + 20
+    );
     this.enemyProjectiles = this.enemyProjectiles.filter((shot) =>
       shot.active && shot.x > -20 && shot.x < this.width + 20 && shot.y > -20 && shot.y < this.height + 20
     );
