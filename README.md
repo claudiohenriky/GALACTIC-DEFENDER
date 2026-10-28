@@ -4,14 +4,12 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Próxima versão proposta:** `0.5.0` — novos padrões de ataque para inimigos perseguidores.
-
-**Versão oficial em `main`:** `0.4.0` (a proposta ainda depende de revisão e testes).
+**Versão em preparação:** `0.5.0` — ataques fracos dos perseguidores, mira por mouse e ajustes de controles mobile. A publicação deve ser validada no GitHub Pages.
 
 **Fase:** expansão da IA inimiga e dos padrões de combate.
 
 - Plataforma: navegadores modernos em computador e celular.
-- Controles: teclado para movimentação, mouse para mirar e botões de toque em dispositivos compatíveis. A mira por mouse está sendo preparada para a próxima versão e ainda precisa ser validada antes de entrar em `main`.
+- Controles: teclado para movimentação, mouse para mirar e botões de toque em dispositivos compatíveis. A mira por mouse foi integrada em `main` e aguarda validação manual no computador.
 - Tela cheia: botão no canto superior da arena; em celulares, a orientação horizontal é recomendada.
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
@@ -24,14 +22,14 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 ## Controles
 
 - `WASD` ou setas: mover a nave.
-- `Mouse`: mirar (implementação proposta para a próxima versão; ainda em validação na branch de trabalho).
+- `Mouse`: mirar; `Espaço`: disparar na direção da mira.
 - `Espaço`: disparar.
 - `P`: pausar ou retomar (teclado).
 - Celular: use as setas na tela para mover e o botão **DISPARAR** para atirar.
 
 ## Mecânicas atuais
 
-> **Em desenvolvimento:** a mira por mouse está isolada em uma branch de funcionalidade e não faz parte da versão oficial `0.4.0` até ser testada e integrada.
+> **Validação pendente:** a mira pelo mouse, os novos disparos dos perseguidores e os ajustes de controles mobile foram integrados em `main`; a versão `0.5.0` deve ser testada no GitHub Pages antes de ser considerada validada.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
