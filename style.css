@@ -73,3 +73,12 @@
 .overlay{z-index:5}
 
 .hud-meta{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 10px;border:1px solid #36516f;border-radius:6px;background:#07101bc9;color:#9eb1d0;font-size:8px;font-weight:800;letter-spacing:.1em;backdrop-filter:blur(6px)}.hud-meta b{margin-left:4px;color:var(--cyan);font-variant-numeric:tabular-nums}
+
+
+/* Reduce expensive blur layers during touch gameplay on mobile GPUs. */
+@media (hover:none) and (pointer:coarse){
+  .hud-readout,.hud-meta,.fullscreen-button,.touch-controls .touch-button{
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+}
