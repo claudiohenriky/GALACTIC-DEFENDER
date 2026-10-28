@@ -7,6 +7,7 @@ class GameAudio {
     this.musicTimer = null;
     this.musicStep = 0;
     this.enabled = true;
+    this.volume = 0.75;
     this.notes = [110, 146.83, 164.81, 130.81, 98, 146.83, 174.61, 130.81];
   }
 
@@ -16,10 +17,10 @@ class GameAudio {
     if (!AudioContextClass) return;
     this.context = new AudioContextClass();
     this.master = this.context.createGain();
-    this.master.gain.value = this.enabled ? 0.48 : 0;
+    this.master.gain.value = this.enabled ? 0.48 * this.volume : 0;
     this.master.connect(this.context.destination);
     this.musicGain = this.context.createGain();
-    this.musicGain.gain.value = 0.16;
+    this.musicGain.gain.value = 0.42;
     this.musicGain.connect(this.master);
   }
 
@@ -37,13 +38,20 @@ class GameAudio {
   setEnabled(enabled) {
     this.enabled = Boolean(enabled);
     if (this.master && this.context) {
-      this.master.gain.setTargetAtTime(this.enabled ? 0.48 : 0, this.context.currentTime, 0.04);
+      this.master.gain.setTargetAtTime(this.enabled ? 0.48 * this.volume : 0, this.context.currentTime, 0.04);
     }
     if (!this.enabled) {
       if (this.musicTimer) window.clearInterval(this.musicTimer);
       this.musicTimer = null;
     } else if (this.context && this.context.state === 'running') {
       this.start();
+    }
+  }
+
+  setVolume(volume) {
+    this.volume = Math.max(0, Math.min(1, Number(volume) || 0));
+    if (this.master && this.context) {
+      this.master.gain.setTargetAtTime(this.enabled ? 0.48 * this.volume : 0, this.context.currentTime, 0.04);
     }
   }
 
@@ -67,8 +75,8 @@ class GameAudio {
   playMusicStep() {
     if (!this.enabled || !this.context || this.context.state !== 'running') return;
     const note = this.notes[this.musicStep % this.notes.length];
-    this.tone(note, 0.36, 'triangle', 0.045, note * 1.008, this.musicGain);
-    if (this.musicStep % 4 === 0) this.tone(note / 2, 0.38, 'sine', 0.035, note / 2.02, this.musicGain);
+    this.tone(note, 0.36, 'triangle', 0.075, note * 1.008, this.musicGain);
+    if (this.musicStep % 4 === 0) this.tone(note / 2, 0.38, 'sine', 0.055, note / 2.02, this.musicGain);
     this.musicStep += 1;
   }
 
@@ -82,7 +90,7 @@ class GameAudio {
   }
 
   playDamage() {
-    this.tone(180, 0.22, 'sawtooth', 0.075, 55);
+    this.tone(180, 0.22, 'sawtooth', 0.12, 55);
   }
 }
 
