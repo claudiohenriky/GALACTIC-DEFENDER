@@ -4,9 +4,12 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Fase:** protótipo jogável com combate e ondas em desenvolvimento.
+**Versão:** `0.2.0` — protótipo jogável com controles de teclado e toque.
 
-- Plataforma principal: computador, com controles de teclado.
+**Fase:** validação de jogabilidade em computador e dispositivos móveis.
+
+- Plataforma: navegadores modernos em computador e celular.
+- Controles: teclado no computador e botões de toque em dispositivos compatíveis.
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
 - Estrutura modular, sem frameworks ou dependências externas.
@@ -19,7 +22,8 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 - `WASD` ou setas: mover a nave.
 - `Espaço`: disparar.
-- `P`: pausar ou retomar.
+- `P`: pausar ou retomar (teclado).
+- Celular: use as setas na tela para mover e o botão **DISPARAR** para atirar.
 
 ## Mecânicas atuais
 
@@ -28,6 +32,11 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis, pontuação e missão inicial.
 - Ondas de inimigos com intervalos e dificuldade progressiva.
+- Controles por toque para testar a jogabilidade em telas móveis.
+
+## Ponto de atenção conhecido
+
+- A integridade também perde 8 pontos quando um inimigo atravessa toda a arena e sai pela parte inferior. Como isso ocorre fora da área visível, o dano pode parecer sem causa; revisar o feedback visual e o balanceamento numa próxima etapa.
 
 ## Organização
 
