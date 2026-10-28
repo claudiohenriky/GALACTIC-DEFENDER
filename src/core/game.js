@@ -1,11 +1,11 @@
-import { Player } from '../player/player.js?v=0.9.0';
-import { Enemy } from '../enemies/enemy.js?v=0.9.0';
-import { Projectile } from '../combat/projectile.js?v=0.9.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.9.0';
-import { Progression } from '../progression/progression.js?v=0.9.0';
-import { Mission } from '../missions/missions.js?v=0.9.0';
-import { WaveManager } from './wave-manager.js?v=0.9.0';
-import { updateHud } from '../ui/hud.js?v=0.9.0';
+import { Player } from '../player/player.js?v=0.9.1';
+import { Enemy } from '../enemies/enemy.js?v=0.9.1';
+import { Projectile } from '../combat/projectile.js?v=0.9.1';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.9.1';
+import { Progression } from '../progression/progression.js?v=0.9.1';
+import { Mission } from '../missions/missions.js?v=0.9.1';
+import { WaveManager } from './wave-manager.js?v=0.9.1';
+import { updateHud } from '../ui/hud.js?v=0.9.1';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -223,12 +223,12 @@ export class Game {
   }
 
   triggerDamageFeedback(amount) {
-    this.damageFeedbackTimer = 0.85;
+    this.damageFeedbackTimer = 0.48;
     // Brief red electrical sparks around the ship communicate a hit without obscuring play.
-    for (let i = 0; i < 12; i += 1) {
+    for (let i = 0; i < 9; i += 1) {
       const angle = rand(0, Math.PI * 2);
-      const speed = rand(35, 115);
-      const life = rand(0.18, 0.42);
+      const speed = rand(22, 68);
+      const life = rand(0.32, 0.55);
       this.damageSparks.push({
         x: this.player.x + Math.cos(angle) * rand(7, 15),
         y: this.player.y + Math.sin(angle) * rand(7, 15),
@@ -236,7 +236,7 @@ export class Game {
         vy: Math.sin(angle) * speed,
         life,
         maxLife: life,
-        length: rand(3, 8)
+        length: rand(7, 13)
       });
     }
     const feedback = document.querySelector('#damage-feedback');
@@ -427,10 +427,8 @@ export class Game {
       ctx.translate(spark.x, spark.y);
       ctx.rotate(Math.atan2(spark.vy, spark.vx));
       ctx.globalAlpha = fade;
-      ctx.strokeStyle = '#ff526f';
-      ctx.shadowColor = '#ff304f';
-      ctx.shadowBlur = 7;
-      ctx.lineWidth = 1.8;
+      ctx.strokeStyle = fade > 0.55 ? '#ffdce3' : '#ff526f';
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
       ctx.moveTo(-spark.length * 0.6, 0);
       ctx.lineTo(-spark.length * 0.15, -2);
@@ -439,13 +437,11 @@ export class Game {
       ctx.restore();
     });
     if (this.damageFeedbackTimer > 0) {
-      const flash = this.damageFeedbackTimer / 0.85;
+      const flash = this.damageFeedbackTimer / 0.48;
       ctx.save();
-      ctx.globalAlpha = flash * 0.48;
-      ctx.strokeStyle = '#ff344f';
-      ctx.shadowColor = '#ff1f43';
-      ctx.shadowBlur = 18;
-      ctx.lineWidth = 7;
+      ctx.globalAlpha = flash * 0.16;
+      ctx.strokeStyle = '#ff526f';
+      ctx.lineWidth = 3;
       ctx.strokeRect(4, 4, this.width - 8, this.height - 8);
       ctx.restore();
     }
