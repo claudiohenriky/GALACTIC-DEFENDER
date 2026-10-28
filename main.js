@@ -12,7 +12,10 @@ window.addEventListener('keydown', (event) => {
   game.handleKeyDown(event);
 });
 window.addEventListener('keyup', (event) => game.handleKeyUp(event));
-window.addEventListener('blur', () => game.clearInput());
+window.addEventListener('blur', () => {
+  game.clearInput();
+  document.querySelectorAll('.touch-button.is-pressed').forEach((button) => button.classList.remove('is-pressed'));
+});
 window.addEventListener('resize', () => game.resize());
 game.resize();
 game.renderIntro();
