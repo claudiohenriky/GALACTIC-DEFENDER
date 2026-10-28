@@ -13,7 +13,7 @@
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PROTÓTIPO · 0.1.0</span>
+      <span class="build-tag">PROTÓTIPO · 0.2.0</span>
     </header>
     <section class="game-layout" aria-label="Área do jogo">
       <aside class="side-panel briefing">
@@ -25,7 +25,16 @@
       </aside>
       <section class="arena-wrap">
         <div class="arena-status"><span><i class="status-dot"></i><span id="status-label">SISTEMA PRONTO</span></span><span id="wave-label">SETOR 01</span></div>
-        <div class="canvas-frame"><canvas id="game-canvas" aria-label="Jogo espacial. Use o teclado para controlar a nave."></canvas><div id="start-overlay" class="overlay"><div class="overlay-symbol">✦</div><p class="eyebrow">SINAL DETECTADO</p><h2>Pronto para<br><span>decolar?</span></h2><p>O setor precisa de você, piloto.</p><button id="start-button" class="primary-button" type="button">INICIAR MISSÃO <span>↗</span></button></div><div id="pause-overlay" class="overlay hidden"><div class="overlay-symbol">Ⅱ</div><p class="eyebrow">SISTEMA EM ESPERA</p><h2>Missão<br><span>pausada.</span></h2><p>Pressione P para continuar.</p><button id="resume-button" class="primary-button" type="button">RETOMAR <span>↗</span></button></div><div id="gameover-overlay" class="overlay hidden"><div class="overlay-symbol">✧</div><p class="eyebrow">SINAL PERDIDO</p><h2>Fim da<br><span>missão.</span></h2><p id="final-score">Pontuação: 0</p><button id="restart-button" class="primary-button" type="button">TENTAR NOVAMENTE <span>↗</span></button></div></div>
+        <div class="canvas-frame"><canvas id="game-canvas" aria-label="Jogo espacial. Use o teclado ou os controles de toque para controlar a nave."></canvas><div id="start-overlay" class="overlay"><div class="overlay-symbol">✦</div><p class="eyebrow">SINAL DETECTADO</p><h2>Pronto para<br><span>decolar?</span></h2><p>O setor precisa de você, piloto.</p><button id="start-button" class="primary-button" type="button">INICIAR MISSÃO <span>↗</span></button></div><div id="pause-overlay" class="overlay hidden"><div class="overlay-symbol">Ⅱ</div><p class="eyebrow">SISTEMA EM ESPERA</p><h2>Missão<br><span>pausada.</span></h2><p>Pressione P para continuar.</p><button id="resume-button" class="primary-button" type="button">RETOMAR <span>↗</span></button></div><div id="gameover-overlay" class="overlay hidden"><div class="overlay-symbol">✧</div><p class="eyebrow">SINAL PERDIDO</p><h2>Fim da<br><span>missão.</span></h2><p id="final-score">Pontuação: 0</p><button id="restart-button" class="primary-button" type="button">TENTAR NOVAMENTE <span>↗</span></button></div></div>
+        <div id="touch-controls" class="touch-controls" aria-label="Controles de toque da nave">
+          <div class="touch-dpad" aria-label="Movimentação">
+            <button type="button" class="touch-button touch-up" data-key="w" aria-label="Mover para cima">▲</button>
+            <button type="button" class="touch-button touch-left" data-key="a" aria-label="Mover para a esquerda">◀</button>
+            <button type="button" class="touch-button touch-down" data-key="s" aria-label="Mover para baixo">▼</button>
+            <button type="button" class="touch-button touch-right" data-key="d" aria-label="Mover para a direita">▶</button>
+          </div>
+          <button type="button" class="touch-button touch-fire" data-key="space" aria-label="Disparar">DISPARAR</button>
+        </div>
         <div class="arena-footer"><span><i class="legend-dot player-dot"></i> SUA NAVE</span><span><i class="legend-dot enemy-dot"></i> HOSTIS</span><span>BUILD 001</span></div>
       </section>
       <aside class="side-panel stats-panel"><p class="eyebrow">TELEMETRIA</p><div class="stat-block"><span>PONTUAÇÃO</span><strong id="score-value">000000</strong></div><div class="stat-block"><span>INIMIGOS</span><strong id="enemy-value">00</strong></div><div class="stat-block"><span>NÍVEL</span><strong id="level-value">01</strong></div><div class="stat-block"><span>INTEGRIDADE</span><strong id="health-value">100<span class="unit">%</span></strong><div class="health-track"><div id="health-bar" class="health-fill"></div></div></div><div class="xp-block"><div><span>EXPERIÊNCIA</span><span id="xp-label">0 / 100</span></div><div class="xp-track"><div id="xp-bar" class="xp-fill"></div></div></div><div class="rank-card"><span class="rank-star">✦</span><div><small>CLASSE DO PILOTO</small><strong id="rank-label">RECRUTA</strong></div></div></aside>
