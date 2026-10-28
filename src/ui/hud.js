@@ -14,7 +14,9 @@ export function updateHud(game) {
   setText('#score-value', String(game.score).padStart(6, '0'));
   setText('#enemy-value', String(game.destroyed).padStart(2, '0'));
   setText('#level-value', String(game.progression.level).padStart(2, '0'));
-  setText('#health-value', `${game.player.health}%`);
+  const healthValue = document.querySelector('#health-value');
+  const healthText = String(game.player.health);
+  if (healthValue.firstChild?.textContent !== healthText) healthValue.firstChild.textContent = healthText;
   setWidth('#health-bar', game.player.health);
   setText('#arena-health-value', `${game.player.health}%`);
   setWidth('#arena-health-bar', game.player.health);
@@ -29,7 +31,7 @@ export function updateHud(game) {
   setText('#arena-wave-value', String(game.waveManager.wave).padStart(2, '0'));
   setText('#arena-score-value', String(game.score).padStart(6, '0'));
   setText('#rank-label', game.progression.getRank());
-  setText('#mission-progress', game.mission.completed ? 'CONCLUÍDA' : `${game.mission.progress} / ${game.mission.target}`);
+  setText('#mission-progress', game.mission.completed ? 'CONCLUÍDA' : `${game.mission.progress}/${game.mission.target}`);
   setText('#status-label', game.status === 'running' ? 'SISTEMA ONLINE' : game.status.toUpperCase());
   setText('#wave-label', game.waveManager.getLabel());
 }
