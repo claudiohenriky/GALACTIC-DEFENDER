@@ -50,10 +50,16 @@ export class Game {
   }
 
   resize() {
+    const previousLandscape = this.width > this.height;
     const rect = this.canvas.getBoundingClientRect();
     const ratio = Math.min(window.devicePixelRatio || 1, 2);
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
+    const isLandscape = this.width > this.height;
+    if (previousLandscape !== isLandscape) {
+      this.player.y = this.height * (isLandscape ? 0.66 : 0.78);
+      this.player.x = this.width / 2;
+    }
     this.canvas.width = Math.round(this.width * ratio);
     this.canvas.height = Math.round(this.height * ratio);
     this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
