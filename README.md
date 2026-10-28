@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em preparação:** `0.7.0` — ataques dos perseguidores a maior distância e layout horizontal mobile com arena ampliada e controles de toque maiores. Os URLs dos arquivos estáticos e módulos continuam versionados para evitar reutilização de recursos antigos em cache.
+**Versão em preparação:** `0.8.0` — ataques dos perseguidores a maior distância e layout horizontal mobile com arena ampliada e controles de toque maiores. Os URLs dos arquivos estáticos e módulos continuam versionados para evitar reutilização de recursos antigos em cache.
 
-**Fase:** aprimoramento dos controles móveis com joystick analógico.
+**Fase:** implementação do lobby, seleção de plataforma e preparação das configurações antes da versão estável.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: teclado para movimentação, mouse para mirar e joystick virtual analógico e botão de disparo em dispositivos compatíveis. A mira por mouse foi integrada em `main` e aguarda validação manual no computador.
@@ -14,6 +14,13 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
 - Estrutura modular, sem frameworks ou dependências externas.
+
+## Lobby e plataforma
+
+- O menu principal separa o lobby da arena e oferece acesso a Jogar, Configurações e Sobre o jogo.
+- A preferência PC/mobile é detectada automaticamente na primeira visita e pode ser alterada manualmente; a escolha fica salva no navegador.
+- As configurações de tamanho e transparência da HUD são aplicadas à interface e persistidas localmente. As opções de áudio e redução de efeitos ainda serão conectadas às mecânicas nas próximas etapas.
+- O armazenamento é local ao navegador e não sincroniza preferências entre dispositivos.
 
 ## Executar localmente
 
@@ -29,7 +36,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Mecânicas atuais
 
-> **Validação pendente:** a mira pelo mouse, os novos disparos dos perseguidores e os ajustes de layout horizontal e controles mobile foram integrados na branch de trabalho e aguardam revisão; a versão `0.7.0` deve ser testada no GitHub Pages antes de ser considerada validada. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para forçar o navegador a buscar os arquivos atualizados.
+> **Validação pendente:** a mira pelo mouse, os novos disparos dos perseguidores e os ajustes de layout horizontal e controles mobile foram integrados na branch de trabalho e aguardam revisão; a versão `0.8.0` deve ser testada no GitHub Pages antes de ser considerada validada. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para forçar o navegador a buscar os arquivos atualizados.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
