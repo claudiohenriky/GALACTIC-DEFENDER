@@ -19,10 +19,10 @@ export class WaveManager {
       this.timer -= dt;
       if (this.timer <= 0) {
         this.wave += 1;
-        this.enemyCount = Math.min(5 + (this.wave - 1) * 2, 18);
+        this.enemyCount = this.wave % 5 === 0 ? 1 : Math.min(5 + (this.wave - 1) * 2, 18);
         this.spawnedCount = 0;
         this.state = 'spawning';
-        this.timer = 1.8;
+        this.timer = this.wave % 5 === 0 ? 2.4 : 1.8;
       }
       return false;
     }
