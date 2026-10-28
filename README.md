@@ -32,7 +32,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Inimigos com colisões e dano à integridade.
 - Invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis, pontuação e missão inicial.
-- HUD compacta dentro da arena com integridade e XP sempre visíveis.
+- HUD compacta dentro da arena com integridade, XP, nível, onda e pontuação sempre visíveis.
 - Feedback visual de dano e efeito de partículas douradas ao subir de nível.
 - Modo de tela cheia com tentativa opcional de bloquear a orientação em paisagem.
 - Ondas de inimigos com intervalos e dificuldade progressiva.
