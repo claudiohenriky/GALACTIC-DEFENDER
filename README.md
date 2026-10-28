@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em preparação:** `0.8.0` — ataques dos perseguidores a maior distância e layout horizontal mobile com arena ampliada e controles de toque maiores. Os URLs dos arquivos estáticos e módulos continuam versionados para evitar reutilização de recursos antigos em cache.
+**Versão atual:** `0.8.0` — lobby principal, seleção de plataforma PC/mobile, configurações visuais iniciais, correção de dimensionamento da arena ao iniciar e proteção temporária ao nascer. A primeira onda começa mais devagar para dar tempo de orientação ao jogador.
 
-**Fase:** implementação do lobby, seleção de plataforma e preparação das configurações antes da versão estável.
+**Fase:** versão 0.8.0 integrada em `main`; validação manual no GitHub Pages em andamento.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: teclado para movimentação, mouse para mirar e joystick virtual analógico e botão de disparo em dispositivos compatíveis. A mira por mouse foi integrada em `main` e aguarda validação manual no computador.
@@ -36,7 +36,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Mecânicas atuais
 
-> **Validação pendente:** a mira pelo mouse, os novos disparos dos perseguidores e os ajustes de layout horizontal e controles mobile foram integrados na branch de trabalho e aguardam revisão; a versão `0.8.0` deve ser testada no GitHub Pages antes de ser considerada validada. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para forçar o navegador a buscar os arquivos atualizados.
+ > **Validação manual pendente:** testar no GitHub Pages o lobby, a partida, o retorno ao menu, as configurações e os controles em mobile e desktop. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
@@ -44,7 +44,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Projéteis dos sentinelas causam 10 pontos de dano em impacto direto e respeitam a invulnerabilidade temporária.
 - A partir da onda 3, perseguidores também podem disparar projéteis mais lentos, causando de 3 a 5 pontos de dano conforme o tamanho do inimigo; o disparo exige distância e tem intervalo longo.
 - Inimigos não causam dano automático ao ultrapassar a borda da arena.
-- Invulnerabilidade temporária com efeito visual de piscar após receber dano.
+- Proteção inicial de 3 segundos ao surgir e invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis, pontuação e missão inicial.
 - HUD compacta dentro da arena com integridade, XP, nível, onda e pontuação sempre visíveis.
 - Feedback visual de dano e efeito de partículas douradas ao subir de nível.
