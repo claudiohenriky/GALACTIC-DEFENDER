@@ -4,7 +4,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em desenvolvimento:** `0.12.0` — melhorias escolhidas ao subir de nível, controle de volume, inimigo interceptador e progressão por missões.
+**Versão em desenvolvimento:** `0.13.0` — chefes em ondas especiais, histórico de versões e ajuste de combate dos perseguidores.
 
 **Fase:** primeira implementação do sistema de missões e progressão; validação manual no GitHub Pages pendente.
 
@@ -36,14 +36,15 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Mecânicas atuais
 
- > **Validação:** a v0.11.0 passou no teste manual informado; a v0.12.0 adiciona controle de volume e reforço de música/dano. Validar a publicação após o merge. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
+ > **Validação:** a v0.11.0 passou no teste manual informado; a v0.13.0 adiciona controle de volume e reforço de música/dano. Validar a publicação após o merge. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
 - A partir da onda 2, interceptadores ciano, rápidos e frágeis pressionam a nave com movimento agressivo.
 - A partir da onda 2, alguns inimigos sentinelas tentam manter distância e disparam projéteis direcionados à posição da nave no momento do disparo.
 - Projéteis dos sentinelas causam 10 pontos de dano em impacto direto e respeitam a invulnerabilidade temporária.
-- A partir da onda 3, perseguidores também podem disparar projéteis mais lentos, causando de 3 a 5 pontos de dano conforme o tamanho do inimigo; o disparo exige distância e tem intervalo longo.
+- A partir da onda 2, perseguidores vermelhos também podem disparar projéteis mais lentos, causando de 3 a 5 pontos de dano conforme o tamanho do inimigo; o disparo exige um pouco mais de distância e tem intervalo moderado.
+- A cada cinco ondas, uma onda especial apresenta um chefe com mais integridade, movimento lateral e disparos direcionados.
 - Inimigos não causam dano automático ao ultrapassar a borda da arena.
 - Proteção inicial de 3 segundos ao surgir e invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis e pontuação.
@@ -88,6 +89,10 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 3. Testar o carregamento e o jogo após mudanças estruturais.
 4. Manter `main` como versão oficial.
 5. Nunca incluir tokens, senhas ou credenciais no repositório.
+
+## Histórico de versões
+
+O histórico para jogadores fica disponível no menu principal. O registro técnico completo está em [`CHANGELOG.md`](./CHANGELOG.md), com as versões mais recentes primeiro. A v0.13.0 permanece em desenvolvimento até passar pela revisão e pelos testes de jogo.
 
 ## GitHub Pages
 
