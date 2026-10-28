@@ -290,7 +290,7 @@ export class Game {
     this.enemyProjectiles.forEach((shot) => shot.update(dt));
     this.enemies.forEach((enemy) => {
       const shot = enemy.update(dt, this.player.x, this.player.y, this.width, this.height);
-      if (shot) this.enemyProjectiles.push(new EnemyProjectile(shot.x, shot.y, shot.targetX, shot.targetY));
+      if (shot) this.enemyProjectiles.push(new EnemyProjectile(shot.x, shot.y, shot.targetX, shot.targetY, shot));
     });
 
     // Resolve projectile hits once, awarding score, XP, and mission progress.
@@ -324,7 +324,7 @@ export class Game {
       if (!shot.active) continue;
       if (Math.hypot(this.player.x - shot.x, this.player.y - shot.y) < this.player.radius + shot.radius) {
         shot.active = false;
-        if (this.player.takeDamage(10)) this.triggerDamageFeedback(10);
+        if (this.player.takeDamage(shot.damage)) this.triggerDamageFeedback(shot.damage);
       }
     }
 

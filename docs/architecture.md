@@ -8,7 +8,7 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - `src/core/game.js`: estado global, ciclo de animação, geração e colisões.
 - `src/core/wave-manager.js`: contagem de inimigos por onda, intervalos e escalada de dificuldade.
 - `src/player/player.js`: movimento, integridade, invulnerabilidade temporária e desenho da nave.
-- `src/enemies/enemy.js`: movimento de perseguição, limites da arena e desenho dos inimigos.
+- `src/enemies/enemy.js`: movimento de perseguição, comportamento de sentinelas, disparos e desenho dos inimigos.
 - `src/combat/projectile.js`: projéteis do jogador.
 - `src/combat/enemy-projectile.js`: projéteis inimigos direcionados à posição da nave no disparo.
 - `src/progression/progression.js`: experiência, níveis e classes de piloto.
@@ -28,7 +28,7 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - O sistema de ondas é separado do ciclo principal para facilitar balanceamento e expansão.
 - Os inimigos perseguidores avançam gradualmente na direção da nave; a velocidade escala moderadamente com a onda.
 - A partir da onda 2, uma parcela dos inimigos pode surgir como sentinela: tenta manter uma faixa de distância e dispara projéteis em direção à posição atual da nave no momento do disparo.
-- Projéteis hostis têm velocidade limitada, são removidos ao sair da arena e causam 10 de dano em colisão, respeitando a janela de invulnerabilidade.
+- Projéteis hostis são removidos ao sair da arena e respeitam a janela de invulnerabilidade. Sentinelas causam 10 de dano; perseguidores podem disparar a partir da onda 3, causando 3–5 de dano, com menor velocidade e intervalo mais longo.
 - Sair da borda não causa dano automático. O dano acontece por colisão direta com a nave; uma futura base defensiva deverá ter sistema de vida próprio.
 - Em telas móveis estreitas, a proporção `10:19` aumenta o espaço vertical da arena; botões de toque ampliados têm ajustes separados para telas estreitas e orientação horizontal.
 - Teclado e controles de toque compartilham o mesmo conjunto de entradas; os controles de toque aparecem em dispositivos com ponteiro de toque.
@@ -48,6 +48,6 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 3. Confirmar que as ondas aguardam todos os inimigos e avançam após o intervalo.
 4. Testar pausa/retomada e comportamento ao mudar de aba.
 5. Testar HUD, feedback de dano, partículas de nível e tela cheia em diferentes tamanhos de tela.
-6. Testar o ritmo de disparo, a colisão e a dificuldade dos inimigos sentinelas em computador e celular.
+6. Testar o ritmo de disparo, a colisão e a dificuldade dos projéteis de sentinelas e perseguidores em computador e celular.
 7. Balancear a velocidade de perseguição e a dificuldade conforme o comportamento observado em dispositivos reais.
 8. Evoluir missões, recompensas e títulos depois que o ciclo principal estiver estável.
