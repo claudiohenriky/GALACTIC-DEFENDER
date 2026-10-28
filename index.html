@@ -6,14 +6,14 @@
   <meta name="theme-color" content="#070b18">
   <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.6.0">
-  <script type="module" src="./main.js?v=0.6.0"></script>
+  <link rel="stylesheet" href="./style.css?v=0.7.0">
+  <script type="module" src="./main.js?v=0.7.0"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PROTÓTIPO · 0.6.0</span>
+      <span class="build-tag">PROTÓTIPO · 0.7.0</span>
     </header>
     <section class="game-layout" aria-label="Área do jogo">
       <aside class="side-panel briefing">
@@ -36,11 +36,9 @@
           <button id="fullscreen-button" class="fullscreen-button" type="button" aria-label="Ativar tela cheia" title="Tela cheia">⛶</button>
           <div class="orientation-hint" aria-hidden="true">GIRE O CELULAR NA HORIZONTAL PARA JOGAR MELHOR</div><div id="start-overlay" class="overlay"><div class="overlay-symbol">✦</div><p class="eyebrow">SINAL DETECTADO</p><h2>Pronto para<br><span>decolar?</span></h2><p>O setor precisa de você, piloto.</p><button id="start-button" class="primary-button" type="button">INICIAR MISSÃO <span>↗</span></button></div><div id="pause-overlay" class="overlay hidden"><div class="overlay-symbol">Ⅱ</div><p class="eyebrow">SISTEMA EM ESPERA</p><h2>Missão<br><span>pausada.</span></h2><p>Pressione P para continuar.</p><button id="resume-button" class="primary-button" type="button">RETOMAR <span>↗</span></button></div><div id="gameover-overlay" class="overlay hidden"><div class="overlay-symbol">✧</div><p class="eyebrow">SINAL PERDIDO</p><h2>Fim da<br><span>missão.</span></h2><p id="final-score">Pontuação: 0</p><button id="restart-button" class="primary-button" type="button">TENTAR NOVAMENTE <span>↗</span></button></div>
         <div id="touch-controls" class="touch-controls" aria-label="Controles de toque da nave">
-          <div class="touch-dpad" aria-label="Movimentação">
-            <button type="button" class="touch-button touch-up" data-key="w" aria-label="Mover para cima">▲</button>
-            <button type="button" class="touch-button touch-left" data-key="a" aria-label="Mover para a esquerda">◀</button>
-            <button type="button" class="touch-button touch-down" data-key="s" aria-label="Mover para baixo">▼</button>
-            <button type="button" class="touch-button touch-right" data-key="d" aria-label="Mover para a direita">▶</button>
+          <div id="virtual-joystick" class="virtual-joystick" role="application" aria-label="Joystick virtual: arraste para movimentar a nave">
+            <div class="joystick-ring"><div id="joystick-thumb" class="joystick-thumb"></div></div>
+            <span class="joystick-caption">MOVER</span>
           </div>
           <button type="button" class="touch-button touch-fire" data-key="space" aria-label="Disparar">DISPARAR</button>
         </div></div>

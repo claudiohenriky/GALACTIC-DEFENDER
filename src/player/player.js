@@ -16,20 +16,32 @@ export class Player {
     this.y = Math.max(this.radius + 5, Math.min(height - this.radius - 5, this.y));
   }
 
-  update(dt, keys, width, height) {
+  update(dt, keys, width, height, joystick = null) {
     this.invulnerabilityTimer = Math.max(0, this.invulnerabilityTimer - dt);
     this.flamePhase += dt;
 
     let dx = 0, dy = 0;
-    if (keys.has('a') || keys.has('arrowleft')) dx -= 1;
-    if (keys.has('d') || keys.has('arrowright')) dx += 1;
-    if (keys.has('w') || keys.has('arrowup')) dy -= 1;
-    if (keys.has('s') || keys.has('arrowdown')) dy += 1;
-
-    // Normalize diagonal movement so it is not faster than horizontal/vertical movement.
-    const magnitude = Math.hypot(dx, dy) || 1;
-    this.x += (dx / magnitude) * this.speed * dt;
-    this.y += (dy / magnitude) * this.speed * dt;
+    if (joystick && Math.hypot(joystick.x, joystick.y) > 0.04) {
+      // Analog movement preserves partial tilt for fine positioning and caps diagonal speed.
+      dx = joystick.x;
+      dy = joystick.y;
+      const magnitude = Math.hypot(dx, dy);
+      if (magnitude > 1) {
+        dx /= magnitude;
+        dy /= magnitude;
+      }
+    } else {
+      if (keys.has('a') || keys.has('arrowleft')) dx -= 1;
+      if (keys.has('d') || keys.has('arrowright')) dx += 1;
+      if (keys.has('w') || keys.has('arrowup')) dy -= 1;
+      if (keys.has('s') || keys.has('arrowdown')) dy += 1;
+      // Normalize keyboard diagonals so they are not faster than horizontal movement.
+      const magnitude = Math.hypot(dx, dy) || 1;
+      dx /= magnitude;
+      dy /= magnitude;
+    }
+    this.x += dx * this.speed * dt;
+    this.y += dy * this.speed * dt;
     this.fitToArena(width, height);
   }
 
