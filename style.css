@@ -68,3 +68,6 @@
   .hud-readout-heading strong{font-size:8px}
 }
 @media(prefers-reduced-motion:reduce){.level-up-toast.level-up-active,.damage-feedback.damage-active{animation:none;opacity:1}}
+
+/* Menus must sit above in-arena controls until the player resumes. */
+.overlay{z-index:5}
