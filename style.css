@@ -233,3 +233,25 @@ html{--hud-scale:1;--hud-opacity:1}
 html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damage-feedback{animation:none!important;filter:none!important}
 @media(max-width:700px){.main-menu{grid-template-columns:1fr;gap:4px;min-height:auto;padding:25px 20px}.menu-art{min-height:180px;grid-row:1}.menu-planet{width:135px}.menu-orbit{width:220px;height:80px}.orbit-two{width:255px;height:105px}.menu-ship{width:55px;height:55px;font-size:30px;border-radius:16px}.menu-coordinate{bottom:0;font-size:8px}.menu-copy h1{font-size:clamp(32px,9vw,48px)}.menu-copy .eyebrow{margin-bottom:12px}.menu-panel{inset:10px;padding:18px}.setting-row{gap:12px}.setting-row small{max-width:230px}.setting-row select{min-width:105px}.panel-actions .primary-button,.panel-actions .secondary-button{flex:1}.platform-options{max-width:none}}
 @media(prefers-reduced-motion:reduce){.menu-ship{transform:none}}
+
+
+/* v0.9.0: compact telemetry and a larger desktop combat field. */
+.in-game-hud{width:min(58%,390px);gap:5px}
+.hud-readout{padding:6px 8px}
+.hud-readout-heading{font-size:8px;margin-bottom:4px;letter-spacing:.04em}
+.hud-readout-heading strong{font-size:9px}
+.hud-meter{height:4px}
+.hud-meta{padding:4px 8px;font-size:7px;letter-spacing:.07em}
+@media(min-width:851px){
+  .app-shell{max-width:1720px}
+  .game-layout{grid-template-columns:minmax(155px,.58fr) minmax(420px,3fr) minmax(155px,.58fr);gap:14px}
+  .canvas-frame canvas{max-height:860px}
+}
+@media(max-width:850px){.in-game-hud{width:min(62%,360px)}}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape){
+  .in-game-hud{width:min(48%,360px);gap:4px}
+  .hud-readout{padding:5px 7px}
+  .hud-readout-heading{font-size:7px}
+  .hud-readout-heading strong{font-size:8px}
+  .hud-meta{padding:4px 7px;font-size:7px}
+}
