@@ -44,7 +44,8 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Definir limites de níveis para evitar que as novas cartas continuem aparecendo após o máximo.
 - [x] Revisar a distribuição funcional das cartas após o teste manual da v0.26.0; o usuário confirmou que tudo funciona corretamente.
 - [x] **v0.28.0:** protótipo do Míssil teleguiado e pesos de aparição das raridades.
-- [ ] **v0.28.5 candidata:** validar suportes nas asas, ordem visual dos projéteis, lançamento direito/esquerdo com intervalo de 0,2 s, alvos, dano, recarga e fluidez em paisagem/retrato antes de mesclar em `main`.
+- [ ] **v0.28.6 candidata:** confirmar aparição e seleção da carta Míssil teleguiado (garantida enquanto abaixo do nível máximo), depois testar ativação, dois lançamentos no nível 2+, alvos, dano, recarga e fluidez em celular.
+- **v0.28.5:** candidata anterior com ajustes visuais de lançamento; substituída pela v0.28.6 para investigar a carta que não aparecia. Não mesclar separadamente.
 - **v0.28.4:** candidata anterior substituída pela v0.28.5; não mesclar separadamente.
 - **v0.28.3:** candidata anterior substituída pela v0.28.4; não mesclar separadamente.
 - **v0.28.2:** candidata substituída após teste manual; não mesclar separadamente.
