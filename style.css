@@ -295,3 +295,37 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 /* v0.19.1 — live mission, reward, title and achievement banner */
 .overlay{z-index:20}
 .reward-banner{position:absolute;z-index:15;top:52px;right:12px;left:auto;width:min(36%,330px);max-height:34%;overflow:hidden;padding:9px 11px;display:flex;flex-direction:column;gap:4px;transform:translateX(14px);border:1px solid #4a7894;border-radius:8px;background:linear-gradient(135deg,#0c2137f5,#101a31f5);box-shadow:0 8px 22px #0006;text-align:left;opacity:0;pointer-events:none}.reward-banner strong{color:var(--cyan);font-size:9px;letter-spacing:.12em}.reward-banner span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;color:var(--text);font-size:10px;line-height:1.4;overflow-wrap:anywhere}.reward-banner-boss strong{color:#d9a5ff}.reward-banner-achievement strong{color:#ffd783}.reward-banner-active{animation:reward-banner-in-out 5.2s ease both}@keyframes reward-banner-in-out{0%{opacity:0;transform:translateX(14px)}8%,78%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(10px)}}@media(max-width:560px){.reward-banner{top:48px;right:8px;width:min(72%,300px);max-height:30%;padding:8px 10px}.reward-banner span{font-size:10px}}@media (hover:none) and (pointer:coarse) and (orientation:landscape){.reward-banner{top:48px;right:10px;width:min(38vw,310px);max-height:42%;padding:7px 9px}.reward-banner strong{font-size:8px}.reward-banner span{-webkit-line-clamp:3;font-size:9px}}
+
+/* v0.21.0 — pre-mission preparation. This screen does not start the game loop. */
+.mission-prep{max-width:1240px;min-height:clamp(500px,66vh,760px);margin:26px auto;padding:clamp(22px,4vw,52px);border:1px solid var(--line);border-radius:14px;background:radial-gradient(ellipse at 88% 8%,#142d4a 0%,#0b1427 42%,#080e1d 100%);box-shadow:0 22px 70px #0002}
+.prep-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;padding-bottom:25px;border-bottom:1px solid var(--line)}
+.prep-heading h2{margin:0;font-size:clamp(30px,4vw,48px);letter-spacing:-.055em;line-height:1.05}
+.prep-heading h2 span{color:var(--cyan)}
+.prep-heading .menu-description{margin-bottom:0}
+.prep-content{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(250px,.8fr);gap:clamp(20px,4vw,48px);padding:28px 0}
+.prep-section h3{margin:0 0 16px;font-size:18px;letter-spacing:-.025em}
+.prep-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.prep-mode-card{display:flex;flex-direction:column;align-items:flex-start;gap:11px;min-height:220px;padding:18px;border:1px solid #2a3b58;border-radius:10px;background:#101c31;color:var(--text);text-align:left}
+.prep-mode-card.is-selected{border-color:var(--cyan);background:linear-gradient(150deg,#143044,#101b30);box-shadow:inset 0 0 28px #58e4e80b}
+.prep-mode-card:disabled{opacity:.55;cursor:not-allowed}
+.prep-mode-icon{display:grid;place-items:center;width:38px;height:38px;border:1px solid #3b647c;border-radius:9px;color:var(--cyan);font-size:22px}
+.prep-mode-card strong{font-size:15px}
+.prep-mode-card>span:not(.prep-mode-icon){color:#a8b7d0;font-size:12px;line-height:1.6}
+.prep-mode-card small{margin-top:auto;color:var(--cyan);font-size:9px;font-weight:850;letter-spacing:.12em}
+.prep-mode-card:disabled small{color:var(--muted)}
+.prep-checklist{padding:20px;border:1px solid #263a59;border-radius:10px;background:#0b1425a8}
+.prep-check-item{display:flex;align-items:flex-start;gap:11px;padding:14px 0;border-bottom:1px solid #202d48}
+.prep-check-item>span{display:grid;place-items:center;flex:0 0 26px;width:26px;height:26px;border-radius:7px;background:#153246;color:var(--cyan);font-weight:900}
+.prep-check-item strong,.prep-check-item small{display:block}
+.prep-check-item strong{font-size:12px}
+.prep-check-item small{margin-top:5px;color:var(--muted);font-size:10px;line-height:1.6}
+.prep-fullscreen-button{width:100%;margin-top:18px}
+.prep-launch{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-top:22px;border-top:1px solid var(--line)}
+.prep-launch>div{display:grid;grid-template-columns:9px 1fr;align-items:center;column-gap:9px}
+.prep-launch>div>span:nth-child(2){font-size:10px;font-weight:850;letter-spacing:.1em}
+.prep-launch small{grid-column:2;color:var(--muted);font-size:10px;margin-top:5px}
+.prep-launch-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 12px #8cf5c766}
+.prep-start-button{min-width:220px;min-height:52px}
+.app-shell:fullscreen{width:100%;max-width:none;min-height:100vh;overflow:auto;padding:clamp(10px,2vw,24px);background:var(--bg)}
+@media(max-width:760px){.mission-prep{min-height:0;margin:18px 0;padding:22px 18px}.prep-heading{flex-direction:column;gap:15px}.prep-content{grid-template-columns:1fr;gap:18px;padding:22px 0}.prep-mode-card{min-height:195px;padding:14px}.prep-checklist{padding:16px}.prep-launch{align-items:stretch;flex-direction:column}.prep-start-button{width:100%;min-width:0}}
+@media(max-width:420px){.prep-mode-grid{grid-template-columns:1fr}.prep-mode-card{min-height:150px}.prep-heading h2{font-size:31px}.prep-launch>div>span:nth-child(2){font-size:9px}}
