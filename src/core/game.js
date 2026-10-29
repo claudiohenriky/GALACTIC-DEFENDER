@@ -456,6 +456,7 @@ export class Game {
   }
 
   activateShieldPulse() {
+    const profileStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
     if (this.status !== 'running' || this.player.shieldLevel <= 0 || this.shieldPulseCooldown > 0) return false;
     const level = this.player.shieldLevel;
     const radius = 140 + level * 18;
@@ -477,6 +478,7 @@ export class Game {
     this.shieldPulseCooldownMax = Math.max(12, 18 - level * 2);
     this.shieldPulseCooldown = this.shieldPulseCooldownMax;
     this.updateShieldPulseButton();
+    if (this.performanceProfileEnabled) console.info('[GALACTIC-DEFENDER activation]', { ability: 'shield-pulse', durationMs: Number((performance.now() - profileStartedAt).toFixed(2)), enemiesChecked: this.enemies.length, projectilesChecked: this.enemyProjectiles.length });
     return true;
   }
 
