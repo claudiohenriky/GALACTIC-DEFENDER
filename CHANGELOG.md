@@ -1,5 +1,13 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
+## [0.17.1] — Mira mobile por arraste e disparo automático (candidata em validação)
+
+### Alterado
+- Ao arrastar o dedo na arena mobile, a nave acompanha a direção indicada quando não há inimigos ativos.
+- Inimigos ativos têm prioridade na mira; o jogo dispara automaticamente contra o inimigo mais próximo.
+- Desativada a ação padrão de toque/rolagem na área do canvas para manter o arraste consistente.
+- Aguarda validação manual de controle, fluidez e regressão no celular.
+
 ## [0.17.0] — Rotação de 360° e mira por plataforma (candidata em validação)
 
 ### Em desenvolvimento
@@ -109,4 +117,4 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 
 ## Observações
 - Atualizar este arquivo e o histórico dentro do jogo juntos.
-- A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; a v0.15.1 foi aprovada em computador e celular. A v0.16.2 passou nos seis testes manuais de desempenho e regressão no celular informados pelo usuário. A v0.17.0 foi publicada como candidata em `main` e aguarda validação manual em computador e celular.
+- A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; a v0.15.1 foi aprovada em computador e celular. A v0.16.2 passou nos seis testes manuais de desempenho e regressão no celular informados pelo usuário. A v0.17.0 foi publicada como candidata em `main`. A v0.17.1 adiciona mira por arraste e disparo automático mobile; aguarda validação manual no celular.
