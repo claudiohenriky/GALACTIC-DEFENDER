@@ -40,10 +40,12 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 
 ## Etapa 3 — Novas cartas de atributos e habilidades
 - [x] Auditar as cartas existentes e os marcos de progressão antes de adicionar outra opção.
-- [ ] Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
-- [ ] Definir regras de raridade, compatibilidade e limites para evitar combinações desbalanceadas.
+- [x] Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
+- [x] Definir limites de níveis para evitar que as novas cartas continuem aparecendo após o máximo.
+- [ ] Revisar distribuição e equilíbrio das cartas após o teste manual da v0.26.0.
 - [ ] Considerar o míssil como nova habilidade especial após a revisão do sistema de projéteis.
-- **Em desenvolvimento na v0.25.0:** carta Cadência aprimorada, com aumento de 10% por nível e limite de cinco níveis; candidata ainda depende de validação.
+- **v0.25.0:** Cadência aprimorada, +10% por nível, até cinco níveis.
+- **Candidata v0.26.0:** Projéteis acelerados (+15% de velocidade por nível, até três níveis) e Controle de propulsão (+8% de aceleração por nível, até três níveis). A candidata depende de verificações automatizadas e teste manual.
 
 ## Etapa 4 — Novas classes de inimigos
 - Adicionar classes com comportamentos próprios, por exemplo guardião, artilheiro e elite.

@@ -1,3 +1,14 @@
+## [0.26.0] — Novas cartas de atributos de combate
+
+### Atributos da nave
+- Adiciona **Projéteis acelerados**: aumenta em 15% a velocidade dos projéteis normais por nível, até três níveis.
+- Adiciona **Controle de propulsão**: aumenta em 8% a aceleração da nave por nível, até três níveis, sem elevar sua velocidade máxima.
+- A aceleração é aplicada de forma gradual para preservar a sensação de controle; a nova carta melhora a resposta de aceleração sem alterar a cadência ou o dano.
+- As duas cartas são removidas das escolhas quando atingem seus limites. Habilidades especiais existentes permanecem separadas dos atributos.
+
+### Validação
+- Aguardando verificações automatizadas do pull request e teste manual pelo GitHub Pages em celular e computador.
+
 ## [0.25.0] — Nova carta de atributo: cadência de disparo
 
 ### Progressão e combate
@@ -6,7 +17,7 @@
 - Remove a carta da lista de opções quando o limite de cinco níveis é atingido.
 
 ### Validação
-- Verificações automatizadas e teste manual no GitHub Pages ainda precisam ser executados; esta versão ainda não foi aprovada para merge.
+- A carta foi integrada à `main`; a validação manual pelo GitHub Pages deve ser confirmada pelo usuário.
 
 ## [0.24.2] — Ajuste fino da elasticidade inimiga
 
