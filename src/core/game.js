@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.28.4';
-import { Enemy } from '../enemies/enemy.js?v=0.28.4';
-import { Projectile } from '../combat/projectile.js?v=0.28.4';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.28.4';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.28.4';
-import { Progression } from '../progression/progression.js?v=0.28.4';
-import { Mission } from '../missions/missions.js?v=0.28.4';
-import { WaveManager } from './wave-manager.js?v=0.28.4';
-import { updateHud } from '../ui/hud.js?v=0.28.4';
-import { gameAudio } from '../audio/game-audio.js?v=0.28.4';
-import { AchievementTracker } from '../progression/achievements.js?v=0.28.4';
+import { Player } from '../player/player.js?v=0.28.5';
+import { Enemy } from '../enemies/enemy.js?v=0.28.5';
+import { Projectile } from '../combat/projectile.js?v=0.28.5';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.28.5';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.28.5';
+import { Progression } from '../progression/progression.js?v=0.28.5';
+import { Mission } from '../missions/missions.js?v=0.28.5';
+import { WaveManager } from './wave-manager.js?v=0.28.5';
+import { updateHud } from '../ui/hud.js?v=0.28.5';
+import { gameAudio } from '../audio/game-audio.js?v=0.28.5';
+import { AchievementTracker } from '../progression/achievements.js?v=0.28.5';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -33,6 +33,7 @@ export class Game {
     this.guidedMissiles = [];
     this.guidedMissileCooldown = 0;
     this.guidedMissileCooldownMax = 12;
+    this.pendingGuidedMissileLaunch = null;
     this.guidedMissileEffects = [];
     this.enemyProjectiles = [];
     this.stars = Array.from({ length: 95 }, () => ({
@@ -172,6 +173,7 @@ export class Game {
     this.guidedMissiles = [];
     this.guidedMissileCooldown = 0;
     this.guidedMissileCooldownMax = 12;
+    this.pendingGuidedMissileLaunch = null;
     this.guidedMissileEffects = [];
     this.enemyProjectiles = [];
     this.score = 0;
@@ -439,6 +441,23 @@ export class Game {
     }
   }
 
+  createGuidedMissileFromWing(side, target, level) {
+    // Match Player.draw's exact local transform, including its small banking skew.
+    const shipDrawAngle = this.player.rotation + Math.PI / 2;
+    const bank = this.player.bank || 0;
+    const localX = side * 17;
+    const localY = 5;
+    const transformedX = localX * (1 - Math.abs(bank) * 0.08) + localY * (bank * 0.32);
+    const transformedY = localY;
+    const launchX = this.player.x + transformedX * Math.cos(shipDrawAngle) - transformedY * Math.sin(shipDrawAngle);
+    const launchY = this.player.y + transformedX * Math.sin(shipDrawAngle) + transformedY * Math.cos(shipDrawAngle);
+    const fallbackAngle = Number.isFinite(this.player.rotation) ? this.player.rotation : -Math.PI / 2;
+    const initialAngle = target && target.active
+      ? Math.atan2(target.y - launchY, target.x - launchX)
+      : fallbackAngle;
+    this.guidedMissiles.push(new GuidedMissile(launchX, launchY, target, level, initialAngle, side));
+  }
+
   activateGuidedMissile() {
     if (this.status !== 'running' || this.player.guidedMissileLevel <= 0 || this.guidedMissileCooldown > 0) return false;
     const targets = this.enemies.filter((enemy) => enemy.active).sort((a, b) => {
@@ -448,25 +467,21 @@ export class Game {
     });
     const level = this.player.guidedMissileLevel;
     const missileCount = level >= 2 ? 2 : 1;
-    const launchAngle = Number.isFinite(this.player.rotation) ? this.player.rotation : -Math.PI / 2;
-    // The ship artwork is drawn in local coordinates rotated by rotation + PI/2.
-    // Spawn missiles at the left/right wing mounts, not beside the ship's center.
-    const shipDrawAngle = launchAngle + Math.PI / 2;
-    for (let index = 0; index < missileCount; index += 1) {
-      const side = index === 0 ? -1 : 1;
-      const localX = side * 13;
-      const localY = 7;
-      const launchX = this.player.x + localX * Math.cos(shipDrawAngle) - localY * Math.sin(shipDrawAngle);
-      const launchY = this.player.y + localX * Math.sin(shipDrawAngle) + localY * Math.cos(shipDrawAngle);
-      // With two or more targets, assign one distinct target to each missile.
-      // If only one target exists, both missiles may pursue it.
-      const target = targets[index] || (targets.length === 1 ? targets[0] : null);
-      const initialAngle = target ? Math.atan2(target.y - launchY, target.x - launchX) : launchAngle;
-      this.guidedMissiles.push(new GuidedMissile(launchX, launchY, target, level, initialAngle, side));
+    // Launch from the right wing first; at level 2+, launch the left missile 0.2s later.
+    const rightTarget = targets[0] || null;
+    this.createGuidedMissileFromWing(1, rightTarget, level);
+    if (missileCount === 2) {
+      this.pendingGuidedMissileLaunch = {
+        timer: 0.2,
+        side: -1,
+        target: targets[1] || (targets.length === 1 ? targets[0] : null),
+        level
+      };
     }
     this.guidedMissileCooldownMax = level >= 3 ? 9 : level >= 2 ? 10 : 12;
     this.guidedMissileCooldown = this.guidedMissileCooldownMax;
     this.updateGuidedMissileButton();
+    this.renderFrame(0);
     return true;
   }
 
@@ -474,6 +489,7 @@ export class Game {
     const button = document.querySelector('#guided-missile-button');
     if (!button) return;
     const unlocked = this.player.guidedMissileLevel > 0;
+    this.player.guidedMissileCooldown = this.guidedMissileCooldown;
     button.classList.toggle('hidden', !unlocked);
     button.disabled = !unlocked || this.status !== 'running' || this.guidedMissileCooldown > 0;
     const label = document.querySelector('#guided-missile-status');
@@ -787,6 +803,16 @@ export class Game {
 
     this.projectiles.forEach((shot) => shot.update(dt));
     this.guidedMissileCooldown = Math.max(0, this.guidedMissileCooldown - dt);
+    this.player.guidedMissileCooldown = this.guidedMissileCooldown;
+    // Fire the second missile after a short delay so both launches are readable.
+    if (this.pendingGuidedMissileLaunch) {
+      this.pendingGuidedMissileLaunch.timer -= dt;
+      if (this.pendingGuidedMissileLaunch.timer <= 0) {
+        const pending = this.pendingGuidedMissileLaunch;
+        this.pendingGuidedMissileLaunch = null;
+        this.createGuidedMissileFromWing(pending.side, pending.target, pending.level);
+      }
+    }
     // Keep the disabled state synchronized with the real cooldown on every frame.
     this.updateGuidedMissileButton();
     this.guidedMissiles.forEach((missile) => missile.update(dt, this.enemies, this.width, this.height, this.guidedMissiles));
@@ -932,7 +958,6 @@ export class Game {
 
     ctx.globalAlpha = 1;
     this.projectiles.forEach((shot) => shot.draw(ctx));
-    this.guidedMissiles.forEach((missile) => missile.draw(ctx));
     this.enemyProjectiles.forEach((shot) => shot.draw(ctx));
     this.enemies.forEach((enemy) => enemy.draw(ctx));
     this.guidedMissileEffects.forEach((effect) => {
@@ -954,6 +979,8 @@ export class Game {
       Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
     this.drawShield(ctx);
     this.player.draw(ctx, playerVisible);
+    // Draw missiles after the ship so the hull cannot hide a launch from either wing.
+    this.guidedMissiles.forEach((missile) => missile.draw(ctx));
 
     // Lightweight dual-ring shockwave without per-frame shadow blur.
     this.shieldBreakEffects.forEach((effect) => {
