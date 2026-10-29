@@ -61,7 +61,7 @@ export class Enemy {
     this.bank += (targetBank - this.bank) * Math.min(1, dt * 8);
   }
 
-  update(dt, targetX, targetY, width, height, playerProjectiles = []) {
+  update(dt, targetX, targetY, width, height, playerProjectiles = [], allies = []) {
     const previousX = this.x;
     const previousY = this.y;
     this.contactCooldown = Math.max(0, this.contactCooldown - dt);
@@ -72,6 +72,24 @@ export class Enemy {
     const dx = targetX - this.x;
     const dy = targetY - this.y;
     const distance = Math.hypot(dx, dy) || 1;
+
+    // First tactical-cooperation pass: Guardians screen nearby Sentinels;
+    // Sentinels use that cover to keep a firing lane behind the Guardian.
+    // This changes positioning only, not health, damage, collision, or firing rules.
+    let supportAlly = null;
+    let supportDistance = Infinity;
+    if (this.type === 'guardian' || this.type === 'sentinel') {
+      const wantedType = this.type === 'guardian' ? 'sentinel' : 'guardian';
+      for (const ally of allies) {
+        if (ally === this || !ally.active || ally.type !== wantedType) continue;
+        const allyDistance = Math.hypot(ally.x - this.x, ally.y - this.y);
+        if (allyDistance < supportDistance) {
+          supportDistance = allyDistance;
+          supportAlly = ally;
+        }
+      }
+    }
+
     const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'artillery' ? 3 : this.type === 'guardian' ? 2.5 : this.type === 'interceptor' ? 5 : 9);
     let shot = null;
 
@@ -189,8 +207,20 @@ export class Enemy {
     } else if (this.type === 'sentinel') {
       // Sentinels strafe around a moving firing lane instead of sliding directly toward the player.
       const laneOffset = Math.sin(this.phase * 0.8) * Math.min(105, width * 0.23);
-      const desiredX = Math.max(this.radius, Math.min(width - this.radius, targetX + laneOffset + dodgeStrength));
-      const desiredY = Math.max(42, targetY - Math.min(175, height * 0.3));
+      let desiredX = Math.max(this.radius, Math.min(width - this.radius, targetX + laneOffset + dodgeStrength));
+      let desiredY = Math.max(42, targetY - Math.min(175, height * 0.3));
+
+      if (supportAlly && supportDistance < 230) {
+        const awayX = supportAlly.x - targetX;
+        const awayY = supportAlly.y - targetY;
+        const awayDistance = Math.hypot(awayX, awayY) || 1;
+        const coverX = supportAlly.x + awayX / awayDistance * 58;
+        const coverY = supportAlly.y + awayY / awayDistance * 58;
+        const coverWeight = Math.min(0.65, (230 - supportDistance) / 230 * 0.65);
+        desiredX += (coverX - desiredX) * coverWeight;
+        desiredY += (coverY - desiredY) * coverWeight;
+      }
+
       this.x += (desiredX - this.x) * Math.min(1, dt * 1.15);
       this.y += (desiredY - this.y) * Math.min(1, dt * 1.5);
       this.fireCooldown -= dt;
@@ -210,9 +240,17 @@ export class Enemy {
         };
       }
     } else if (this.type === 'guardian') {
-      // Guardians trade speed and ranged pressure for a durable hull and steady advance.
-      this.x += (dx / distance) * this.speed * dt + drift * dt;
-      this.y += (dy / distance) * this.speed * dt;
+      // A Guardian normally advances on the pilot. Near a Sentinel, it instead
+      // takes a screening position between that ally and the player.
+      if (supportAlly && supportDistance < 280) {
+        const screenX = supportAlly.x + (targetX - supportAlly.x) * 0.45;
+        const screenY = supportAlly.y + (targetY - supportAlly.y) * 0.45;
+        this.x += (screenX - this.x) * Math.min(1, dt * 0.95) + drift * dt;
+        this.y += (screenY - this.y) * Math.min(1, dt * 0.95);
+      } else {
+        this.x += (dx / distance) * this.speed * dt + drift * dt;
+        this.y += (dy / distance) * this.speed * dt;
+      }
     } else {
       // Chasers pursue directly while weaving laterally, keeping their movement readable.
       this.x += (dx / distance) * this.speed * dt + drift * dt;
