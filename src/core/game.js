@@ -1,4 +1,4 @@
-import { Player } from '../player/player.js?v=0.22.0';
+import { Player } from '../player/player.js?v=0.23.0';
 import { Enemy } from '../enemies/enemy.js?v=0.22.0';
 import { Projectile } from '../combat/projectile.js?v=0.22.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.22.0';
