@@ -1,5 +1,21 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
+## [0.18.0] — Otimização do núcleo e do Canvas 2D (em desenvolvimento)
+
+### Otimizações iniciais
+- Substitui cálculos de distância com `Math.hypot()` por comparações com distâncias ao quadrado nas verificações frequentes de colisão entre projéteis, inimigos e jogador, além da área de impacto do escudo.
+- A seleção do inimigo mais próximo compara distâncias ao quadrado, evitando raízes quadradas que não são necessárias para ordenar distâncias.
+- Remove cálculos redundantes das coordenadas da boca da arma antes do laço de criação dos projéteis; as coordenadas necessárias continuam sendo calculadas para cada projétil.
+- Compacta as listas de partículas, efeitos, projéteis e inimigos no próprio array, evitando criar novos arrays com `.filter()` a cada quadro.
+- Adiciona diagnóstico opcional do ciclo por `?profile=1`, com tempos médios de atualização/renderização, intervalo de quadros e contagem de entidades.
+- Adiciona validação automática de sintaxe JavaScript e caminhos de imports relativos nos pull requests.
+- Atualiza os identificadores de cache e a versão exibida para `0.18.0`.
+
+### Validação
+- O diagnóstico foi implementado, mas ainda não foram recolhidos resultados comparativos de FPS em dispositivos reais; nenhum ganho quantificado é afirmado.
+- A versão permanece em desenvolvimento até a revisão do código, a execução das verificações automáticas e o teste manual de regressão no celular.
+
+
 ## [0.17.3] — Retorno frontal da nave no mobile
 
 ### Alterado
@@ -9,7 +25,7 @@
 - Atualiza os identificadores de cache, a versão exibida e o histórico do jogo.
 
 ### Validação
-- Correção registrada; aguarda teste manual no celular para validar retorno frontal, mira, disparo, movimentação e desempenho.
+- Versão aprovada pelo usuário após teste manual no celular; retorno frontal, mira, disparo e movimentação foram considerados corretos.
 
 ## [0.17.2] — Mira automática sem disparo automático
 

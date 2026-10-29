@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.17.3';
-import { Enemy } from '../enemies/enemy.js?v=0.17.3';
-import { Projectile } from '../combat/projectile.js?v=0.17.3';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.17.3';
-import { Progression } from '../progression/progression.js?v=0.17.3';
-import { Mission } from '../missions/missions.js?v=0.17.3';
-import { WaveManager } from './wave-manager.js?v=0.17.3';
-import { updateHud } from '../ui/hud.js?v=0.17.3';
-import { gameAudio } from '../audio/game-audio.js?v=0.17.3';
-import { AchievementTracker } from '../progression/achievements.js?v=0.17.3';
+import { Player } from '../player/player.js?v=0.18.0';
+import { Enemy } from '../enemies/enemy.js?v=0.18.0';
+import { Projectile } from '../combat/projectile.js?v=0.18.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.18.0';
+import { Progression } from '../progression/progression.js?v=0.18.0';
+import { Mission } from '../missions/missions.js?v=0.18.0';
+import { WaveManager } from './wave-manager.js?v=0.18.0';
+import { updateHud } from '../ui/hud.js?v=0.18.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.18.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.18.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -55,6 +55,11 @@ export class Game {
     this.pendingUpgradeChoices = [];
     this.hudUpdateInterval = 0.1;
     this.hudUpdateTimer = 0;
+    // Profiling is opt-in so normal gameplay pays no per-frame timing cost.
+    this.performanceProfileEnabled = new URLSearchParams(window.location.search).get('profile') === '1';
+    this.performanceProfileSamples = [];
+    this.performanceProfileStartedAt = 0;
+    this.performanceProfilePreviousFrameAt = 0;
     this.backgroundCanvas = document.createElement('canvas');
     this.bindOverlayElements();
   }
@@ -126,6 +131,10 @@ export class Game {
     this.hideOverlays();
     this.lastTime = performance.now();
     this.hudUpdateTimer = 0;
+    if (this.performanceProfileEnabled) {
+      this.performanceProfileSamples = [];
+      this.performanceProfilePreviousFrameAt = 0;
+    }
     cancelAnimationFrame(this.animationId);
     this.animationId = requestAnimationFrame((time) => this.loop(time));
     updateHud(this);
@@ -354,9 +363,12 @@ export class Game {
     const radius = 96;
     const life = 0.58;
     this.shieldBreakEffects.push({ x, y, radius, life, maxLife: life });
-    // Two damage clears fragile hostiles but does not instantly defeat a boss.
+    // Compare squared distances to avoid square roots during area-damage checks.
+    const radiusSquared = radius * radius;
     for (const enemy of this.enemies) {
-      if (enemy.active && Math.hypot(enemy.x - x, enemy.y - y) <= radius) {
+      const dx = enemy.x - x;
+      const dy = enemy.y - y;
+      if (enemy.active && dx * dx + dy * dy <= radiusSquared) {
         this.damageEnemy(enemy, 2);
       }
     }
@@ -460,9 +472,11 @@ export class Game {
       let nearestDistance = Infinity;
       for (const enemy of this.enemies) {
         if (!enemy.active) continue;
-        const distance = Math.hypot(enemy.x - this.player.x, enemy.y - this.player.y);
-        if (distance < nearestDistance) {
-          nearestDistance = distance;
+        const dx = enemy.x - this.player.x;
+        const dy = enemy.y - this.player.y;
+        const distanceSquared = dx * dx + dy * dy;
+        if (distanceSquared < nearestDistance) {
+          nearestDistance = distanceSquared;
           target = enemy;
         }
       }
@@ -490,19 +504,66 @@ export class Game {
 
   loop(time) {
     if (this.status !== 'running') return;
+    const frameStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
     const dt = Math.min((time - this.lastTime) / 1000 || 0, .035);
     this.lastTime = time;
+
+    const updateStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
     this.update(dt);
+    const updateDuration = this.performanceProfileEnabled ? performance.now() - updateStartedAt : 0;
+
+    const renderStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
     this.renderFrame(dt);
+    const renderDuration = this.performanceProfileEnabled ? performance.now() - renderStartedAt : 0;
+
     this.hudUpdateTimer += dt;
     if (this.hudUpdateTimer >= this.hudUpdateInterval) {
       this.hudUpdateTimer %= this.hudUpdateInterval;
       updateHud(this);
     }
 
+    if (this.performanceProfileEnabled) {
+      const frameDuration = performance.now() - frameStartedAt;
+      this.performanceProfileSamples.push({
+        frame: this.performanceProfilePreviousFrameAt ? time - this.performanceProfilePreviousFrameAt : 0,
+        update: updateDuration,
+        render: renderDuration,
+        work: frameDuration
+      });
+      this.performanceProfilePreviousFrameAt = time;
+      if (this.performanceProfileSamples.length >= 180) this.reportPerformanceProfile();
+    }
+
     if (this.status === 'running') {
       this.animationId = requestAnimationFrame((next) => this.loop(next));
     }
+  }
+
+  reportPerformanceProfile() {
+    const samples = this.performanceProfileSamples;
+    if (!samples.length) return;
+    const average = (key) => samples.reduce((sum, sample) => sum + sample[key], 0) / samples.length;
+    const frameSamples = samples.filter((sample) => sample.frame > 0);
+    const averageFrame = frameSamples.length
+      ? frameSamples.reduce((sum, sample) => sum + sample.frame, 0) / frameSamples.length
+      : 0;
+    console.info('[GALACTIC-DEFENDER profile]', {
+      samples: samples.length,
+      averageFrameMs: Number(averageFrame.toFixed(2)),
+      estimatedFps: averageFrame > 0 ? Number((1000 / averageFrame).toFixed(1)) : null,
+      averageUpdateMs: Number(average('update').toFixed(2)),
+      averageRenderMs: Number(average('render').toFixed(2)),
+      averageGameWorkMs: Number(average('work').toFixed(2)),
+      entities: {
+        enemies: this.enemies.length,
+        playerProjectiles: this.projectiles.length,
+        enemyProjectiles: this.enemyProjectiles.length,
+        levelParticles: this.levelUpParticles.length,
+        damageSparks: this.damageSparks.length,
+        shieldEffects: this.shieldBreakEffects.length
+      }
+    });
+    this.performanceProfileSamples = [];
   }
 
   update(dt) {
@@ -523,27 +584,39 @@ export class Game {
     if (previousDamageFeedbackTimer > 0 && this.damageFeedbackTimer === 0) {
       document.querySelector('#damage-feedback').classList.remove('damage-active');
     }
-    this.damageSparks.forEach((spark) => {
+    // Update and compact short-lived effects in place to avoid allocating new arrays every frame.
+    let writeIndex = 0;
+    for (let index = 0; index < this.damageSparks.length; index += 1) {
+      const spark = this.damageSparks[index];
       spark.x += spark.vx * dt;
       spark.y += spark.vy * dt;
       spark.life -= dt;
-    });
-    this.damageSparks = this.damageSparks.filter((spark) => spark.life > 0);
-    this.shieldBreakEffects.forEach((effect) => { effect.life -= dt; });
-    this.shieldBreakEffects = this.shieldBreakEffects.filter((effect) => effect.life > 0);
-    this.levelUpParticles.forEach((particle) => {
+      if (spark.life > 0) this.damageSparks[writeIndex++] = spark;
+    }
+    this.damageSparks.length = writeIndex;
+
+    writeIndex = 0;
+    for (let index = 0; index < this.shieldBreakEffects.length; index += 1) {
+      const effect = this.shieldBreakEffects[index];
+      effect.life -= dt;
+      if (effect.life > 0) this.shieldBreakEffects[writeIndex++] = effect;
+    }
+    this.shieldBreakEffects.length = writeIndex;
+
+    writeIndex = 0;
+    for (let index = 0; index < this.levelUpParticles.length; index += 1) {
+      const particle = this.levelUpParticles[index];
       particle.x += particle.vx * dt;
       particle.y += particle.vy * dt;
       particle.life -= dt;
-    });
-    this.levelUpParticles = this.levelUpParticles.filter((particle) => particle.life > 0);
+      if (particle.life > 0) this.levelUpParticles[writeIndex++] = particle;
+    }
+    this.levelUpParticles.length = writeIndex;
 
     this.shotClock -= dt;
     if (this.keys.has('space') && this.shotClock <= 0) {
       const angle = this.getAimAngle();
       const muzzleDistance = 17;
-      const muzzleX = this.player.x + Math.cos(angle) * muzzleDistance;
-      const muzzleY = this.player.y + Math.sin(angle) * muzzleDistance;
       const projectileCount = 1 + this.player.doubleShotLevel;
       const spread = 0.14;
       for (let index = 0; index < projectileCount; index += 1) {
@@ -586,7 +659,10 @@ export class Game {
     for (const shot of this.projectiles) {
       if (!shot.active) continue;
       for (const enemy of this.enemies) {
-        if (enemy.active && !shot.hitEnemies.has(enemy) && Math.hypot(shot.x - enemy.x, shot.y - enemy.y) < enemy.radius + shot.radius) {
+        const dx = shot.x - enemy.x;
+        const dy = shot.y - enemy.y;
+        const combinedRadius = enemy.radius + shot.radius;
+        if (enemy.active && !shot.hitEnemies.has(enemy) && dx * dx + dy * dy < combinedRadius * combinedRadius) {
           shot.hitEnemies.add(enemy);
           if (!shot.piercing) shot.active = false;
           this.damageEnemy(enemy, shot.damage ?? 1);
@@ -598,7 +674,10 @@ export class Game {
     // An enemy that reaches or collides with the player is resolved only once.
     for (const enemy of this.enemies) {
       if (!enemy.active) continue;
-      if (Math.hypot(this.player.x - enemy.x, this.player.y - enemy.y) < enemy.radius + this.player.radius) {
+      const dx = this.player.x - enemy.x;
+      const dy = this.player.y - enemy.y;
+      const combinedRadius = enemy.radius + this.player.radius;
+      if (dx * dx + dy * dy < combinedRadius * combinedRadius) {
         enemy.active = false;
         this.resolveIncomingDamage(18);
       }
@@ -607,7 +686,10 @@ export class Game {
     // Enemy shots deal damage on direct impact and respect the player's invulnerability window.
     for (const shot of this.enemyProjectiles) {
       if (!shot.active) continue;
-      if (Math.hypot(this.player.x - shot.x, this.player.y - shot.y) < this.player.radius + shot.radius) {
+      const dx = this.player.x - shot.x;
+      const dy = this.player.y - shot.y;
+      const combinedRadius = this.player.radius + shot.radius;
+      if (dx * dx + dy * dy < combinedRadius * combinedRadius) {
         shot.active = false;
         this.resolveIncomingDamage(shot.damage);
       }
@@ -615,13 +697,39 @@ export class Game {
 
     this.handleMissionCompletion(this.mission.update(dt, this.waveManager.wave));
 
-    this.projectiles = this.projectiles.filter((shot) =>
-      shot.active && shot.x > -20 && shot.x < this.width + 20 && shot.y > -20 && shot.y < this.height + 20
-    );
-    this.enemyProjectiles = this.enemyProjectiles.filter((shot) =>
-      shot.active && shot.x > -20 && shot.x < this.width + 20 && shot.y > -20 && shot.y < this.height + 20
-    );
-    this.enemies = this.enemies.filter((enemy) => enemy.active);
+    // Compact entity lists in place instead of allocating replacement arrays each frame.
+    let projectileWriteIndex = 0;
+    for (let index = 0; index < this.projectiles.length; index += 1) {
+      const shot = this.projectiles[index];
+      if (
+        shot.active &&
+        shot.x > -20 && shot.x < this.width + 20 &&
+        shot.y > -20 && shot.y < this.height + 20
+      ) {
+        this.projectiles[projectileWriteIndex++] = shot;
+      }
+    }
+    this.projectiles.length = projectileWriteIndex;
+
+    let enemyProjectileWriteIndex = 0;
+    for (let index = 0; index < this.enemyProjectiles.length; index += 1) {
+      const shot = this.enemyProjectiles[index];
+      if (
+        shot.active &&
+        shot.x > -20 && shot.x < this.width + 20 &&
+        shot.y > -20 && shot.y < this.height + 20
+      ) {
+        this.enemyProjectiles[enemyProjectileWriteIndex++] = shot;
+      }
+    }
+    this.enemyProjectiles.length = enemyProjectileWriteIndex;
+
+    let enemyWriteIndex = 0;
+    for (let index = 0; index < this.enemies.length; index += 1) {
+      const enemy = this.enemies[index];
+      if (enemy.active) this.enemies[enemyWriteIndex++] = enemy;
+    }
+    this.enemies.length = enemyWriteIndex;
     if (this.player.health <= 0) this.endGame();
   }
 

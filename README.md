@@ -4,14 +4,14 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão candidata publicada para validação:** `0.17.3` — mira automática no inimigo mais próximo, arraste manual quando a arena estiver vazia, retorno suave à direção frontal ao soltar o toque e disparo somente por comando do jogador. Aguarda validação manual no celular.
+**Versão em desenvolvimento:** `0.18.0` — atualização dedicada à arquitetura e ao desempenho do Canvas 2D. As etapas iniciais reduzem cálculos de raiz quadrada em verificações frequentes e compactam listas de entidades e efeitos no próprio array para evitar arrays substitutos por quadro. O diagnóstico opcional de desempenho pode ser ativado com `?profile=1`; ainda não há resultados comparativos de FPS em dispositivos reais. A validação manual no celular será feita antes de considerar a atualização aprovada.
 
-**Base funcional anterior:** `0.17.0`; a última versão com validação manual concluída é `0.16.2`, aprovada em celular com 6/6 testes.
+**Última versão estável aprovada pelo usuário:** `0.17.3` — mira automática no inimigo mais próximo, arraste manual quando a arena está vazia, retorno suave à direção frontal e disparo manual.
 
-**Fase:** pré-alfa. A v0.17.3 está em validação mobile; a mira automática prioriza inimigos sem disparar sozinha; o arraste manual orienta a nave quando a arena estiver sem inimigos; ao soltar o toque, a nave retorna suavemente à direção frontal.
+**Fase:** pré-alfa. A v0.18.0 não está declarada como estável. A atualização prioriza desempenho e manutenção interna, sem adicionar mecânicas novas nem reformular a arte.
 
 - Plataforma: navegadores modernos em computador e celular.
-- Controles: WASD/setas para movimentação, mouse para mirar, botão direito (segurar) ou Espaço para disparar no computador; joystick virtual para movimentar, mira automática no inimigo mais próximo e botão DISPARAR para atirar em dispositivos móveis. O disparo pelo botão direito foi aprovado no teste manual informado pelo usuário.
+- Controles: WASD/setas para movimentação, mouse para mirar, botão direito (segurar) ou Espaço para disparar no computador; joystick virtual para movimentar, mira automática no inimigo mais próximo e botão DISPARAR para atirar em dispositivos móveis.
 - Tela cheia: botão no canto superior da arena; em celulares, a orientação horizontal é recomendada.
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
@@ -31,9 +31,9 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 ## Controles
 
 - **PC (candidata 0.17.0):** mouse para mirar; `W/S` avançam e recuam em relação à orientação da nave; `A/D` fazem strafe; botão direito (segurar) ou `Espaço` para disparar.
-- **Celular (candidata 0.17.3):** joystick para movimentar; arraste o dedo na arena para orientar a nave quando não houver inimigos; ao soltar, ela retorna suavemente à frente. Com inimigos ativos, a mira prioriza o mais próximo; o disparo depende do botão DISPARAR.
+- **Celular (base estável 0.17.3):** joystick para movimentar; arraste o dedo na arena para orientar a nave quando não houver inimigos; ao soltar, ela retorna suavemente à frente. Com inimigos ativos, a mira prioriza o mais próximo; o disparo depende do botão DISPARAR.
 - **PC (base 0.17.0):** mouse para mirar; `W/S` avançam e recuam em relação à orientação da nave; `A/D` fazem strafe; botão direito ou `Espaço` para disparar. Ainda sem validação manual nesta rodada.
-- `P`: pausar ou retomar (teclado). A v0.17.3 aguarda teste manual no celular.
+- `P`: pausar ou retomar (teclado). A v0.17.3 foi aprovada pelo usuário; a v0.18.0 aguarda validação manual no celular.
 
 ## Mecânicas atuais
 

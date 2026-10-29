@@ -1,4 +1,4 @@
-# Arquitetura inicial
+# Arquitetura do GALACTIC-DEFENDER
 
 O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 
@@ -40,6 +40,17 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - A HUD HTML atualiza no máximo a cada 100 ms durante a partida e evita reescrever texto ou largura quando os valores não mudaram.
 - Brilhos de nave, inimigos e projéteis foram reduzidos; a chama da nave usa uma oscilação determinística em vez de gerar aleatoriedade a cada quadro.
 - Essas mudanças são hipóteses de otimização e precisam ser verificadas em dispositivos reais; não representam garantia universal de FPS.
+
+## Auditoria de desempenho — v0.18.0
+
+- O ciclo principal permanece em `src/core/game.js`; a reestruturação deve ocorrer em etapas, sem reescrita integral nem mudança de comportamento não planejada.
+- As verificações de colisão usam comparações de distância ao quadrado quando só precisam saber se dois objetos estão dentro de um raio combinado. Isso evita raízes quadradas em verificações frequentes sem alterar o critério geométrico pretendido.
+- A seleção da mira automática compara distâncias ao quadrado, pois a ordenação das distâncias é a mesma sem calcular a raiz quadrada.
+- As listas de partículas, efeitos, projéteis e inimigos são compactadas com índices de escrita no próprio array, evitando alocar arrays substitutos por quadro. A ordem dos elementos mantidos é preservada.
+- Essas alterações reduzem operações matemáticas e alocações explícitas no ciclo, mas não provam, por si só, melhoria perceptível de FPS. A validação depende de medição e de teste em dispositivos reais.
+- O diagnóstico opcional `?profile=1` registra intervalos de quadro, tempo de atualização, tempo de renderização e contagens de entidades em lotes de 180 quadros. Ele tem custo de instrumentação e serve para comparação aproximada, não como benchmark científico.
+- `game.js` ainda concentra atualização, colisões, efeitos e desenho. Não foi extraído um renderer nesta etapa porque mover o desenho de uma só vez teria risco de regressão sem testes de navegador; a próxima refatoração deve separar uma responsabilidade por vez, começando por desenho ou colisões após os resultados do profiler.
+- Próximo alvo: executar as verificações automáticas e medir o ciclo em cenário reproduzível; só então escolher a extração seguinte com base nos dados.
 
 ## Próximas validações
 
