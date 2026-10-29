@@ -1,3 +1,10 @@
+## Candidata v0.36.0 — Fundação da IA inimiga
+- [x] Separar orientação visual da direção do movimento para sentinelas, artilheiros e chefe.
+- [x] Permitir que unidades de combate à distância mantenham o armamento apontado ao jogador durante reposicionamento.
+- [ ] Testar orientação e fluidez em curvas, recuos e quando o jogador passa para o outro lado da unidade.
+- [ ] Etapa seguinte: percepção de projéteis com previsão de colisão e esquivas limitadas por classe.
+- [ ] Etapa posterior: cooperação tática entre sentinela e guardião, sem tornar a IA perfeita ou injusta.
+
 ## Candidata v0.35.0 — Laser Contínuo e Attack Clash decisório
 - [x] Preservar os Tiros Perfurantes de Plasma como habilidade independente.
 - [x] Adicionar Laser Contínuo próprio, com feixe direcional, dano sustentado e custo de sobrecarga.
