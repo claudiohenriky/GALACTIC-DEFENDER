@@ -9,7 +9,11 @@ export class Player {
     this.weaponDamage = 1;
     this.doubleShotLevel = 0;
     this.laserLevel = 0;
-    this.shieldCharges = 0;
+    this.shieldLevel = 0;
+    this.shieldHealth = 0;
+    this.shieldMaxHealth = 0;
+    this.shieldRechargeDuration = 7;
+    this.shieldRechargeTimer = 0;
     this.invulnerabilityDuration = 1.25;
     // Temporary spawn protection prevents an unavoidable hit while the pilot gets oriented.
     this.invulnerabilityTimer = 3;
@@ -26,6 +30,10 @@ export class Player {
 
   update(dt, keys, width, height, joystick = null) {
     this.invulnerabilityTimer = Math.max(0, this.invulnerabilityTimer - dt);
+    if (this.shieldLevel > 0 && this.shieldHealth <= 0) {
+      this.shieldRechargeTimer = Math.max(0, this.shieldRechargeTimer - dt);
+      if (this.shieldRechargeTimer === 0) this.shieldHealth = this.shieldMaxHealth;
+    }
     this.flamePhase += dt;
 
     let dx = 0, dy = 0;
@@ -53,8 +61,19 @@ export class Player {
     this.fitToArena(width, height);
   }
 
+  upgradeShield() {
+    this.shieldLevel = Math.min(3, this.shieldLevel + 1);
+    this.shieldMaxHealth = 2 + this.shieldLevel;
+    this.shieldHealth = this.shieldMaxHealth;
+    this.shieldRechargeTimer = 0;
+  }
+
   takeDamage(amount) {
-    if (this.shieldCharges > 0 && this.health > 0) { this.shieldCharges -= 1; return false; }
+    if (this.shieldHealth > 0 && this.health > 0) {
+      this.shieldHealth = Math.max(0, this.shieldHealth - 1);
+      if (this.shieldHealth === 0) this.shieldRechargeTimer = this.shieldRechargeDuration;
+      return false;
+    }
     // A hit starts a short invulnerability window; repeated hits during it are ignored.
     if (this.invulnerabilityTimer > 0 || this.health <= 0) return false;
     this.health = Math.max(0, this.health - amount);
