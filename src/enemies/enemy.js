@@ -7,6 +7,8 @@ export class Enemy {
     this.radius = type === 'boss' ? 23 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
     this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'guardian' ? 7 + level : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
+    this.bossPhase = 1;
+    this.bossPhaseTransition = 0;
     this.speed = (type === 'boss' ? 34 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'boss'
@@ -66,28 +68,48 @@ export class Enemy {
     let shot = null;
 
     if (this.type === 'boss') {
+      // Boss phases unlock at 66% and 33% health. A short transition pause signals each change.
+      const healthRatio = this.health / Math.max(1, this.maxHealth);
+      const nextBossPhase = healthRatio <= 0.33 ? 3 : healthRatio <= 0.66 ? 2 : 1;
+      if (nextBossPhase > this.bossPhase) {
+        this.bossPhase = nextBossPhase;
+        this.bossPhaseTransition = 0.85;
+        this.fireCooldown = Math.max(this.fireCooldown, 1.05);
+      }
+      this.bossPhaseTransition = Math.max(0, this.bossPhaseTransition - dt);
       // Bosses advance into the arena, then sweep across a broad horizontal lane.
       // Steering toward a sinusoidal destination avoids the old edge-to-edge velocity oscillation.
-      const horizontalRange = Math.max(0, width * 0.32);
-      const desiredX = width / 2 + Math.sin(this.phase * 0.8) * horizontalRange;
+      const horizontalRange = Math.max(0, width * (this.bossPhase === 3 ? 0.36 : 0.32));
+      const desiredX = width / 2 + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange;
       const desiredY = Math.max(58, Math.min(targetY - Math.max(90, height * 0.18), height * 0.52));
-      this.x += (desiredX - this.x) * Math.min(1, dt * 1.35);
+      this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 1.65 : 1.35));
       this.y += (desiredY - this.y) * Math.min(1, dt * 1.1);
       this.x = Math.max(this.radius + 4, Math.min(width - this.radius - 4, this.x));
       this.fireCooldown -= dt;
-      if (this.fireCooldown <= 0 && this.y > 18) {
-        this.fireCooldown = 1.65;
-        shot = {
-          x: this.x,
-          y: this.y + this.radius,
-          targetX,
-          targetY,
-          damage: 8,
-          speed: 165,
-          radius: 5,
-          color: '#d59bff',
-          glowColor: '#a85cff'
-        };
+      if (this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
+        this.fireCooldown = this.bossPhase === 1 ? 1.65 : this.bossPhase === 2 ? 1.85 : 2.05;
+        const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
+        const shotCount = this.bossPhase === 1 ? 1 : this.bossPhase === 2 ? 3 : 5;
+        const spread = this.bossPhase === 2 ? 0.2 : 0.17;
+        const shotDamage = this.bossPhase === 1 ? 8 : this.bossPhase === 2 ? 6 : 5;
+        const shotSpeed = this.bossPhase === 3 ? 185 : 165;
+        const shots = [];
+        for (let index = 0; index < shotCount; index += 1) {
+          const offset = index - (shotCount - 1) / 2;
+          const angle = baseAngle + offset * spread;
+          shots.push({
+            x: this.x,
+            y: this.y + this.radius,
+            targetX: this.x + Math.cos(angle) * 420,
+            targetY: this.y + Math.sin(angle) * 420,
+            damage: shotDamage,
+            speed: shotSpeed,
+            radius: this.bossPhase === 3 ? 4.5 : 5,
+            color: this.bossPhase === 1 ? '#d59bff' : this.bossPhase === 2 ? '#ffb36b' : '#ff6d8f',
+            glowColor: this.bossPhase === 1 ? '#a85cff' : this.bossPhase === 2 ? '#ff7b42' : '#ff315e'
+          });
+        }
+        shot = shotCount === 1 ? shots[0] : shots;
       }
     } else if (this.type === 'interceptor') {
       // Interceptors combine pursuit with a smooth side-to-side arc to pressure the pilot.
@@ -185,11 +207,20 @@ export class Enemy {
     const artillery = this.type === 'artillery';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
-    const color = boss ? '#d59bff' : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
-    const edge = boss ? '#f1d7ff' : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
+    const color = boss ? (this.bossPhase === 3 ? '#ff6d8f' : this.bossPhase === 2 ? '#ffb36b' : '#d59bff') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
+    const edge = boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
     ctx.translate(this.x, this.y);
+    if (boss && this.bossPhaseTransition > 0) {
+      ctx.globalAlpha = 0.55 + Math.sin(this.bossPhaseTransition * 22) * 0.25;
+      ctx.strokeStyle = edge;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius + 8, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
     ctx.rotate(this.rotation + Math.PI / 2);
     // A little squash-and-stretch plus stronger shear gives enemy hulls the player's elastic turn cue.
     ctx.transform(

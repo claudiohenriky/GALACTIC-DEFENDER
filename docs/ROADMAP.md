@@ -96,6 +96,9 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [ ] Ajustar a frequência de surgimento e a dificuldade por onda somente se novos testes identificarem desequilíbrio.
 
 ## Etapa 5 — Bosses com fases
+- [x] **v0.32.0 candidata:** três fases por limiares de integridade (66% e 33%), pausa de transição sinalizada e padrões de disparo crescentes.
+- [ ] Testar no celular a transição, leitura dos leques, dano recebido, tempo para reagir e FPS.
+- [ ] Ajustar o equilíbrio somente com base no teste manual.
 - Definir identidade e padrões de ataque para o boss atual.
 - Introduzir mudanças de comportamento por limiares de integridade.
 - Reservar ataques especiais e feixes de alta potência para bosses e inimigos selecionados.

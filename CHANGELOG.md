@@ -1,3 +1,11 @@
+## [0.32.0] — Chefe com fases de combate
+
+- Introduz três fases para o chefe atual, acionadas ao atingir 66% e 33% de integridade.
+- Fase 1 mantém o disparo único original; fase 2 usa uma salva de três projéteis; fase 3 usa cinco projéteis em leque, com dano individual reduzido.
+- As transições recebem uma pausa curta e um contorno visual para sinalizar a mudança de padrão.
+- O chefe ganha movimento lateral mais intenso na fase final; demais classes e regras de colisão permanecem no sistema existente.
+- **Validação pendente:** executar teste manual no celular, confirmar transições, legibilidade dos padrões, dano, FPS e regressões. A branch oficial `main` não foi alterada.
+
 ## [0.31.0] — Nova classe: Artilheiro
 
 - Adiciona o Artilheiro a partir da onda 4, exceto nas ondas de chefe.
