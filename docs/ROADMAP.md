@@ -44,7 +44,8 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Definir limites de níveis para evitar que as novas cartas continuem aparecendo após o máximo.
 - [x] Revisar a distribuição funcional das cartas após o teste manual da v0.26.0; o usuário confirmou que tudo funciona corretamente.
 - [x] **v0.28.0:** protótipo do Míssil teleguiado e pesos de aparição das raridades.
-- [ ] **v0.28.2 candidata:** validar ativação repetida após recarga, dois lançamentos a partir do nível 2, aquisição de alvo quando não há inimigos no toque, botão compacto e cores das raridades no celular antes de mesclar em `main`.
+- [ ] **v0.28.3 candidata:** validar ativação imediata e após recarga, dois mísseis com trajetórias separadas, botão fora dos controles e avisos sem sobreposição em paisagem/retrato antes de mesclar em `main`.
+- **v0.28.2:** candidata substituída após teste manual; não mesclar separadamente.
 - **v0.28.1:** candidata anterior substituída após o relato de ativação intermitente, lançamento único e botão grande; não mesclar separadamente.
 - **v0.25.0:** Cadência aprimorada, +10% por nível, até cinco níveis.
 - **v0.26.0 validada pelo usuário:** Projéteis acelerados (+15% de velocidade por nível, até três níveis) e Controle de propulsão (+8% de aceleração por nível, até três níveis).
