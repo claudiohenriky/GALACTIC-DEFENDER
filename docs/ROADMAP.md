@@ -1,3 +1,30 @@
+## Planejamento v0.40.0 — Fundação das Tropas de Elite
+
+### Princípios aprovados
+- Tropas de Elite são variantes especiais das quatro classes existentes: Sentinela, Guardião, Interceptador e Artilheiro; não constituem uma quinta classe independente.
+- Cada variante preserva a identidade tática da classe-base, mas recebe identidade visual própria e habilidades especiais legíveis.
+- A referência visual do Artilheiro de Elite usa armadura predominantemente preta, mantendo detalhes roxos e podendo incluir acentos verdes.
+- As variantes devem surgir apenas em ondas mais avançadas; a faixa exata de introdução (por volta das ondas 12–15) será definida no balanceamento.
+- Escudos e ataques especiais, incluindo laser para inimigos selecionados e chefes, devem respeitar as regras existentes de colisão, sobrecarga e legibilidade.
+- Não adicionar um inimigo genérico chamado `elite` como nova classe. Identificar a variante de Elite junto à classe-base para preservar comportamento, visual e balanceamento próprios.
+
+### Implementação em etapas
+- [ ] Auditar a criação, renderização, IA, dano e surgimento das classes existentes antes de alterar código.
+- [ ] Definir e implementar uma única variante inicial de Elite como prova de conceito; não ativar todas as variantes simultaneamente.
+- [ ] Garantir indicação visual clara de Elite e uma habilidade especial com telegráfico/contrajogo legível.
+- [ ] Preservar as versões normais das quatro classes e a cooperação Guardião–Sentinela.
+- [ ] Atualizar versionamento de cache, changelog, README e roadmap na mesma etapa de código.
+- [ ] Executar validações estáticas disponíveis e preparar branch de prévia + PR em rascunho.
+- [ ] Entregar link Raw.githack para teste manual no celular; ajustar com base no feedback antes de avançar para outras variantes.
+- [ ] Não mesclar em `main` sem aprovação explícita do usuário.
+
+### Itens relacionados, mas separados
+- [ ] Investigar a área útil da arena em celular na horizontal antes de ajustar dimensões ou escalas.
+- [ ] Avaliar presença e apresentação do chefe, incluindo alerta de aproximação, escudo próprio e ataques especiais, em uma etapa controlada.
+- [ ] Planejar melhorias visuais da nave do jogador conforme os armamentos desbloqueados, sem misturar essa mudança à primeira prova de conceito de Elite.
+
+---
+
 ## Candidata v0.39.0 — Cooperação tática entre Guardião e Sentinela
 - [x] Fazer o Guardião procurar uma posição de cobertura quando uma Sentinela estiver próxima.
 - [x] Fazer a Sentinela ajustar suavemente sua posição para usar a cobertura do Guardião.
