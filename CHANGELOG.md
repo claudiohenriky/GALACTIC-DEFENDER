@@ -1,6 +1,18 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
-## [0.16.1] — Escudo regenerativo (em validação)
+## [0.16.2] — Otimização e refinamento do escudo (aguardando teste mobile)
+
+### Corrigido
+- Remove `shadowBlur` da barreira persistente e da onda de quebra, evitando o custo elevado do desfoque recalculado a cada quadro.
+- Substitui o brilho por contornos e preenchimento translúcido, mantendo a barreira legível com renderização mais simples.
+- Refina a onda de quebra com dois anéis leves, preservando o dano em área e a recarga automática.
+- Atualiza os identificadores de cache para `0.16.2`.
+
+### Validação
+- A v0.16.1 passou nos testes funcionais do escudo informados pelo usuário, mas apresentou queda severa de fluidez após equipar a habilidade no celular.
+- Aguardar novo teste manual da fluidez e regressão das demais mecânicas no GitHub Pages.
+
+## [0.16.1] — Escudo regenerativo
 
 ### Alterado
 - Substitui o bloqueio por cargas consumíveis por uma barreira de energia visível ao redor da nave.
@@ -9,7 +21,8 @@
 - Melhorias adicionais de escudo aumentam sua integridade máxima até o limite definido.
 
 ### Validação
-- Aguardando teste manual no GitHub Pages, especialmente integridade, explosão, recarga e regressão mobile.
+- O usuário confirmou que a barreira, a barra de integridade, a onda de energia e a recarga funcionaram no celular.
+- Foi observada uma queda severa de desempenho após equipar o escudo; correção iniciada na v0.16.2.
 
 ## [0.16.0] — Progressão em cartas (teste funcional mobile aprovado)
 
