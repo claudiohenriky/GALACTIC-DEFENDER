@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão candidata em desenvolvimento:** `0.23.0` — propulsão e brilho lateral respondem visualmente ao movimento da nave, sem alterar a física.
+**Versão candidata em desenvolvimento:** `0.24.0` — movimento inimigo mais fluido, inclinação orientada pela direção, propulsores responsivos e padrões laterais específicos por classe.
 
-**Base oficial em `main`:** `0.22.0` — hangar, três cascos visuais, nave redesenhada e inclinação pseudo-3D. A candidata `0.23.0` aguarda revisão e teste manual antes de qualquer merge.
+**Base oficial em `main`:** `0.23.0` — hangar, três cascos visuais e resposta visual da nave do jogador. A candidata `0.24.0` aguarda revisão e teste manual pelo GitHub Pages antes de qualquer merge.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
 
@@ -20,7 +20,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 ## Lobby, preparação e plataforma
 
 - O botão Jogar abre o hangar; o piloto escolhe entre três cascos visuais com atributos idênticos e segue à preparação antes de iniciar a missão.
-- A nave inclina visualmente durante o movimento lateral; a candidata `0.23.0` acrescenta propulsão e brilhos laterais responsivos ao deslocamento, mantendo Canvas 2D. A facção inimiga tem silhuetas e detalhes de casco próprios.
+- A nave inclina visualmente durante o movimento lateral; a candidata `0.24.0` leva esse princípio à facção inimiga, com rotação suave, inclinação, propulsão e padrões de deslocamento próprios por classe, mantendo Canvas 2D.
 - A preparação em tela cheia permite rolagem vertical em telas baixas para manter os botões acessíveis.
 - A preparação informa o modo Sobrevivência disponível, mostra modos futuros como em desenvolvimento e permite ativar tela cheia antes da partida.
 - O hangar, novas classes de inimigos, fases de boss e novas cartas de atributos fazem parte do roteiro de expansão; serão entregues em etapas independentes.
@@ -48,7 +48,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
  > **Validação:** a v0.11.0 passou no teste manual informado; a v0.11.1 ajustou o volume do áudio e a v0.12.0 adicionou as escolhas de melhoria. A v0.13.0 passou no teste manual informado pelo usuário nos sete itens verificados. A v0.14.0 foi validada; a v0.15.0 foi aprovada no teste manual em computador, com regressão mobile pendente. A v0.15.1 adiciona o disparo pelo botão direito e foi aprovada nos testes manuais em computador e celular, conforme informado pelo usuário, sem erros reportados. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
 
 - Movimento da nave e disparo de projéteis.
-- Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
+- Perseguidores avançam contra a nave com desvios laterais controlados; interceptadores fazem curvas de aproximação, sentinelas percorrem uma faixa de tiro e chefes mantêm movimento lateral. A candidata `0.24.0` acrescenta inclinação e rotação visual suave conforme a direção do movimento. Colisões causam dano à integridade.
 - A partir da onda 2, interceptadores ciano, rápidos e frágeis pressionam a nave com movimento agressivo.
 - A partir da onda 2, alguns inimigos sentinelas tentam manter distância e disparam projéteis direcionados à posição da nave no momento do disparo.
 - Projéteis dos sentinelas causam 10 pontos de dano em impacto direto e respeitam a invulnerabilidade temporária.
