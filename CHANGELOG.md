@@ -1,3 +1,13 @@
+## [0.24.1] — Polimento do movimento inimigo e correção do chefe
+
+### Correções e ajustes
+- Reforça a resposta visual elástica dos cascos inimigos com alongamento sutil, inclinação lateral e propulsão proporcional ao movimento, inspirados na nave do jogador.
+- Corrige a trajetória do chefe da onda 5: ele avança para uma faixa de combate mais próxima do jogador e percorre um destino horizontal suave, em vez de oscilar pela velocidade sinusoidal e ficar junto à borda.
+- Mantém a lógica de mira dos disparos, dano, integridade e demais regras de combate.
+
+### Validação
+- Verificações automatizadas e teste manual desta correção ainda precisam ser executados. Validar pelo GitHub Pages em celular, especialmente o movimento do chefe na onda 5 e a fluidez com vários inimigos.
+
 ## [0.24.0] — Movimento fluido dos inimigos
 
 ### Movimento e leitura visual
