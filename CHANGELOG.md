@@ -13,7 +13,7 @@
 - Melhora a acessibilidade dos botões da preparação em tela cheia em telas móveis baixas, permitindo rolagem e respeitando áreas seguras.
 
 ### Validação
-- Revisão estática da alteração e validação automatizada pendentes no pull request.
+- Revisão estática concluída; o workflow automatizado do pull request passou nas verificações de sintaxe JavaScript, imports relativos e whitespace.
 - A validação visual real ainda depende do teste do usuário pelo GitHub Pages em celular; computador permanece não testado.
 
 ## [0.20.0] — Notificações compactas de recompensa
