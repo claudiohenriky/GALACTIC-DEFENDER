@@ -75,6 +75,7 @@ html[data-platform="mobile"] .touch-controls{display:flex}html[data-platform="pc
 /* Menus must sit above in-arena controls until the player resumes. */
 .overlay{z-index:5}
 
+.overload-meter{grid-column:1/-1;height:3px;overflow:hidden;border-radius:999px;background:#1b2b3d}.overload-meter #overload-meter-fill{width:0;height:100%;border-radius:inherit;background:#69e5d1;transition:width .12s linear}.overload-meter #overload-meter-fill[data-state=overloaded]{background:#ffc16e}.overload-meter #overload-meter-fill[data-state=critical]{background:#ff637b}
 .overload-status{grid-column:1/-1;padding:4px 7px;border:1px solid #29495a;border-radius:5px;background:#07101bc9;color:#8ce7d3;font-size:7px;font-weight:800;letter-spacing:.08em}.overload-status[data-state=overloaded]{border-color:#bd8a4d;color:#ffd18c}.overload-status[data-state=critical]{border-color:#ff637b;color:#ff9eac}.overload-critical{animation:overload-critical-flash .32s ease-in-out 3}@keyframes overload-critical-flash{50%{opacity:.35}}
 .hud-meta{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 7px;border:1px solid #36516f;border-radius:5px;background:#07101bc9;color:#9eb1d0;font-size:7px;font-weight:800;letter-spacing:.1em;backdrop-filter:blur(6px)}.hud-meta b{margin-left:4px;color:var(--cyan);font-variant-numeric:tabular-nums}
 
