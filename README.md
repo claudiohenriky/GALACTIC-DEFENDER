@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão candidata em desenvolvimento:** `0.24.0` — movimento inimigo mais fluido, inclinação orientada pela direção, propulsores responsivos e padrões laterais específicos por classe.
+**Versão candidata em desenvolvimento:** `0.24.1` — alongamento visual mais elástico dos inimigos e correção da aproximação/varredura horizontal do chefe.
 
-**Base oficial em `main`:** `0.23.0` — hangar, três cascos visuais e resposta visual da nave do jogador. A candidata `0.24.0` aguarda revisão e teste manual pelo GitHub Pages antes de qualquer merge.
+**Base oficial em `main`:** `0.24.0` — movimento fluido da facção inimiga. A candidata `0.24.1` aguarda revisão e teste manual pelo GitHub Pages antes de qualquer merge.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
 
@@ -20,7 +20,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 ## Lobby, preparação e plataforma
 
 - O botão Jogar abre o hangar; o piloto escolhe entre três cascos visuais com atributos idênticos e segue à preparação antes de iniciar a missão.
-- A nave inclina visualmente durante o movimento lateral; a candidata `0.24.0` leva esse princípio à facção inimiga, com rotação suave, inclinação, propulsão e padrões de deslocamento próprios por classe, mantendo Canvas 2D.
+- A nave inclina visualmente durante o movimento lateral; a candidata `0.24.1` reforça o alongamento visual dos inimigos e corrige a trajetória de aproximação do chefe, mantendo Canvas 2D.
 - A preparação em tela cheia permite rolagem vertical em telas baixas para manter os botões acessíveis.
 - A preparação informa o modo Sobrevivência disponível, mostra modos futuros como em desenvolvimento e permite ativar tela cheia antes da partida.
 - O hangar, novas classes de inimigos, fases de boss e novas cartas de atributos fazem parte do roteiro de expansão; serão entregues em etapas independentes.
