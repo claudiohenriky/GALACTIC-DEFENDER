@@ -20,6 +20,10 @@ export class Enemy {
           : 2.4 + Math.random() * 0.8;
     this.active = true;
     this.contactCooldown = 0;
+    // Threat response is deliberately limited: ranged units dodge predicted near-misses, not every shot.
+    this.dodgeCooldown = 0;
+    this.dodgeTimer = 0;
+    this.dodgeDirection = 0;
 
     // Motion feedback is visual only: steering does not change damage or projectile rules.
     this.velocityX = 0;
@@ -57,10 +61,12 @@ export class Enemy {
     this.bank += (targetBank - this.bank) * Math.min(1, dt * 8);
   }
 
-  update(dt, targetX, targetY, width, height) {
+  update(dt, targetX, targetY, width, height, playerProjectiles = []) {
     const previousX = this.x;
     const previousY = this.y;
     this.contactCooldown = Math.max(0, this.contactCooldown - dt);
+    this.dodgeCooldown = Math.max(0, this.dodgeCooldown - dt);
+    this.dodgeTimer = Math.max(0, this.dodgeTimer - dt);
     this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? 0.9 : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
 
     const dx = targetX - this.x;
@@ -68,6 +74,40 @@ export class Enemy {
     const distance = Math.hypot(dx, dy) || 1;
     const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'artillery' ? 3 : this.type === 'guardian' ? 2.5 : this.type === 'interceptor' ? 5 : 9);
     let shot = null;
+
+    // Estimate closest approach over a short horizon using relative velocity.
+    // Only Sentinel, Artillery and Boss react in this first pass; each has a different response strength.
+    if (this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') {
+      let bestThreat = null;
+      let bestClearance = Infinity;
+      for (const projectile of playerProjectiles) {
+        if (!projectile.active) continue;
+        const rvx = (projectile.vx ?? 0) - this.velocityX;
+        const rvy = (projectile.vy ?? 0) - this.velocityY;
+        const rx = projectile.x - this.x;
+        const ry = projectile.y - this.y;
+        const speedSquared = rvx * rvx + rvy * rvy;
+        if (speedSquared < 1) continue;
+        const impactTime = Math.max(0, Math.min(0.62, -(rx * rvx + ry * rvy) / speedSquared));
+        if (impactTime < 0.07) continue;
+        const closestX = rx + rvx * impactTime;
+        const closestY = ry + rvy * impactTime;
+        const clearance = Math.hypot(closestX, closestY);
+        const dangerRadius = this.radius + (projectile.radius ?? 3) + (this.type === 'boss' ? 5 : 12);
+        if (clearance < dangerRadius && clearance < bestClearance) {
+          bestClearance = clearance;
+          bestThreat = { x: closestX, y: closestY };
+        }
+      }
+      if (bestThreat && this.dodgeCooldown <= 0) {
+        this.dodgeDirection = bestThreat.x >= 0 ? -1 : 1;
+        this.dodgeTimer = this.type === 'boss' ? 0.22 : 0.38;
+        this.dodgeCooldown = this.type === 'boss' ? 1.8 : this.type === 'artillery' ? 1.25 : 0.95;
+      }
+    }
+    const dodgeStrength = this.dodgeTimer > 0
+      ? (this.type === 'sentinel' ? 82 : this.type === 'artillery' ? 62 : this.type === 'boss' ? 28 : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'boss' ? 0.22 : 0.38))
+      : 0;
 
     if (this.type === 'boss') {
       // Boss phases unlock at 66% and 33% health. A short transition pause signals each change.
@@ -82,7 +122,7 @@ export class Enemy {
       // Bosses advance into the arena, then sweep across a broad horizontal lane.
       // Steering toward a sinusoidal destination avoids the old edge-to-edge velocity oscillation.
       const horizontalRange = Math.max(0, width * (this.bossPhase === 3 ? 0.36 : 0.32));
-      const desiredX = width / 2 + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange;
+      const desiredX = width / 2 + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange + dodgeStrength;
       const desiredY = Math.max(58, Math.min(targetY - Math.max(90, height * 0.18), height * 0.52));
       this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 1.65 : 1.35));
       this.y += (desiredY - this.y) * Math.min(1, dt * 1.1);
@@ -122,7 +162,7 @@ export class Enemy {
       this.y += towardY * this.speed * 0.78 * dt + towardX * weave * dt;
     } else if (this.type === 'artillery') {
       // Artillery keeps a distant firing lane and uses a readable three-shot fan.
-      const desiredX = width / 2 + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150);
+      const desiredX = width / 2 + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150) + dodgeStrength;
       const desiredY = Math.max(36, targetY - Math.min(235, height * 0.42));
       this.x += (desiredX - this.x) * Math.min(1, dt * 0.8);
       this.y += (desiredY - this.y) * Math.min(1, dt * 1.0);
@@ -149,7 +189,7 @@ export class Enemy {
     } else if (this.type === 'sentinel') {
       // Sentinels strafe around a moving firing lane instead of sliding directly toward the player.
       const laneOffset = Math.sin(this.phase * 0.8) * Math.min(105, width * 0.23);
-      const desiredX = Math.max(this.radius, Math.min(width - this.radius, targetX + laneOffset));
+      const desiredX = Math.max(this.radius, Math.min(width - this.radius, targetX + laneOffset + dodgeStrength));
       const desiredY = Math.max(42, targetY - Math.min(175, height * 0.3));
       this.x += (desiredX - this.x) * Math.min(1, dt * 1.15);
       this.y += (desiredY - this.y) * Math.min(1, dt * 1.5);
