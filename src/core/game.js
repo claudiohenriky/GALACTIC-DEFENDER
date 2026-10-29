@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.19.0';
-import { Enemy } from '../enemies/enemy.js?v=0.19.0';
-import { Projectile } from '../combat/projectile.js?v=0.19.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.19.0';
-import { Progression } from '../progression/progression.js?v=0.19.0';
-import { Mission } from '../missions/missions.js?v=0.19.0';
-import { WaveManager } from './wave-manager.js?v=0.19.0';
-import { updateHud } from '../ui/hud.js?v=0.19.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.19.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.19.0';
+import { Player } from '../player/player.js?v=0.19.1';
+import { Enemy } from '../enemies/enemy.js?v=0.19.1';
+import { Projectile } from '../combat/projectile.js?v=0.19.1';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.19.1';
+import { Progression } from '../progression/progression.js?v=0.19.1';
+import { Mission } from '../missions/missions.js?v=0.19.1';
+import { WaveManager } from './wave-manager.js?v=0.19.1';
+import { updateHud } from '../ui/hud.js?v=0.19.1';
+import { gameAudio } from '../audio/game-audio.js?v=0.19.1';
+import { AchievementTracker } from '../progression/achievements.js?v=0.19.1';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -690,14 +690,17 @@ export class Game {
       }
     }
 
-    // An enemy that reaches or collides with the player is resolved only once.
+    // Contact damage is throttled per enemy. A charged shield absorbs contact
+    // without instantly destroying enemies or losing all charge in a few frames.
     for (const enemy of this.enemies) {
       if (!enemy.active) continue;
       const dx = this.player.x - enemy.x;
       const dy = this.player.y - enemy.y;
       const combinedRadius = enemy.radius + this.player.radius;
-      if (dx * dx + dy * dy < combinedRadius * combinedRadius) {
-        enemy.active = false;
+      if (dx * dx + dy * dy < combinedRadius * combinedRadius && enemy.contactCooldown <= 0) {
+        const shieldWasActive = this.player.shieldHealth > 0;
+        enemy.contactCooldown = 0.75;
+        if (!shieldWasActive) enemy.active = false;
         this.resolveIncomingDamage(18);
       }
     }

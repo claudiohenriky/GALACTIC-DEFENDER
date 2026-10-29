@@ -1,6 +1,19 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
-## [0.19.0] — Progressão de XP e recompensas ao vivo (candidata em validação)
+## [0.19.1] — Correção de colisão do escudo e otimização de renderização
+
+### Corrigido
+- O escudo não elimina inimigos automaticamente ao absorver uma colisão; chefes deixam de poder ser destruídos instantaneamente só por encostar na nave.
+- Adiciona intervalo de contato por inimigo para evitar que uma sobreposição consuma toda a integridade do escudo em poucos quadros.
+- Remove sombras desfocadas repetidas da nave e dos inimigos para reduzir trabalho de renderização durante partidas movimentadas.
+- Atualiza os identificadores de cache e a versão exibida para `0.19.1`.
+
+### Validação
+- Correção baseada na reprodução relatada pelo usuário e em revisão estática do código.
+- Ainda requer teste manual no GitHub Pages para confirmar o comportamento do escudo, especialmente contra o chefe da onda 5, e a frequência das travadinhas.
+
+
+## [0.19.0] — Progressão de XP e recompensas ao vivo
 
 ### Progressão e recompensas
 - Ajusta o XP por tipo de inimigo: perseguidores 20 XP, interceptadores 15 XP, sentinelas 35 XP e chefes 180 XP.
@@ -10,7 +23,7 @@
 
 ### Validação
 - Alterações revisadas estaticamente; ainda não foram testadas manualmente no GitHub Pages.
-- `main` permanece a versão oficial; esta candidata está isolada na branch `feat/v0.19.0-gameplay-roadmap`.
+- A versão foi mesclada na `main`; a validação manual dos recursos e do equilíbrio foi feita pelo usuário, que reportou os bugs de colisão do escudo e travadinhas tratados na candidata v0.19.1.
 
 ## [0.18.1] — Ajuste pontual na renderização do escudo (candidata em validação)
 

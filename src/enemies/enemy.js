@@ -15,9 +15,12 @@ export class Enemy {
         ? 1.1 + Math.random() * 0.8
         : 2.4 + Math.random() * 0.8;
     this.active = true;
+    this.contactCooldown = 0;
+    this.contactCooldown = 0;
   }
 
   update(dt, targetX, targetY, width, height) {
+    this.contactCooldown = Math.max(0, this.contactCooldown - dt);
     this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'interceptor' ? 3.2 : 2);
     const dx = targetX - this.x;
     const dy = targetY - this.y;
@@ -108,8 +111,8 @@ export class Enemy {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(Math.PI);
-    ctx.shadowBlur = 6;
-    ctx.shadowColor = color;
+    // Avoid per-enemy shadow blur on every frame; the solid silhouette stays readable
+    // and is cheaper to render when several enemies are active.
     ctx.fillStyle = color;
     ctx.beginPath();
     if (boss) {

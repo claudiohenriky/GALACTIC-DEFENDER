@@ -104,8 +104,7 @@ export class Player {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.rotation + Math.PI / 2);
-    ctx.shadowBlur = 8;
-    ctx.shadowColor = '#58e4e8';
+    // Keep the ship glow flat to avoid repeated Canvas shadow-blur work per frame.
     ctx.fillStyle = '#58e4e8';
     ctx.beginPath();
     ctx.moveTo(0, -17);
