@@ -38,6 +38,19 @@ export class AchievementTracker {
     this.save();
     return newlyUnlocked;
   }
+  checkRunMilestones(score, wave) {
+    const currentScore = Math.max(0, Number(score) || 0);
+    const currentWave = Math.max(1, Number(wave) || 1);
+    const milestonePending = (currentScore >= 5000 && !this.unlocked.has('score-five-k'))
+      || (currentWave >= 5 && !this.unlocked.has('wave-five'))
+      || (currentWave >= 10 && !this.unlocked.has('wave-ten'));
+    if (!milestonePending) return [];
+    this.stats.bestScore = Math.max(this.stats.bestScore, currentScore);
+    this.stats.bestWave = Math.max(this.stats.bestWave, currentWave);
+    const newlyUnlocked = this.evaluate();
+    this.save();
+    return newlyUnlocked;
+  }
   evaluate() {
     const newlyUnlocked = [];
     for (const item of DEFINITIONS) {
