@@ -1,3 +1,24 @@
+## [0.30.0] — Pulso de Ruptura, sobrecarga e fragmentação de mísseis
+
+### Escudo de emergência
+- A antiga Onda do Escudo foi substituída pelo **Pulso de Ruptura**, disponível somente enquanto o escudo estiver quebrado.
+- O pulso percorre a direção atual da nave como uma barreira frontal ampla, neutralizando projéteis e causando dano controlado uma única vez por inimigo atingido.
+- A onda automática da quebra do escudo permanece separada; o pulso tem recarga própria.
+
+### Energia e sobrecarga
+- Adiciona medidor de energia térmica compartilhado por disparos de laser, mísseis e Pulso de Ruptura.
+- A partir de 70%, as habilidades ficam menos eficazes e a nave perde velocidade.
+- Ao atingir 100%, as habilidades especiais ficam bloqueadas temporariamente; a nave desacelera até a recuperação.
+- A energia recupera-se gradualmente. Os valores iniciais ainda precisam de balanceamento manual.
+
+### Mísseis
+- O lançamento seleciona os dois alvos mais próximos sem ordenar toda a lista de inimigos.
+- Mísseis de nível 3 se fragmentam em até três projéteis teleguiados mais fracos, com limite de entidades para controlar o custo de renderização.
+
+### Validação
+- Candidata para teste manual; não mesclada em `main`.
+- A verificação estática e o workflow do GitHub Actions ainda precisam confirmar esta revisão. Testes reais de jogabilidade, equilíbrio e desempenho continuam necessários.
+
 ## [0.29.1] — Diagnóstico e otimização de desempenho
 
 ### Desempenho
