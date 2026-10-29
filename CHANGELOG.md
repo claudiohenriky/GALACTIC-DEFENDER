@@ -1,3 +1,10 @@
+## [0.33.0] — Fundação compartilhada de colisões
+
+- Adiciona `src/combat/collision.js` com testes geométricos reutilizáveis para áreas circulares e segmentos varridos.
+- Centraliza os testes circulares de tiro do jogador contra inimigos, mísseis contra inimigos, contato entre inimigos e nave, e projéteis inimigos contra a nave.
+- Preserva a política de dano, perfuração, repulsão e destruição existente; esta etapa não ativa confrontos entre projéteis.
+- **Validação pendente:** revisar os imports e testar manualmente as colisões existentes em celular e computador. Attack Clash continua para a etapa seguinte.
+
 ## [0.32.0] — Chefe com fases de combate
 
 - Introduz três fases para o chefe atual, acionadas ao atingir 66% e 33% de integridade.
