@@ -41,12 +41,13 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 ## Etapa 3 — Novas cartas de atributos e habilidades
 - [ ] **v0.29.0 candidata:** validar a reestruturação visual do escudo, ativação da Onda do Escudo (botão/tecla Q), cancelamento de projéteis inimigos, dano moderado, recarga e desempenho em celular.
 - [ ] Etapa futura: unificar colisões para a onda interagir com feixes contínuos e ataques especiais de inimigos/bosses quando esses ataques forem implementados.
+- [ ] Após validar a otimização: fragmentação controlada dos mísseis no nível 3, com poucos fragmentos e dano adicional limitado.
 - [x] Auditar as cartas existentes e os marcos de progressão antes de adicionar outra opção.
 - [x] Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
 - [x] Definir limites de níveis para evitar que as novas cartas continuem aparecendo após o máximo.
 - [x] Revisar a distribuição funcional das cartas após o teste manual da v0.26.0; o usuário confirmou que tudo funciona corretamente.
 - [x] **v0.28.0:** protótipo do Míssil teleguiado e pesos de aparição das raridades.
-- [ ] **v0.28.6 candidata:** confirmar aparição e seleção da carta Míssil teleguiado (garantida enquanto abaixo do nível máximo), depois testar ativação, dois lançamentos no nível 2+, alvos, dano, recarga e fluidez em celular.
+- [x] **v0.28.6 — validação visual:** o usuário confirmou que os mísseis nas pontas da nave estão visualmente corretos. A garantia temporária da carta era diagnóstica; a raridade ponderada original foi restaurada na v0.29.0.
 - **v0.28.5:** candidata anterior com ajustes visuais de lançamento; substituída pela v0.28.6 para investigar a carta que não aparecia. Não mesclar separadamente.
 - **v0.28.4:** candidata anterior substituída pela v0.28.5; não mesclar separadamente.
 - **v0.28.3:** candidata anterior substituída pela v0.28.4; não mesclar separadamente.
