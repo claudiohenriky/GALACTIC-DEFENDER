@@ -24,26 +24,37 @@ export class GuidedMissile {
       return;
     }
 
-    const otherMissiles = missiles.filter((missile) => missile !== this && missile.active);
     if (!this.target || !this.target.active) {
-      const reservedTargets = new Set(otherMissiles.filter((missile) => missile.target?.active).map((missile) => missile.target));
-      const availableTargets = enemies.filter((enemy) => enemy.active && !reservedTargets.has(enemy));
-      const candidates = availableTargets.length ? availableTargets : enemies.filter((enemy) => enemy.active);
       let nearest = null;
       let nearestDistance = Infinity;
-      for (const enemy of candidates) {
+      let fallback = null;
+      let fallbackDistance = Infinity;
+      for (const enemy of enemies) {
+        if (!enemy.active) continue;
         const dx = enemy.x - this.x;
         const dy = enemy.y - this.y;
         const distance = dx * dx + dy * dy;
-        if (distance < nearestDistance) {
+        if (distance < fallbackDistance) {
+          fallbackDistance = distance;
+          fallback = enemy;
+        }
+        let reserved = false;
+        for (const other of missiles) {
+          if (other !== this && other.active && other.target === enemy) {
+            reserved = true;
+            break;
+          }
+        }
+        if (!reserved && distance < nearestDistance) {
           nearestDistance = distance;
           nearest = enemy;
         }
       }
-      this.target = nearest;
+      this.target = nearest || fallback;
     }
 
     if (this.target && this.target.active) {
+      const otherMissiles = missiles;
       const targetDx = this.target.x - this.x;
       const targetDy = this.target.y - this.y;
       const targetDistance = Math.hypot(targetDx, targetDy) || 1;
@@ -51,13 +62,14 @@ export class GuidedMissile {
       let steerY = targetDy / targetDistance;
 
       // Repulsion only activates when the missiles get close, preventing them from visually merging.
-      const separationRadius = 28;
+      const separationRadius = 30;
       for (const other of otherMissiles) {
+        if (other === this || !other.active) continue;
         const dx = this.x - other.x;
         const dy = this.y - other.y;
         const distance = Math.hypot(dx, dy);
         if (distance <= 0.001 || distance >= separationRadius) continue;
-        const strength = 1.8 * (1 - distance / separationRadius);
+        const strength = 1.5 * (1 - distance / separationRadius);
         steerX += (dx / distance) * strength;
         steerY += (dy / distance) * strength;
       }
@@ -73,10 +85,10 @@ export class GuidedMissile {
 
     // Keep a short, lightweight trail so both flight paths remain readable on mobile.
     this.trailTimer += dt;
-    if (this.trailTimer >= 0.035) {
-      this.trailTimer %= 0.035;
+    if (this.trailTimer >= 0.055) {
+      this.trailTimer %= 0.055;
       this.trail.push({ x: this.x, y: this.y });
-      if (this.trail.length > 7) this.trail.shift();
+      if (this.trail.length > 4) this.trail.shift();
     }
 
     if (this.x < -24 || this.x > width + 24 || this.y < -24 || this.y > height + 24) {
