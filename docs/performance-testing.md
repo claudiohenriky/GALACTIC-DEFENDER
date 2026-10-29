@@ -29,3 +29,12 @@ Esta rotina ajuda a comparar cenários, mas não substitui teste em dispositivos
 - Comparar a fluidez percebida com a versão de referência no mesmo dispositivo e cenário; não afirmar melhoria medida sem dados.
 - Revisão final do diff e aprovação explícita antes de integrar à `main`.
 - O projeto é validado pelo navegador publicado; não exigir execução local do usuário.
+
+
+## v0.29.0 — escudo, mísseis e projéteis
+
+- Comparar fluidez em jogo normal, disparo de mísseis e explosões com vários inimigos.
+- Ativar a Onda do Escudo perto de projéteis inimigos; confirmar que projéteis próximos desaparecem e distantes continuam ativos.
+- Confirmar dano controlado, alcance por nível, recarga, controles por toque e tecla Q.
+- Verificar a barreira angular, a onda ao quebrar o escudo e a ausência de erros visuais.
+- Checagem automatizada de sintaxe/imports não substitui medição de FPS ou teste real no celular.
