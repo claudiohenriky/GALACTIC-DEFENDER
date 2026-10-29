@@ -6,7 +6,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão em desenvolvimento:** `0.15.1` — disparo com botão direito do mouse no computador.
 
-**Fase:** polimento pré-alfa. A v0.14.0 foi validada pelo usuário; a v0.15.0 foi aprovada no teste manual em computador informado pelo usuário. Regressão no celular ainda pendente.
+**Fase:** polimento pré-alfa. A v0.14.0 foi validada pelo usuário; a v0.15.0 foi aprovada no teste manual em computador informado pelo usuário. A correção de controles da v0.15.1 aguarda novo teste manual; a regressão mobile da v0.15.0 também continua pendente.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: WASD/setas para movimentação, mouse para mirar, botão direito (segurar) ou Espaço para disparar no computador; joystick virtual e botão de disparo em dispositivos móveis. O novo disparo pelo botão direito ainda precisa de teste manual.
