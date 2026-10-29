@@ -121,7 +121,7 @@ export class GuidedMissile {
     ctx.strokeStyle = '#fff0c8';
     ctx.lineWidth = 1.5;
     ctx.shadowColor = '#ff8a3d';
-    ctx.shadowBlur = 13;
+    ctx.shadowBlur = 0;
     ctx.beginPath();
     ctx.moveTo(12, 0);
     ctx.lineTo(3, -5.5);
