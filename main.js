@@ -137,8 +137,29 @@ document.querySelector('#settings-reset-button').addEventListener('click', () =>
 applySettings();
 
 
-// Mouse position controls aim; right-click holds fire while WASD remains available for movement.
-canvas.addEventListener('pointermove', (event) => game.setAimFromPointer(event));
+// Mouse controls aim on PC; touch dragging sets the mobile facing direction when no enemy is available.
+canvas.addEventListener('pointermove', (event) => {
+  if (event.pointerType === 'mouse') game.setAimFromPointer(event);
+  if (document.documentElement.dataset.platform === 'mobile' && event.pointerType === 'touch'
+      && game.touchAim.pointerId === event.pointerId) {
+    event.preventDefault();
+    game.setAimFromTouch(event);
+  }
+});
+canvas.addEventListener('pointerdown', (event) => {
+  if (document.documentElement.dataset.platform !== 'mobile' || event.pointerType !== 'touch'
+      || game.status !== 'running') return;
+  event.preventDefault();
+  game.touchAim.pointerId = event.pointerId;
+  game.setAimFromTouch(event);
+  try { canvas.setPointerCapture(event.pointerId); } catch {}
+});
+function releaseTouchAim(event) {
+  if (game.touchAim.pointerId !== event.pointerId) return;
+  game.touchAim.pointerId = null;
+}
+window.addEventListener('pointerup', releaseTouchAim);
+window.addEventListener('pointercancel', releaseTouchAim);
 
 const arenaFrame = document.querySelector('.canvas-frame');
 arenaFrame.addEventListener('pointerdown', (event) => {
