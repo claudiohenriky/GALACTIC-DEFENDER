@@ -1,3 +1,10 @@
+## [0.30.4] — Pulso de Ruptura com plasma leve
+
+- Remove o preenchimento translúcido que pintava uma grande região do campo de jogo ao ativar o Pulso de Ruptura.
+- Mantém o contorno semicircular e substitui o preenchimento por três traços neon de baixa opacidade, sugerindo plasma/fumaça com menos trabalho de preenchimento.
+- Preserva a velocidade gradual, o alcance, a neutralização de projéteis e a repulsão existentes.
+- A redução real de FPS precisa ser medida no dispositivo móvel; a alteração visual diminui a área preenchida, mas não garante sozinha um ganho específico.
+
 ## [0.30.3] — Escudo reativo e tiros perfurantes de plasma
 
 - O escudo mantém a proteção lógica de 360°, mas só desenha pequenos arcos na direção de projéteis com trajetória de colisão provável.
