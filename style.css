@@ -364,6 +364,14 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .ability-card-copy{display:flex;min-width:0;flex-direction:column;gap:3px}.ability-card-copy strong{font-size:8px;letter-spacing:.025em;white-space:nowrap}.ability-card-copy small{font-size:7px;line-height:1.2;color:#ffd49b;white-space:nowrap}
 .ability-cooldown-fill{position:absolute;right:0;bottom:0;left:0;height:3px;width:0;background:#ffb45e;transition:width .1s linear;pointer-events:none}
 @media(max-width:520px){.ability-card{top:auto;right:8px;bottom:88px;width:112px;min-height:44px;padding:6px;gap:5px}.ability-card-icon{flex-basis:22px;width:22px;height:22px;font-size:15px}.ability-card-copy strong{font-size:7px}.ability-card-copy small{font-size:6.5px}}
+/* v0.29.0: stack ability controls in a compact vertical group. */
+.canvas-frame .ability-card-missile{top:calc(50% - 29px);right:8px;bottom:auto;transform:translateY(-50%)}
+.canvas-frame .ability-card-shield{top:calc(50% + 29px);right:8px;bottom:auto;transform:translateY(-50%);border-color:#59dfd0;background:linear-gradient(145deg,#123b3bf2,#10182bf2);color:#d9fff8}
+.canvas-frame .ability-card-shield .ability-card-icon{border-color:#59dfd088;background:#164e4a;color:#9bfff0}
+.canvas-frame .ability-card-shield .ability-card-copy small{color:#9bfff0}
+.canvas-frame .ability-card-shield .ability-cooldown-fill{background:#59dfd0}
+@media(max-width:520px){.canvas-frame .ability-card-missile{top:auto;bottom:142px;transform:none}.canvas-frame .ability-card-shield{top:auto;bottom:88px;transform:none}}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.canvas-frame .ability-card-missile{top:calc(50% - 25px);bottom:auto}.canvas-frame .ability-card-shield{top:calc(50% + 25px);bottom:auto}}
 /* Rarity is communicated by both a prominent badge and a distinct card border/background. */
 .upgrade-card-rarity{display:inline-flex;align-items:center;border:1px solid currentColor;border-radius:999px;padding:4px 8px;font-size:9px;font-weight:950;letter-spacing:.12em;line-height:1.2;background:#0a1020;color:#fff}
 .upgrade-card.rarity-common{border-color:#91a7bd;background:linear-gradient(155deg,#26394b,#0a1426)}.upgrade-card.rarity-common .upgrade-card-icon{border-color:#9eb4c8;background:#30475c;color:#e1edf7}.upgrade-card.rarity-common .upgrade-card-category,.upgrade-card-rarity.rarity-common{color:#d5e4f2}.upgrade-card-rarity.rarity-common{background:#31475c}
