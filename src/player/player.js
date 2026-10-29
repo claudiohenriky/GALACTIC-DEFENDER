@@ -14,6 +14,7 @@ export class Player {
     this.velocityY = 0;
     this.doubleShotLevel = 0;
     this.guidedMissileLevel = 0;
+    this.guidedMissileCooldown = 0;
     this.laserLevel = 0;
     this.shieldLevel = 0;
     this.shieldHealth = 0;
@@ -144,6 +145,24 @@ export class Player {
     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rotation + Math.PI / 2);
     ctx.transform(1 - Math.abs(this.bank) * 0.08, 0, this.bank * 0.32, 1, 0, 0);
     ctx.fillStyle = '#030814'; ctx.beginPath(); ctx.ellipse(0, 4, aegis ? 16 : 14, 20, 0, 0, Math.PI * 2); ctx.fill();
+    // Twin missile pods are part of the ship only while the missile ability is ready.
+    // They use the same local coordinates as Game.createGuidedMissileFromWing().
+    if (this.guidedMissileLevel > 0 && this.guidedMissileCooldown <= 0) {
+      ctx.save();
+      ctx.fillStyle = '#24364d';
+      ctx.strokeStyle = '#ffdca4';
+      ctx.lineWidth = 1;
+      for (const side of [-1, 1]) {
+        ctx.beginPath();
+        ctx.roundRect(side * 17 - 2.5, 1, 5, 10, 2);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#ffb45e';
+        ctx.fillRect(side * 17 - 1, 3, 2, 4);
+        ctx.fillStyle = '#24364d';
+      }
+      ctx.restore();
+    }
     ctx.fillStyle = hull; ctx.strokeStyle = edge; ctx.lineWidth = 1.5; ctx.beginPath();
     if (phantom) { ctx.moveTo(0,-20);ctx.lineTo(6,-5);ctx.lineTo(17,8);ctx.lineTo(9,9);ctx.lineTo(4,5);ctx.lineTo(0,15);ctx.lineTo(-4,5);ctx.lineTo(-9,9);ctx.lineTo(-17,8);ctx.lineTo(-6,-5); }
     else if (aegis) { ctx.moveTo(0,-18);ctx.lineTo(10,-9);ctx.lineTo(17,3);ctx.lineTo(13,12);ctx.lineTo(5,10);ctx.lineTo(0,16);ctx.lineTo(-5,10);ctx.lineTo(-13,12);ctx.lineTo(-17,3);ctx.lineTo(-10,-9); }
