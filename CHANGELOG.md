@@ -2,7 +2,7 @@
 
 Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; quando falta evidência para um marco antigo, isso é informado sem inventar recursos.
 
-## [0.15.1] — Teste no computador aprovado; regressão mobile pendente
+## [0.15.1] — Testes manuais em computador e celular aprovados
 
 ### Controles de computador
 - Adiciona disparo contínuo enquanto o botão direito do mouse estiver pressionado, permitindo mover com WASD ao mesmo tempo.
@@ -11,7 +11,8 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Atualiza a versão exibida, identificadores de cache, controles acessíveis e histórico dentro do jogo.
 - Teste manual no computador aprovado pelo testador informado pelo usuário: o controle foi considerado bom e não houve bugs reportados.
 - Publicação no GitHub Pages concluída com sucesso pelo GitHub Actions.
-- Regressão mobile continua pendente; a validação total depende dessa etapa.
+- Teste manual no celular aprovado conforme informado pelo usuário: joystick virtual e botão de disparo funcionaram normalmente, sem erros reportados.
+- Validação manual em computador e celular concluída conforme os relatos recebidos; isso não substitui testes automatizados ou cobertura em vários dispositivos.
 
 ## [0.15.0] — Teste no computador aprovado; regressão mobile pendente
 
@@ -57,4 +58,4 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 
 ## Observações
 - Atualizar este arquivo e o histórico dentro do jogo juntos.
-- A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; o teste de regressão no celular continua pendente. A v0.15.1 foi aprovada no teste manual em computador informado pelo usuário; o teste de regressão no celular continua pendente.
+- A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; o teste de regressão no celular continua pendente. A v0.15.1 foi aprovada nos testes manuais em computador e celular, conforme informado pelo usuário, sem erros reportados.
