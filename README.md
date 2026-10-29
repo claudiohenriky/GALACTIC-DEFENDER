@@ -6,7 +6,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
-**Validação:** a v0.27.0 foi testada manualmente pelo usuário no GitHub Pages e o Guardião funcionou corretamente. A v0.28.6 é a candidata atual, na branch `feature/v0.28.6-guided-missile-card`; garante temporariamente a carta Míssil teleguiado nas escolhas especiais para permitir o teste. As candidatas v0.28.1–v0.28.5 não foram mescladas em `main`.
+**Validação:** a v0.27.0 foi testada manualmente pelo usuário no GitHub Pages e o Guardião funcionou corretamente. A v0.29.0 é uma candidata na branch `feature/v0.29.0-shield-rework-performance`; inclui a Onda do Escudo e otimizações de renderização. A versão oficial `main` ainda não contém essas alterações; a candidata requer teste manual no celular.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
 
@@ -16,6 +16,12 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
 - Estrutura modular, sem frameworks ou dependências externas.
+
+## Combate e habilidades
+
+- Mísseis teleguiados lançados pelas asas, com alvos e explosão em área.
+- Escudo de energia redesenhado e Onda do Escudo ativável por botão ou tecla Q após desbloquear a habilidade; remove projéteis próximos e causa dano limitado.
+- Ajustes de renderização para reduzir o custo de efeitos de mísseis e projéteis inimigos.
 
 ## Lobby, preparação e plataforma
 
