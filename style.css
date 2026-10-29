@@ -409,3 +409,17 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
   .canvas-frame .reward-banner span { -webkit-line-clamp:2; font-size:8px; line-height:1.25; }
   .canvas-frame #guided-missile-button.ability-card { top:52%; right:8px; width:104px; min-height:42px; }
 }
+
+/* Ensure the ability stack overrides the earlier single-button mobile placement. */
+@media (hover:none) and (pointer:coarse){
+  .canvas-frame #guided-missile-button.ability-card{top:calc(50% - 29px);right:8px;bottom:auto;transform:translateY(-50%)}
+  .canvas-frame #shield-pulse-button.ability-card{top:calc(50% + 29px);right:8px;bottom:auto;transform:translateY(-50%)}
+}
+@media(max-width:520px){
+  .canvas-frame #guided-missile-button.ability-card{top:auto;bottom:142px;transform:none}
+  .canvas-frame #shield-pulse-button.ability-card{top:auto;bottom:88px;transform:none}
+}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){
+  .canvas-frame #guided-missile-button.ability-card{top:calc(50% - 25px);bottom:auto;transform:translateY(-50%)}
+  .canvas-frame #shield-pulse-button.ability-card{top:calc(50% + 25px);bottom:auto;transform:translateY(-50%)}
+}
