@@ -6,10 +6,10 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão em desenvolvimento:** `0.15.0` — polimento de interface, acessibilidade por teclado e consistência do histórico/cache.
 
-**Fase:** polimento pré-alfa. A v0.14.0 foi validada pelo usuário; a v0.15.0 aguarda revisão e teste no computador e no celular.
+**Fase:** polimento pré-alfa. A v0.14.0 foi validada pelo usuário; a v0.15.0 foi aprovada no teste manual em computador informado pelo usuário. Regressão no celular ainda pendente.
 
 - Plataforma: navegadores modernos em computador e celular.
-- Controles: teclado para movimentação, mouse para mirar e joystick virtual analógico e botão de disparo em dispositivos compatíveis. A mira por mouse foi integrada em `main` e aguarda validação manual no computador.
+- Controles: teclado para movimentação, mouse para mirar e joystick virtual analógico e botão de disparo em dispositivos compatíveis. A mira por mouse foi testada manualmente no computador, sem bugs reportados pelo testador.
 - Tela cheia: botão no canto superior da arena; em celulares, a orientação horizontal é recomendada.
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
@@ -30,13 +30,12 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 - `WASD` ou setas: mover a nave.
 - `Mouse`: mirar; `Espaço`: disparar na direção da mira.
-- `Espaço`: disparar.
 - `P`: pausar ou retomar (teclado).
 - Celular: arraste o joystick virtual para movimentar a nave em qualquer direção e use **DISPARAR** para atirar.
 
 ## Mecânicas atuais
 
- > **Validação:** a v0.11.0 passou no teste manual informado; a v0.11.1 ajustou o volume do áudio e a v0.12.0 adicionou as escolhas de melhoria. A v0.13.0 passou no teste manual informado pelo usuário nos sete itens verificados. A v0.14.0 aguarda revisão e teste manual após a publicação. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
+ > **Validação:** a v0.11.0 passou no teste manual informado; a v0.11.1 ajustou o volume do áudio e a v0.12.0 adicionou as escolhas de melhoria. A v0.13.0 passou no teste manual informado pelo usuário nos sete itens verificados. A v0.14.0 e a v0.15.0 foram testadas manualmente conforme registrado neste documento; o teste de regressão da v0.15.0 no celular ainda está pendente. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
