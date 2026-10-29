@@ -145,6 +145,13 @@ export class Player {
     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rotation + Math.PI / 2);
     ctx.transform(1 - Math.abs(this.bank) * 0.08, 0, this.bank * 0.32, 1, 0, 0);
     ctx.fillStyle = '#030814'; ctx.beginPath(); ctx.ellipse(0, 4, aegis ? 16 : 14, 20, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = hull; ctx.strokeStyle = edge; ctx.lineWidth = 1.5; ctx.beginPath();
+    if (phantom) { ctx.moveTo(0,-20);ctx.lineTo(6,-5);ctx.lineTo(17,8);ctx.lineTo(9,9);ctx.lineTo(4,5);ctx.lineTo(0,15);ctx.lineTo(-4,5);ctx.lineTo(-9,9);ctx.lineTo(-17,8);ctx.lineTo(-6,-5); }
+    else if (aegis) { ctx.moveTo(0,-18);ctx.lineTo(10,-9);ctx.lineTo(17,3);ctx.lineTo(13,12);ctx.lineTo(5,10);ctx.lineTo(0,16);ctx.lineTo(-5,10);ctx.lineTo(-13,12);ctx.lineTo(-17,3);ctx.lineTo(-10,-9); }
+    else { ctx.moveTo(0,-22);ctx.lineTo(7,-8);ctx.lineTo(16,7);ctx.lineTo(11,11);ctx.lineTo(4,7);ctx.lineTo(0,15);ctx.lineTo(-4,7);ctx.lineTo(-11,11);ctx.lineTo(-16,7);ctx.lineTo(-7,-8); }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = wing; ctx.beginPath();ctx.moveTo(-5,-4);ctx.lineTo(-13,7);ctx.lineTo(-9,8);ctx.lineTo(-3,3);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(5,-4);ctx.lineTo(13,7);ctx.lineTo(9,8);ctx.lineTo(3,3);ctx.closePath();ctx.fill();
     // Twin missile pods are part of the ship only while the missile ability is ready.
     // They use the same local coordinates as Game.createGuidedMissileFromWing().
     if (this.guidedMissileLevel > 0 && this.guidedMissileCooldown <= 0) {
@@ -163,13 +170,6 @@ export class Player {
       }
       ctx.restore();
     }
-    ctx.fillStyle = hull; ctx.strokeStyle = edge; ctx.lineWidth = 1.5; ctx.beginPath();
-    if (phantom) { ctx.moveTo(0,-20);ctx.lineTo(6,-5);ctx.lineTo(17,8);ctx.lineTo(9,9);ctx.lineTo(4,5);ctx.lineTo(0,15);ctx.lineTo(-4,5);ctx.lineTo(-9,9);ctx.lineTo(-17,8);ctx.lineTo(-6,-5); }
-    else if (aegis) { ctx.moveTo(0,-18);ctx.lineTo(10,-9);ctx.lineTo(17,3);ctx.lineTo(13,12);ctx.lineTo(5,10);ctx.lineTo(0,16);ctx.lineTo(-5,10);ctx.lineTo(-13,12);ctx.lineTo(-17,3);ctx.lineTo(-10,-9); }
-    else { ctx.moveTo(0,-22);ctx.lineTo(7,-8);ctx.lineTo(16,7);ctx.lineTo(11,11);ctx.lineTo(4,7);ctx.lineTo(0,15);ctx.lineTo(-4,7);ctx.lineTo(-11,11);ctx.lineTo(-16,7);ctx.lineTo(-7,-8); }
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = wing; ctx.beginPath();ctx.moveTo(-5,-4);ctx.lineTo(-13,7);ctx.lineTo(-9,8);ctx.lineTo(-3,3);ctx.closePath();ctx.fill();
-    ctx.beginPath();ctx.moveTo(5,-4);ctx.lineTo(13,7);ctx.lineTo(9,8);ctx.lineTo(3,3);ctx.closePath();ctx.fill();
     ctx.fillStyle='#f4ffff';ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(4,2);ctx.lineTo(0,7);ctx.lineTo(-4,2);ctx.closePath();ctx.fill();
     ctx.fillStyle='#142e48';ctx.fillRect(-2,-3,4,9);ctx.fillStyle=edge;ctx.fillRect(-1,-2,2,6);
     const flame = 4 + Math.sin(this.flamePhase * 18) * 0.8 + this.thrust * 8;
