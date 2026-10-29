@@ -1,3 +1,12 @@
+## [0.30.2] — Correções de HUD e otimização de efeitos
+
+- Reposiciona o medidor de sobrecarga para o canto superior esquerdo, abaixo da HUD principal e fora da área do joystick.
+- Reposiciona o contador de FPS abaixo da área das notificações superiores para evitar sobreposição com conquistas.
+- Torna o medidor térmico mais legível, com estados curtos e porcentagem explícita.
+- Substitui as faíscas de superaquecimento por fumaça discreta somente após permanência no estado crítico.
+- Reserva faíscas de dano para integridade igual ou inferior a 35%, limita a quantidade e reduz o custo visual de cada partícula.
+- Requer teste manual para medir a melhora real de FPS; não foi executado teste de jogo no navegador.
+
 ## [0.30.1] — Patch de otimização, pulso semicircular e diagnóstico de FPS
 
 ### Escudo e Pulso de Ruptura

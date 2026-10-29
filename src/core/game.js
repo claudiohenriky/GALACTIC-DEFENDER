@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.30.1';
-import { Enemy } from '../enemies/enemy.js?v=0.30.1';
-import { Projectile } from '../combat/projectile.js?v=0.30.1';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.30.1';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.30.1';
-import { Progression } from '../progression/progression.js?v=0.30.1';
-import { Mission } from '../missions/missions.js?v=0.30.1';
-import { WaveManager } from './wave-manager.js?v=0.30.1';
-import { updateHud } from '../ui/hud.js?v=0.30.1';
-import { gameAudio } from '../audio/game-audio.js?v=0.30.1';
-import { AchievementTracker } from '../progression/achievements.js?v=0.30.1';
+import { Player } from '../player/player.js?v=0.30.2';
+import { Enemy } from '../enemies/enemy.js?v=0.30.2';
+import { Projectile } from '../combat/projectile.js?v=0.30.2';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.30.2';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.30.2';
+import { Progression } from '../progression/progression.js?v=0.30.2';
+import { Mission } from '../missions/missions.js?v=0.30.2';
+import { WaveManager } from './wave-manager.js?v=0.30.2';
+import { updateHud } from '../ui/hud.js?v=0.30.2';
+import { gameAudio } from '../audio/game-audio.js?v=0.30.2';
+import { AchievementTracker } from '../progression/achievements.js?v=0.30.2';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -456,15 +456,12 @@ export class Game {
         length: rand(7, 13)
       });
     }
-    // A few low-cost orange sparks and smoke puffs make hull damage feel physical.
-    if (this.damageSparks.length < 28) {
-      for (let i = 0; i < 3; i += 1) {
-        const angle = rand(0, Math.PI * 2), speed = rand(28, 64), life = rand(0.2, 0.38);
-        this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 9, y: this.player.y + Math.sin(angle) * 9, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, length: rand(4, 8), size: rand(1, 2), color: '#ff9d45' });
-      }
-      for (let i = 0; i < 2; i += 1) {
-        const angle = rand(0, Math.PI * 2), speed = rand(7, 18), life = rand(0.28, 0.48);
-        this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 8, y: this.player.y + Math.sin(angle) * 8, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, length: 0, size: rand(2, 3.2), color: '#788493', kind: 'smoke' });
+    // Sparks are reserved for low hull integrity, not every hit; cap them aggressively.
+    const integrityRatio = this.player.health / Math.max(1, this.player.maxHealth);
+    if (integrityRatio <= 0.35 && this.damageSparks.length < 12) {
+      for (let i = 0; i < 2 && this.damageSparks.length < 12; i += 1) {
+        const angle = rand(0, Math.PI * 2), speed = rand(22, 42), life = rand(0.16, 0.28);
+        this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 9, y: this.player.y + Math.sin(angle) * 9, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, length: rand(3, 6), size: rand(1, 1.6), color: '#ff9d45' });
       }
     }
     const feedback = document.querySelector('#damage-feedback');
@@ -624,7 +621,8 @@ export class Game {
     const state = this.overloadLockTimer > 0 ? 'BLOQUEIO'
       : this.overload >= 70 ? 'SOBRECARGA'
       : this.overload >= 35 ? 'AQUECENDO' : 'ESTÁVEL';
-    const statusText = `ENERGIA ${percent}% · ${state}`;
+    const shortState = this.overloadLockTimer > 0 ? 'CRÍTICO' : this.overload >= 70 ? 'QUENTE' : this.overload >= 35 ? 'AQUECENDO' : 'ESTÁVEL';
+    const statusText = `${percent}% · ${shortState}`;
     if (element.textContent !== statusText) element.textContent = statusText;
     const visualState = this.overloadLockTimer > 0 ? 'critical' : this.overload >= 70 ? 'overloaded' : 'stable';
     if (element.dataset.state !== visualState) element.dataset.state = visualState;
@@ -1037,14 +1035,17 @@ export class Game {
     this.player.overloadSpeedFactor = this.overloadLockTimer > 0 ? 0.68 : this.overload >= 70 ? 0.82 : 1;
     this.updateShieldPulseWave(dt);
     if (this.overload >= 90 || this.overloadLockTimer > 0) {
+      this.overheatCriticalTimer = (this.overheatCriticalTimer || 0) + dt;
       this.overheatSparkTimer = (this.overheatSparkTimer || 0) - dt;
-      if (this.overheatSparkTimer <= 0 && this.damageSparks.length < 34) {
-        this.overheatSparkTimer = 0.22;
-        const angle = rand(0, Math.PI * 2);
-        const speed = rand(24, 62);
-        const life = rand(0.18, 0.36);
-        this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 11, y: this.player.y + Math.sin(angle) * 11, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, size: rand(1, 2.4), length: rand(3, 7), color: '#ff9d45' });
+      // Smoke begins only after sustained critical heat; keep particle count and frequency low.
+      if (this.overheatCriticalTimer >= 1.5 && this.overheatSparkTimer <= 0 && this.damageSparks.length < 10) {
+        this.overheatSparkTimer = 0.72;
+        const angle = rand(0, Math.PI * 2), speed = rand(5, 12), life = rand(0.45, 0.7);
+        this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 8, y: this.player.y + Math.sin(angle) * 8, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, size: rand(2, 3.5), length: 0, color: '#778391', kind: 'smoke' });
       }
+    } else {
+      this.overheatCriticalTimer = 0;
+      this.overheatSparkTimer = 0;
     }
     // Fire the second missile after a short delay so both launches are readable.
     if (this.pendingGuidedMissileLaunch) {
@@ -1282,7 +1283,7 @@ export class Game {
       }
       ctx.rotate(Math.atan2(spark.vy, spark.vx));
       ctx.strokeStyle = spark.color || (fade > 0.55 ? '#ffdce3' : '#ff526f');
-      ctx.lineWidth = 2.2;
+      ctx.lineWidth = 1.4;
       ctx.beginPath();
       ctx.moveTo(-spark.length * 0.6, 0);
       ctx.lineTo(-spark.length * 0.15, -2);

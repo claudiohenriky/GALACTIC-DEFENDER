@@ -1,3 +1,11 @@
+## Patch v0.30.2 — correções de interface e efeitos
+- [x] Mover medidor térmico para fora do joystick e tornar o texto legível.
+- [x] Mover o contador de FPS para longe das notificações de conquistas.
+- [x] Usar fumaça de baixa frequência após sobrecarga crítica sustentada.
+- [x] Reservar faíscas para integridade baixa e reduzir limite de partículas.
+- [ ] Medir FPS antes/depois em celular e verificar a ativação do Pulso de Ruptura.
+- [ ] Ajustar posição final da HUD após feedback do usuário.
+
 ## Patch v0.30.1 — otimização e diagnóstico
 - [x] Medidor de FPS opcional nas configurações, com atualização limitada a duas vezes por segundo.
 - [x] Pulso de Ruptura semicircular de 180° e alcance ampliado.
