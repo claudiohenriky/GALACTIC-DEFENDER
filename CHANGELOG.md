@@ -1,3 +1,11 @@
+## [0.35.0] — Laser Contínuo e decisões iniciais de Attack Clash
+
+- Adiciona Laser Contínuo como habilidade especial independente, preservando os Tiros Perfurantes de Plasma.
+- O feixe direcional causa dano sustentado e, ao cruzar um projétil inimigo, inicia uma decisão de Attack Clash.
+- Opções: forçar vitória (dano bônus e maior sobrecarga), sustentar empate (menor custo) ou escapar (sem dano bônus, com recarga maior).
+- O laser gera sobrecarga progressiva, tem eficiência reduzida quando o sistema está quente e pode ser interrompido pelo bloqueio crítico.
+- **Validação manual pendente:** alcance, controles, decisões, balanceamento e desempenho em celular/computador.
+
 ## [0.34.0] — Attack Clash e correção de contato com o chefe
 
 - Adiciona a primeira interação direta entre projéteis: tiros da nave e projéteis inimigos se neutralizam quando suas áreas colidem.

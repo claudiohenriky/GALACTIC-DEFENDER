@@ -16,6 +16,7 @@ export class Player {
     this.guidedMissileLevel = 0;
     this.guidedMissileCooldown = 0;
     this.laserLevel = 0;
+    this.continuousLaserLevel = 0;
     this.shieldLevel = 0;
     this.shieldHealth = 0;
     this.shieldMaxHealth = 0;

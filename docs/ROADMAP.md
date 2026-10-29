@@ -1,3 +1,10 @@
+## Candidata v0.35.0 — Laser Contínuo e Attack Clash decisório
+- [x] Preservar os Tiros Perfurantes de Plasma como habilidade independente.
+- [x] Adicionar Laser Contínuo próprio, com feixe direcional, dano sustentado e custo de sobrecarga.
+- [x] Adicionar decisões iniciais ao cruzar o feixe com um projétil inimigo: forçar vitória, sustentar empate ou escapar.
+- [ ] Validar carta, controles por toque/tecla L, escolhas, dano em chefes, sobrecarga e recarga.
+- [ ] Verificar FPS e regressões em celular/computador; não publicar em main antes da validação manual.
+
 ## Candidata v0.34.0 — Attack Clash e correção do chefe
 - [x] Implementar colisão direta entre tiros do jogador e projéteis inimigos; ambos são neutralizados no choque.
 - [x] Corrigir a regra de contato para impedir que colisão corporal derrote o chefe independentemente da vida restante.
