@@ -46,8 +46,9 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - O ciclo principal permanece em `src/core/game.js`; a reestruturação deve ocorrer em etapas, sem reescrita integral nem mudança de comportamento não planejada.
 - As verificações de colisão usam comparações de distância ao quadrado quando só precisam saber se dois objetos estão dentro de um raio combinado. Isso evita raízes quadradas em verificações frequentes sem alterar o critério geométrico pretendido.
 - A seleção da mira automática compara distâncias ao quadrado, pois a ordenação das distâncias é a mesma sem calcular a raiz quadrada.
-- A mudança reduz operações matemáticas, mas não prova, por si só, melhoria perceptível de FPS. A validação de desempenho depende de medição e de teste em dispositivos reais.
-- O próximo alvo de auditoria é o custo de atualização/remoção de listas de projéteis, inimigos e partículas e a separação das responsabilidades do ciclo principal. Mudanças nesses pontos devem ser feitas separadamente para facilitar a identificação de regressões.
+- As listas de partículas, efeitos, projéteis e inimigos são compactadas com índices de escrita no próprio array, evitando alocar arrays substitutos por quadro. A ordem dos elementos mantidos é preservada.
+- Essas alterações reduzem operações matemáticas e alocações explícitas no ciclo, mas não provam, por si só, melhoria perceptível de FPS. A validação depende de medição e de teste em dispositivos reais.
+- Próximo alvo: medir o custo do ciclo principal e revisar responsabilidades de game.js; qualquer extração de módulos deve ser feita isoladamente para facilitar a detecção de regressões.
 
 ## Próximas validações
 
