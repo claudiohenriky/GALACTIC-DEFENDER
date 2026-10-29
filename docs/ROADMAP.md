@@ -1,3 +1,9 @@
+## Patch v0.30.4 — renderização leve do Pulso de Ruptura
+- [x] Remover o preenchimento translúcido de grande área.
+- [x] Preservar o contorno semicircular com traços neon discretos para sugerir plasma/fumaça.
+- [x] Manter lógica de colisão, repulsão, alcance e duração gradual.
+- [ ] Medir FPS durante ativação no celular e confirmar que a queda diminuiu.
+
 ## Patch v0.30.3 — escudo reativo e nomenclatura de plasma
 - [x] Manter proteção lógica de 360° sem bolha visível permanente.
 - [x] Exibir arcos localizados apenas em setores com projéteis em trajetória de colisão provável.
