@@ -18,8 +18,9 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 
 ## Estado da versão
 
+- A candidata v0.20.0 compacta as notificações de recompensa no lado direito da arena e limita o texto para reduzir a sobreposição da HUD.
 - A v0.19.2 ajusta o dano da onda de quebra do escudo contra chefes (12 pontos), mantendo 2 pontos contra inimigos comuns.
-- O contato com o escudo não deve eliminar inimigos automaticamente; a validação final é feita pelo usuário no GitHub Pages.
+- A confirmação manual da candidata v0.20.0 é feita pelo usuário no GitHub Pages, com foco em celular na horizontal.
 
 ## Decisões técnicas
 
