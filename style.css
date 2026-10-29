@@ -353,3 +353,6 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .rarity-rare{color:#6fcfff}
 .rarity-epic{color:#c6a5ff}
 .rarity-legendary{color:#ffcb70}
+
+/* Keep rarity labels readable in the compact mobile upgrade-card layout. */
+@media(max-width:560px){.upgrade-card-rarity{grid-column:2;grid-row:2;justify-self:start}.upgrade-card strong{grid-row:3}.upgrade-card small{grid-row:4}}
