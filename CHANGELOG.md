@@ -6,6 +6,7 @@
 - Substitui cálculos de distância com `Math.hypot()` por comparações com distâncias ao quadrado nas verificações frequentes de colisão entre projéteis, inimigos e jogador, além da área de impacto do escudo.
 - A seleção do inimigo mais próximo compara distâncias ao quadrado, evitando raízes quadradas que não são necessárias para ordenar distâncias.
 - Remove cálculos redundantes das coordenadas da boca da arma antes do laço de criação dos projéteis; as coordenadas necessárias continuam sendo calculadas para cada projétil.
+- Compacta as listas de partículas, efeitos, projéteis e inimigos no próprio array, evitando criar novos arrays com `.filter()` a cada quadro.
 - Atualiza os identificadores de cache e a versão exibida para `0.18.0`.
 
 ### Validação
