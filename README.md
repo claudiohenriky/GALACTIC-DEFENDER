@@ -6,7 +6,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
-**Validação:** a v0.27.0 foi testada manualmente pelo usuário no GitHub Pages e o Guardião funcionou corretamente. A v0.30.0 é uma candidata na branch `feature/v0.30.0-rupture-overload-missiles`; inclui o Pulso de Ruptura, medidor de sobrecarga e fragmentação dos mísseis de nível 3. A versão oficial `main` ainda não contém essas alterações. A candidata requer validação manual no celular e no computador.
+**Validação:** a v0.27.0 foi testada manualmente pelo usuário no GitHub Pages e o Guardião funcionou corretamente. A v0.30.0 é uma candidata na branch `feature/v0.30.0-rupture-overload-missiles`; a v0.30.1 é o patch candidato na branch `feature/v0.30.1-pulse-overload-fps`, com pulso semicircular, medidor de sobrecarga independente e opção de diagnóstico de FPS. A versão oficial `main` ainda não contém essas alterações. A candidata requer validação manual no celular e no computador.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
 
@@ -21,7 +21,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 - Mísseis teleguiados lançados pelas asas, com alvos e explosão em área.
 - Escudo de energia redesenhado; o Pulso de Ruptura é uma habilidade de emergência ativável por botão ou tecla Q somente enquanto o escudo estiver quebrado. A barreira avança à frente da nave, bloqueia projéteis e causa dano limitado.
-- Medidor compartilhado de sobrecarga: habilidades e lasers consomem energia; em sobrecarga, a potência e a velocidade diminuem; no limite, habilidades especiais são bloqueadas temporariamente.
+- Medidor compartilhado de sobrecarga: habilidades e lasers consomem energia; em sobrecarga, a potência e a velocidade diminuem; no limite, habilidades especiais são bloqueadas temporariamente. Na candidata v0.30.1, o medidor é vertical e independente da HUD principal.
 - Mísseis de nível 3 se fragmentam em até três projéteis mais fracos; a quantidade simultânea é limitada para conter o custo de combate.
 
 ## Lobby, preparação e plataforma
@@ -38,6 +38,10 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 - A preferência PC/mobile é detectada automaticamente na primeira visita e pode ser alterada manualmente; a escolha fica salva no navegador.
 - As configurações de tamanho e transparência da HUD são aplicadas à interface e persistidas localmente. O áudio é gerado localmente com Web Audio API; a preferência de áudio pode ser ativada/desativada e o volume geral ajustado nas configurações.
 - O armazenamento é local ao navegador e não sincroniza preferências entre dispositivos.
+
+## Diagnóstico de desempenho
+
+Nas configurações, ative **Medidor de FPS** para exibir a taxa de quadros estimada e o tempo médio por quadro durante a partida. Compare o valor em situação normal e ao usar habilidades; quedas de FPS ajudam a localizar o momento da engasgada, mas não identificam sozinhas a causa.
 
 ## Executar localmente
 
