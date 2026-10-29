@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.28.2';
-import { Enemy } from '../enemies/enemy.js?v=0.28.2';
-import { Projectile } from '../combat/projectile.js?v=0.28.2';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.28.2';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.28.2';
-import { Progression } from '../progression/progression.js?v=0.28.2';
-import { Mission } from '../missions/missions.js?v=0.28.2';
-import { WaveManager } from './wave-manager.js?v=0.28.2';
-import { updateHud } from '../ui/hud.js?v=0.28.2';
-import { gameAudio } from '../audio/game-audio.js?v=0.28.2';
-import { AchievementTracker } from '../progression/achievements.js?v=0.28.2';
+import { Player } from '../player/player.js?v=0.28.3';
+import { Enemy } from '../enemies/enemy.js?v=0.28.3';
+import { Projectile } from '../combat/projectile.js?v=0.28.3';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.28.3';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.28.3';
+import { Progression } from '../progression/progression.js?v=0.28.3';
+import { Mission } from '../missions/missions.js?v=0.28.3';
+import { WaveManager } from './wave-manager.js?v=0.28.3';
+import { updateHud } from '../ui/hud.js?v=0.28.3';
+import { gameAudio } from '../audio/game-audio.js?v=0.28.3';
+import { AchievementTracker } from '../progression/achievements.js?v=0.28.3';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -456,9 +456,11 @@ export class Game {
       // Both missiles launch even with one target; untargeted missiles can acquire one later.
       const target = targets[index] || targets[0] || null;
       const initialAngle = target
-        ? Math.atan2(target.y - launchY, target.x - launchX) + (missileCount === 2 ? side * 0.08 : 0)
+        ? Math.atan2(target.y - launchY, target.x - launchX) + (missileCount === 2 ? side * 0.12 : 0)
         : launchAngle;
-      this.guidedMissiles.push(new GuidedMissile(launchX, launchY, target, level, initialAngle));
+      // Give each missile a distinct lateral approach so they remain visibly separated in flight.
+      const targetOffset = missileCount === 2 ? side * 22 : 0;
+      this.guidedMissiles.push(new GuidedMissile(launchX, launchY, target, level, initialAngle, targetOffset));
     }
     this.guidedMissileCooldownMax = level >= 3 ? 9 : level >= 2 ? 10 : 12;
     this.guidedMissileCooldown = this.guidedMissileCooldownMax;
@@ -783,6 +785,8 @@ export class Game {
 
     this.projectiles.forEach((shot) => shot.update(dt));
     this.guidedMissileCooldown = Math.max(0, this.guidedMissileCooldown - dt);
+    // Keep the disabled state synchronized with the real cooldown on every frame.
+    this.updateGuidedMissileButton();
     this.guidedMissiles.forEach((missile) => missile.update(dt, this.enemies, this.width, this.height));
     let effectWriteIndex = 0;
     for (const effect of this.guidedMissileEffects) {
