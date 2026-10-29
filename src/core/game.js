@@ -59,7 +59,11 @@ export class Game {
     this.damageSparks = [];
     this.shieldBreakEffects = [];
     this.shieldPulseCooldown = 0;
-    this.shieldPulseCooldownMax = 16;
+    this.shieldPulseCooldownMax = 18;
+    this.shieldPulseWave = null;
+    this.overload = 0;
+    this.overloadLockTimer = 0;
+    this.overloadMax = 100;
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
     this.pendingUpgradeChoices = [];
