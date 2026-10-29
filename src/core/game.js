@@ -1,15 +1,15 @@
-import { Player } from '../player/player.js?v=0.35.0';
-import { Enemy } from '../enemies/enemy.js?v=0.39.0';
-import { Projectile } from '../combat/projectile.js?v=0.35.0';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.35.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.35.0';
-import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.35.0';
-import { Progression } from '../progression/progression.js?v=0.35.0';
-import { Mission } from '../missions/missions.js?v=0.35.0';
-import { WaveManager } from './wave-manager.js?v=0.35.0';
-import { updateHud } from '../ui/hud.js?v=0.35.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.35.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.35.0';
+import { Player } from '../player/player.js?v=0.40.0';
+import { Enemy } from '../enemies/enemy.js?v=0.40.0';
+import { Projectile } from '../combat/projectile.js?v=0.40.0';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.40.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.40.0';
+import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.40.0';
+import { Progression } from '../progression/progression.js?v=0.40.0';
+import { Mission } from '../missions/missions.js?v=0.40.0';
+import { WaveManager } from './wave-manager.js?v=0.40.0';
+import { updateHud } from '../ui/hud.js?v=0.40.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.40.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.40.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -805,6 +805,13 @@ export class Game {
 
   damageEnemy(enemy, amount) {
     if (!enemy.active) return;
+    // Elite shields absorb incoming damage first; excess damage carries through to hull integrity.
+    if (enemy.isElite && enemy.eliteShield > 0) {
+      const absorbed = Math.min(enemy.eliteShield, amount);
+      enemy.eliteShield -= absorbed;
+      amount -= absorbed;
+      if (amount <= 0) return;
+    }
     enemy.health = Math.max(0, enemy.health - amount);
     if (enemy.health > 0) return;
     enemy.active = false;
@@ -1107,7 +1114,10 @@ export class Game {
             : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.49 : this.waveManager.wave >= 3 ? 0.37 : 0.25) ? 'sentinel'
               : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.67 : this.waveManager.wave >= 3 ? 0.55 : 0.43) ? 'interceptor'
                 : 'chaser';
-      this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave, type));
+      // Elite variants begin in advanced waves and retain their base class behavior.
+      // The first proof of concept is an Artillery Elite, introduced from wave 12.
+      const isElite = !bossWave && this.waveManager.wave >= 12 && type === 'artillery' && Math.random() < 0.45;
+      this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave, type, isElite));
     }
 
     this.projectiles.forEach((shot) => shot.update(dt));

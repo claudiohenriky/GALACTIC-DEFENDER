@@ -1,9 +1,12 @@
 export class Enemy {
-  constructor(x, y, level = 1, type = 'chaser') {
+  constructor(x, y, level = 1, type = 'chaser', isElite = false) {
     this.x = x;
     this.y = y;
     this.type = type;
     this.level = level;
+    this.isElite = Boolean(isElite && type === 'artillery');
+    this.eliteMaxShield = this.isElite ? 8 : 0;
+    this.eliteShield = this.eliteMaxShield;
     this.radius = type === 'boss' ? 23 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
     this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'guardian' ? 7 + level : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
@@ -303,8 +306,8 @@ export class Enemy {
     const artillery = this.type === 'artillery';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
-    const color = boss ? (this.bossPhase === 3 ? '#ff6d8f' : this.bossPhase === 2 ? '#ffb36b' : '#d59bff') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
-    const edge = boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
+    const color = this.isElite ? '#252b35' : boss ? (this.bossPhase === 3 ? '#ff6d8f' : this.bossPhase === 2 ? '#ffb36b' : '#d59bff') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
+    const edge = this.isElite ? '#76f0a8' : boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
     ctx.translate(this.x, this.y);
@@ -446,6 +449,15 @@ export class Enemy {
       ctx.strokeRect(this.radius * 0.64, -this.radius * 0.25, this.radius * 0.34, this.radius * 0.75);
     }
 
+    if (this.isElite) {
+      // Elite Artillery keeps the base silhouette with dark plating and a green energy core.
+      ctx.fillStyle = '#4c286b';
+      ctx.fillRect(-this.radius * 0.78, -this.radius * 0.35, this.radius * 0.34, this.radius * 0.8);
+      ctx.fillRect(this.radius * 0.44, -this.radius * 0.35, this.radius * 0.34, this.radius * 0.8);
+      ctx.fillStyle = '#76f0a8';
+      ctx.fillRect(-this.radius * 0.12, -this.radius * 0.25, this.radius * 0.24, this.radius * 0.5);
+    }
+
     ctx.fillStyle = '#25152f';
     ctx.fillRect(-this.radius * 0.62, -this.radius * 0.1, this.radius * 1.24, this.radius * 0.38);
     ctx.fillStyle = edge;
@@ -469,6 +481,17 @@ export class Enemy {
     ctx.fillRect(-barWidth / 2, barY, barWidth, 3);
     ctx.fillStyle = this.health / this.maxHealth <= 0.35 ? '#ff526f' : '#8cf5c7';
     ctx.fillRect(-barWidth / 2, barY, barWidth * (this.health / this.maxHealth), 3);
+    if (this.isElite && this.eliteShield > 0) {
+      const shieldRatio = this.eliteShield / Math.max(1, this.eliteMaxShield);
+      ctx.globalAlpha = 0.35 + shieldRatio * 0.45;
+      ctx.strokeStyle = '#76f0a8';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius + 4 + Math.sin(this.phase * 3) * 0.8, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
     ctx.restore();
   }
 }
