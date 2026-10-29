@@ -1,3 +1,12 @@
+## Patch v0.30.1 — otimização e diagnóstico
+- [x] Medidor de FPS opcional nas configurações, com atualização limitada a duas vezes por segundo.
+- [x] Pulso de Ruptura semicircular de 180° e alcance ampliado.
+- [x] Repulsão por nível e custo térmico aumentado para a habilidade de emergência.
+- [x] Medidor vertical independente e desaceleração moderada da recuperação térmica.
+- [x] Recuo amortecido ao receber impacto e faíscas limitadas em estado crítico.
+- [ ] Teste manual de FPS e engasgada durante uso do Pulso de Ruptura em celular.
+- [ ] Ajustar balanceamento e repulsão após feedback do usuário.
+
 # Roteiro de desenvolvimento — GALACTIC-DEFENDER
 
 Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanece em `main`; cada etapa deve ser revisada em um pull request e validada no GitHub Pages antes da publicação. A aprovação para implementar uma etapa não autoriza automaticamente o merge.

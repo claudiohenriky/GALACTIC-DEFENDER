@@ -1,3 +1,27 @@
+## [0.30.1] — Patch de otimização, pulso semicircular e diagnóstico de FPS
+
+### Escudo e Pulso de Ruptura
+- Simplifica a oscilação visual do escudo normal para reduzir trabalho de renderização.
+- Substitui a barreira retangular por uma frente semicircular de 180°, com alcance ampliado para 480 unidades.
+- Prioriza a neutralização de projéteis e reduz o dano direto aos inimigos; a repulsão aumenta conforme o nível do escudo e é reduzida contra chefes.
+- Limita os testes de colisão à faixa semicircular recém-varrida, usando distância ao quadrado e produto escalar para evitar cálculos angulares repetidos.
+- Aumenta o custo de sobrecarga do pulso para 38.
+
+### Sobrecarga e resposta a impactos
+- Desacelera moderadamente a recuperação térmica: 10/s em estado estável, 6/s sob sobrecarga e 16/s durante o bloqueio crítico.
+- Move o medidor térmico para um painel vertical independente no canto inferior esquerdo, com cores e alertas progressivos.
+- Adiciona faíscas esparsas e limitadas quando a nave permanece em sobrecarga crítica.
+- Aplica recuo curto e amortecido quando o casco recebe dano ou o escudo absorve um impacto.
+
+### Diagnóstico de desempenho
+- Adiciona a opção **Medidor de FPS** às configurações. Quando ativada, exibe FPS estimado e duração média de quadro, atualizados duas vezes por segundo.
+- O medidor é opcional e permanece desativado por padrão para evitar atualizações de interface desnecessárias.
+- A medição representa a cadência de quadros observada pelo navegador, não uma medição isolada de GPU.
+
+### Validação
+- Candidata para teste manual; main permanece inalterada.
+- Ainda é necessário confirmar a jogabilidade, o comportamento de repulsão e o desempenho real no celular. A medição de FPS será usada para comparar situações normais e o uso do Pulso de Ruptura.
+
 ## [0.30.0] — Pulso de Ruptura, sobrecarga e fragmentação de mísseis
 
 ### Escudo de emergência

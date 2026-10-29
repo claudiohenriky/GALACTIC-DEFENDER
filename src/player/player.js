@@ -32,6 +32,8 @@ export class Player {
     // The ship points upward by default; rotation is stored as a world-space angle.
     this.rotation = -Math.PI / 2;
     this.overloadSpeedFactor = 1;
+    this.knockbackX = 0;
+    this.knockbackY = 0;
     this.x = width / 2;
     this.y = height * (width > height ? 0.66 : 0.78);
     this.fitToArena(width, height);
@@ -104,8 +106,10 @@ export class Player {
       this.velocityX += (velocityDeltaX / velocityDelta) * maxVelocityChange;
       this.velocityY += (velocityDeltaY / velocityDelta) * maxVelocityChange;
     }
-    this.x += this.velocityX * dt;
-    this.y += this.velocityY * dt;
+    this.knockbackX *= Math.exp(-7 * dt);
+    this.knockbackY *= Math.exp(-7 * dt);
+    this.x += (this.velocityX + this.knockbackX) * dt;
+    this.y += (this.velocityY + this.knockbackY) * dt;
 
     // Movement feedback is purely visual: propulsion grows under input and settles smoothly at rest.
     this.thrust += (inputStrength - this.thrust) * Math.min(1, dt * 8);
