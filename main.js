@@ -1,13 +1,21 @@
-import { Game } from './src/core/game.js?v=0.28.2';
-import { gameAudio } from './src/audio/game-audio.js?v=0.28.2';
+import { Game } from './src/core/game.js?v=0.28.3';
+import { gameAudio } from './src/audio/game-audio.js?v=0.28.3';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
 const game = new Game(canvas);
-document.querySelector('#guided-missile-button')?.addEventListener('click', (event) => {
+const guidedMissileButton = document.querySelector('#guided-missile-button');
+function activateMissileFromControl(event) {
   event.preventDefault();
   event.stopPropagation();
+  if (event.type === 'pointerdown' && event.pointerType === 'mouse' && event.button !== 0) return;
   game.activateGuidedMissile();
+}
+// Fire on pointerdown for immediate touch response; do not wait for a synthetic click.
+guidedMissileButton?.addEventListener('pointerdown', activateMissileFromControl, { passive: false });
+guidedMissileButton?.addEventListener('click', (event) => {
+  if (event.detail === 0) activateMissileFromControl(event);
+  else { event.preventDefault(); event.stopPropagation(); }
 });
 
 const mainMenu = document.querySelector('#main-menu');
