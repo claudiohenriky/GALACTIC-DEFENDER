@@ -1,40 +1,26 @@
-# Validação de desempenho — v0.18.1
+# Validação de desempenho — GALACTIC-DEFENDER
 
-Esta rotina ajuda a comparar cenários, mas não substitui teste em dispositivos reais.
+Esta rotina compara versões no mesmo dispositivo e cenário. Verificações estáticas não substituem testes reais no navegador.
 
-## Diagnóstico opcional do ciclo
+## Diagnóstico opcional
 
-1. Abra a candidata v0.18.1 pelo GitHub Pages no navegador disponível.
-2. Acrescente `?profile=1` ao endereço da página (por exemplo, `index.html?profile=1`).
-3. Inicie uma partida e deixe o jogo funcionar por pelo menos 30 segundos.
-4. No console, procure mensagens `[GALACTIC-DEFENDER profile]`. Cada relatório reúne 180 quadros e mostra:
-   - intervalo médio entre quadros e FPS estimado a partir desse intervalo;
-   - tempo médio gasto em atualização, renderização e trabalho do ciclo;
-   - quantidade atual de inimigos, projéteis e efeitos.
-5. Repita no mesmo dispositivo, navegador, orientação de tela e cenário aproximado, primeiro com a versão de referência e depois com a candidata.
-6. Faça pelo menos três rodadas por versão e compare a mediana dos resultados. Anote modelo do aparelho, navegador, orientação, quantidade aproximada de inimigos e se o aparelho estava aquecido.
+1. Abra a branch de prévia pelo navegador e acrescente `?profile=1` ao endereço.
+2. Inicie uma partida e jogue por pelo menos 30 segundos.
+3. No console do navegador, procure `[GALACTIC-DEFENDER profile]` para obter intervalo médio entre quadros, FPS estimado, tempos de atualização/renderização e contagens de entidades.
+4. Ao ativar mísseis ou o pulso do escudo, procure `[GALACTIC-DEFENDER activation]`, que informa duração síncrona e quantidade de entidades verificadas.
+5. Compare a mesma versão de navegador, orientação, aparelho e cenário; faça três rodadas e use a mediana.
 
-## Cuidados de interpretação
+## Limites
 
-- O profiler só mede quando `?profile=1` está presente; não faz parte da experiência normal de jogo.
-- A medição inclui o custo da instrumentação e é adequada para comparação aproximada, não como benchmark científico.
-- A estimativa de FPS é calculada pelo intervalo dos quadros de `requestAnimationFrame`; não garante que cada quadro tenha sido desenhado na tela.
-- Compare o mesmo cenário. Diferenças de ondas, inimigos, efeitos, economia de energia, temperatura e abas em segundo plano podem distorcer os resultados.
-- Não declare melhoria de desempenho antes de reunir dados reais. Registre também travamentos, erros e qualquer alteração percebida nos controles.
+- O profiler só roda com `?profile=1` e acrescenta custo de medição.
+- A duração de ativação não mede sozinha os quadros seguintes nem prova melhoria de FPS.
+- Não declare ganhos medidos sem dados reais. Registre travamentos, erros, aquecimento e alterações nos controles.
+- Confirme o comportamento no GitHub Pages em celular e computador antes de aprovar uma candidata.
 
-## Critério de aprovação da v0.18.1
+## Checklist da candidata v0.29.1
 
-- Verificações automáticas de sintaxe e caminhos de imports aprovadas.
-- O usuário confirma no GitHub Pages que a barreira, a barra, a quebra, o dano em área e a recarga continuam funcionando.
-- Comparar a fluidez percebida com a versão de referência no mesmo dispositivo e cenário; não afirmar melhoria medida sem dados.
-- Revisão final do diff e aprovação explícita antes de integrar à `main`.
-- O projeto é validado pelo navegador publicado; não exigir execução local do usuário.
-
-
-## v0.29.0 — escudo, mísseis e projéteis
-
-- Comparar fluidez em jogo normal, disparo de mísseis e explosões com vários inimigos.
-- Ativar a Onda do Escudo perto de projéteis inimigos; confirmar que projéteis próximos desaparecem e distantes continuam ativos.
-- Confirmar dano controlado, alcance por nível, recarga, controles por toque e tecla Q.
-- Verificar a barreira angular, a onda ao quebrar o escudo e a ausência de erros visuais.
-- Checagem automatizada de sintaxe/imports não substitui medição de FPS ou teste real no celular.
+- [ ] Comparar partida leve e partida com muitos inimigos/projéteis.
+- [ ] Registrar se há travamento na primeira ativação de habilidade.
+- [ ] Observar se a fluidez piora progressivamente durante a partida.
+- [ ] Confirmar que os controles continuam responsivos.
+- [ ] Não mesclar à `main` sem validação manual e aprovação explícita.
