@@ -1,3 +1,12 @@
+## [0.30.3] — Escudo reativo e tiros perfurantes de plasma
+
+- O escudo mantém a proteção lógica de 360°, mas só desenha pequenos arcos na direção de projéteis com trajetória de colisão provável.
+- A detecção de ameaças é limitada a uma verificação a cada 80 ms e reutiliza oito setores angulares para evitar um efeito por projétil.
+- Remove a camada azul contínua sobre a nave; a barra de integridade do escudo continua disponível.
+- Pulso de Ruptura percorre a mesma distância em uma animação mais gradual, com faixa de colisão ligeiramente mais larga.
+- Renomeia a habilidade para Tiros Perfurantes de Plasma; o comportamento de perfuração existente é preservado.
+- O custo real de FPS e a resposta visual ainda precisam ser confirmados em dispositivo móvel.
+
 ## [0.30.2] — Correções de HUD e otimização de efeitos
 
 - Reposiciona o medidor de sobrecarga para o canto superior esquerdo, abaixo da HUD principal e fora da área do joystick.
