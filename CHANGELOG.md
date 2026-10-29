@@ -5,7 +5,7 @@
 ### Progressão e recompensas
 - Ajusta o XP por tipo de inimigo: perseguidores 20 XP, interceptadores 15 XP, sentinelas 35 XP e chefes 180 XP.
 - Troca o crescimento exponencial do requisito de nível por uma curva linear: 100 XP para o nível 2, aumentando 35 XP por nível seguinte.
-- Adiciona uma faixa animada dentro da arena para comunicar missões concluídas, XP/pontos recebidos, novos títulos, conquistas desbloqueadas e derrotas de chefes.
+- Adiciona uma faixa animada dentro da arena para comunicar missões concluídas, XP/pontos recebidos, novos títulos, conquistas desbloqueadas (incluindo marcos de pontuação/ondas) e derrotas de chefes.
 - Atualiza os identificadores de cache e a versão exibida para `0.19.0`.
 
 ### Validação
