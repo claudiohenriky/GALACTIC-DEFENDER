@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.20.0';
-import { Enemy } from '../enemies/enemy.js?v=0.20.0';
-import { Projectile } from '../combat/projectile.js?v=0.20.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.20.0';
-import { Progression } from '../progression/progression.js?v=0.20.0';
-import { Mission } from '../missions/missions.js?v=0.20.0';
-import { WaveManager } from './wave-manager.js?v=0.20.0';
-import { updateHud } from '../ui/hud.js?v=0.20.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.20.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.20.0';
+import { Player } from '../player/player.js?v=0.22.0';
+import { Enemy } from '../enemies/enemy.js?v=0.22.0';
+import { Projectile } from '../combat/projectile.js?v=0.22.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.22.0';
+import { Progression } from '../progression/progression.js?v=0.22.0';
+import { Mission } from '../missions/missions.js?v=0.22.0';
+import { WaveManager } from './wave-manager.js?v=0.22.0';
+import { updateHud } from '../ui/hud.js?v=0.22.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.22.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.22.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -20,6 +20,8 @@ export class Game {
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
     this.player = new Player(this.width, this.height);
+    this.selectedShip = 'vanguard';
+    this.player.shipClass = this.selectedShip;
 
     this.progression = new Progression();
     this.achievements = new AchievementTracker();
@@ -155,6 +157,7 @@ export class Game {
       this.achievements.recordRun(this.score, this.waveManager.wave);
     }
     this.player = new Player(this.width, this.height);
+    this.player.shipClass = this.selectedShip || 'vanguard';
     this.progression = new Progression();
     this.mission = new Mission();
     this.waveManager.reset();

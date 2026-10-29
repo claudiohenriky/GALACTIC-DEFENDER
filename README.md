@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão candidata em desenvolvimento:** `0.21.0` — tela de preparação da missão, escolha do modo disponível e tela cheia opcional antes de iniciar.
+**Versão candidata em desenvolvimento:** `0.22.0` — hangar com três cascos visuais selecionáveis, inclinação pseudo-3D da nave e silhuetas renovadas para a facção inimiga.
 
-**Base oficial em `main`:** `0.20.0` — notificações de recompensa compactas à direita da arena. Publicada no GitHub Pages; a nova candidata `0.21.0` ainda aguarda revisão e teste manual.
+**Base oficial em `main`:** `0.21.0` — tela de preparação da missão. A candidata `0.22.0` aguarda teste manual antes de qualquer merge.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
 
@@ -19,7 +19,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Lobby, preparação e plataforma
 
-- O botão Jogar abre a tela de preparação; a partida só começa após confirmação em Iniciar missão.
+- O botão Jogar abre o hangar; o piloto escolhe entre três cascos visuais com atributos idênticos e segue à preparação antes de iniciar a missão.
+- A nave inclina visualmente durante o movimento lateral para sugerir profundidade em Canvas 2D; a facção inimiga recebe silhuetas e detalhes de casco próprios.
+- A preparação em tela cheia permite rolagem vertical em telas baixas para manter os botões acessíveis.
 - A preparação informa o modo Sobrevivência disponível, mostra modos futuros como em desenvolvimento e permite ativar tela cheia antes da partida.
 - O hangar, novas classes de inimigos, fases de boss e novas cartas de atributos fazem parte do roteiro de expansão; serão entregues em etapas independentes.
 

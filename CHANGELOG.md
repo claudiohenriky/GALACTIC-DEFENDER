@@ -1,16 +1,20 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
-## [0.21.0] — Tela de preparação da missão
+## [0.22.0] — Hangar e identidade visual das naves
 
-### Interface
-- O botão JOGAR abre uma etapa de preparação sem iniciar a partida.
-- A tela mostra o modo Sobrevivência disponível e indica que Desafios ainda está em desenvolvimento.
-- Adiciona uma opção de tela cheia antes do início, além de orientações de controles conforme PC/mobile.
-- A partida e as ondas só começam após o jogador selecionar INICIAR MISSÃO.
+### Hangar e seleção
+- Adiciona uma tela de hangar entre o menu principal e a preparação da missão.
+- Permite selecionar e salvar localmente três cascos visuais: Vanguard, Phantom e Aegis.
+- Mantém os atributos de combate iguais entre os cascos nesta primeira etapa, sem introduzir vantagens de balanceamento ocultas.
+
+### Arte e movimento
+- Renova o desenho da nave do jogador com painéis de casco, núcleo, propulsores e uma inclinação lateral pseudo-3D de baixo custo.
+- Renova as silhuetas inimigas com detalhes angulares de uma facção hostil, preservando os tipos e a lógica de combate atuais.
+- Melhora a acessibilidade dos botões da preparação em tela cheia em telas móveis baixas, permitindo rolagem e respeitando áreas seguras.
 
 ### Validação
-- Revisão estática da alteração; aguarda execução do workflow e teste manual no GitHub Pages em computador e celular.
-- A tela cheia depende do suporte e da permissão do navegador; a orientação horizontal continua opcional.
+- Revisão estática concluída; o workflow automatizado do pull request passou nas verificações de sintaxe JavaScript, imports relativos e whitespace.
+- A validação visual real ainda depende do teste do usuário pelo GitHub Pages em celular; computador permanece não testado.
 
 ## [0.20.0] — Notificações compactas de recompensa
 

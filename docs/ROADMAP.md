@@ -8,10 +8,13 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Permitir preparar a orientação e ativar tela cheia antes do início.
 - Confirmar que o loop de jogo não avança enquanto a tela de preparação está aberta.
 
-## Etapa 2 — Hangar e seleção de nave
-- Criar uma tela de hangar acessível antes da partida.
-- Começar com a nave atual como opção padrão; introduzir personalização visual sem alterar atributos ocultamente.
-- Projetar a estrutura para futuras naves e efeitos de disparo, mantendo o balanceamento separado da aparência.
+## Etapa 2 — Hangar e seleção de nave (v0.22.0)
+- Implementar uma tela de hangar antes da preparação da missão.
+- Disponibilizar três cascos visuais selecionáveis (Vanguard, Phantom e Aegis), persistindo a escolha localmente.
+- Manter atributos idênticos entre os cascos para separar personalização visual de balanceamento.
+- Renovar a nave do jogador e as silhuetas da facção inimiga, mantendo o Canvas 2D e efeitos de baixo custo.
+- Adicionar inclinação pseudo-3D ao movimento lateral sem alterar a lógica de mira ou o vetor de movimento.
+- Ajustar a preparação em tela cheia para manter ações acessíveis em telas baixas.
 
 ## Etapa 3 — Novas cartas de atributos e habilidades
 - Auditar as cartas existentes e os marcos de progressão antes de adicionar outras.

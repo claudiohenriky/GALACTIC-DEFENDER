@@ -1,5 +1,5 @@
-import { Game } from './src/core/game.js?v=0.20.0';
-import { gameAudio } from './src/audio/game-audio.js?v=0.20.0';
+import { Game } from './src/core/game.js?v=0.22.0';
+import { gameAudio } from './src/audio/game-audio.js?v=0.22.0';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
@@ -8,6 +8,23 @@ const game = new Game(canvas);
 const mainMenu = document.querySelector('#main-menu');
 const gameLayout = document.querySelector('.game-layout');
 const missionPrep = document.querySelector('#mission-prep');
+const hangarScreen = document.querySelector('#hangar-screen');
+const shipChoiceButtons = [...document.querySelectorAll('[data-ship-choice]')];
+const shipSelectionNote = document.querySelector('#hangar-selection-note');
+const validShipClasses = ['vanguard', 'phantom', 'aegis'];
+let selectedShip = localStorage.getItem('gd-ship-class');
+if (!validShipClasses.includes(selectedShip)) selectedShip = 'vanguard';
+game.selectedShip = selectedShip;
+game.player.shipClass = selectedShip;
+function selectShip(shipClass) {
+  if (!validShipClasses.includes(shipClass)) return;
+  selectedShip = shipClass; game.selectedShip = shipClass; game.player.shipClass = shipClass;
+  localStorage.setItem('gd-ship-class', shipClass);
+  shipChoiceButtons.forEach((button) => { const selected = button.dataset.shipChoice === shipClass; button.classList.toggle('is-selected', selected); button.setAttribute('aria-pressed', String(selected)); });
+  shipSelectionNote.textContent = `${shipClass.charAt(0).toUpperCase() + shipClass.slice(1)} selecionada. A escolha é salva neste navegador.`;
+}
+shipChoiceButtons.forEach((button) => button.addEventListener('click', () => selectShip(button.dataset.shipChoice)));
+selectShip(selectedShip);
 const platformButtons = [...document.querySelectorAll('[data-platform-choice]')];
 const platformNote = document.querySelector('#platform-detection-note');
 const settingsPanel = document.querySelector('#settings-panel');
@@ -44,20 +61,20 @@ function closeMenuPanels() {
 }
 setPlatform(detectPlatform(), false);
 platformButtons.forEach((button) => button.addEventListener('click', () => setPlatform(button.dataset.platformChoice)));
-// JOGAR opens a preparation screen only; gameplay stays stopped until confirmation.
+// JOGAR opens the hangar; gameplay remains stopped until mission confirmation.
 document.querySelector('#menu-play-button').addEventListener('click', () => {
-  closeMenuPanels();
-  mainMenu.classList.add('is-hidden');
-  missionPrep.classList.remove('is-hidden');
+  closeMenuPanels(); mainMenu.classList.add('is-hidden'); hangarScreen.classList.remove('is-hidden');
+});
+document.querySelector('#hangar-back-button').addEventListener('click', () => { hangarScreen.classList.add('is-hidden'); mainMenu.classList.remove('is-hidden'); });
+document.querySelector('#hangar-continue-button').addEventListener('click', () => {
+  hangarScreen.classList.add('is-hidden'); missionPrep.classList.remove('is-hidden');
+  game.selectedShip = selectedShip; game.player.shipClass = selectedShip;
   document.querySelector('#prep-controls-note').textContent =
     document.documentElement.dataset.platform === 'mobile'
       ? 'Joystick para mover a nave; botão DISPARAR para atirar.'
       : 'WASD/setas para mover; mouse para mirar; botão direito ou Espaço para disparar.';
 });
-document.querySelector('#prep-back-button').addEventListener('click', () => {
-  missionPrep.classList.add('is-hidden');
-  mainMenu.classList.remove('is-hidden');
-});
+document.querySelector('#prep-back-button').addEventListener('click', () => { missionPrep.classList.add('is-hidden'); hangarScreen.classList.remove('is-hidden'); });
 document.querySelector('#prep-start-button').addEventListener('click', () => {
   gameAudio.start();
   missionPrep.classList.add('is-hidden');

@@ -18,6 +18,8 @@ export class Player {
     // Temporary spawn protection prevents an unavoidable hit while the pilot gets oriented.
     this.invulnerabilityTimer = 3;
     this.flamePhase = 0;
+    this.bank = 0;
+    this.shipClass = 'vanguard';
     // The ship points upward by default; rotation is stored as a world-space angle.
     this.rotation = -Math.PI / 2;
     this.x = width / 2;
@@ -75,6 +77,9 @@ export class Player {
     }
     this.x += dx * this.speed * dt;
     this.y += dy * this.speed * dt;
+    // Lateral hull banking adds a low-cost pseudo-3D cue in Canvas 2D.
+    const targetBank = Math.max(-0.42, Math.min(0.42, dx * -0.42));
+    this.bank += (targetBank - this.bank) * Math.min(1, dt * 7.5);
     this.fitToArena(width, height);
   }
 
@@ -100,33 +105,23 @@ export class Player {
 
   draw(ctx, visible = true) {
     if (!visible) return;
-
-    ctx.save();
-    ctx.translate(this.x, this.y);
-    ctx.rotate(this.rotation + Math.PI / 2);
-    // Keep the ship glow flat to avoid repeated Canvas shadow-blur work per frame.
-    ctx.fillStyle = '#58e4e8';
-    ctx.beginPath();
-    ctx.moveTo(0, -17);
-    ctx.lineTo(12, 12);
-    ctx.lineTo(0, 7);
-    ctx.lineTo(-12, 12);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = '#eafcff';
-    ctx.beginPath();
-    ctx.moveTo(0, -9);
-    ctx.lineTo(4, 4);
-    ctx.lineTo(-4, 4);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.fillStyle = '#7c9cff';
-    ctx.beginPath();
-    ctx.ellipse(0, 14, 3, 6 + Math.sin(this.flamePhase * 18) * 1.5, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    const phantom = this.shipClass === 'phantom', aegis = this.shipClass === 'aegis';
+    const hull = phantom ? '#a78bfa' : aegis ? '#f5b85d' : '#58e4e8';
+    const edge = phantom ? '#f0eaff' : aegis ? '#fff0c9' : '#d9ffff';
+    const wing = phantom ? '#ff77b7' : aegis ? '#ff718d' : '#7c9cff';
+    ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rotation + Math.PI / 2);
+    ctx.transform(1 - Math.abs(this.bank) * 0.08, 0, this.bank * 0.32, 1, 0, 0);
+    ctx.fillStyle = '#030814'; ctx.beginPath(); ctx.ellipse(0, 4, aegis ? 16 : 14, 20, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = hull; ctx.strokeStyle = edge; ctx.lineWidth = 1.5; ctx.beginPath();
+    if (phantom) { ctx.moveTo(0,-20);ctx.lineTo(6,-5);ctx.lineTo(17,8);ctx.lineTo(9,9);ctx.lineTo(4,5);ctx.lineTo(0,15);ctx.lineTo(-4,5);ctx.lineTo(-9,9);ctx.lineTo(-17,8);ctx.lineTo(-6,-5); }
+    else if (aegis) { ctx.moveTo(0,-18);ctx.lineTo(10,-9);ctx.lineTo(17,3);ctx.lineTo(13,12);ctx.lineTo(5,10);ctx.lineTo(0,16);ctx.lineTo(-5,10);ctx.lineTo(-13,12);ctx.lineTo(-17,3);ctx.lineTo(-10,-9); }
+    else { ctx.moveTo(0,-22);ctx.lineTo(7,-8);ctx.lineTo(16,7);ctx.lineTo(11,11);ctx.lineTo(4,7);ctx.lineTo(0,15);ctx.lineTo(-4,7);ctx.lineTo(-11,11);ctx.lineTo(-16,7);ctx.lineTo(-7,-8); }
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = wing; ctx.beginPath();ctx.moveTo(-5,-4);ctx.lineTo(-13,7);ctx.lineTo(-9,8);ctx.lineTo(-3,3);ctx.closePath();ctx.fill();
+    ctx.beginPath();ctx.moveTo(5,-4);ctx.lineTo(13,7);ctx.lineTo(9,8);ctx.lineTo(3,3);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#f4ffff';ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(4,2);ctx.lineTo(0,7);ctx.lineTo(-4,2);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#142e48';ctx.fillRect(-2,-3,4,9);ctx.fillStyle=edge;ctx.fillRect(-1,-2,2,6);
+    const flame=7+Math.sin(this.flamePhase*18)*1.5;ctx.fillStyle=wing;ctx.beginPath();ctx.moveTo(-3,11);ctx.lineTo(0,11+flame);ctx.lineTo(3,11);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#fff2b5';ctx.beginPath();ctx.moveTo(-1,11);ctx.lineTo(0,11+flame*.55);ctx.lineTo(1,11);ctx.closePath();ctx.fill();ctx.restore();
   }
 }

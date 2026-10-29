@@ -7,8 +7,8 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - `main.js`: ponto de entrada e ligação dos eventos de teclado e toque.
 - `src/core/game.js`: estado global, ciclo de animação, geração e colisões.
 - `src/core/wave-manager.js`: contagem de inimigos por onda, intervalos e escalada de dificuldade.
-- `src/player/player.js`: movimento, integridade, invulnerabilidade temporária e desenho da nave.
-- `src/enemies/enemy.js`: movimento de perseguição, comportamento de sentinelas, disparos e desenho dos inimigos.
+- `src/player/player.js`: movimento, integridade, invulnerabilidade temporária, seleção de casco visual e inclinação pseudo-3D.
+- `src/enemies/enemy.js`: movimento de perseguição, comportamento de sentinelas, disparos e desenho dos cascos da facção inimiga.
 - `src/combat/projectile.js`: projéteis do jogador.
 - `src/combat/enemy-projectile.js`: projéteis inimigos direcionados à posição da nave no disparo.
 - `src/progression/progression.js`: experiência, níveis, curva de XP e classes de piloto.
@@ -18,7 +18,8 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 
 ## Estado da versão
 
-- A candidata v0.21.0 adiciona uma tela de preparação antes da partida; o loop de jogo só começa após confirmação explícita. A v0.20.0 compacta as notificações de recompensa no lado direito da arena.
+- A candidata v0.22.0 adiciona o hangar, seleção local entre três cascos cosméticos, silhuetas inimigas renovadas e inclinação pseudo-3D. A preparação em tela cheia recebe ajustes para telas móveis baixas.
+- A v0.21.0 separou a preparação do início da partida; o loop só começa após confirmação explícita. A v0.20.0 compactou as notificações de recompensa no lado direito da arena.
 - A v0.19.2 ajusta o dano da onda de quebra do escudo contra chefes (12 pontos), mantendo 2 pontos contra inimigos comuns.
 - A confirmação manual da candidata v0.20.0 é feita pelo usuário no GitHub Pages, com foco em celular na horizontal.
 
