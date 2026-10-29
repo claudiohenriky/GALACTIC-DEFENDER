@@ -354,9 +354,12 @@ export class Game {
     const radius = 96;
     const life = 0.58;
     this.shieldBreakEffects.push({ x, y, radius, life, maxLife: life });
-    // Two damage clears fragile hostiles but does not instantly defeat a boss.
+    // Compare squared distances to avoid square roots during area-damage checks.
+    const radiusSquared = radius * radius;
     for (const enemy of this.enemies) {
-      if (enemy.active && Math.hypot(enemy.x - x, enemy.y - y) <= radius) {
+      const dx = enemy.x - x;
+      const dy = enemy.y - y;
+      if (enemy.active && dx * dx + dy * dy <= radiusSquared) {
         this.damageEnemy(enemy, 2);
       }
     }
