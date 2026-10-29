@@ -4,11 +4,11 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão oficial em `main`:** `0.25.0` — carta Cadência aprimorada, com aumento de 10% por escolha e limite de cinco níveis.
+**Versão oficial em `main`:** `0.26.0` — Projéteis acelerados e Controle de propulsão. O usuário confirmou que os recursos funcionam corretamente.
 
-**Candidata em desenvolvimento:** `0.26.0` — duas novas cartas: Projéteis acelerados e Controle de propulsão.
+**Candidata em desenvolvimento:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
-**Validação:** a candidata depende de verificações automatizadas e teste manual pelo GitHub Pages; não considerar a versão validada antes do retorno do usuário.
+**Validação:** a candidata precisa passar pelas verificações automatizadas do pull request e pelo teste manual no GitHub Pages antes de ser publicada.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
 
@@ -59,7 +59,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Inimigos não causam dano automático ao ultrapassar a borda da arena.
 - Proteção inicial de 3 segundos ao surgir e invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis e pontuação. Na v0.19.0, os ganhos de XP passaram a variar pelo tipo de inimigo (15–180 XP) e o requisito de nível cresce de forma linear, começando em 100 XP e aumentando 35 XP por nível.
-- A progressão apresenta três cartas por seleção e permite escolher apenas uma. Melhorias de atributos usam percentuais; cartas de atributos aparecem em níveis ímpares a partir do nível 3, e cartas especiais em marcos a cada cinco níveis. A v0.26.0 adiciona velocidade de projéteis e aceleração como atributos distintos. Habilidades iniciais incluem tiro múltiplo, laser perfurante, escudo regenerativo e reparo de emergência. Na v0.16.1, o escudo recebeu barreira, integridade própria, onda de energia e recarga automática. Na v0.16.2, os efeitos visuais foram simplificados para evitar desfoque de sombra por quadro; a fluidez ainda precisa de novo teste manual.
+- A progressão apresenta três cartas por seleção e permite escolher apenas uma. A v0.27.0 introduz o Guardião, inimigo lento e resistente que aparece a partir da onda 3. Melhorias de atributos usam percentuais; cartas de atributos aparecem em níveis ímpares a partir do nível 3, e cartas especiais em marcos a cada cinco níveis. A v0.26.0 adiciona velocidade de projéteis e aceleração como atributos distintos. Habilidades iniciais incluem tiro múltiplo, laser perfurante, escudo regenerativo e reparo de emergência. Na v0.16.1, o escudo recebeu barreira, integridade própria, onda de energia e recarga automática. Na v0.16.2, os efeitos visuais foram simplificados para evitar desfoque de sombra por quadro; a fluidez ainda precisa de novo teste manual.
 - Música ambiente espacial sintetizada e efeitos distintos para disparos do jogador, tiros inimigos e dano, gerados pela Web Audio API sem arquivos externos. O volume geral é ajustável nas configurações, com ganho reforçado para música e dano.
 - Missões rotativas: eliminar inimigos, sobreviver por tempo determinado e alcançar ondas específicas, com dificuldades fácil, média e difícil.
 - Recompensas de missão em XP e pontuação; a conclusão avança para o próximo objetivo. Na v0.19.0, uma faixa animada dentro da arena comunica ao vivo a missão concluída, as recompensas, novos títulos e conquistas desbloqueadas.
