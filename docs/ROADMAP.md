@@ -1,3 +1,16 @@
+## Candidata v0.38.0 — Esquivas mais legíveis e separação entre inimigos
+- [x] Aumentar moderadamente a amplitude lateral das esquivas sem alterar invulnerabilidade, dano ou cadência.
+- [x] Adicionar separação local e suave para reduzir sobreposição entre cascos inimigos.
+- [ ] Testar se as esquivas evitam disparos de forma perceptível sem tornar a IA injusta.
+- [ ] Confirmar que a separação não provoca oscilação, dispersão excessiva ou queda de desempenho.
+- [ ] Validar celular e computador manualmente; não mesclar em `main` sem aprovação.
+
+## Feedback manual do v0.37.0
+- [x] O usuário confirmou que o Artilheiro voltou a aparecer durante o teste.
+- [x] O usuário percebeu melhoria geral e curvas laterais, mas considerou a esquiva curta demais; solicitou um aumento moderado.
+- [x] O usuário observou sobreposição entre inimigos; esta candidata adiciona separação suave.
+- [ ] Guardião continua sem uma mudança tática dedicada; cooperação/proteção entre classes permanece como etapa futura.
+
 ## Candidata v0.37.0 — Percepção de projéteis e esquivas limitadas
 - [x] Prever o ponto de maior aproximação de projéteis usando velocidade relativa.
 - [x] Reações curtas e com recarga para sentinelas, artilheiros e chefe.
