@@ -1,3 +1,14 @@
+## [0.28.6] — Candidata: carta de míssil disponível para validação
+
+### Correção de seleção
+- A carta **Míssil teleguiado** passa a ser incluída garantidamente nas escolhas de habilidade especial enquanto a habilidade estiver abaixo do nível máximo (3).
+- As outras duas cartas da seleção continuam sendo sorteadas conforme seus pesos de raridade.
+- O ajuste é intencionalmente diagnóstico: elimina a possibilidade de o teste ficar bloqueado apenas pela baixa chance de aparecer uma carta Épica. A frequência normal será reavaliada depois que o funcionamento for confirmado.
+
+### Estado e validação
+- Candidata na branch `feature/v0.28.6-guided-missile-card`; não mesclada em `main`.
+- Teste manual pendente: confirmar que a carta aparece, pode ser escolhida, habilita o botão de mísseis, permite elevar a habilidade ao nível 2 e lança os dois mísseis. Validar também recarga, dano e fluidez no celular.
+
 ## [0.28.5] — Candidata: lançamento visível pelas asas
 
 ### Correções de lançamento
