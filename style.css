@@ -291,3 +291,6 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 
 /* Prevent page scrolling while the player drags to aim inside the mobile arena. */
 .canvas-frame canvas { touch-action: none; }
+
+/* v0.19.0 — live mission, reward, title and achievement banner */
+.reward-banner{position:absolute;z-index:15;top:14px;left:50%;width:min(92%,560px);padding:12px 16px;display:flex;flex-direction:column;gap:5px;transform:translate(-50%,-12px);border:1px solid #4a7894;border-radius:8px;background:linear-gradient(135deg,#0c2137f5,#101a31f5);box-shadow:0 10px 30px #0007;text-align:center;opacity:0;pointer-events:none;backdrop-filter:blur(8px)}.reward-banner strong{color:var(--cyan);font-size:10px;letter-spacing:.15em}.reward-banner span{color:var(--text);font-size:12px;line-height:1.45}.reward-banner-boss strong{color:#d9a5ff}.reward-banner-active{animation:reward-banner-in-out 5.2s ease both}@keyframes reward-banner-in-out{0%{opacity:0;transform:translate(-50%,-12px)}8%,78%{opacity:1;transform:translate(-50%,0)}100%{opacity:0;transform:translate(-50%,-8px)}}@media(max-width:560px){.reward-banner{top:8px;width:calc(100% - 16px);padding:10px 12px}.reward-banner span{font-size:11px}}
