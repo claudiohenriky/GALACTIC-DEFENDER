@@ -42,15 +42,15 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Auditar as cartas existentes e os marcos de progressão antes de adicionar outra opção.
 - [x] Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
 - [x] Definir limites de níveis para evitar que as novas cartas continuem aparecendo após o máximo.
-- [ ] Revisar distribuição e equilíbrio das cartas após o teste manual da v0.26.0.
+- [x] Revisar a distribuição funcional das cartas após o teste manual da v0.26.0; o usuário confirmou que tudo funciona corretamente.
 - [ ] Considerar o míssil como nova habilidade especial após a revisão do sistema de projéteis.
 - **v0.25.0:** Cadência aprimorada, +10% por nível, até cinco níveis.
-- **Candidata v0.26.0:** Projéteis acelerados (+15% de velocidade por nível, até três níveis) e Controle de propulsão (+8% de aceleração por nível, até três níveis). A candidata depende de verificações automatizadas e teste manual.
+- **v0.26.0 validada pelo usuário:** Projéteis acelerados (+15% de velocidade por nível, até três níveis) e Controle de propulsão (+8% de aceleração por nível, até três níveis).
 
 ## Etapa 4 — Novas classes de inimigos
-- Adicionar classes com comportamentos próprios, por exemplo guardião, artilheiro e elite.
-- Evitar duplicar os comportamentos atuais de sentinelas, interceptadores e perseguidores.
-- Ajustar a frequência de surgimento e a dificuldade por onda.
+- [x] **v0.27.0:** Adicionar o Guardião, uma classe lenta e resistente que pressiona o jogador sem disparos à distância; aparece a partir da onda 3.
+- [ ] Adicionar outras classes com comportamentos próprios, como artilheiro ou elite, sem duplicar sentinelas, interceptadores e perseguidores.
+- [ ] Ajustar a frequência de surgimento e a dificuldade por onda com base no teste manual.
 
 ## Etapa 5 — Bosses com fases
 - Definir identidade e padrões de ataque para o boss atual.
