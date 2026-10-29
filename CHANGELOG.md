@@ -1,5 +1,19 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
+## [0.23.0] — Resposta visual da nave ao movimento
+
+### Movimento e propulsão
+- Faz a chama do propulsor aumentar durante a movimentação e diminuir suavemente quando o jogador para.
+- Adiciona um brilho lateral discreto que acompanha a intensidade do deslocamento.
+- Mantém a inclinação pseudo-3D existente e não altera a física, a mira, os disparos, os atributos ou o balanceamento.
+
+### Compatibilidade
+- Mantém o Canvas 2D e não adiciona frameworks ou dependências externas.
+- Ajusta os identificadores de cache e a versão exibida para `0.23.0`.
+
+### Validação
+- Alterações preparadas em branch e submetidas para revisão; requer teste manual no GitHub Pages em celular e computador. Não afirmar validação visual antes do teste.
+
 ## [0.22.0] — Hangar e identidade visual das naves
 
 ### Hangar e seleção

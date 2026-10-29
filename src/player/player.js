@@ -18,6 +18,8 @@ export class Player {
     // Temporary spawn protection prevents an unavoidable hit while the pilot gets oriented.
     this.invulnerabilityTimer = 3;
     this.flamePhase = 0;
+    this.thrust = 0;
+    this.lateralThrust = 0;
     this.bank = 0;
     this.shipClass = 'vanguard';
     // The ship points upward by default; rotation is stored as a world-space angle.
@@ -48,11 +50,13 @@ export class Player {
     this.rotation += angleDelta * Math.min(1, dt * 14);
 
     let dx = 0, dy = 0;
+    let inputStrength = 0;
     if (joystick && Math.hypot(joystick.x, joystick.y) > 0.04) {
-      // Mobile joystick movement stays screen-relative so it remains intuitive.
+      // Keep analog strength for the propulsion animation before normalizing movement.
       dx = joystick.x;
       dy = joystick.y;
       const magnitude = Math.hypot(dx, dy);
+      inputStrength = Math.min(1, magnitude);
       if (magnitude > 1) {
         dx /= magnitude;
         dy /= magnitude;
@@ -70,6 +74,7 @@ export class Player {
         dx = strafe;
         dy = -forward;
       }
+      inputStrength = Math.hypot(dx, dy) > 0 ? 1 : 0;
       // Normalize diagonals so they are never faster than straight movement.
       const magnitude = Math.hypot(dx, dy) || 1;
       dx /= magnitude;
@@ -77,7 +82,13 @@ export class Player {
     }
     this.x += dx * this.speed * dt;
     this.y += dy * this.speed * dt;
-    // Lateral hull banking adds a low-cost pseudo-3D cue in Canvas 2D.
+
+    // Movement feedback is purely visual: propulsion grows under input and settles smoothly at rest.
+    this.thrust += (inputStrength - this.thrust) * Math.min(1, dt * 8);
+    const lateralTarget = Math.min(1, Math.abs(dx));
+    this.lateralThrust += (lateralTarget - this.lateralThrust) * Math.min(1, dt * 9);
+
+    // Hull banking remains a low-cost pseudo-3D cue and does not affect movement physics.
     const targetBank = Math.max(-0.42, Math.min(0.42, dx * -0.42));
     this.bank += (targetBank - this.bank) * Math.min(1, dt * 7.5);
     this.fitToArena(width, height);
@@ -121,7 +132,20 @@ export class Player {
     ctx.beginPath();ctx.moveTo(5,-4);ctx.lineTo(13,7);ctx.lineTo(9,8);ctx.lineTo(3,3);ctx.closePath();ctx.fill();
     ctx.fillStyle='#f4ffff';ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(4,2);ctx.lineTo(0,7);ctx.lineTo(-4,2);ctx.closePath();ctx.fill();
     ctx.fillStyle='#142e48';ctx.fillRect(-2,-3,4,9);ctx.fillStyle=edge;ctx.fillRect(-1,-2,2,6);
-    const flame=7+Math.sin(this.flamePhase*18)*1.5;ctx.fillStyle=wing;ctx.beginPath();ctx.moveTo(-3,11);ctx.lineTo(0,11+flame);ctx.lineTo(3,11);ctx.closePath();ctx.fill();
-    ctx.fillStyle='#fff2b5';ctx.beginPath();ctx.moveTo(-1,11);ctx.lineTo(0,11+flame*.55);ctx.lineTo(1,11);ctx.closePath();ctx.fill();ctx.restore();
+    const flame = 4 + Math.sin(this.flamePhase * 18) * 0.8 + this.thrust * 8;
+    ctx.globalAlpha = 0.18 + this.thrust * 0.22;
+    ctx.fillStyle = wing;
+    ctx.beginPath(); ctx.ellipse(0, 14 + flame * 0.35, 2.5 + this.thrust * 1.6, 3 + flame * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = wing; ctx.beginPath(); ctx.moveTo(-3, 11); ctx.lineTo(0, 11 + flame); ctx.lineTo(3, 11); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#fff2b5'; ctx.beginPath(); ctx.moveTo(-1, 11); ctx.lineTo(0, 11 + flame * 0.55); ctx.lineTo(1, 11); ctx.closePath(); ctx.fill();
+    if (this.lateralThrust > 0.08) {
+      ctx.globalAlpha = this.lateralThrust * 0.42;
+      ctx.fillStyle = wing;
+      ctx.beginPath(); ctx.ellipse(-11, 5, 1.5 + this.lateralThrust, 3 + this.lateralThrust * 2, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.ellipse(11, 5, 1.5 + this.lateralThrust, 3 + this.lateralThrust * 2, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
   }
 }
