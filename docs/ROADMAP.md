@@ -43,7 +43,8 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
 - [x] Definir limites de níveis para evitar que as novas cartas continuem aparecendo após o máximo.
 - [x] Revisar a distribuição funcional das cartas após o teste manual da v0.26.0; o usuário confirmou que tudo funciona corretamente.
-- [ ] Considerar o míssil como nova habilidade especial após a revisão do sistema de projéteis.
+- [x] **v0.28.0 candidata:** adicionar o Míssil teleguiado como habilidade especial de até três níveis e definir pesos de aparição para as raridades das cartas.
+- [ ] Validar no GitHub Pages o rastreamento do alvo, colisão, dano, cadência, níveis máximos e distribuição das cartas antes de mesclar em `main`.
 - **v0.25.0:** Cadência aprimorada, +10% por nível, até cinco níveis.
 - **v0.26.0 validada pelo usuário:** Projéteis acelerados (+15% de velocidade por nível, até três níveis) e Controle de propulsão (+8% de aceleração por nível, até três níveis).
 
