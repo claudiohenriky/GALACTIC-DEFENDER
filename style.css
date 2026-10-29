@@ -371,3 +371,17 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .upgrade-card.rarity-epic{border-color:#c28bff;background:linear-gradient(155deg,#3b2259,#101326)}.upgrade-card.rarity-epic .upgrade-card-icon{border-color:#c28bff;background:#432366;color:#ead3ff}.upgrade-card.rarity-epic .upgrade-card-category,.upgrade-card-rarity.rarity-epic{color:#e0bdff}.upgrade-card-rarity.rarity-epic{background:#432366}
 .upgrade-card.rarity-legendary{border-color:#ffc45d;background:linear-gradient(155deg,#53391b,#151326)}.upgrade-card.rarity-legendary .upgrade-card-icon{border-color:#ffc45d;background:#5d3c18;color:#ffe3a6}.upgrade-card.rarity-legendary .upgrade-card-category,.upgrade-card-rarity.rarity-legendary{color:#ffe0a0}.upgrade-card-rarity.rarity-legendary{background:#5d3c18}
 #upgrade-overlay.is-special-choice .upgrade-card-icon{border-radius:10px}
+
+/* Override the older purple special-card theme with the selected rarity palette. */
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-common .upgrade-card-icon{border-color:#9eb4c8;background:#30475c;color:#e1edf7}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-common .upgrade-card-category{color:#d5e4f2}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-common:hover{border-color:#c4d8e8;background:linear-gradient(155deg,#344b60,#101a2c)}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-rare .upgrade-card-icon{border-color:#55d4ff;background:#0e4057;color:#9beaff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-rare .upgrade-card-category{color:#8de6ff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-rare:hover{border-color:#83e5ff;background:linear-gradient(155deg,#16516d,#0b1b2c)}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-epic .upgrade-card-icon{border-color:#c28bff;background:#432366;color:#ead3ff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-epic .upgrade-card-category{color:#e0bdff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-epic:hover{border-color:#dfbdff;background:linear-gradient(155deg,#4a2b6b,#14162b)}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-legendary .upgrade-card-icon{border-color:#ffc45d;background:#5d3c18;color:#ffe3a6}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-legendary .upgrade-card-category{color:#ffe0a0}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-legendary:hover{border-color:#ffda8c;background:linear-gradient(155deg,#68471f,#19162b)}
