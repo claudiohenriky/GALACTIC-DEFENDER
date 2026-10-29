@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.17.3';
-import { Enemy } from '../enemies/enemy.js?v=0.17.3';
-import { Projectile } from '../combat/projectile.js?v=0.17.3';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.17.3';
-import { Progression } from '../progression/progression.js?v=0.17.3';
-import { Mission } from '../missions/missions.js?v=0.17.3';
-import { WaveManager } from './wave-manager.js?v=0.17.3';
-import { updateHud } from '../ui/hud.js?v=0.17.3';
-import { gameAudio } from '../audio/game-audio.js?v=0.17.3';
-import { AchievementTracker } from '../progression/achievements.js?v=0.17.3';
+import { Player } from '../player/player.js?v=0.18.0';
+import { Enemy } from '../enemies/enemy.js?v=0.18.0';
+import { Projectile } from '../combat/projectile.js?v=0.18.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.18.0';
+import { Progression } from '../progression/progression.js?v=0.18.0';
+import { Mission } from '../missions/missions.js?v=0.18.0';
+import { WaveManager } from './wave-manager.js?v=0.18.0';
+import { updateHud } from '../ui/hud.js?v=0.18.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.18.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.18.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -460,9 +460,11 @@ export class Game {
       let nearestDistance = Infinity;
       for (const enemy of this.enemies) {
         if (!enemy.active) continue;
-        const distance = Math.hypot(enemy.x - this.player.x, enemy.y - this.player.y);
-        if (distance < nearestDistance) {
-          nearestDistance = distance;
+        const dx = enemy.x - this.player.x;
+        const dy = enemy.y - this.player.y;
+        const distanceSquared = dx * dx + dy * dy;
+        if (distanceSquared < nearestDistance) {
+          nearestDistance = distanceSquared;
           target = enemy;
         }
       }
@@ -542,8 +544,6 @@ export class Game {
     if (this.keys.has('space') && this.shotClock <= 0) {
       const angle = this.getAimAngle();
       const muzzleDistance = 17;
-      const muzzleX = this.player.x + Math.cos(angle) * muzzleDistance;
-      const muzzleY = this.player.y + Math.sin(angle) * muzzleDistance;
       const projectileCount = 1 + this.player.doubleShotLevel;
       const spread = 0.14;
       for (let index = 0; index < projectileCount; index += 1) {
@@ -586,7 +586,10 @@ export class Game {
     for (const shot of this.projectiles) {
       if (!shot.active) continue;
       for (const enemy of this.enemies) {
-        if (enemy.active && !shot.hitEnemies.has(enemy) && Math.hypot(shot.x - enemy.x, shot.y - enemy.y) < enemy.radius + shot.radius) {
+        const dx = shot.x - enemy.x;
+        const dy = shot.y - enemy.y;
+        const combinedRadius = enemy.radius + shot.radius;
+        if (enemy.active && !shot.hitEnemies.has(enemy) && dx * dx + dy * dy < combinedRadius * combinedRadius) {
           shot.hitEnemies.add(enemy);
           if (!shot.piercing) shot.active = false;
           this.damageEnemy(enemy, shot.damage ?? 1);
@@ -598,7 +601,10 @@ export class Game {
     // An enemy that reaches or collides with the player is resolved only once.
     for (const enemy of this.enemies) {
       if (!enemy.active) continue;
-      if (Math.hypot(this.player.x - enemy.x, this.player.y - enemy.y) < enemy.radius + this.player.radius) {
+      const dx = this.player.x - enemy.x;
+      const dy = this.player.y - enemy.y;
+      const combinedRadius = enemy.radius + this.player.radius;
+      if (dx * dx + dy * dy < combinedRadius * combinedRadius) {
         enemy.active = false;
         this.resolveIncomingDamage(18);
       }
@@ -607,7 +613,10 @@ export class Game {
     // Enemy shots deal damage on direct impact and respect the player's invulnerability window.
     for (const shot of this.enemyProjectiles) {
       if (!shot.active) continue;
-      if (Math.hypot(this.player.x - shot.x, this.player.y - shot.y) < this.player.radius + shot.radius) {
+      const dx = this.player.x - shot.x;
+      const dy = this.player.y - shot.y;
+      const combinedRadius = this.player.radius + shot.radius;
+      if (dx * dx + dy * dy < combinedRadius * combinedRadius) {
         shot.active = false;
         this.resolveIncomingDamage(shot.damage);
       }
