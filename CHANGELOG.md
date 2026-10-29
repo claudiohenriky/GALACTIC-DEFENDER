@@ -1,5 +1,17 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
+## [0.21.0] — Tela de preparação da missão
+
+### Interface
+- O botão JOGAR abre uma etapa de preparação sem iniciar a partida.
+- A tela mostra o modo Sobrevivência disponível e indica que Desafios ainda está em desenvolvimento.
+- Adiciona uma opção de tela cheia antes do início, além de orientações de controles conforme PC/mobile.
+- A partida e as ondas só começam após o jogador selecionar INICIAR MISSÃO.
+
+### Validação
+- Revisão estática da alteração; aguarda execução do workflow e teste manual no GitHub Pages em computador e celular.
+- A tela cheia depende do suporte e da permissão do navegador; a orientação horizontal continua opcional.
+
 ## [0.20.0] — Notificações compactas de recompensa
 
 ### Interface

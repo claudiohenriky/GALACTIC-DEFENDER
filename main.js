@@ -7,6 +7,7 @@ const game = new Game(canvas);
 
 const mainMenu = document.querySelector('#main-menu');
 const gameLayout = document.querySelector('.game-layout');
+const missionPrep = document.querySelector('#mission-prep');
 const platformButtons = [...document.querySelectorAll('[data-platform-choice]')];
 const platformNote = document.querySelector('#platform-detection-note');
 const settingsPanel = document.querySelector('#settings-panel');
@@ -43,13 +44,26 @@ function closeMenuPanels() {
 }
 setPlatform(detectPlatform(), false);
 platformButtons.forEach((button) => button.addEventListener('click', () => setPlatform(button.dataset.platformChoice)));
+// JOGAR opens a preparation screen only; gameplay stays stopped until confirmation.
 document.querySelector('#menu-play-button').addEventListener('click', () => {
-  gameAudio.start();
   closeMenuPanels();
   mainMenu.classList.add('is-hidden');
+  missionPrep.classList.remove('is-hidden');
+  document.querySelector('#prep-controls-note').textContent =
+    document.documentElement.dataset.platform === 'mobile'
+      ? 'Joystick para mover a nave; botão DISPARAR para atirar.'
+      : 'WASD/setas para mover; mouse para mirar; botão direito ou Espaço para disparar.';
+});
+document.querySelector('#prep-back-button').addEventListener('click', () => {
+  missionPrep.classList.add('is-hidden');
+  mainMenu.classList.remove('is-hidden');
+});
+document.querySelector('#prep-start-button').addEventListener('click', () => {
+  gameAudio.start();
+  missionPrep.classList.add('is-hidden');
+  mainMenu.classList.add('is-hidden');
   gameLayout.classList.remove('is-hidden');
-  // The canvas is initially inside a hidden layout, so wait for the browser to lay it out
-  // before sizing it and starting the animation loop. This avoids a blank/white arena on mobile.
+  // Wait for layout before sizing the hidden canvas and starting its animation loop.
   requestAnimationFrame(() => {
     game.resize();
     game.start();
@@ -191,6 +205,25 @@ game.renderIntro();
 
 const canvasFrame = document.querySelector('.canvas-frame');
 const fullscreenButton = document.querySelector('#fullscreen-button');
+const appShell = document.querySelector('.app-shell');
+const prepFullscreenButton = document.querySelector('#prep-fullscreen-button');
+
+prepFullscreenButton.addEventListener('click', async () => {
+  try {
+    if (!document.fullscreenElement) {
+      await appShell.requestFullscreen();
+      try {
+        await screen.orientation?.lock?.('landscape');
+      } catch {
+        // Orientation locking is optional; the player can rotate the device manually.
+      }
+    } else {
+      await document.exitFullscreen();
+    }
+  } catch {
+    // Fullscreen may be blocked by browser or device settings.
+  }
+});
 
 fullscreenButton.addEventListener('click', async () => {
   try {
@@ -214,6 +247,8 @@ document.addEventListener('fullscreenchange', () => {
   fullscreenButton.textContent = isFullscreen ? '×' : '⛶';
   fullscreenButton.setAttribute('aria-label', isFullscreen ? 'Sair da tela cheia' : 'Ativar tela cheia');
   fullscreenButton.title = isFullscreen ? 'Sair da tela cheia' : 'Tela cheia';
+  prepFullscreenButton.textContent = isFullscreen ? '× SAIR DA TELA CHEIA' : '⛶ ATIVAR TELA CHEIA';
+  prepFullscreenButton.setAttribute('aria-pressed', String(isFullscreen));
   game.resize();
 });
 

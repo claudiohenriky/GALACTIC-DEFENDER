@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão candidata em desenvolvimento:** `0.20.0` — notificações de recompensa compactas, posicionadas à direita da arena.
+**Versão candidata em desenvolvimento:** `0.21.0` — tela de preparação da missão, escolha do modo disponível e tela cheia opcional antes de iniciar.
 
-**Base oficial em `main`:** `0.19.2` — ajuste do dano da explosão do escudo contra chefes. Publicada no GitHub Pages; o usuário optou por adiar a validação manual até perceber algum problema.
+**Base oficial em `main`:** `0.20.0` — notificações de recompensa compactas à direita da arena. Publicada no GitHub Pages; a nova candidata `0.21.0` ainda aguarda revisão e teste manual.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
 
@@ -16,6 +16,12 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
 - Estrutura modular, sem frameworks ou dependências externas.
+
+## Lobby, preparação e plataforma
+
+- O botão Jogar abre a tela de preparação; a partida só começa após confirmação em Iniciar missão.
+- A preparação informa o modo Sobrevivência disponível, mostra modos futuros como em desenvolvimento e permite ativar tela cheia antes da partida.
+- O hangar, novas classes de inimigos, fases de boss e novas cartas de atributos fazem parte do roteiro de expansão; serão entregues em etapas independentes.
 
 ## Lobby e plataforma
 
