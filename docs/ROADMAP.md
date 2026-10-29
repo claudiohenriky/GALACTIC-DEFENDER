@@ -1,3 +1,12 @@
+## Patch v0.30.3 — escudo reativo e nomenclatura de plasma
+- [x] Manter proteção lógica de 360° sem bolha visível permanente.
+- [x] Exibir arcos localizados apenas em setores com projéteis em trajetória de colisão provável.
+- [x] Limitar frequência de varredura e reutilizar oito setores para controlar o custo.
+- [x] Tornar o Pulso de Ruptura mais gradual.
+- [x] Renomear Laser perfurante para Tiros Perfurantes de Plasma.
+- [ ] Testar no celular: escudo frontal/traseiro, múltiplas ameaças e FPS durante impactos.
+- [ ] Confirmar que o escudo continua absorvendo dano e recarregando corretamente.
+
 ## Patch v0.30.2 — correções de interface e efeitos
 - [x] Mover medidor térmico para fora do joystick e tornar o texto legível.
 - [x] Mover o contador de FPS para longe das notificações de conquistas.
