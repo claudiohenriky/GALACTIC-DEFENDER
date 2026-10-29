@@ -1,3 +1,16 @@
+## [0.28.5] — Candidata: lançamento visível pelas asas
+
+### Correções de lançamento
+- Corrige a ordem de renderização: os mísseis são desenhados depois da nave para não ficarem escondidos pelo casco durante a saída.
+- Calcula o ponto de lançamento usando a mesma rotação e inclinação lateral (bank) do desenho da nave.
+- Exibe dois suportes visuais de míssil nas asas quando a habilidade está equipada e pronta; eles somem durante a recarga.
+- No nível 2+, lança primeiro o míssil da asa direita e, 0,2 segundo depois, o da esquerda. A perseguição e a atribuição de alvos existentes são preservadas.
+- Reduz a frequência e o tamanho dos rastros e evita criar arrays/sets temporários a cada atualização para reduzir custo em celulares.
+
+### Estado e validação
+- Candidata na branch feature/v0.28.5-visible-wing-launch; não mesclada em main.
+- A validação automatizada de sintaxe/imports e o teste manual de lançamento em celular ainda precisam ser confirmados. Verificar suportes, os dois disparos, alvos, dano, recarga e fluidez.
+
 ## [0.28.4] — Candidata: mísseis duplos nas asas
 
 ### Jogabilidade
