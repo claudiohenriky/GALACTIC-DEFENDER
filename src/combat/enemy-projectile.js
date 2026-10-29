@@ -23,8 +23,6 @@ export class EnemyProjectile {
 
   draw(ctx) {
     ctx.save();
-    ctx.shadowBlur = 5;
-    ctx.shadowColor = this.glowColor;
     ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
