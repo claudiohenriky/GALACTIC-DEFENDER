@@ -1,3 +1,21 @@
+## [0.28.1] — Candidata: habilidade de míssil ativável e ajustes visuais
+
+### Jogabilidade
+- Substitui o disparo automático por ativação manual da habilidade de míssil, por botão na arena ou tecla E.
+- Adiciona recarga longa: 12 segundos no nível 1, 10 segundos no nível 2 e 9 segundos no nível 3.
+- A partir do nível 2, a ativação lança até dois mísseis teleguiados.
+- Aumenta o tamanho dos mísseis e adiciona explosão com dano em área ao atingir inimigos.
+
+### Interface
+- Adiciona uma carta de habilidade na arena com estado disponível/recarga e indicador visual.
+- Destaca as raridades Comum, Raro, Épico e Lendário com cores próprias nas cartas.
+- Atualiza identificadores de cache e histórico de versões.
+
+### Estado e validação
+- Candidata em `feature/v0.28.1-activated-missiles`; não mesclada em `main`.
+- Efeitos sonoros e polimento de áudio permanecem para uma etapa posterior.
+- Requer teste manual no celular pelo link de prévia direta antes de mesclar.
+
 ## [0.28.0] — Candidata: míssil teleguiado e raridade das habilidades
 
 ### Habilidades especiais
