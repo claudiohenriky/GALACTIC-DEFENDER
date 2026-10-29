@@ -1,3 +1,11 @@
+## Candidata v0.34.0 — Attack Clash e correção do chefe
+- [x] Implementar colisão direta entre tiros do jogador e projéteis inimigos; ambos são neutralizados no choque.
+- [x] Corrigir a regra de contato para impedir que colisão corporal derrote o chefe independentemente da vida restante.
+- [ ] Testar colisões com tiros comuns e perfurantes, projéteis de várias classes e leques do chefe.
+- [ ] Confirmar que o chefe continua ativo após contato e só é derrotado ao esgotar a integridade.
+- [ ] Observar FPS e verificar regressões em celular e computador.
+- [ ] Evoluir para resultados de confronto mais elaborados (vitória/derrota/empate e decisões de continuação) após validar esta primeira interação.
+
 ## Fundação v0.33.0 — geometria compartilhada de colisões
 - [x] Criar utilitários puros para sobreposição circular e distância ao quadrado, sem impor regras de dano.
 - [x] Migrar para a função compartilhada as colisões de tiros do jogador, mísseis guiados, contato inimigo e projéteis inimigos contra a nave.

@@ -10,7 +10,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Candidata em teste:** `0.32.0` — chefe com três fases na branch `feature/v0.32.0-boss-phases`. O usuário gostou do combate, mas relatou uma queda pontual para cerca de 7 FPS / 146 ms ao derrotar o chefe; a causa ainda não foi identificada.
 
-**Candidata atual:** `0.33.0` — fundação compartilhada de colisões na branch `feature/v0.33.0-collision-foundation`; organiza os testes geométricos sem alterar as regras de combate. Exige teste manual antes de qualquer integração à versão oficial.
+**Candidata atual:** `0.34.0` — Attack Clash básico (tiros da nave neutralizam projéteis inimigos em colisão direta) e correção do contato com o chefe, na branch `feature/v0.34.0-attack-clash-boss-contact-fix`. Exige teste manual antes de qualquer integração à versão oficial.
+
+**Candidata anterior:** `0.33.0` — fundação compartilhada de colisões na branch `feature/v0.33.0-collision-foundation`.
 
 **Validação:** a v0.27.0 foi testada manualmente pelo usuário no GitHub Pages e o Guardião funcionou corretamente. A v0.30.0 é uma candidata na branch `feature/v0.30.0-rupture-overload-missiles`; a v0.30.1 é a candidata com pulso semicircular e diagnóstico de FPS; a v0.30.4, na branch `feature/v0.30.2-hud-effects-optimization`, corrige posições da HUD e reduz efeitos de partículas. A versão oficial `main` ainda não contém essas alterações. A candidata requer validação manual no celular e no computador.
 

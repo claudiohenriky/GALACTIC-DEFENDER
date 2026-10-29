@@ -1,15 +1,15 @@
-import { Player } from '../player/player.js?v=0.33.0';
-import { Enemy } from '../enemies/enemy.js?v=0.33.0';
-import { Projectile } from '../combat/projectile.js?v=0.33.0';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.33.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.33.0';
-import { circlesOverlap } from '../combat/collision.js?v=0.33.0';
-import { Progression } from '../progression/progression.js?v=0.33.0';
-import { Mission } from '../missions/missions.js?v=0.33.0';
-import { WaveManager } from './wave-manager.js?v=0.33.0';
-import { updateHud } from '../ui/hud.js?v=0.33.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.33.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.33.0';
+import { Player } from '../player/player.js?v=0.34.0';
+import { Enemy } from '../enemies/enemy.js?v=0.34.0';
+import { Projectile } from '../combat/projectile.js?v=0.34.0';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.34.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.34.0';
+import { circlesOverlap } from '../combat/collision.js?v=0.34.0';
+import { Progression } from '../progression/progression.js?v=0.34.0';
+import { Mission } from '../missions/missions.js?v=0.34.0';
+import { WaveManager } from './wave-manager.js?v=0.34.0';
+import { updateHud } from '../ui/hud.js?v=0.34.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.34.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.34.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1124,6 +1124,20 @@ export class Game {
       }
     }
 
+    // Attack Clash: direct player-shot/enemy-shot overlaps neutralize both projectiles.
+    // This is intentionally separate from damage-to-enemy rules and requires no per-frame UI.
+    for (const playerShot of this.projectiles) {
+      if (!playerShot.active) continue;
+      for (const enemyShot of this.enemyProjectiles) {
+        if (!enemyShot.active) continue;
+        if (circlesOverlap(playerShot, enemyShot)) {
+          playerShot.active = false;
+          enemyShot.active = false;
+          break;
+        }
+      }
+    }
+
     // Each guided missile detonates once and deals area damage to nearby enemies.
     for (const missile of this.guidedMissiles) {
       if (!missile.active) continue;
@@ -1144,7 +1158,8 @@ export class Game {
       if (circlesOverlap(this.player, enemy) && enemy.contactCooldown <= 0) {
         const shieldWasActive = this.player.shieldHealth > 0;
         enemy.contactCooldown = 0.75;
-        if (!shieldWasActive) enemy.active = false;
+        // Ordinary enemies can be destroyed by an unshielded ram; bosses must never die from contact alone.
+        if (!shieldWasActive && enemy.type !== 'boss' && enemy.type !== 'megaboss') enemy.active = false;
         this.resolveIncomingDamage(18, enemy.x, enemy.y, enemy.type === 'boss' || enemy.type === 'megaboss');
       }
     }

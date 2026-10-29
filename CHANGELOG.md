@@ -1,3 +1,10 @@
+## [0.34.0] — Attack Clash e correção de contato com o chefe
+
+- Adiciona a primeira interação direta entre projéteis: tiros da nave e projéteis inimigos se neutralizam quando suas áreas colidem.
+- Corrige um defeito de contato: o chefe não é mais desativado instantaneamente quando a nave encosta nele sem escudo; o dano de contato ao jogador permanece.
+- Mantém a lógica de dano aos inimigos separada da neutralização entre projéteis.
+- **Validação pendente:** testar tiros contra projéteis inimigos, tiros perfurantes, chefe com vida cheia, dano por contato e FPS em celular e computador.
+
 ## [0.33.0] — Fundação compartilhada de colisões
 
 - Adiciona `src/combat/collision.js` com testes geométricos reutilizáveis para áreas circulares e segmentos varridos.
