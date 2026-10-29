@@ -1,6 +1,20 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
-## [0.16.2] — Otimização e refinamento do escudo (aguardando teste mobile)
+## [0.17.0] — Rotação de 360° e mira por plataforma (em desenvolvimento)
+
+### Em desenvolvimento
+- Rotação suave da nave para acompanhar a direção da mira, sem sprites de rotação pré-renderizados.
+- No PC, WASD/setas com movimento relativo à orientação da nave, mira pelo mouse e disparo pelo botão direito ou Espaço.
+- No mobile, joystick com movimento analógico e mira automática no inimigo ativo mais próximo.
+- A versão permanece em branch de desenvolvimento até concluir a validação manual em computador e celular.
+
+### Plano de validação
+- Confirmar que a nave acompanha a mira sem saltos visuais ou inversões inesperadas.
+- Verificar movimento frontal, ré, strafe e diagonais no PC, incluindo disparo simultâneo.
+- Verificar joystick, mira automática, disparo e fluidez no celular.
+- Fazer regressão do escudo, progressão, inimigos, colisões, pausa e reinício.
+
+## [0.16.2] — Otimização e refinamento do escudo (teste mobile aprovado)
 
 ### Corrigido
 - Remove `shadowBlur` da barreira persistente e da onda de quebra, evitando o custo elevado do desfoque recalculado a cada quadro.
@@ -10,7 +24,7 @@
 
 ### Validação
 - A v0.16.1 passou nos testes funcionais do escudo informados pelo usuário, mas apresentou queda severa de fluidez após equipar a habilidade no celular.
-- Aguardar novo teste manual da fluidez e regressão das demais mecânicas no GitHub Pages.
+- Teste manual informado pelo usuário: 6/6 itens aprovados no celular, incluindo fluidez antes/depois de obter o escudo, visual da barreira e barra de integridade, quebra com onda de energia, recarga aproximada de 7 segundos e regressão de movimento, disparo, inimigos e progressão.
 
 ## [0.16.1] — Escudo regenerativo
 
@@ -95,4 +109,4 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 
 ## Observações
 - Atualizar este arquivo e o histórico dentro do jogo juntos.
-- A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; o teste de regressão no celular continua pendente. A v0.15.1 foi aprovada nos testes manuais em computador e celular, conforme informado pelo usuário, sem erros reportados.
+- A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; a v0.15.1 foi aprovada em computador e celular. A v0.16.2 passou nos seis testes manuais de desempenho e regressão no celular informados pelo usuário. A v0.17.0 continua em desenvolvimento e ainda não foi validada.
