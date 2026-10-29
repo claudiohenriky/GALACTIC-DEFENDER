@@ -4,11 +4,11 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão oficial publicada:** `0.16.2` — otimização do escudo validada em celular pelo usuário, com os seis testes manuais aprovados.
+**Versão publicada para validação:** `0.17.0` — candidata com rotação de 360°, movimento relativo à orientação no PC e mira automática no mobile. A versão está em `main` para teste manual; ainda não foi aprovada pelo usuário.
 
-**Próxima versão em desenvolvimento:** `0.17.0` na branch `feature/v0.17.0-movement-aim`. O foco é rotação de 360°, movimento relativo à orientação no PC e mira automática no mobile. A versão 0.17.0 ainda não está publicada em `main` e aguarda testes manuais.
+**Última versão aprovada:** `0.16.2`, validada em celular pelo usuário com 6/6 testes manuais aprovados.
 
-**Fase:** pré-alfa. A v0.16.2 foi validada pelo usuário após a otimização dos efeitos do escudo; a v0.17.0 está em desenvolvimento isolado para preservar a versão oficial estável.
+**Fase:** pré-alfa. A v0.17.0 está em validação manual; se surgir uma regressão, a v0.16.2 continua sendo a referência estável para correção ou reversão.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: WASD/setas para movimentação, mouse para mirar, botão direito (segurar) ou Espaço para disparar no computador; joystick virtual e botão de disparo em dispositivos móveis. O disparo pelo botão direito foi aprovado no teste manual informado pelo usuário.
@@ -30,9 +30,9 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Controles
 
-- **Versão oficial 0.16.2:** `WASD`/setas para mover; mouse para mirar; botão direito (segurar) ou `Espaço` para disparar. No celular, joystick virtual e botão **DISPARAR**.
-- **Proposta em desenvolvimento 0.17.0:** PC com orientação da nave seguindo a mira e movimentação relativa à direção; mobile com joystick e mira automática no inimigo ativo mais próximo. Os controles novos ainda precisam de validação manual antes de serem considerados estáveis.
-- `P`: pausar ou retomar (teclado).
+- **PC (candidata 0.17.0):** mouse para mirar; `W/S` avançam e recuam em relação à orientação da nave; `A/D` fazem strafe; botão direito (segurar) ou `Espaço` para disparar.
+- **Celular (candidata 0.17.0):** joystick para movimentar; a nave mira automaticamente no inimigo ativo mais próximo; botão **DISPARAR** para atirar.
+- `P`: pausar ou retomar (teclado). Esses controles ainda aguardam validação manual.
 
 ## Mecânicas atuais
 
@@ -94,7 +94,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Histórico de versões
 
-O histórico para jogadores fica disponível no menu principal. O registro técnico completo está em [`CHANGELOG.md`](./CHANGELOG.md), com as versões mais recentes primeiro. A v0.16.0 passou nos testes funcionais mobile informados pelo usuário. A v0.16.2 passou nos seis testes manuais de desempenho e regressão no celular informados pelo usuário. A v0.17.0 está em desenvolvimento na branch de movimentação e mira; ainda não foi incorporada à versão oficial.
+O histórico para jogadores fica disponível no menu principal. O registro técnico completo está em [`CHANGELOG.md`](./CHANGELOG.md), com as versões mais recentes primeiro. A v0.16.0 passou nos testes funcionais mobile informados pelo usuário. A v0.16.2 passou nos seis testes manuais de desempenho e regressão no celular informados pelo usuário. A v0.17.0 foi incorporada a `main` como candidata para validação manual; ainda não foi aprovada pelo usuário.
 
 ## GitHub Pages
 
