@@ -190,7 +190,11 @@ export class Game {
     this.damageSparks = [];
     this.shieldBreakEffects = [];
     this.shieldPulseCooldown = 0;
-    this.shieldPulseCooldownMax = 16;
+    this.shieldPulseCooldownMax = 18;
+    this.shieldPulseWave = null;
+    this.overload = 0;
+    this.overloadLockTimer = 0;
+    this.overloadMax = 100;
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
     this.pendingUpgradeChoices = [];
@@ -203,6 +207,8 @@ export class Game {
     this.clearInput();
     updateHud(this);
     this.updateShieldPulseButton();
+    this.updateGuidedMissileButton();
+    this.updateOverloadHud();
     this.renderFrame(0);
   }
 
@@ -932,6 +938,7 @@ export class Game {
         this.projectiles.push(projectile);
       }
       gameAudio.playPlayerShot();
+      this.addOverload(this.player.laserLevel > 0 ? 2.8 + this.player.laserLevel * 0.8 : 0.15);
       this.shotClock = .22 / (1 + this.player.fireRateLevel * 0.1);
     }
 
