@@ -16,6 +16,7 @@ export class Enemy {
         : 2.4 + Math.random() * 0.8;
     this.active = true;
     this.contactCooldown = 0;
+    this.contactCooldown = 0;
   }
 
   update(dt, targetX, targetY, width, height) {
