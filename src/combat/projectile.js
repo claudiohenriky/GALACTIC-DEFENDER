@@ -1,10 +1,10 @@
 export class Projectile {
-  constructor(x, y, angle = -Math.PI / 2) {
+  constructor(x, y, angle = -Math.PI / 2, speedMultiplier = 1) {
     this.x = x;
     this.y = y;
     this.radius = 3;
     this.damage = 1;
-    this.speed = 440;
+    this.speed = 440 * speedMultiplier;
     this.angle = angle;
     this.vx = Math.cos(angle) * this.speed;
     this.vy = Math.sin(angle) * this.speed;

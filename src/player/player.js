@@ -8,6 +8,10 @@ export class Player {
     this.health = this.maxHealth;
     this.weaponDamage = 1;
     this.fireRateLevel = 0;
+    this.projectileSpeedLevel = 0;
+    this.propulsionControlLevel = 0;
+    this.velocityX = 0;
+    this.velocityY = 0;
     this.doubleShotLevel = 0;
     this.laserLevel = 0;
     this.shieldLevel = 0;
@@ -81,8 +85,23 @@ export class Player {
       dx /= magnitude;
       dy /= magnitude;
     }
-    this.x += dx * this.speed * dt;
-    this.y += dy * this.speed * dt;
+    // Movement velocity ramps up smoothly; the attribute improves acceleration without raising top speed.
+    const targetVelocityX = dx * this.speed;
+    const targetVelocityY = dy * this.speed;
+    const acceleration = 1800 * (1 + this.propulsionControlLevel * 0.08);
+    const velocityDeltaX = targetVelocityX - this.velocityX;
+    const velocityDeltaY = targetVelocityY - this.velocityY;
+    const velocityDelta = Math.hypot(velocityDeltaX, velocityDeltaY);
+    const maxVelocityChange = acceleration * dt;
+    if (velocityDelta <= maxVelocityChange || velocityDelta === 0) {
+      this.velocityX = targetVelocityX;
+      this.velocityY = targetVelocityY;
+    } else {
+      this.velocityX += (velocityDeltaX / velocityDelta) * maxVelocityChange;
+      this.velocityY += (velocityDeltaY / velocityDelta) * maxVelocityChange;
+    }
+    this.x += this.velocityX * dt;
+    this.y += this.velocityY * dt;
 
     // Movement feedback is purely visual: propulsion grows under input and settles smoothly at rest.
     this.thrust += (inputStrength - this.thrust) * Math.min(1, dt * 8);
