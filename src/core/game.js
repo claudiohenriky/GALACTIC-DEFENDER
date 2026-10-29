@@ -563,9 +563,23 @@ export class Game {
     element.dataset.state = this.overloadLockTimer > 0 ? 'critical' : this.overload >= 70 ? 'overloaded' : 'stable';
   }
 
+  createGuidedMissileFromWing(side, target, level) {
+    const shipDrawAngle = this.player.rotation + Math.PI / 2;
+    const bank = this.player.bank || 0;
+    const localX = side * 17, localY = 5;
+    const transformedX = localX * (1 - Math.abs(bank) * 0.08) + localY * (bank * 0.32);
+    const launchX = this.player.x + transformedX * Math.cos(shipDrawAngle) - localY * Math.sin(shipDrawAngle);
+    const launchY = this.player.y + transformedX * Math.sin(shipDrawAngle) + localY * Math.cos(shipDrawAngle);
+    const fallbackAngle = Number.isFinite(this.player.rotation) ? this.player.rotation : -Math.PI / 2;
+    const initialAngle = target && target.active ? Math.atan2(target.y - launchY, target.x - launchX) : fallbackAngle;
+    const missile = new GuidedMissile(launchX, launchY, target, level, initialAngle, side);
+    if (this.overload >= 70) missile.damage *= 0.72;
+    this.guidedMissiles.push(missile);
+  }
+
   activateGuidedMissile() {
     const profileStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
-    if (this.status !== 'running' || this.player.guidedMissileLevel <= 0 || this.guidedMissileCooldown > 0) return false;
+    if (this.status !== 'running' || this.player.guidedMissileLevel <= 0 || this.guidedMissileCooldown > 0 || this.overloadLockTimer > 0) return false;
     // Only the two closest targets are needed; avoid allocating and sorting the full enemy list.
     let firstTarget = null, secondTarget = null;
     let firstDistance = Infinity, secondDistance = Infinity;
@@ -596,6 +610,7 @@ export class Game {
     }
     this.guidedMissileCooldownMax = level >= 3 ? 9 : level >= 2 ? 10 : 12;
     this.guidedMissileCooldown = this.guidedMissileCooldownMax;
+    this.addOverload(20);
     this.updateGuidedMissileButton();
     if (this.performanceProfileEnabled) console.info('[GALACTIC-DEFENDER activation]', { ability: 'guided-missile', durationMs: Number((performance.now() - profileStartedAt).toFixed(2)), activeTargetsConsidered: targets.length });
     return true;
