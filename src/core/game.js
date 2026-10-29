@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.29.1';
-import { Enemy } from '../enemies/enemy.js?v=0.29.1';
-import { Projectile } from '../combat/projectile.js?v=0.29.1';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.29.1';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.29.1';
-import { Progression } from '../progression/progression.js?v=0.29.1';
-import { Mission } from '../missions/missions.js?v=0.29.1';
-import { WaveManager } from './wave-manager.js?v=0.29.1';
-import { updateHud } from '../ui/hud.js?v=0.29.1';
-import { gameAudio } from '../audio/game-audio.js?v=0.29.1';
-import { AchievementTracker } from '../progression/achievements.js?v=0.29.1';
+import { Player } from '../player/player.js?v=0.30.0';
+import { Enemy } from '../enemies/enemy.js?v=0.30.0';
+import { Projectile } from '../combat/projectile.js?v=0.30.0';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.30.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.30.0';
+import { Progression } from '../progression/progression.js?v=0.30.0';
+import { Mission } from '../missions/missions.js?v=0.30.0';
+import { WaveManager } from './wave-manager.js?v=0.30.0';
+import { updateHud } from '../ui/hud.js?v=0.30.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.30.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.30.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -466,6 +466,7 @@ export class Game {
   }
 
   activateShieldPulse() {
+    const profileStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
     if (this.status !== 'running' || this.player.shieldLevel <= 0 || this.player.shieldHealth > 0 ||
         this.shieldPulseCooldown > 0 || this.overloadLockTimer > 0 || this.shieldPulseWave) return false;
 
@@ -486,6 +487,7 @@ export class Game {
     this.shieldPulseCooldown = this.shieldPulseCooldownMax;
     this.addOverload(28);
     this.updateShieldPulseButton();
+    if (this.performanceProfileEnabled) console.info('[GALACTIC-DEFENDER activation]', { ability: 'rupture-pulse', durationMs: Number((performance.now() - profileStartedAt).toFixed(2)), enemiesChecked: this.enemies.length, projectilesChecked: this.enemyProjectiles.length });
     return true;
   }
 
