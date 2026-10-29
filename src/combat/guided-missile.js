@@ -1,6 +1,7 @@
 export class GuidedMissile {
-  constructor(x, y, target, level = 1, initialAngle = -Math.PI / 2) {
+  constructor(x, y, target, level = 1, initialAngle = -Math.PI / 2, targetOffset = 0) {
     this.x = x; this.y = y; this.target = target; this.level = level;
+    this.targetOffset = targetOffset;
     this.radius = 6.5;
     this.angle = target && target.active ? Math.atan2(target.y - y, target.x - x) : initialAngle;
     this.speed = 235 + level * 18;
@@ -23,7 +24,10 @@ export class GuidedMissile {
       this.target = nearest;
     }
     if (this.target && this.target.active) {
-      const desired = Math.atan2(this.target.y - this.y, this.target.x - this.x);
+      const toTarget = Math.atan2(this.target.y - this.y, this.target.x - this.x);
+      const aimX = this.target.x + Math.cos(toTarget + Math.PI / 2) * this.targetOffset;
+      const aimY = this.target.y + Math.sin(toTarget + Math.PI / 2) * this.targetOffset;
+      const desired = Math.atan2(aimY - this.y, aimX - this.x);
       const delta = Math.atan2(Math.sin(desired - this.angle), Math.cos(desired - this.angle));
       const maxTurn = this.turnRate * dt;
       this.angle += Math.max(-maxTurn, Math.min(maxTurn, delta));
@@ -34,8 +38,8 @@ export class GuidedMissile {
   }
   draw(ctx) {
     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
-    ctx.fillStyle = '#ffb45e'; ctx.strokeStyle = '#fff0c8'; ctx.lineWidth = 1.3;
-    ctx.shadowColor = '#ff8a3d'; ctx.shadowBlur = 10;
+    ctx.fillStyle = '#ffb45e'; ctx.strokeStyle = '#fff0c8'; ctx.lineWidth = 1.5;
+    ctx.shadowColor = '#ff8a3d'; ctx.shadowBlur = 13;
     ctx.beginPath(); ctx.moveTo(12, 0); ctx.lineTo(3, -5.5); ctx.lineTo(-7, -4.5); ctx.lineTo(-4, 0); ctx.lineTo(-7, 4.5); ctx.lineTo(3, 5.5); ctx.closePath(); ctx.fill(); ctx.stroke();
     ctx.shadowBlur = 0; ctx.fillStyle = '#ff744d';
     ctx.beginPath(); ctx.moveTo(-5, 0); ctx.lineTo(-13, -3.5); ctx.lineTo(-10, 0); ctx.lineTo(-13, 3.5); ctx.closePath(); ctx.fill();
