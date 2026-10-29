@@ -48,7 +48,9 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - A seleção da mira automática compara distâncias ao quadrado, pois a ordenação das distâncias é a mesma sem calcular a raiz quadrada.
 - As listas de partículas, efeitos, projéteis e inimigos são compactadas com índices de escrita no próprio array, evitando alocar arrays substitutos por quadro. A ordem dos elementos mantidos é preservada.
 - Essas alterações reduzem operações matemáticas e alocações explícitas no ciclo, mas não provam, por si só, melhoria perceptível de FPS. A validação depende de medição e de teste em dispositivos reais.
-- Próximo alvo: medir o custo do ciclo principal e revisar responsabilidades de game.js; qualquer extração de módulos deve ser feita isoladamente para facilitar a detecção de regressões.
+- O diagnóstico opcional `?profile=1` registra intervalos de quadro, tempo de atualização, tempo de renderização e contagens de entidades em lotes de 180 quadros. Ele tem custo de instrumentação e serve para comparação aproximada, não como benchmark científico.
+- `game.js` ainda concentra atualização, colisões, efeitos e desenho. Não foi extraído um renderer nesta etapa porque mover o desenho de uma só vez teria risco de regressão sem testes de navegador; a próxima refatoração deve separar uma responsabilidade por vez, começando por desenho ou colisões após os resultados do profiler.
+- Próximo alvo: executar as verificações automáticas e medir o ciclo em cenário reproduzível; só então escolher a extração seguinte com base nos dados.
 
 ## Próximas validações
 
