@@ -6,7 +6,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
-**Validação:** a v0.27.0 foi testada manualmente pelo usuário no GitHub Pages e o Guardião funcionou corretamente. A v0.28.0 foi a base de teste do míssil. A v0.28.1 está em desenvolvimento na branch `feature/v0.28.1-activated-missiles` e ainda não foi mesclada em `main`.
+**Validação:** a v0.27.0 foi testada manualmente pelo usuário no GitHub Pages e o Guardião funcionou corretamente. A v0.28.0 foi a base de teste do míssil. A v0.28.1 foi substituída pela candidata v0.28.2, em desenvolvimento na branch `feature/v0.28.2-missile-reliability`; nenhuma delas foi mesclada em `main`.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
 
