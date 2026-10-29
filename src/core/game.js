@@ -571,6 +571,12 @@ export class Game {
     if (element.textContent !== statusText) element.textContent = statusText;
     const visualState = this.overloadLockTimer > 0 ? 'critical' : this.overload >= 70 ? 'overloaded' : 'stable';
     if (element.dataset.state !== visualState) element.dataset.state = visualState;
+    const fill = document.querySelector('#overload-meter-fill');
+    if (fill) {
+      const width = `${percent}%`;
+      if (fill.style.width !== width) fill.style.width = width;
+      if (fill.dataset.state !== visualState) fill.dataset.state = visualState;
+    }
   }
 
   createGuidedMissileFromWing(side, target, level) {
@@ -938,7 +944,7 @@ export class Game {
           projectileAngle,
           1 + this.player.projectileSpeedLevel * 0.15
         );
-        projectile.damage = this.player.weaponDamage * (1 + this.player.laserLevel * 0.25);
+        projectile.damage = this.player.weaponDamage * (1 + this.player.laserLevel * 0.25) * (this.overload >= 70 ? 0.72 : 1);
         projectile.piercing = this.player.laserLevel > 0;
         this.projectiles.push(projectile);
       }
