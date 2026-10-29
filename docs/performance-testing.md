@@ -7,7 +7,7 @@ Esta rotina compara versões no mesmo dispositivo e cenário. Verificações est
 1. Abra a branch de prévia pelo navegador e acrescente `?profile=1` ao endereço.
 2. Inicie uma partida e jogue por pelo menos 30 segundos.
 3. No console do navegador, procure `[GALACTIC-DEFENDER profile]` para obter intervalo médio entre quadros, FPS estimado, tempos de atualização/renderização e contagens de entidades.
-4. Ao ativar mísseis ou o pulso do escudo, procure `[GALACTIC-DEFENDER activation]`, que informa duração síncrona e quantidade de entidades verificadas.
+4. Ao ativar mísseis ou o Pulso de Ruptura, procure `[GALACTIC-DEFENDER activation]`, que informa duração síncrona e quantidade de entidades verificadas.
 5. Compare a mesma versão de navegador, orientação, aparelho e cenário; faça três rodadas e use a mediana.
 
 ## Limites
