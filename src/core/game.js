@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.28.6';
-import { Enemy } from '../enemies/enemy.js?v=0.28.6';
-import { Projectile } from '../combat/projectile.js?v=0.28.6';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.28.6';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.28.6';
-import { Progression } from '../progression/progression.js?v=0.28.6';
-import { Mission } from '../missions/missions.js?v=0.28.6';
-import { WaveManager } from './wave-manager.js?v=0.28.6';
-import { updateHud } from '../ui/hud.js?v=0.28.6';
-import { gameAudio } from '../audio/game-audio.js?v=0.28.6';
-import { AchievementTracker } from '../progression/achievements.js?v=0.28.6';
+import { Player } from '../player/player.js?v=0.29.0';
+import { Enemy } from '../enemies/enemy.js?v=0.29.0';
+import { Projectile } from '../combat/projectile.js?v=0.29.0';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.29.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.29.0';
+import { Progression } from '../progression/progression.js?v=0.29.0';
+import { Mission } from '../missions/missions.js?v=0.29.0';
+import { WaveManager } from './wave-manager.js?v=0.29.0';
+import { updateHud } from '../ui/hud.js?v=0.29.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.29.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.29.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -58,6 +58,8 @@ export class Game {
     this.levelUpParticles = [];
     this.damageSparks = [];
     this.shieldBreakEffects = [];
+    this.shieldPulseCooldown = 0;
+    this.shieldPulseCooldownMax = 16;
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
     this.pendingUpgradeChoices = [];
@@ -182,6 +184,8 @@ export class Game {
     this.levelUpParticles = [];
     this.damageSparks = [];
     this.shieldBreakEffects = [];
+    this.shieldPulseCooldown = 0;
+    this.shieldPulseCooldownMax = 16;
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
     this.pendingUpgradeChoices = [];
@@ -212,6 +216,10 @@ export class Game {
     if (event.repeat) return;
     if (event.code === 'KeyE' && this.status === 'running') {
       this.activateGuidedMissile();
+      return;
+    }
+    if (event.code === 'KeyQ' && this.status === 'running') {
+      this.activateShieldPulse();
       return;
     }
 
@@ -448,7 +456,8 @@ export class Game {
     const y = this.player.y;
     const radius = 96;
     const life = 0.58;
-    this.shieldBreakEffects.push({ x, y, radius, life, maxLife: life });
+    if (this.shieldBreakEffects.length >= 4) this.shieldBreakEffects.shift();
+    this.shieldBreakEffects.push({ x, y, radius, life, maxLife: life, kind: 'break' });
     // Compare squared distances to avoid square roots during area-damage checks.
     const radiusSquared = radius * radius;
     for (const enemy of this.enemies) {
@@ -459,6 +468,49 @@ export class Game {
         this.damageEnemy(enemy, enemy.type === 'boss' ? 12 : 2);
       }
     }
+  }
+
+  activateShieldPulse() {
+    if (this.status !== 'running' || this.player.shieldLevel <= 0 || this.shieldPulseCooldown > 0) return false;
+    const level = this.player.shieldLevel;
+    const radius = 140 + level * 18;
+    const radiusSquared = radius * radius;
+    const x = this.player.x, y = this.player.y, life = 0.42;
+    if (this.shieldBreakEffects.length >= 4) this.shieldBreakEffects.shift();
+    this.shieldBreakEffects.push({ x, y, radius, life, maxLife: life, kind: 'pulse' });
+    // Resolve the pulse once at activation: bounded scans, no per-frame area checks.
+    for (const enemy of this.enemies) {
+      if (!enemy.active) continue;
+      const dx = enemy.x - x, dy = enemy.y - y;
+      if (dx * dx + dy * dy <= radiusSquared) this.damageEnemy(enemy, enemy.type === 'boss' ? 8 : 2);
+    }
+    for (const shot of this.enemyProjectiles) {
+      if (!shot.active) continue;
+      const dx = shot.x - x, dy = shot.y - y;
+      if (dx * dx + dy * dy <= radiusSquared) shot.active = false;
+    }
+    this.shieldPulseCooldownMax = Math.max(12, 18 - level * 2);
+    this.shieldPulseCooldown = this.shieldPulseCooldownMax;
+    this.updateShieldPulseButton();
+    return true;
+  }
+
+  updateShieldPulseButton() {
+    const button = document.querySelector('#shield-pulse-button');
+    if (!button) return;
+    const unlocked = this.player.shieldLevel > 0;
+    button.classList.toggle('hidden', !unlocked);
+    const ready = this.shieldPulseCooldown <= 0;
+    button.disabled = !unlocked || this.status !== 'running' || !ready;
+    const label = document.querySelector('#shield-pulse-status');
+    const fill = document.querySelector('#shield-pulse-cooldown-fill');
+    const statusText = this.status !== 'running' ? 'DISPONÍVEL NA PARTIDA' : ready ? 'PRONTO · TOQUE / Q' : `RECARGA · ${Math.ceil(this.shieldPulseCooldown)}s`;
+    if (label && label.textContent !== statusText) label.textContent = statusText;
+    if (fill) {
+      const width = ready ? '0%' : `${Math.min(1, this.shieldPulseCooldown / this.shieldPulseCooldownMax) * 100}%`;
+      if (fill.style.width !== width) fill.style.width = width;
+    }
+    button.setAttribute('aria-label', ready ? 'Ativar onda de choque do escudo' : 'Onda de choque do escudo em recarga');
   }
 
   createGuidedMissileFromWing(side, target, level) {
@@ -501,7 +553,6 @@ export class Game {
     this.guidedMissileCooldownMax = level >= 3 ? 9 : level >= 2 ? 10 : 12;
     this.guidedMissileCooldown = this.guidedMissileCooldownMax;
     this.updateGuidedMissileButton();
-    this.renderFrame(0);
     return true;
   }
 
@@ -523,6 +574,7 @@ export class Game {
 
   explodeGuidedMissile(missile) {
     const radius = missile.blastRadius;
+    if (this.guidedMissileEffects.length >= 6) this.guidedMissileEffects.shift();
     this.guidedMissileEffects.push({ x: missile.x, y: missile.y, radius, life: 0.48, maxLife: 0.48 });
     const radiusSquared = radius * radius;
     for (const enemy of this.enemies) {
@@ -556,55 +608,38 @@ export class Game {
   drawShield(ctx) {
     const player = this.player;
     if (player.shieldLevel <= 0) return;
-
-    const ratio = player.shieldMaxHealth > 0
-      ? player.shieldHealth / player.shieldMaxHealth
-      : 0;
-
-    // One state save/restore covers both the barrier and its status bar.
-    // Drawing in world coordinates avoids a per-frame translate for this small effect.
+    const ratio = player.shieldMaxHealth > 0 ? player.shieldHealth / player.shieldMaxHealth : 0;
     ctx.save();
 
     if (player.shieldHealth > 0) {
-      // Keep the shield glow lightweight: no shadowBlur or particle system.
-      const pulse = 0.5 + Math.sin(player.flamePhase * 4) * 0.06;
+      // Angular energy field: one fill and one stroke, without blur filters or particles.
+      const pulse = 0.5 + Math.sin(player.flamePhase * 3.5) * 0.05;
       const weak = ratio <= 0.34;
-      const mainColor = weak ? '#ffc477' : '#79dcff';
-      const edgeColor = weak ? '#ff9d62' : '#43bfff';
-
-      ctx.globalAlpha = 0.12 + pulse * 0.16;
-      ctx.fillStyle = edgeColor;
+      ctx.globalAlpha = 0.11 + pulse * 0.12;
+      ctx.fillStyle = weak ? '#ffad68' : '#57cfff';
       ctx.beginPath();
-      ctx.ellipse(player.x, player.y, 24, 28, 0, 0, Math.PI * 2);
+      ctx.moveTo(player.x, player.y - 29);
+      ctx.lineTo(player.x + 22, player.y - 15);
+      ctx.lineTo(player.x + 25, player.y + 9);
+      ctx.lineTo(player.x + 13, player.y + 25);
+      ctx.lineTo(player.x, player.y + 29);
+      ctx.lineTo(player.x - 13, player.y + 25);
+      ctx.lineTo(player.x - 25, player.y + 9);
+      ctx.lineTo(player.x - 22, player.y - 15);
+      ctx.closePath();
       ctx.fill();
-
-      ctx.globalAlpha = 0.72 + pulse * 0.35;
-      ctx.strokeStyle = mainColor;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.ellipse(player.x, player.y, 23, 27, 0, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // The inset contour preserves depth without blur filters.
-      ctx.globalAlpha = 0.35 + pulse * 0.2;
-      ctx.strokeStyle = edgeColor;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.ellipse(player.x, player.y, 19, 23, 0, Math.PI * 1.12, Math.PI * 1.88);
+      ctx.globalAlpha = 0.72 + pulse * 0.2;
+      ctx.strokeStyle = weak ? '#ffbd82' : '#8be7ff';
+      ctx.lineWidth = 1.8;
       ctx.stroke();
     }
 
-    const barWidth = 38;
-    const barHeight = 4;
-    let barY = player.y - 35;
-    if (barY < 8) barY = player.y + 34;
+    const barWidth = 36, barHeight = 3;
+    const barY = player.y - 35 < 8 ? player.y + 34 : player.y - 35;
     const barX = player.x - barWidth / 2;
     ctx.globalAlpha = 1;
     ctx.fillStyle = '#071526';
     ctx.fillRect(barX, barY, barWidth, barHeight);
-    ctx.strokeStyle = '#69cfff';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(barX, barY, barWidth, barHeight);
     ctx.fillStyle = ratio > 0.34 ? '#4acbff' : '#ffbd69';
     ctx.fillRect(barX + 1, barY + 1, Math.max(0, (barWidth - 2) * ratio), barHeight - 2);
     ctx.font = '7px sans-serif';
@@ -687,6 +722,7 @@ export class Game {
       this.hudUpdateTimer %= this.hudUpdateInterval;
       updateHud(this);
       this.updateGuidedMissileButton();
+      this.updateShieldPulseButton();
       const runAchievements = this.achievements.checkRunMilestones(this.score, this.waveManager.wave);
       if (runAchievements.length) this.showRewardBanner('CONQUISTA DESBLOQUEADA', runAchievements.map(item => item.name).join(' · '), 'achievement');
     }
@@ -824,6 +860,7 @@ export class Game {
     this.projectiles.forEach((shot) => shot.update(dt));
     this.guidedMissileCooldown = Math.max(0, this.guidedMissileCooldown - dt);
     this.player.guidedMissileCooldown = this.guidedMissileCooldown;
+    this.shieldPulseCooldown = Math.max(0, this.shieldPulseCooldown - dt);
     // Fire the second missile after a short delay so both launches are readable.
     if (this.pendingGuidedMissileLaunch) {
       this.pendingGuidedMissileLaunch.timer -= dt;
@@ -833,8 +870,6 @@ export class Game {
         this.createGuidedMissileFromWing(pending.side, pending.target, pending.level);
       }
     }
-    // Keep the disabled state synchronized with the real cooldown on every frame.
-    this.updateGuidedMissileButton();
     this.guidedMissiles.forEach((missile) => missile.update(dt, this.enemies, this.width, this.height, this.guidedMissiles));
     let effectWriteIndex = 0;
     for (const effect of this.guidedMissileEffects) {
@@ -1007,18 +1042,11 @@ export class Game {
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
       ctx.save();
-      ctx.globalAlpha = fade * 0.78;
-      ctx.strokeStyle = '#8be5ff';
-      ctx.lineWidth = 2.5 * (1 - progress) + 0.7;
+      ctx.globalAlpha = fade * (effect.kind === 'pulse' ? 0.9 : 0.72);
+      ctx.strokeStyle = effect.kind === 'pulse' ? '#67f0cf' : '#8be5ff';
+      ctx.lineWidth = 2.1 * (1 - progress) + 0.7;
       ctx.beginPath();
       ctx.arc(effect.x, effect.y, effect.radius * progress, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.globalAlpha = fade * 0.42;
-      ctx.strokeStyle = '#d5f7ff';
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.arc(effect.x, effect.y, effect.radius * progress * 0.72, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     });
