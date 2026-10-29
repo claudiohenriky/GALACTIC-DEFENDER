@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.30.0';
-import { Enemy } from '../enemies/enemy.js?v=0.30.0';
-import { Projectile } from '../combat/projectile.js?v=0.30.0';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.30.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.30.0';
-import { Progression } from '../progression/progression.js?v=0.30.0';
-import { Mission } from '../missions/missions.js?v=0.30.0';
-import { WaveManager } from './wave-manager.js?v=0.30.0';
-import { updateHud } from '../ui/hud.js?v=0.30.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.30.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.30.0';
+import { Player } from '../player/player.js?v=0.30.1';
+import { Enemy } from '../enemies/enemy.js?v=0.30.1';
+import { Projectile } from '../combat/projectile.js?v=0.30.1';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.30.1';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.30.1';
+import { Progression } from '../progression/progression.js?v=0.30.1';
+import { Mission } from '../missions/missions.js?v=0.30.1';
+import { WaveManager } from './wave-manager.js?v=0.30.1';
+import { updateHud } from '../ui/hud.js?v=0.30.1';
+import { gameAudio } from '../audio/game-audio.js?v=0.30.1';
+import { AchievementTracker } from '../progression/achievements.js?v=0.30.1';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -74,8 +74,34 @@ export class Game {
     this.performanceProfileSamples = [];
     this.performanceProfileStartedAt = 0;
     this.performanceProfilePreviousFrameAt = 0;
+    this.fpsDisplayEnabled = false;
+    this.fpsFrameCount = 0;
+    this.fpsSampleStartedAt = 0;
+    this.fpsCounterElement = document.querySelector('#fps-counter');
     this.backgroundCanvas = document.createElement('canvas');
     this.bindOverlayElements();
+  }
+
+  setFpsDisplayEnabled(enabled) {
+    this.fpsDisplayEnabled = Boolean(enabled);
+    if (!this.fpsCounterElement) this.fpsCounterElement = document.querySelector('#fps-counter');
+    this.fpsCounterElement?.classList.toggle('hidden', !this.fpsDisplayEnabled);
+    if (!this.fpsDisplayEnabled && this.fpsCounterElement) this.fpsCounterElement.textContent = 'FPS -- · -- ms';
+    this.fpsFrameCount = 0;
+    this.fpsSampleStartedAt = 0;
+  }
+
+  updateFpsCounter(timestamp) {
+    if (!this.fpsDisplayEnabled || !this.fpsCounterElement) return;
+    this.fpsFrameCount += 1;
+    if (!this.fpsSampleStartedAt) this.fpsSampleStartedAt = timestamp;
+    const elapsed = timestamp - this.fpsSampleStartedAt;
+    if (elapsed < 500) return;
+    const fps = this.fpsFrameCount * 1000 / elapsed;
+    const frameMs = elapsed / this.fpsFrameCount;
+    this.fpsCounterElement.textContent = `FPS ${Math.round(fps)} · ${frameMs.toFixed(1)} ms`;
+    this.fpsFrameCount = 0;
+    this.fpsSampleStartedAt = timestamp;
   }
 
   bindOverlayElements() {
@@ -435,14 +461,25 @@ export class Game {
     this.restartFeedbackAnimation(feedback, 'damage-active');
   }
 
-  resolveIncomingDamage(amount) {
+  resolveIncomingDamage(amount, sourceX = this.player.x, sourceY = this.player.y, heavyImpact = false) {
     const shieldBefore = this.player.shieldHealth;
     const tookDamage = this.player.takeDamage(amount);
     if (shieldBefore > 0 && this.player.shieldHealth === 0) {
       this.triggerShieldBreak();
     } else if (tookDamage) {
+      const dx = this.player.x - sourceX, dy = this.player.y - sourceY;
+      const length = Math.hypot(dx, dy) || 1;
+      const impulse = heavyImpact ? 390 : 190;
+      this.player.knockbackX += dx / length * impulse;
+      this.player.knockbackY += dy / length * impulse;
       this.triggerDamageFeedback(amount);
       gameAudio.playDamage();
+    } else if (shieldBefore > 0 && this.player.shieldHealth < shieldBefore) {
+      const dx = this.player.x - sourceX, dy = this.player.y - sourceY;
+      const length = Math.hypot(dx, dy) || 1;
+      const impulse = heavyImpact ? 210 : 85;
+      this.player.knockbackX += dx / length * impulse;
+      this.player.knockbackY += dy / length * impulse;
     }
   }
 
@@ -478,10 +515,10 @@ export class Game {
     const originY = this.player.y + directionY * 24;
     this.shieldPulseWave = {
       originX, originY, x: originX, y: originY,
-      directionX, directionY, traveled: 0, speed: 430,
-      maxDistance: 360, halfWidth: overloaded ? 42 : 62, halfDepth: 20,
-      life: 0.9, maxLife: 0.9, damage: (level >= 3 ? 9 : 6) * (overloaded ? 0.7 : 1),
-      hitEnemies: new Set()
+      directionX, directionY, traveled: 0, previousRadius: 0, speed: 560,
+      maxDistance: 480, halfAngle: Math.PI / 2, bandWidth: 30,
+      life: 0.86, maxLife: 0.86, damage: (level >= 3 ? 5 : 3) * (overloaded ? 0.7 : 1),
+      repulsion: 95 + level * 85, hitEnemies: new Set()
     };
     this.shieldPulseCooldownMax = Math.max(15, 21 - level * 2);
     this.shieldPulseCooldown = this.shieldPulseCooldownMax;
@@ -495,31 +532,40 @@ export class Game {
     const wave = this.shieldPulseWave;
     if (!wave) return;
     wave.life -= dt;
-    wave.traveled += wave.speed * dt;
+    wave.previousRadius = wave.traveled;
+    wave.traveled = Math.min(wave.maxDistance, wave.traveled + wave.speed * dt);
     wave.x = wave.originX + wave.directionX * wave.traveled;
     wave.y = wave.originY + wave.directionY * wave.traveled;
-    const perpendicularX = -wave.directionY;
-    const perpendicularY = wave.directionX;
+    const minRadius = Math.max(0, wave.previousRadius - wave.bandWidth);
+    const maxRadius = wave.traveled + wave.bandWidth;
+    const minRadiusSquared = minRadius * minRadius;
+    const maxRadiusSquared = maxRadius * maxRadius;
+    const cosHalfAngle = Math.cos(wave.halfAngle);
 
+    // Test only the newly swept semicircular band; use squared distance and dot products.
     for (const enemy of this.enemies) {
       if (!enemy.active || wave.hitEnemies.has(enemy)) continue;
-      const dx = enemy.x - wave.x, dy = enemy.y - wave.y;
-      const forward = dx * wave.directionX + dy * wave.directionY;
-      const lateral = dx * perpendicularX + dy * perpendicularY;
-      if (Math.abs(forward) <= wave.halfDepth + enemy.radius &&
-          Math.abs(lateral) <= wave.halfWidth + enemy.radius) {
-        wave.hitEnemies.add(enemy);
-        this.damageEnemy(enemy, enemy.type === 'boss' ? wave.damage * 0.8 : wave.damage);
-      }
+      const dx = enemy.x - wave.originX, dy = enemy.y - wave.originY;
+      const distanceSquared = dx * dx + dy * dy;
+      if (distanceSquared < minRadiusSquared || distanceSquared > maxRadiusSquared) continue;
+      const forwardDot = dx * wave.directionX + dy * wave.directionY;
+      if (forwardDot < 0 || forwardDot * forwardDot < distanceSquared * cosHalfAngle * cosHalfAngle) continue;
+      wave.hitEnemies.add(enemy);
+      const boss = enemy.type === 'boss' || enemy.type === 'megaboss';
+      const distance = Math.sqrt(distanceSquared) || 1;
+      const push = wave.repulsion * (boss ? 0.28 : 1);
+      enemy.x += dx / distance * push * dt * 8;
+      enemy.y += dy / distance * push * dt * 8;
+      this.damageEnemy(enemy, boss ? wave.damage * 0.6 : wave.damage);
     }
 
     for (const shot of this.enemyProjectiles) {
       if (!shot.active) continue;
-      const dx = shot.x - wave.x, dy = shot.y - wave.y;
-      const forward = dx * wave.directionX + dy * wave.directionY;
-      const lateral = dx * perpendicularX + dy * perpendicularY;
-      if (Math.abs(forward) <= wave.halfDepth + shot.radius &&
-          Math.abs(lateral) <= wave.halfWidth + shot.radius) shot.active = false;
+      const dx = shot.x - wave.originX, dy = shot.y - wave.originY;
+      const distanceSquared = dx * dx + dy * dy;
+      if (distanceSquared < minRadiusSquared || distanceSquared > maxRadiusSquared) continue;
+      const forwardDot = dx * wave.directionX + dy * wave.directionY;
+      if (forwardDot >= 0 && forwardDot * forwardDot >= distanceSquared * cosHalfAngle * cosHalfAngle) shot.active = false;
     }
 
     if (wave.life <= 0 || wave.traveled >= wave.maxDistance) this.shieldPulseWave = null;
@@ -721,9 +767,8 @@ export class Game {
 
     if (player.shieldHealth > 0) {
       // Angular energy field: one fill and one stroke, without blur filters or particles.
-      const pulse = 0.5 + Math.sin(player.flamePhase * 3.5) * 0.05;
       const weak = ratio <= 0.34;
-      ctx.globalAlpha = 0.11 + pulse * 0.12;
+      ctx.globalAlpha = 0.18;
       ctx.fillStyle = weak ? '#ffad68' : '#57cfff';
       ctx.beginPath();
       ctx.moveTo(player.x, player.y - 29);
@@ -736,7 +781,7 @@ export class Game {
       ctx.lineTo(player.x - 22, player.y - 15);
       ctx.closePath();
       ctx.fill();
-      ctx.globalAlpha = 0.72 + pulse * 0.2;
+      ctx.globalAlpha = 0.82;
       ctx.strokeStyle = weak ? '#ffbd82' : '#8be7ff';
       ctx.lineWidth = 1.8;
       ctx.stroke();
@@ -814,6 +859,7 @@ export class Game {
   loop(time) {
     if (this.status !== 'running') return;
     const frameStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
+    this.updateFpsCounter(time);
     const dt = Math.min((time - this.lastTime) / 1000 || 0, .035);
     this.lastTime = time;
 
@@ -972,10 +1018,20 @@ export class Game {
     this.player.guidedMissileCooldown = this.guidedMissileCooldown;
     this.shieldPulseCooldown = Math.max(0, this.shieldPulseCooldown - dt);
     this.overloadLockTimer = Math.max(0, this.overloadLockTimer - dt);
-    this.overload = Math.max(0, this.overload - dt * (this.overloadLockTimer > 0 ? 22 : this.overload >= 70 ? 7 : 12));
+    this.overload = Math.max(0, this.overload - dt * (this.overloadLockTimer > 0 ? 16 : this.overload >= 70 ? 6 : 10));
     if (this.overloadLockTimer === 0 && this.overload >= this.overloadMax) this.overload = 68;
     this.player.overloadSpeedFactor = this.overloadLockTimer > 0 ? 0.68 : this.overload >= 70 ? 0.82 : 1;
     this.updateShieldPulseWave(dt);
+    if (this.overload >= 90 || this.overloadLockTimer > 0) {
+      this.overheatSparkTimer = (this.overheatSparkTimer || 0) - dt;
+      if (this.overheatSparkTimer <= 0 && this.damageSparks.length < 34) {
+        this.overheatSparkTimer = 0.22;
+        const angle = rand(0, Math.PI * 2);
+        const speed = rand(24, 62);
+        const life = rand(0.18, 0.36);
+        this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 11, y: this.player.y + Math.sin(angle) * 11, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, size: rand(1, 2.4), color: '#ff9d45' });
+      }
+    }
     // Fire the second missile after a short delay so both launches are readable.
     if (this.pendingGuidedMissileLaunch) {
       this.pendingGuidedMissileLaunch.timer -= dt;
@@ -1152,27 +1208,32 @@ export class Game {
     // Draw missiles after the ship so the hull cannot hide a launch from either wing.
     this.guidedMissiles.forEach((missile) => missile.draw(ctx));
 
-    // Forward-moving emergency barrier: one inexpensive oriented quadrilateral.
+    // Curved semicircular energy front; no blur filters or per-particle bursts.
     if (this.shieldPulseWave) {
       const wave = this.shieldPulseWave;
-      const fade = Math.min(1, wave.life / 0.22, (wave.maxDistance - wave.traveled) / 44);
-      const px = -wave.directionY, py = wave.directionX;
-      const frontX = wave.x + wave.directionX * wave.halfDepth;
-      const frontY = wave.y + wave.directionY * wave.halfDepth;
-      const backX = wave.x - wave.directionX * wave.halfDepth;
-      const backY = wave.y - wave.directionY * wave.halfDepth;
+      const fade = Math.max(0.12, Math.min(1, wave.life / 0.18));
+      const radius = Math.max(8, wave.traveled);
+      const centerAngle = Math.atan2(wave.directionY, wave.directionX);
       ctx.save();
-      ctx.globalAlpha = Math.max(0.12, fade) * 0.72;
-      ctx.fillStyle = '#66f5d2';
-      ctx.strokeStyle = '#c9fff4';
-      ctx.lineWidth = 2;
+      ctx.translate(wave.originX, wave.originY);
+      ctx.globalAlpha = fade * 0.18;
+      ctx.fillStyle = '#48dfff';
       ctx.beginPath();
-      ctx.moveTo(frontX + px * wave.halfWidth, frontY + py * wave.halfWidth);
-      ctx.lineTo(frontX - px * wave.halfWidth, frontY - py * wave.halfWidth);
-      ctx.lineTo(backX - px * wave.halfWidth, backY - py * wave.halfWidth);
-      ctx.lineTo(backX + px * wave.halfWidth, backY + py * wave.halfWidth);
+      ctx.moveTo(0, 0);
+      ctx.arc(0, 0, radius, centerAngle - wave.halfAngle, centerAngle + wave.halfAngle);
       ctx.closePath();
       ctx.fill();
+      ctx.globalAlpha = fade * 0.95;
+      ctx.strokeStyle = '#9cfaff';
+      ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.arc(0, 0, radius, centerAngle - wave.halfAngle, centerAngle + wave.halfAngle);
+      ctx.stroke();
+      ctx.globalAlpha = fade * 0.72;
+      ctx.strokeStyle = '#ffcb83';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(0, 0, Math.max(2, radius - 5), centerAngle - wave.halfAngle, centerAngle + wave.halfAngle);
       ctx.stroke();
       ctx.restore();
     }
