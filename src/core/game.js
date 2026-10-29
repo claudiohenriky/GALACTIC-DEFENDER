@@ -518,12 +518,23 @@ export class Game {
   }
 
   activateGuidedMissile() {
+    const profileStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
     if (this.status !== 'running' || this.player.guidedMissileLevel <= 0 || this.guidedMissileCooldown > 0) return false;
-    const targets = this.enemies.filter((enemy) => enemy.active).sort((a, b) => {
-      const adx = a.x - this.player.x, ady = a.y - this.player.y;
-      const bdx = b.x - this.player.x, bdy = b.y - this.player.y;
-      return adx * adx + ady * ady - (bdx * bdx + bdy * bdy);
-    });
+    // Only the two closest targets are needed; avoid allocating and sorting the full enemy list.
+    let firstTarget = null, secondTarget = null;
+    let firstDistance = Infinity, secondDistance = Infinity;
+    for (const enemy of this.enemies) {
+      if (!enemy.active) continue;
+      const dx = enemy.x - this.player.x, dy = enemy.y - this.player.y;
+      const distance = dx * dx + dy * dy;
+      if (distance < firstDistance) {
+        secondTarget = firstTarget; secondDistance = firstDistance;
+        firstTarget = enemy; firstDistance = distance;
+      } else if (distance < secondDistance) {
+        secondTarget = enemy; secondDistance = distance;
+      }
+    }
+    const targets = [firstTarget, secondTarget].filter(Boolean);
     const level = this.player.guidedMissileLevel;
     const missileCount = level >= 2 ? 2 : 1;
     // Launch from the right wing first; at level 2+, launch the left missile 0.2s later.
@@ -540,6 +551,7 @@ export class Game {
     this.guidedMissileCooldownMax = level >= 3 ? 9 : level >= 2 ? 10 : 12;
     this.guidedMissileCooldown = this.guidedMissileCooldownMax;
     this.updateGuidedMissileButton();
+    if (this.performanceProfileEnabled) console.info('[GALACTIC-DEFENDER activation]', { ability: 'guided-missile', durationMs: Number((performance.now() - profileStartedAt).toFixed(2)), activeTargetsConsidered: targets.length });
     return true;
   }
 
