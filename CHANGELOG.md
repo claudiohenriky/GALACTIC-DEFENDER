@@ -1,3 +1,10 @@
+## [0.29.1] — Diagnóstico e otimização de desempenho
+
+### Desempenho
+- Instrumentação opcional por `?profile=1` para separar custos de atualização, renderização e ativação de habilidades.
+- Lançamento de mísseis passa a selecionar até dois alvos próximos sem ordenar a lista inteira de inimigos.
+- Esta candidata ainda precisa de teste real em dispositivos; não há alegação de FPS melhorado sem medições.
+
 ## [0.29.0] — Reestruturação do escudo e otimização de combate
 
 ### Escudo de energia
