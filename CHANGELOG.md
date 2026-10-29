@@ -1,3 +1,11 @@
+## [0.36.0] — Fundação da IA: orientação tática
+
+- Separa a orientação visual da nave da direção do movimento para sentinelas, artilheiros e chefe.
+- Essas classes podem reposicionar-se mantendo o armamento apontado ao jogador, evitando mostrar a traseira enquanto disparam para ele.
+- Não altera dano, integridade, cadência nem regras de projéteis.
+- **Validação manual pendente:** observar orientação durante aproximação, recuo, curvas e combate no celular/computador.
+- Próxima etapa planejada: percepção de ameaças e esquivas controladas de projéteis.
+
 ## [0.35.0] — Laser Contínuo e decisões iniciais de Attack Clash
 
 - Adiciona Laser Contínuo como habilidade especial independente, preservando os Tiros Perfurantes de Plasma.
