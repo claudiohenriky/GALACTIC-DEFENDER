@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.26.0';
-import { Enemy } from '../enemies/enemy.js?v=0.26.0';
-import { Projectile } from '../combat/projectile.js?v=0.26.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.26.0';
-import { Progression } from '../progression/progression.js?v=0.26.0';
-import { Mission } from '../missions/missions.js?v=0.26.0';
-import { WaveManager } from './wave-manager.js?v=0.26.0';
-import { updateHud } from '../ui/hud.js?v=0.26.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.26.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.26.0';
+import { Player } from '../player/player.js?v=0.27.0';
+import { Enemy } from '../enemies/enemy.js?v=0.27.0';
+import { Projectile } from '../combat/projectile.js?v=0.27.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.27.0';
+import { Progression } from '../progression/progression.js?v=0.27.0';
+import { Mission } from '../missions/missions.js?v=0.27.0';
+import { WaveManager } from './wave-manager.js?v=0.27.0';
+import { updateHud } from '../ui/hud.js?v=0.27.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.27.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.27.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -412,7 +412,7 @@ export class Game {
     this.destroyed += 1;
     const newlyUnlocked = this.achievements.record('kills');
     if (enemy.type === 'boss') newlyUnlocked.push(...this.achievements.record('bosses'));
-    const xpRewards = { chaser: 20, interceptor: 15, sentinel: 35, boss: 180 };
+    const xpRewards = { chaser: 20, interceptor: 15, sentinel: 35, guardian: 45, boss: 180 };
     const xpGained = xpRewards[enemy.type] ?? 20;
     const levelsGained = this.progression.addXp(xpGained);
     if (enemy.type === 'boss') this.showRewardBanner('CHEFE DERROTADO', `+${xpGained} XP · +1.000 PTS`, 'boss');
@@ -681,9 +681,11 @@ export class Game {
       const spawnX = rand(margin, Math.max(margin, this.width - margin));
       const roll = Math.random();
       const bossWave = this.waveManager.wave % 5 === 0;
-      const type = bossWave ? 'boss' : this.waveManager.wave >= 2 && roll < 0.25
-        ? 'sentinel'
-        : this.waveManager.wave >= 2 && roll < 0.43 ? 'interceptor' : 'chaser';
+      const type = bossWave ? 'boss'
+        : this.waveManager.wave >= 3 && roll < 0.12 ? 'guardian'
+          : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 3 ? 0.37 : 0.25) ? 'sentinel'
+            : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 3 ? 0.55 : 0.43) ? 'interceptor'
+              : 'chaser';
       this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave, type));
     }
 
