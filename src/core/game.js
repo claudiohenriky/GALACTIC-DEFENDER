@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.30.2';
-import { Enemy } from '../enemies/enemy.js?v=0.30.2';
-import { Projectile } from '../combat/projectile.js?v=0.30.2';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.30.2';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.30.2';
-import { Progression } from '../progression/progression.js?v=0.30.2';
-import { Mission } from '../missions/missions.js?v=0.30.2';
-import { WaveManager } from './wave-manager.js?v=0.30.2';
-import { updateHud } from '../ui/hud.js?v=0.30.2';
-import { gameAudio } from '../audio/game-audio.js?v=0.30.2';
-import { AchievementTracker } from '../progression/achievements.js?v=0.30.2';
+import { Player } from '../player/player.js?v=0.30.3';
+import { Enemy } from '../enemies/enemy.js?v=0.30.3';
+import { Projectile } from '../combat/projectile.js?v=0.30.3';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.30.3';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.30.3';
+import { Progression } from '../progression/progression.js?v=0.30.3';
+import { Mission } from '../missions/missions.js?v=0.30.3';
+import { WaveManager } from './wave-manager.js?v=0.30.3';
+import { updateHud } from '../ui/hud.js?v=0.30.3';
+import { gameAudio } from '../audio/game-audio.js?v=0.30.3';
+import { AchievementTracker } from '../progression/achievements.js?v=0.30.3';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -58,6 +58,8 @@ export class Game {
     this.levelUpParticles = [];
     this.damageSparks = [];
     this.shieldBreakEffects = [];
+    this.shieldThreatScanTimer = 0;
+    this.shieldThreatArcs = Array.from({ length: 8 }, () => 0);
     this.shieldPulseCooldown = 0;
     this.shieldPulseCooldownMax = 18;
     this.shieldPulseWave = null;
@@ -329,7 +331,7 @@ export class Game {
     ];
     const specials = [
       { type: 'doubleShot', icon: '✣', title: 'Tiro múltiplo', description: 'Adiciona projéteis laterais', category: 'HABILIDADE ESPECIAL', rarity: 'common', weight: 60 },
-      { type: 'laser', icon: 'ϟ', title: 'Laser perfurante', description: 'Projéteis atravessam inimigos', category: 'HABILIDADE ESPECIAL', rarity: 'rare', weight: 30 },
+      { type: 'laser', icon: 'ϟ', title: 'Tiros Perfurantes de Plasma', description: 'Disparos de plasma atravessam vários inimigos', category: 'HABILIDADE ESPECIAL', rarity: 'rare', weight: 30 },
       { type: 'shield', icon: '◈', title: 'Escudo de energia', description: 'Barreira regenerativa com explosão ao quebrar', category: 'HABILIDADE ESPECIAL', rarity: 'rare', weight: 30 },
       { type: 'repair', icon: '✚', title: 'Reparo de emergência', description: 'Recupera 30% da integridade máxima', category: 'HABILIDADE ESPECIAL', rarity: 'common', weight: 60 },
       { type: 'guidedMissile', icon: '➤', title: 'Míssil teleguiado', description: 'Persegue inimigos ativos · máx. 3 níveis', category: 'HABILIDADE ESPECIAL', rarity: 'epic', weight: 12 }
@@ -523,9 +525,9 @@ export class Game {
     const originY = this.player.y + directionY * 24;
     this.shieldPulseWave = {
       originX, originY, x: originX, y: originY,
-      directionX, directionY, traveled: 0, previousRadius: 0, speed: 560,
-      maxDistance: 480, halfAngle: Math.PI / 2, bandWidth: 30,
-      life: 0.86, maxLife: 0.86, damage: (level >= 3 ? 5 : 3) * (overloaded ? 0.7 : 1),
+      directionX, directionY, traveled: 0, previousRadius: 0, speed: 400,
+      maxDistance: 480, halfAngle: Math.PI / 2, bandWidth: 34,
+      life: 1.22, maxLife: 1.22, damage: (level >= 3 ? 5 : 3) * (overloaded ? 0.7 : 1),
       repulsion: 95 + level * 85, hitEnemies: new Set()
     };
     this.shieldPulseCooldownMax = Math.max(15, 21 - level * 2);
@@ -771,32 +773,63 @@ export class Game {
     else if (newlyUnlocked.length) this.showRewardBanner('CONQUISTA DESBLOQUEADA', newlyUnlocked.map(item => item.name).join(' · '), 'achievement');
   }
 
+  updateShieldThreats(dt) {
+    const arcs = this.shieldThreatArcs;
+    for (let i = 0; i < arcs.length; i += 1) arcs[i] = Math.max(0, arcs[i] - dt);
+    if (this.player.shieldLevel <= 0 || this.player.shieldHealth <= 0) return;
+    this.shieldThreatScanTimer -= dt;
+    if (this.shieldThreatScanTimer > 0) return;
+    this.shieldThreatScanTimer = 0.08;
+
+    const px = this.player.x, py = this.player.y;
+    const dangerRadius = this.player.radius + 18;
+    const dangerRadiusSquared = dangerRadius * dangerRadius;
+    for (const shot of this.enemyProjectiles) {
+      if (!shot.active || !Number.isFinite(shot.vx) || !Number.isFinite(shot.vy)) continue;
+      const rx = shot.x - px, ry = shot.y - py;
+      const speedSquared = shot.vx * shot.vx + shot.vy * shot.vy;
+      if (speedSquared < 1) continue;
+      const closestTime = -(rx * shot.vx + ry * shot.vy) / speedSquared;
+      if (closestTime < 0 || closestTime > 0.55) continue;
+      const closestX = rx + shot.vx * closestTime;
+      const closestY = ry + shot.vy * closestTime;
+      if (closestX * closestX + closestY * closestY > dangerRadiusSquared) continue;
+      const angle = Math.atan2(ry, rx);
+      const sector = ((Math.round((angle + Math.PI) / (Math.PI / 4)) % 8) + 8) % 8;
+      arcs[sector] = 0.2;
+    }
+  }
+
   drawShield(ctx) {
     const player = this.player;
     if (player.shieldLevel <= 0) return;
     const ratio = player.shieldMaxHealth > 0 ? player.shieldHealth / player.shieldMaxHealth : 0;
     ctx.save();
 
+    // The shield remains logically active in 360 degrees. Only threat-facing
+    // sectors are rendered, so the ship hull stays unobscured and no full bubble is drawn.
     if (player.shieldHealth > 0) {
-      // Angular energy field: one fill and one stroke, without blur filters or particles.
       const weak = ratio <= 0.34;
-      ctx.globalAlpha = 0.18;
-      ctx.fillStyle = weak ? '#ffad68' : '#57cfff';
-      ctx.beginPath();
-      ctx.moveTo(player.x, player.y - 29);
-      ctx.lineTo(player.x + 22, player.y - 15);
-      ctx.lineTo(player.x + 25, player.y + 9);
-      ctx.lineTo(player.x + 13, player.y + 25);
-      ctx.lineTo(player.x, player.y + 29);
-      ctx.lineTo(player.x - 13, player.y + 25);
-      ctx.lineTo(player.x - 25, player.y + 9);
-      ctx.lineTo(player.x - 22, player.y - 15);
-      ctx.closePath();
-      ctx.fill();
-      ctx.globalAlpha = 0.82;
-      ctx.strokeStyle = weak ? '#ffbd82' : '#8be7ff';
-      ctx.lineWidth = 1.8;
-      ctx.stroke();
+      ctx.lineCap = 'round';
+      ctx.lineWidth = 4;
+      for (let i = 0; i < this.shieldThreatArcs.length; i += 1) {
+        const life = this.shieldThreatArcs[i];
+        if (life <= 0) continue;
+        const angle = -Math.PI + i * (Math.PI / 4);
+        const alpha = Math.min(0.9, life / 0.12);
+        ctx.globalAlpha = alpha * 0.3;
+        ctx.strokeStyle = weak ? '#ffad68' : '#57cfff';
+        ctx.lineWidth = 7;
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.radius + 10, angle - 0.24, angle + 0.24);
+        ctx.stroke();
+        ctx.globalAlpha = alpha;
+        ctx.strokeStyle = weak ? '#ffbd82' : '#a8f5ff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(player.x, player.y, player.radius + 10, angle - 0.24, angle + 0.24);
+        ctx.stroke();
+      }
     }
 
     const barWidth = 36, barHeight = 3;
@@ -1071,6 +1104,7 @@ export class Game {
         gameAudio.playEnemyShot(shot.color);
       }
     });
+    this.updateShieldThreats(dt);
 
     // Resolve projectile hits once, awarding score, XP, and mission progress.
     for (const shot of this.projectiles) {
