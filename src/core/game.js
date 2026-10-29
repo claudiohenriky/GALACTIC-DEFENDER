@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.17.2';
-import { Enemy } from '../enemies/enemy.js?v=0.17.2';
-import { Projectile } from '../combat/projectile.js?v=0.17.2';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.17.2';
-import { Progression } from '../progression/progression.js?v=0.17.2';
-import { Mission } from '../missions/missions.js?v=0.17.2';
-import { WaveManager } from './wave-manager.js?v=0.17.2';
-import { updateHud } from '../ui/hud.js?v=0.17.2';
-import { gameAudio } from '../audio/game-audio.js?v=0.17.2';
-import { AchievementTracker } from '../progression/achievements.js?v=0.17.2';
+import { Player } from '../player/player.js?v=0.17.3';
+import { Enemy } from '../enemies/enemy.js?v=0.17.3';
+import { Projectile } from '../combat/projectile.js?v=0.17.3';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.17.3';
+import { Progression } from '../progression/progression.js?v=0.17.3';
+import { Mission } from '../missions/missions.js?v=0.17.3';
+import { WaveManager } from './wave-manager.js?v=0.17.3';
+import { updateHud } from '../ui/hud.js?v=0.17.3';
+import { gameAudio } from '../audio/game-audio.js?v=0.17.3';
+import { AchievementTracker } from '../progression/achievements.js?v=0.17.3';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -467,8 +467,12 @@ export class Game {
         }
       }
       if (target) return Math.atan2(target.y - this.player.y, target.x - this.player.x);
-      if (this.touchAim.active) return Math.atan2(this.touchAim.y - this.player.y, this.touchAim.x - this.player.x);
-      return this.player.rotation;
+      // Manual touch aim is active only while the player is dragging; once released,
+      // the ship smoothly returns to its default forward-facing direction.
+      if (this.touchAim.pointerId !== null && this.touchAim.active) {
+        return Math.atan2(this.touchAim.y - this.player.y, this.touchAim.x - this.player.x);
+      }
+      return -Math.PI / 2;
     }
     if (!this.aim.active) return this.player.rotation;
     return Math.atan2(this.aim.y - this.player.y, this.aim.x - this.player.x);
