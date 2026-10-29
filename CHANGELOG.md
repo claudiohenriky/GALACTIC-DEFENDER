@@ -1,3 +1,111 @@
+## [0.29.0] — Reestruturação do escudo e otimização de combate
+
+### Escudo de energia
+- Redesenha a barreira com silhueta angular e renderização mais simples.
+- Adiciona a Onda do Escudo, ativável pelo botão ou pela tecla Q após desbloquear a carta de escudo.
+- A onda remove projéteis inimigos próximos e causa dano controlado em inimigos dentro do alcance; o nível aumenta o alcance e reduz a recarga.
+- A quebra passiva do escudo continua emitindo sua onda curta e preserva a recarga automática.
+- A interação com feixes contínuos e ataques especiais de bosses fica planejada para a etapa futura de colisões; esses tipos de ataque ainda não existem como entidades de combate.
+
+### Desempenho
+- Remove filtros de desfoque caros dos mísseis e projéteis inimigos.
+- Limita o número de efeitos simultâneos de explosão/onda.
+- Atualiza os estados visuais dos botões junto da atualização da HUD, em vez de alterar o DOM a cada quadro.
+- Remove a renderização síncrona completa disparada no instante da ativação do míssil.
+
+### Validação
+- Candidata em feature/v0.29.0-shield-rework-performance; main permanece inalterada.
+- A validação estática e o teste automatizado serão executados antes da prévia. Desempenho real e equilíbrio ainda precisam de teste manual em celular.
+
+## [0.28.6] — Candidata: carta de míssil disponível para validação
+
+### Correção de seleção
+- A carta **Míssil teleguiado** passa a ser incluída garantidamente nas escolhas de habilidade especial enquanto a habilidade estiver abaixo do nível máximo (3).
+- As outras duas cartas da seleção continuam sendo sorteadas conforme seus pesos de raridade.
+- O ajuste foi usado apenas para diagnóstico. Após a confirmação do usuário de que os mísseis estão visíveis e funcionais, a distribuição ponderada original das cartas especiais foi restaurada na v0.29.0.
+
+### Estado e validação
+- Candidata de diagnóstico substituída pela v0.29.0; não foi mesclada separadamente em `main`.
+- O usuário confirmou que o desenho dos mísseis nas pontas da nave ficou correto. O teste completo de desempenho da candidata v0.29.0 ainda está pendente.
+
+## [0.28.5] — Candidata: lançamento visível pelas asas
+
+### Correções de lançamento
+- Corrige a ordem de renderização: os mísseis são desenhados depois da nave para não ficarem escondidos pelo casco durante a saída.
+- Calcula o ponto de lançamento usando a mesma rotação e inclinação lateral (bank) do desenho da nave.
+- Exibe dois suportes visuais de míssil nas asas quando a habilidade está equipada e pronta; eles somem durante a recarga.
+- No nível 2+, lança primeiro o míssil da asa direita e, 0,2 segundo depois, o da esquerda. A perseguição e a atribuição de alvos existentes são preservadas.
+- Reduz a frequência e o tamanho dos rastros e evita criar arrays/sets temporários a cada atualização para reduzir custo em celulares.
+
+### Estado e validação
+- Candidata na branch feature/v0.28.5-visible-wing-launch; não mesclada em main.
+- A validação automatizada de sintaxe/imports e o teste manual de lançamento em celular ainda precisam ser confirmados. Verificar suportes, os dois disparos, alvos, dano, recarga e fluidez.
+
+## [0.28.4] — Candidata: mísseis duplos nas asas
+
+### Jogabilidade
+- Lança os dois mísseis a partir de pontos laterais alinhados às asas da nave, usando a rotação atual para calcular a posição corretamente.
+- Com pelo menos dois inimigos ativos, atribui alvos distintos aos mísseis; com apenas um inimigo, ambos podem persegui-lo.
+- Quando um alvo deixa de existir, tenta escolher um alvo ainda não reservado pelo outro míssil antes de compartilhar o mesmo alvo.
+- Aplica separação de trajetória quando os mísseis se aproximam e adiciona rastros curtos e leves para tornar cada percurso mais visível.
+
+### Estado e validação
+- Candidata na branch feature/v0.28.4-dual-wing-missiles; não mesclada em main.
+- Verificações estáticas não substituem o teste manual no celular. Confirmar lançamento nas duas asas, seleção de alvos, separação visual, dano e recarga.
+
+## [0.28.3] - Candidata mobile
+
+- Atualiza o estado do botao de habilidade durante a recarga.
+- Ativa a habilidade no inicio do toque para reduzir atraso.
+- Separa a trajetoria dos dois misseis no nivel 2+.
+- Reposiciona o botao para longe dos controles inferiores e compacta avisos em paisagem.
+- Ainda precisa de teste manual no celular; nao mesclada em main.
+
+## [0.28.2] — Candidata: confiabilidade do míssil e interface compacta
+
+### Correções
+- A ativação não depende mais de haver inimigos ativos exatamente no instante do toque; o míssil pode adquirir um alvo quando ele aparecer.
+- A partir do nível 2, são criados dois mísseis mesmo quando ambos precisam perseguir o mesmo inimigo.
+- Atualiza o estado do botão ao iniciar/retomar e impede que o clique da habilidade interfira com outros controles.
+
+### Interface
+- Reduz o botão, o ícone e os textos, com ajuste específico para telas móveis.
+- Mantém o indicador de recarga e melhora a área de toque.
+
+### Estado e validação
+- Candidata na branch `feature/v0.28.2-missile-reliability`; não mesclada em `main`.
+- Verificações estáticas não substituem o teste manual de disparo no celular.
+
+## [0.28.1] — Candidata: habilidade de míssil ativável e ajustes visuais
+
+### Jogabilidade
+- Substitui o disparo automático por ativação manual da habilidade de míssil, por botão na arena ou tecla E.
+- Adiciona recarga longa: 12 segundos no nível 1, 10 segundos no nível 2 e 9 segundos no nível 3.
+- A partir do nível 2, a ativação lança até dois mísseis teleguiados.
+- Aumenta o tamanho dos mísseis e adiciona explosão com dano em área ao atingir inimigos.
+
+### Interface
+- Adiciona uma carta de habilidade na arena com estado disponível/recarga e indicador visual.
+- Destaca as raridades Comum, Raro, Épico e Lendário com cores próprias nas cartas.
+- Atualiza identificadores de cache e histórico de versões.
+
+### Estado e validação
+- Candidata em `feature/v0.28.1-activated-missiles`; não mesclada em `main`.
+- Efeitos sonoros e polimento de áudio permanecem para uma etapa posterior.
+- Requer teste manual no celular pelo link de prévia direta antes de mesclar.
+
+## [0.28.0] — Candidata: míssil teleguiado e raridade das habilidades
+
+### Habilidades especiais
+- Adiciona o Míssil teleguiado, que persegue inimigos ativos e causa dano em colisão direta.
+- O míssil possui três níveis, com dano, velocidade e cadência de disparo ajustados por nível.
+- Introduz raridades visuais Comum, Raro e Épico e pesos de seleção para as cartas de habilidade especial.
+- A raridade altera a probabilidade relativa de seleção; não garante que uma carta apareça em toda escolha.
+
+### Estado e validação
+- Candidata em `feature/v0.28.0-guided-missile-rarity`; não mesclada em `main`.
+- Requer verificações automatizadas e teste manual pelo GitHub Pages antes da publicação.
+
 ## [0.27.0] — Nova classe de inimigo: Guardião
 
 ### Combate e ondas

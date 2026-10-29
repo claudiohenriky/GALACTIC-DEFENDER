@@ -346,3 +346,80 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .app-shell:fullscreen #mission-prep{max-height:calc(100dvh - 76px);min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}.app-shell:fullscreen .prep-launch{padding-bottom:max(12px,env(safe-area-inset-bottom))}
 .app-shell:fullscreen .prep-start-button,.app-shell:fullscreen .prep-fullscreen-button,.app-shell:fullscreen #prep-back-button{min-height:48px;touch-action:manipulation}
 @media(max-height:520px) and (orientation:landscape){.app-shell:fullscreen{padding:8px}.app-shell:fullscreen .topbar{padding-bottom:8px}.app-shell:fullscreen #mission-prep{margin:8px auto;padding:14px}.app-shell:fullscreen .prep-heading{flex-direction:row;align-items:center;padding-bottom:12px}.app-shell:fullscreen .prep-content{grid-template-columns:minmax(0,1fr) minmax(210px,.8fr);gap:14px;padding:12px 0}.app-shell:fullscreen .prep-mode-card{min-height:120px;padding:10px}.app-shell:fullscreen .prep-checklist{padding:10px}.app-shell:fullscreen .prep-check-item{padding:7px 0}.app-shell:fullscreen .prep-launch{padding-top:12px;gap:10px}.app-shell:fullscreen .prep-start-button{min-height:44px}}
+
+/* v0.28.0: rarity labels for special ability cards. */
+.upgrade-card-rarity{display:inline-flex;align-items:center;border:1px solid currentColor;border-radius:999px;padding:2px 7px;font-size:8px;font-weight:900;letter-spacing:.1em;line-height:1.4}
+.rarity-common{color:#a9c1d8}
+.rarity-rare{color:#6fcfff}
+.rarity-epic{color:#c6a5ff}
+.rarity-legendary{color:#ffcb70}
+
+/* Keep rarity labels readable in the compact mobile upgrade-card layout. */
+@media(max-width:560px){.upgrade-card-rarity{grid-column:2;grid-row:2;justify-self:start}.upgrade-card strong{grid-row:3}.upgrade-card small{grid-row:4}}
+
+/* v0.28.2: compact, touch-friendly ability card with a clear cooldown state. */
+.ability-card{position:absolute;z-index:8;top:72px;right:10px;display:flex;align-items:center;gap:6px;width:min(136px,32%);min-height:48px;padding:6px 7px;overflow:hidden;text-align:left;border:1px solid #ffb45e;border-radius:9px;background:linear-gradient(145deg,#3a251cf2,#10182bf2);color:#fff0d6;box-shadow:0 4px 14px #0006;cursor:pointer;touch-action:manipulation;pointer-events:auto;user-select:none;-webkit-tap-highlight-color:transparent}
+.ability-card:disabled{cursor:default;opacity:.82}.ability-card:not(:disabled){box-shadow:0 0 0 1px #ffb45e44,0 4px 14px #0006}
+.ability-card-icon{display:grid;place-items:center;flex:0 0 24px;width:24px;height:24px;border:1px solid #ffb45e88;border-radius:7px;background:#6b3827;color:#ffd49b;font-size:17px}
+.ability-card-copy{display:flex;min-width:0;flex-direction:column;gap:3px}.ability-card-copy strong{font-size:8px;letter-spacing:.025em;white-space:nowrap}.ability-card-copy small{font-size:7px;line-height:1.2;color:#ffd49b;white-space:nowrap}
+.ability-cooldown-fill{position:absolute;right:0;bottom:0;left:0;height:3px;width:0;background:#ffb45e;transition:width .1s linear;pointer-events:none}
+@media(max-width:520px){.ability-card{top:auto;right:8px;bottom:88px;width:112px;min-height:44px;padding:6px;gap:5px}.ability-card-icon{flex-basis:22px;width:22px;height:22px;font-size:15px}.ability-card-copy strong{font-size:7px}.ability-card-copy small{font-size:6.5px}}
+/* v0.29.0: stack ability controls in a compact vertical group. */
+.canvas-frame .ability-card-missile{top:calc(50% - 29px);right:8px;bottom:auto;transform:translateY(-50%)}
+.canvas-frame .ability-card-shield{top:calc(50% + 29px);right:8px;bottom:auto;transform:translateY(-50%);border-color:#59dfd0;background:linear-gradient(145deg,#123b3bf2,#10182bf2);color:#d9fff8}
+.canvas-frame .ability-card-shield .ability-card-icon{border-color:#59dfd088;background:#164e4a;color:#9bfff0}
+.canvas-frame .ability-card-shield .ability-card-copy small{color:#9bfff0}
+.canvas-frame .ability-card-shield .ability-cooldown-fill{background:#59dfd0}
+@media(max-width:520px){.canvas-frame .ability-card-missile{top:auto;bottom:142px;transform:none}.canvas-frame .ability-card-shield{top:auto;bottom:88px;transform:none}}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.canvas-frame .ability-card-missile{top:calc(50% - 25px);bottom:auto}.canvas-frame .ability-card-shield{top:calc(50% + 25px);bottom:auto}}
+/* Rarity is communicated by both a prominent badge and a distinct card border/background. */
+.upgrade-card-rarity{display:inline-flex;align-items:center;border:1px solid currentColor;border-radius:999px;padding:4px 8px;font-size:9px;font-weight:950;letter-spacing:.12em;line-height:1.2;background:#0a1020;color:#fff}
+.upgrade-card.rarity-common{border-color:#91a7bd;background:linear-gradient(155deg,#26394b,#0a1426)}.upgrade-card.rarity-common .upgrade-card-icon{border-color:#9eb4c8;background:#30475c;color:#e1edf7}.upgrade-card.rarity-common .upgrade-card-category,.upgrade-card-rarity.rarity-common{color:#d5e4f2}.upgrade-card-rarity.rarity-common{background:#31475c}
+.upgrade-card.rarity-rare{border-color:#49c6ef;background:linear-gradient(155deg,#123d55,#091626)}.upgrade-card.rarity-rare .upgrade-card-icon{border-color:#55d4ff;background:#0e4057;color:#9beaff}.upgrade-card.rarity-rare .upgrade-card-category,.upgrade-card-rarity.rarity-rare{color:#8de6ff}.upgrade-card-rarity.rarity-rare{background:#0d4057}
+.upgrade-card.rarity-epic{border-color:#c28bff;background:linear-gradient(155deg,#3b2259,#101326)}.upgrade-card.rarity-epic .upgrade-card-icon{border-color:#c28bff;background:#432366;color:#ead3ff}.upgrade-card.rarity-epic .upgrade-card-category,.upgrade-card-rarity.rarity-epic{color:#e0bdff}.upgrade-card-rarity.rarity-epic{background:#432366}
+.upgrade-card.rarity-legendary{border-color:#ffc45d;background:linear-gradient(155deg,#53391b,#151326)}.upgrade-card.rarity-legendary .upgrade-card-icon{border-color:#ffc45d;background:#5d3c18;color:#ffe3a6}.upgrade-card.rarity-legendary .upgrade-card-category,.upgrade-card-rarity.rarity-legendary{color:#ffe0a0}.upgrade-card-rarity.rarity-legendary{background:#5d3c18}
+#upgrade-overlay.is-special-choice .upgrade-card-icon{border-radius:10px}
+
+/* Override the older purple special-card theme with the selected rarity palette. */
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-common .upgrade-card-icon{border-color:#9eb4c8;background:#30475c;color:#e1edf7}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-common .upgrade-card-category{color:#d5e4f2}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-common:hover{border-color:#c4d8e8;background:linear-gradient(155deg,#344b60,#101a2c)}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-rare .upgrade-card-icon{border-color:#55d4ff;background:#0e4057;color:#9beaff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-rare .upgrade-card-category{color:#8de6ff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-rare:hover{border-color:#83e5ff;background:linear-gradient(155deg,#16516d,#0b1b2c)}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-epic .upgrade-card-icon{border-color:#c28bff;background:#432366;color:#ead3ff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-epic .upgrade-card-category{color:#e0bdff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-epic:hover{border-color:#dfbdff;background:linear-gradient(155deg,#4a2b6b,#14162b)}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-legendary .upgrade-card-icon{border-color:#ffc45d;background:#5d3c18;color:#ffe3a6}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-legendary .upgrade-card-category{color:#ffe0a0}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-legendary:hover{border-color:#ffda8c;background:linear-gradient(155deg,#68471f,#19162b)}
+
+
+/* v0.28.3 — keep ability/reward notifications clear of thumb controls on mobile. */
+@media (hover:none) and (pointer:coarse) {
+  .canvas-frame #guided-missile-button.ability-card {
+    top:50%; right:8px; bottom:auto; left:auto; transform:translateY(-50%);
+    width:112px; min-height:44px; z-index:9;
+  }
+  .canvas-frame #guided-missile-button.ability-card:active { filter:brightness(1.18); }
+}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px) {
+  .canvas-frame .reward-banner { top:8px; right:10px; width:min(30vw,260px); max-height:28%; padding:5px 7px; gap:3px; }
+  .canvas-frame .reward-banner strong { font-size:7px; }
+  .canvas-frame .reward-banner span { -webkit-line-clamp:2; font-size:8px; line-height:1.25; }
+  .canvas-frame #guided-missile-button.ability-card { top:52%; right:8px; width:104px; min-height:42px; }
+}
+
+/* Ensure the ability stack overrides the earlier single-button mobile placement. */
+@media (hover:none) and (pointer:coarse){
+  .canvas-frame #guided-missile-button.ability-card{top:calc(50% - 29px);right:8px;bottom:auto;transform:translateY(-50%)}
+  .canvas-frame #shield-pulse-button.ability-card{top:calc(50% + 29px);right:8px;bottom:auto;transform:translateY(-50%)}
+}
+@media(max-width:520px){
+  .canvas-frame #guided-missile-button.ability-card{top:auto;bottom:142px;transform:none}
+  .canvas-frame #shield-pulse-button.ability-card{top:auto;bottom:88px;transform:none}
+}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){
+  .canvas-frame #guided-missile-button.ability-card{top:calc(50% - 25px);bottom:auto;transform:translateY(-50%)}
+  .canvas-frame #shield-pulse-button.ability-card{top:calc(50% + 25px);bottom:auto;transform:translateY(-50%)}
+}
