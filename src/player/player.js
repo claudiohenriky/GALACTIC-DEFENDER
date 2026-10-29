@@ -31,6 +31,7 @@ export class Player {
     this.shipClass = 'vanguard';
     // The ship points upward by default; rotation is stored as a world-space angle.
     this.rotation = -Math.PI / 2;
+    this.overloadSpeedFactor = 1;
     this.x = width / 2;
     this.y = height * (width > height ? 0.66 : 0.78);
     this.fitToArena(width, height);
@@ -88,8 +89,9 @@ export class Player {
       dy /= magnitude;
     }
     // Movement velocity ramps up smoothly; the attribute improves acceleration without raising top speed.
-    const targetVelocityX = dx * this.speed;
-    const targetVelocityY = dy * this.speed;
+    const movementFactor = this.overloadSpeedFactor ?? 1;
+    const targetVelocityX = dx * this.speed * movementFactor;
+    const targetVelocityY = dy * this.speed * movementFactor;
     const acceleration = 1800 * (1 + this.propulsionControlLevel * 0.08);
     const velocityDeltaX = targetVelocityX - this.velocityX;
     const velocityDeltaY = targetVelocityY - this.velocityY;
