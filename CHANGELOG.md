@@ -1,5 +1,16 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
+## [0.17.3] — Retorno frontal da nave no mobile
+
+### Alterado
+- Quando não há inimigos ativos e o jogador solta o toque na arena, a nave retorna suavemente à direção frontal padrão.
+- O arraste continua permitindo orientar manualmente a nave quando não há inimigos; a mira automática continua priorizando o inimigo ativo mais próximo.
+- O disparo permanece manual, acionado pelo botão DISPARAR.
+- Atualiza os identificadores de cache, a versão exibida e o histórico do jogo.
+
+### Validação
+- Correção registrada; aguarda teste manual no celular para validar retorno frontal, mira, disparo, movimentação e desempenho.
+
 ## [0.17.2] — Mira automática sem disparo automático
 
 ### Corrigido
