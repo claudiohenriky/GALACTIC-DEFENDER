@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em desenvolvimento:** `0.16.1` — escudo regenerativo com barreira visual e explosão (em validação).
+**Versão em desenvolvimento:** `0.16.2` — otimização de desempenho e refinamento dos efeitos do escudo (aguardando teste mobile).
 
-**Fase:** pré-alfa. A v0.16.0 passou nos testes funcionais mobile informados pelo usuário; todas as habilidades especiais foram testadas, e o escudo está sendo refinado na v0.16.1, que ainda precisa de validação manual no GitHub Pages.
+**Fase:** pré-alfa. A v0.16.0 passou nos testes funcionais mobile informados pelo usuário. A v0.16.1 teve a mecânica do escudo validada pelo usuário, mas apresentou queda severa de fluidez no celular; a v0.16.2 reduz o custo dos efeitos e aguarda nova validação manual.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: WASD/setas para movimentação, mouse para mirar, botão direito (segurar) ou Espaço para disparar no computador; joystick virtual e botão de disparo em dispositivos móveis. O disparo pelo botão direito foi aprovado no teste manual informado pelo usuário.
@@ -47,7 +47,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Inimigos não causam dano automático ao ultrapassar a borda da arena.
 - Proteção inicial de 3 segundos ao surgir e invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis e pontuação.
-- A progressão v0.16.0 apresenta três cartas por seleção e permite escolher apenas uma. Melhorias de atributos usam percentuais; cartas de atributos aparecem em níveis ímpares a partir do nível 3, e cartas especiais em marcos a cada cinco níveis. Os valores e a frequência ainda precisam de balanceamento. Habilidades iniciais incluem tiro múltiplo, laser perfurante, escudo regenerativo e reparo de emergência. Na v0.16.1, o escudo tem barreira visual, integridade própria, explosão de energia ao quebrar e recarga automática; a mecânica ainda precisa de validação manual.
+- A progressão v0.16.0 apresenta três cartas por seleção e permite escolher apenas uma. Melhorias de atributos usam percentuais; cartas de atributos aparecem em níveis ímpares a partir do nível 3, e cartas especiais em marcos a cada cinco níveis. Os valores e a frequência ainda precisam de balanceamento. Habilidades iniciais incluem tiro múltiplo, laser perfurante, escudo regenerativo e reparo de emergência. Na v0.16.1, o escudo recebeu barreira, integridade própria, onda de energia e recarga automática. Na v0.16.2, os efeitos visuais foram simplificados para evitar desfoque de sombra por quadro; a fluidez ainda precisa de novo teste manual.
 - Música ambiente espacial sintetizada e efeitos distintos para disparos do jogador, tiros inimigos e dano, gerados pela Web Audio API sem arquivos externos. O volume geral é ajustável nas configurações, com ganho reforçado para música e dano.
 - Missões rotativas: eliminar inimigos, sobreviver por tempo determinado e alcançar ondas específicas, com dificuldades fácil, média e difícil.
 - Recompensas de missão em XP e pontuação; a conclusão avança para o próximo objetivo.
@@ -93,7 +93,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Histórico de versões
 
-O histórico para jogadores fica disponível no menu principal. O registro técnico completo está em [`CHANGELOG.md`](./CHANGELOG.md), com as versões mais recentes primeiro. A v0.16.0 passou nos testes funcionais mobile informados pelo usuário; a v0.16.1 aguarda validação manual do novo escudo.
+O histórico para jogadores fica disponível no menu principal. O registro técnico completo está em [`CHANGELOG.md`](./CHANGELOG.md), com as versões mais recentes primeiro. A v0.16.0 passou nos testes funcionais mobile informados pelo usuário. O escudo da v0.16.1 funcionou nos testes, mas apresentou lentidão; a v0.16.2 aguarda validação de desempenho no celular.
 
 ## GitHub Pages
 
