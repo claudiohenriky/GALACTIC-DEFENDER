@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.28.5';
-import { Enemy } from '../enemies/enemy.js?v=0.28.5';
-import { Projectile } from '../combat/projectile.js?v=0.28.5';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.28.5';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.28.5';
-import { Progression } from '../progression/progression.js?v=0.28.5';
-import { Mission } from '../missions/missions.js?v=0.28.5';
-import { WaveManager } from './wave-manager.js?v=0.28.5';
-import { updateHud } from '../ui/hud.js?v=0.28.5';
-import { gameAudio } from '../audio/game-audio.js?v=0.28.5';
-import { AchievementTracker } from '../progression/achievements.js?v=0.28.5';
+import { Player } from '../player/player.js?v=0.28.6';
+import { Enemy } from '../enemies/enemy.js?v=0.28.6';
+import { Projectile } from '../combat/projectile.js?v=0.28.6';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.28.6';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.28.6';
+import { Progression } from '../progression/progression.js?v=0.28.6';
+import { Mission } from '../missions/missions.js?v=0.28.6';
+import { WaveManager } from './wave-manager.js?v=0.28.6';
+import { updateHud } from '../ui/hud.js?v=0.28.6';
+import { gameAudio } from '../audio/game-audio.js?v=0.28.6';
+import { AchievementTracker } from '../progression/achievements.js?v=0.28.6';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -298,17 +298,37 @@ export class Game {
       });
     const options = [...availableOptions];
     if (current.category === 'special') {
-      const weightedOptions = [];
-      while (options.length && weightedOptions.length < 3) {
-        const totalWeight = options.reduce((total, option) => total + option.weight, 0);
-        let roll = Math.random() * totalWeight; let selectedIndex = options.length - 1;
-        for (let index = 0; index < options.length; index += 1) {
-          roll -= options[index].weight;
-          if (roll <= 0) { selectedIndex = index; break; }
+      const missileOption = options.find((option) => option.type === 'guidedMissile');
+      if (missileOption) {
+        // v0.28.6 validation: guarantee the missile card appears until its level cap,
+        // so testing is not blocked by its epic rarity roll.
+        const otherOptions = options.filter((option) => option.type !== 'guidedMissile');
+        const weightedOptions = [];
+        while (otherOptions.length && weightedOptions.length < 2) {
+          const totalWeight = otherOptions.reduce((total, option) => total + option.weight, 0);
+          let roll = Math.random() * totalWeight; let selectedIndex = otherOptions.length - 1;
+          for (let index = 0; index < otherOptions.length; index += 1) {
+            roll -= otherOptions[index].weight;
+            if (roll <= 0) { selectedIndex = index; break; }
+          }
+          weightedOptions.push(otherOptions.splice(selectedIndex, 1)[0]);
         }
-        weightedOptions.push(options.splice(selectedIndex, 1)[0]);
+        const insertionIndex = Math.floor(Math.random() * (weightedOptions.length + 1));
+        weightedOptions.splice(insertionIndex, 0, missileOption);
+        this.currentUpgradeOptions = weightedOptions;
+      } else {
+        const weightedOptions = [];
+        while (options.length && weightedOptions.length < 3) {
+          const totalWeight = options.reduce((total, option) => total + option.weight, 0);
+          let roll = Math.random() * totalWeight; let selectedIndex = options.length - 1;
+          for (let index = 0; index < options.length; index += 1) {
+            roll -= options[index].weight;
+            if (roll <= 0) { selectedIndex = index; break; }
+          }
+          weightedOptions.push(options.splice(selectedIndex, 1)[0]);
+        }
+        this.currentUpgradeOptions = weightedOptions;
       }
-      this.currentUpgradeOptions = weightedOptions;
     } else {
       for (let i = options.length - 1; i > 0; i -= 1) {
         const j = Math.floor(Math.random() * (i + 1));
