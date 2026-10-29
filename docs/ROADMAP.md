@@ -1,3 +1,10 @@
+## Fundação v0.33.0 — geometria compartilhada de colisões
+- [x] Criar utilitários puros para sobreposição circular e distância ao quadrado, sem impor regras de dano.
+- [x] Migrar para a função compartilhada as colisões de tiros do jogador, mísseis guiados, contato inimigo e projéteis inimigos contra a nave.
+- [x] Preservar regras atuais de dano, perfuração, invulnerabilidade e remoção de entidades.
+- [ ] Testar manualmente as colisões existentes em celular e computador; observar FPS durante ondas cheias.
+- [ ] Implementar a interação projétil-contra-projétil somente após validar esta fundação.
+
 ## Patch v0.30.4 — renderização leve do Pulso de Ruptura
 - [x] Remover o preenchimento translúcido de grande área.
 - [x] Preservar o contorno semicircular com traços neon discretos para sugerir plasma/fumaça.
@@ -104,9 +111,11 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Reservar ataques especiais e feixes de alta potência para bosses e inimigos selecionados.
 
 ## Etapa 6 — Fundação de colisões de ataques
-- Auditar colisões e ciclo de vida de projéteis antes de criar novas interações.
-- Definir quais ataques podem destruir, atravessar, bloquear ou anular outros ataques.
-- Verificar o custo de colisões em cenários com muitos projéteis.
+- [x] Auditar colisões e ciclo de vida de projéteis antes de criar novas interações.
+- [x] Extrair geometria compartilhada para evitar duplicação de testes circulares.
+- [ ] Definir regras por tipo de ataque: destruir, atravessar, bloquear ou anular.
+- [ ] Medir o custo de colisões em cenários com muitos projéteis.
+- [ ] Validar a v0.33.0 manualmente antes de implementar interações projétil-contra-projétil.
 
 ## Etapa 7 — Attack Clash
 - Prototipar o confronto entre feixes em um cenário controlado.
