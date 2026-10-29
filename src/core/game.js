@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.30.3';
-import { Enemy } from '../enemies/enemy.js?v=0.30.3';
-import { Projectile } from '../combat/projectile.js?v=0.30.3';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.30.3';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.30.3';
-import { Progression } from '../progression/progression.js?v=0.30.3';
-import { Mission } from '../missions/missions.js?v=0.30.3';
-import { WaveManager } from './wave-manager.js?v=0.30.3';
-import { updateHud } from '../ui/hud.js?v=0.30.3';
-import { gameAudio } from '../audio/game-audio.js?v=0.30.3';
-import { AchievementTracker } from '../progression/achievements.js?v=0.30.3';
+import { Player } from '../player/player.js?v=0.30.4';
+import { Enemy } from '../enemies/enemy.js?v=0.30.4';
+import { Projectile } from '../combat/projectile.js?v=0.30.4';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.30.4';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.30.4';
+import { Progression } from '../progression/progression.js?v=0.30.4';
+import { Mission } from '../missions/missions.js?v=0.30.4';
+import { WaveManager } from './wave-manager.js?v=0.30.4';
+import { updateHud } from '../ui/hud.js?v=0.30.4';
+import { gameAudio } from '../audio/game-audio.js?v=0.30.4';
+import { AchievementTracker } from '../progression/achievements.js?v=0.30.4';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1257,32 +1257,38 @@ export class Game {
     // Draw missiles after the ship so the hull cannot hide a launch from either wing.
     this.guidedMissiles.forEach((missile) => missile.draw(ctx));
 
-    // Curved semicircular energy front; no blur filters or per-particle bursts.
+    // Lightweight plasma-smoke rupture: preserve the semicircular rim, remove
+    // the large translucent fill that covered the playfield and cost fill-rate.
     if (this.shieldPulseWave) {
       const wave = this.shieldPulseWave;
-      const fade = Math.max(0.12, Math.min(1, wave.life / 0.18));
+      const fade = Math.max(0, Math.min(1, wave.life / 0.24));
       const radius = Math.max(8, wave.traveled);
       const centerAngle = Math.atan2(wave.directionY, wave.directionX);
       ctx.save();
       ctx.translate(wave.originX, wave.originY);
-      ctx.globalAlpha = fade * 0.18;
-      ctx.fillStyle = '#48dfff';
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, radius, centerAngle - wave.halfAngle, centerAngle + wave.halfAngle);
-      ctx.closePath();
-      ctx.fill();
-      ctx.globalAlpha = fade * 0.95;
-      ctx.strokeStyle = '#9cfaff';
-      ctx.lineWidth = 2.4;
+      ctx.lineCap = 'round';
+
+      // A soft, narrow cyan rim suggests drifting plasma without a filled wedge.
+      ctx.globalAlpha = fade * 0.16;
+      ctx.strokeStyle = '#39dfff';
+      ctx.lineWidth = 10;
       ctx.beginPath();
       ctx.arc(0, 0, radius, centerAngle - wave.halfAngle, centerAngle + wave.halfAngle);
       ctx.stroke();
-      ctx.globalAlpha = fade * 0.72;
-      ctx.strokeStyle = '#ffcb83';
-      ctx.lineWidth = 1;
+
+      // Two slim neon contours create a smoky, energized edge at low rendering cost.
+      ctx.globalAlpha = fade * 0.86;
+      ctx.strokeStyle = '#8cf7ff';
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(0, 0, Math.max(2, radius - 5), centerAngle - wave.halfAngle, centerAngle + wave.halfAngle);
+      ctx.arc(0, 0, radius, centerAngle - wave.halfAngle, centerAngle + wave.halfAngle);
+      ctx.stroke();
+
+      ctx.globalAlpha = fade * 0.34;
+      ctx.strokeStyle = '#7ba8ff';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(0, 0, Math.max(2, radius - 4), centerAngle - wave.halfAngle, centerAngle + wave.halfAngle);
       ctx.stroke();
       ctx.restore();
     }
