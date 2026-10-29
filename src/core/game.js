@@ -617,10 +617,13 @@ export class Game {
     if (element.textContent !== statusText) element.textContent = statusText;
     const visualState = this.overloadLockTimer > 0 ? 'critical' : this.overload >= 70 ? 'overloaded' : 'stable';
     if (element.dataset.state !== visualState) element.dataset.state = visualState;
+    const panel = document.querySelector('#overload-panel');
+    if (panel && panel.dataset.state !== visualState) panel.dataset.state = visualState;
     const fill = document.querySelector('#overload-meter-fill');
     if (fill) {
-      const width = `${percent}%`;
-      if (fill.style.width !== width) fill.style.width = width;
+      const height = `${percent}%`;
+      if (fill.style.height !== height) fill.style.height = height;
+      if (fill.style.width !== '100%') fill.style.width = '100%';
       if (fill.dataset.state !== visualState) fill.dataset.state = visualState;
     }
   }
@@ -1029,7 +1032,7 @@ export class Game {
         const angle = rand(0, Math.PI * 2);
         const speed = rand(24, 62);
         const life = rand(0.18, 0.36);
-        this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 11, y: this.player.y + Math.sin(angle) * 11, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, size: rand(1, 2.4), color: '#ff9d45' });
+        this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 11, y: this.player.y + Math.sin(angle) * 11, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, size: rand(1, 2.4), length: rand(3, 7), color: '#ff9d45' });
       }
     }
     // Fire the second missile after a short delay so both launches are readable.
@@ -1099,7 +1102,7 @@ export class Game {
         const shieldWasActive = this.player.shieldHealth > 0;
         enemy.contactCooldown = 0.75;
         if (!shieldWasActive) enemy.active = false;
-        this.resolveIncomingDamage(18);
+        this.resolveIncomingDamage(18, enemy.x, enemy.y, enemy.type === 'boss' || enemy.type === 'megaboss');
       }
     }
 
@@ -1111,7 +1114,7 @@ export class Game {
       const combinedRadius = this.player.radius + shot.radius;
       if (dx * dx + dy * dy < combinedRadius * combinedRadius) {
         shot.active = false;
-        this.resolveIncomingDamage(shot.damage);
+        this.resolveIncomingDamage(shot.damage, shot.x, shot.y, shot.damage >= 10);
       }
     }
 
@@ -1259,7 +1262,7 @@ export class Game {
       ctx.translate(spark.x, spark.y);
       ctx.rotate(Math.atan2(spark.vy, spark.vx));
       ctx.globalAlpha = fade;
-      ctx.strokeStyle = fade > 0.55 ? '#ffdce3' : '#ff526f';
+      ctx.strokeStyle = spark.color || (fade > 0.55 ? '#ffdce3' : '#ff526f');
       ctx.lineWidth = 2.2;
       ctx.beginPath();
       ctx.moveTo(-spark.length * 0.6, 0);
