@@ -1,5 +1,5 @@
-import { Game } from './src/core/game.js?v=0.15.0';
-import { gameAudio } from './src/audio/game-audio.js?v=0.15.0';
+import { Game } from './src/core/game.js?v=0.15.1';
+import { gameAudio } from './src/audio/game-audio.js?v=0.15.1';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
@@ -137,8 +137,20 @@ document.querySelector('#settings-reset-button').addEventListener('click', () =>
 applySettings();
 
 
-// Mouse position controls aim only; keyboard and touch inputs still control movement and firing.
+// Mouse position controls aim; right-click holds fire while WASD remains available for movement.
 canvas.addEventListener('pointermove', (event) => game.setAimFromPointer(event));
+
+const arenaFrame = document.querySelector('.canvas-frame');
+arenaFrame.addEventListener('pointerdown', (event) => {
+  if (event.button !== 2 || game.status !== 'running') return;
+  event.preventDefault();
+  game.keys.add('space');
+});
+window.addEventListener('pointerup', (event) => {
+  if (event.button === 2) game.keys.delete('space');
+});
+window.addEventListener('pointercancel', () => game.keys.delete('space'));
+arenaFrame.addEventListener('contextmenu', (event) => event.preventDefault());
 
 document.querySelector('#start-button').addEventListener('click', () => { gameAudio.start(); game.start(); });
 document.querySelector('#resume-button').addEventListener('click', () => { gameAudio.start(); game.resume(); });

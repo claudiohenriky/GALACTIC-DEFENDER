@@ -2,6 +2,15 @@
 
 Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; quando falta evidência para um marco antigo, isso é informado sem inventar recursos.
 
+## [0.15.1] — Aguardando teste manual
+
+### Controles de computador
+- Adiciona disparo contínuo enquanto o botão direito do mouse estiver pressionado, permitindo mover com WASD ao mesmo tempo.
+- Mantém a tecla Espaço como alternativa de disparo.
+- Impede que o menu de contexto do navegador abra durante o clique direito na arena.
+- Atualiza a versão exibida, identificadores de cache, controles acessíveis e histórico dentro do jogo.
+- Teste manual da nova interação ainda pendente; não considerar esta versão validada até testar disparo, movimentação simultânea e liberação do botão.
+
 ## [0.15.0] — Teste no computador aprovado; regressão mobile pendente
 
 ### Polimento e consistência
@@ -46,4 +55,4 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 
 ## Observações
 - Atualizar este arquivo e o histórico dentro do jogo juntos.
-- A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; o teste de regressão no celular continua pendente.
+- A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; o teste de regressão no celular continua pendente. A v0.15.1 aguarda teste manual do disparo com botão direito.
