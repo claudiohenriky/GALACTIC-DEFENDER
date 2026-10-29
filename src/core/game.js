@@ -55,6 +55,11 @@ export class Game {
     this.pendingUpgradeChoices = [];
     this.hudUpdateInterval = 0.1;
     this.hudUpdateTimer = 0;
+    // Profiling is opt-in so normal gameplay pays no per-frame timing cost.
+    this.performanceProfileEnabled = new URLSearchParams(window.location.search).get('profile') === '1';
+    this.performanceProfileSamples = [];
+    this.performanceProfileStartedAt = 0;
+    this.performanceProfilePreviousFrameAt = 0;
     this.backgroundCanvas = document.createElement('canvas');
     this.bindOverlayElements();
   }
@@ -495,19 +500,66 @@ export class Game {
 
   loop(time) {
     if (this.status !== 'running') return;
+    const frameStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
     const dt = Math.min((time - this.lastTime) / 1000 || 0, .035);
     this.lastTime = time;
+
+    const updateStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
     this.update(dt);
+    const updateDuration = this.performanceProfileEnabled ? performance.now() - updateStartedAt : 0;
+
+    const renderStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
     this.renderFrame(dt);
+    const renderDuration = this.performanceProfileEnabled ? performance.now() - renderStartedAt : 0;
+
     this.hudUpdateTimer += dt;
     if (this.hudUpdateTimer >= this.hudUpdateInterval) {
       this.hudUpdateTimer %= this.hudUpdateInterval;
       updateHud(this);
     }
 
+    if (this.performanceProfileEnabled) {
+      const frameDuration = performance.now() - frameStartedAt;
+      this.performanceProfileSamples.push({
+        frame: this.performanceProfilePreviousFrameAt ? time - this.performanceProfilePreviousFrameAt : 0,
+        update: updateDuration,
+        render: renderDuration,
+        work: frameDuration
+      });
+      this.performanceProfilePreviousFrameAt = time;
+      if (this.performanceProfileSamples.length >= 180) this.reportPerformanceProfile();
+    }
+
     if (this.status === 'running') {
       this.animationId = requestAnimationFrame((next) => this.loop(next));
     }
+  }
+
+  reportPerformanceProfile() {
+    const samples = this.performanceProfileSamples;
+    if (!samples.length) return;
+    const average = (key) => samples.reduce((sum, sample) => sum + sample[key], 0) / samples.length;
+    const frameSamples = samples.filter((sample) => sample.frame > 0);
+    const averageFrame = frameSamples.length
+      ? frameSamples.reduce((sum, sample) => sum + sample.frame, 0) / frameSamples.length
+      : 0;
+    console.info('[GALACTIC-DEFENDER profile]', {
+      samples: samples.length,
+      averageFrameMs: Number(averageFrame.toFixed(2)),
+      estimatedFps: averageFrame > 0 ? Number((1000 / averageFrame).toFixed(1)) : null,
+      averageUpdateMs: Number(average('update').toFixed(2)),
+      averageRenderMs: Number(average('render').toFixed(2)),
+      averageGameWorkMs: Number(average('work').toFixed(2)),
+      entities: {
+        enemies: this.enemies.length,
+        playerProjectiles: this.projectiles.length,
+        enemyProjectiles: this.enemyProjectiles.length,
+        levelParticles: this.levelUpParticles.length,
+        damageSparks: this.damageSparks.length,
+        shieldEffects: this.shieldBreakEffects.length
+      }
+    });
+    this.performanceProfileSamples = [];
   }
 
   update(dt) {
