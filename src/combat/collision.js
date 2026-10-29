@@ -14,7 +14,7 @@ export function distanceSquared(ax, ay, bx, by) {
   return dx * dx + dy * dy;
 }
 
-/** Test two circular hit areas. Tangency counts as a collision. */
+/** Test two circular hit areas, preserving the game's strict-overlap boundary. */
 export function circlesOverlap(a, b, radiusA = a.radius ?? 0, radiusB = b.radius ?? 0) {
   const combinedRadius = radiusA + radiusB;
   return distanceSquared(a.x, a.y, b.x, b.y) < combinedRadius * combinedRadius;
