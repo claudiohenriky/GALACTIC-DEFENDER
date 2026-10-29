@@ -1,3 +1,13 @@
+## [0.25.0] — Nova carta de atributo: cadência de disparo
+
+### Progressão e combate
+- Adiciona a carta **Cadência aprimorada**, que aumenta em 10% a cadência de disparo por escolha, limitada a cinco níveis.
+- Reduz o intervalo entre disparos sem alterar dano por projétil, mira, controles ou comportamento dos inimigos.
+- Remove a carta da lista de opções quando o limite de cinco níveis é atingido.
+
+### Validação
+- Verificações automatizadas e teste manual no GitHub Pages ainda precisam ser executados; esta versão ainda não foi aprovada para merge.
+
 ## [0.24.2] — Ajuste fino da elasticidade inimiga
 
 ### Ajustes visuais
