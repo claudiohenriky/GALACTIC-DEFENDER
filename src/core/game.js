@@ -149,6 +149,7 @@ export class Game {
     this.animationId = requestAnimationFrame((time) => this.loop(time));
     updateHud(this);
     this.updateGuidedMissileButton();
+    this.updateShieldPulseButton();
   }
 
   resume() {
@@ -197,6 +198,7 @@ export class Game {
     this.status = 'ready';
     this.clearInput();
     updateHud(this);
+    this.updateShieldPulseButton();
     this.renderFrame(0);
   }
 
@@ -380,6 +382,7 @@ export class Game {
     this.pendingUpgradeChoices.shift();
     updateHud(this);
     this.updateGuidedMissileButton();
+    this.updateShieldPulseButton();
     if (this.pendingUpgradeChoices.length) { this.renderUpgradeChoice(); return; }
     document.querySelector('#upgrade-overlay').classList.add('hidden');
     document.querySelector('#upgrade-overlay').classList.remove('is-special-choice');
