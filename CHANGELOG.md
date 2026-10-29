@@ -1,3 +1,22 @@
+## [0.29.0] — Reestruturação do escudo e otimização de combate
+
+### Escudo de energia
+- Redesenha a barreira com silhueta angular e renderização mais simples.
+- Adiciona a Onda do Escudo, ativável pelo botão ou pela tecla Q após desbloquear a carta de escudo.
+- A onda remove projéteis inimigos próximos e causa dano controlado em inimigos dentro do alcance; o nível aumenta o alcance e reduz a recarga.
+- A quebra passiva do escudo continua emitindo sua onda curta e preserva a recarga automática.
+- A interação com feixes contínuos e ataques especiais de bosses fica planejada para a etapa futura de colisões; esses tipos de ataque ainda não existem como entidades de combate.
+
+### Desempenho
+- Remove filtros de desfoque caros dos mísseis e projéteis inimigos.
+- Limita o número de efeitos simultâneos de explosão/onda.
+- Atualiza os estados visuais dos botões junto da atualização da HUD, em vez de alterar o DOM a cada quadro.
+- Remove a renderização síncrona completa disparada no instante da ativação do míssil.
+
+### Validação
+- Candidata em feature/v0.29.0-shield-rework-performance; main permanece inalterada.
+- A validação estática e o teste automatizado serão executados antes da prévia. Desempenho real e equilíbrio ainda precisam de teste manual em celular.
+
 ## [0.28.6] — Candidata: carta de míssil disponível para validação
 
 ### Correção de seleção
