@@ -1,6 +1,17 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
-## [0.16.0] — Progressão em cartas (em validação)
+## [0.16.1] — Escudo regenerativo (em validação)
+
+### Alterado
+- Substitui o bloqueio por cargas consumíveis por uma barreira de energia visível ao redor da nave.
+- Adiciona barra de integridade do escudo e recarga automática após a quebra.
+- Ao ser destruída, a barreira libera uma onda de energia que causa dano aos inimigos próximos.
+- Melhorias adicionais de escudo aumentam sua integridade máxima até o limite definido.
+
+### Validação
+- Aguardando teste manual no GitHub Pages, especialmente integridade, explosão, recarga e regressão mobile.
+
+## [0.16.0] — Progressão em cartas (teste funcional mobile aprovado)
 
 ### Adicionado
 - Interface de três cartas para escolhas de progressão, com animação de interação e adaptação a telas móveis.
@@ -10,7 +21,7 @@
 - O requisito de XP continua crescendo progressivamente a cada nível.
 
 ### Validação
-- Implementação inicial publicada para teste; ainda não considerada aprovada até os testes manuais no computador e celular.
+- O usuário confirmou que o menu, a partida, as cartas de atributos e as habilidades especiais funcionaram nos testes mobile. O escudo foi identificado como a única habilidade que precisava de refinamento, tratado na v0.16.1.
 
 
 Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; quando falta evidência para um marco antigo, isso é informado sem inventar recursos.
