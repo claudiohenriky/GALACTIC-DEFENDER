@@ -4,7 +4,7 @@
 - O Artilheiro mantém uma faixa de tiro distante, desloca-se lateralmente e dispara uma salva de três projéteis em leque.
 - Diferencia visualmente a classe com casco violeta; cada derrota concede 150 pontos e 55 XP.
 - Mantém os padrões das classes existentes e limita a probabilidade inicial do Artilheiro a 12% por surgimento elegível.
-- Teste real de jogabilidade, clareza do leque, equilíbrio e FPS ainda pendentes; a versão oficial `main` não foi alterada.
+- **Teste manual concluído pelo usuário:** surgimento, leitura visual, leque, equilíbrio, desempenho percebido e regressão das classes existentes aprovados. Não equivale a benchmark de FPS em todos os dispositivos; a versão oficial `main` não foi alterada.
 
 ## [0.30.4] — Pulso de Ruptura com plasma leve
 
