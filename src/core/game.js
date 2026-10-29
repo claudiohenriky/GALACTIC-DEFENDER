@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.17.0';
-import { Enemy } from '../enemies/enemy.js?v=0.17.0';
-import { Projectile } from '../combat/projectile.js?v=0.17.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.17.0';
-import { Progression } from '../progression/progression.js?v=0.17.0';
-import { Mission } from '../missions/missions.js?v=0.17.0';
-import { WaveManager } from './wave-manager.js?v=0.17.0';
-import { updateHud } from '../ui/hud.js?v=0.17.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.17.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.17.0';
+import { Player } from '../player/player.js?v=0.17.2';
+import { Enemy } from '../enemies/enemy.js?v=0.17.2';
+import { Projectile } from '../combat/projectile.js?v=0.17.2';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.17.2';
+import { Progression } from '../progression/progression.js?v=0.17.2';
+import { Mission } from '../missions/missions.js?v=0.17.2';
+import { WaveManager } from './wave-manager.js?v=0.17.2';
+import { updateHud } from '../ui/hud.js?v=0.17.2';
+import { gameAudio } from '../audio/game-audio.js?v=0.17.2';
+import { AchievementTracker } from '../progression/achievements.js?v=0.17.2';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -535,8 +535,7 @@ export class Game {
     this.levelUpParticles = this.levelUpParticles.filter((particle) => particle.life > 0);
 
     this.shotClock -= dt;
-    const mobileAutoFire = document.documentElement.dataset.platform === 'mobile' && this.enemies.some((enemy) => enemy.active);
-    if ((this.keys.has('space') || mobileAutoFire) && this.shotClock <= 0) {
+    if (this.keys.has('space') && this.shotClock <= 0) {
       const angle = this.getAimAngle();
       const muzzleDistance = 17;
       const muzzleX = this.player.x + Math.cos(angle) * muzzleDistance;

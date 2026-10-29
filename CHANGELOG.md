@@ -1,5 +1,15 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
+## [0.17.2] — Mira automática sem disparo automático
+
+### Corrigido
+- A mira mobile continua acompanhando o inimigo ativo mais próximo, mas não dispara por conta própria.
+- O disparo no celular agora depende exclusivamente do botão de disparo, preservando o joystick para movimentação e o arraste para orientar a nave quando não há inimigos.
+- Atualiza os identificadores de cache e a versão exibida para `0.17.2`.
+
+### Validação
+- Correção registrada; aguarda teste manual no celular para confirmar mira, disparo manual e regressão das mecânicas.
+
 ## [0.17.1] — Mira mobile por arraste e disparo automático (candidata em validação)
 
 ### Alterado
