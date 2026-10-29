@@ -1,3 +1,5 @@
+# Histórico de versões — GALACTIC-DEFENDER
+
 ## [0.19.0] — Progressão de XP e recompensas ao vivo (candidata em validação)
 
 ### Progressão e recompensas
@@ -9,8 +11,6 @@
 ### Validação
 - Alterações revisadas estaticamente; ainda não foram testadas manualmente no GitHub Pages.
 - `main` permanece a versão oficial; esta candidata está isolada na branch `feat/v0.19.0-gameplay-roadmap`.
-
-# Histórico de versões — GALACTIC-DEFENDER
 
 ## [0.18.1] — Ajuste pontual na renderização do escudo (candidata em validação)
 
