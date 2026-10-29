@@ -1088,6 +1088,31 @@ export class Game {
     // Draw missiles after the ship so the hull cannot hide a launch from either wing.
     this.guidedMissiles.forEach((missile) => missile.draw(ctx));
 
+    // Forward-moving emergency barrier: one inexpensive oriented quadrilateral.
+    if (this.shieldPulseWave) {
+      const wave = this.shieldPulseWave;
+      const fade = Math.min(1, wave.life / 0.22, (wave.maxDistance - wave.traveled) / 44);
+      const px = -wave.directionY, py = wave.directionX;
+      const frontX = wave.x + wave.directionX * wave.halfDepth;
+      const frontY = wave.y + wave.directionY * wave.halfDepth;
+      const backX = wave.x - wave.directionX * wave.halfDepth;
+      const backY = wave.y - wave.directionY * wave.halfDepth;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0.12, fade) * 0.72;
+      ctx.fillStyle = '#66f5d2';
+      ctx.strokeStyle = '#c9fff4';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(frontX + px * wave.halfWidth, frontY + py * wave.halfWidth);
+      ctx.lineTo(frontX - px * wave.halfWidth, frontY - py * wave.halfWidth);
+      ctx.lineTo(backX - px * wave.halfWidth, backY - py * wave.halfWidth);
+      ctx.lineTo(backX + px * wave.halfWidth, backY + py * wave.halfWidth);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+    }
+
     // Lightweight dual-ring shockwave without per-frame shadow blur.
     this.shieldBreakEffects.forEach((effect) => {
       const progress = 1 - effect.life / effect.maxLife;
