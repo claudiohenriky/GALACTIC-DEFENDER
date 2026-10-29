@@ -6,10 +6,10 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão em desenvolvimento:** `0.15.1` — disparo com botão direito do mouse no computador.
 
-**Fase:** polimento pré-alfa. A v0.14.0 foi validada pelo usuário; a v0.15.0 foi aprovada no teste manual em computador informado pelo usuário. A correção de controles da v0.15.1 aguarda novo teste manual; a regressão mobile da v0.15.0 também continua pendente.
+**Fase:** polimento pré-alfa. A v0.14.0 foi validada pelo usuário; a v0.15.0 foi aprovada no teste manual em computador informado pelo usuário. A v0.15.1 foi aprovada no teste manual em computador informado pelo usuário, sem problemas reportados pelo testador. A regressão mobile da v0.15.0 continua pendente.
 
 - Plataforma: navegadores modernos em computador e celular.
-- Controles: WASD/setas para movimentação, mouse para mirar, botão direito (segurar) ou Espaço para disparar no computador; joystick virtual e botão de disparo em dispositivos móveis. O novo disparo pelo botão direito ainda precisa de teste manual.
+- Controles: WASD/setas para movimentação, mouse para mirar, botão direito (segurar) ou Espaço para disparar no computador; joystick virtual e botão de disparo em dispositivos móveis. O disparo pelo botão direito foi aprovado no teste manual informado pelo usuário.
 - Tela cheia: botão no canto superior da arena; em celulares, a orientação horizontal é recomendada.
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
@@ -35,7 +35,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Mecânicas atuais
 
- > **Validação:** a v0.11.0 passou no teste manual informado; a v0.11.1 ajustou o volume do áudio e a v0.12.0 adicionou as escolhas de melhoria. A v0.13.0 passou no teste manual informado pelo usuário nos sete itens verificados. A v0.14.0 foi validada; a v0.15.0 foi aprovada no teste manual em computador, com regressão mobile pendente. A v0.15.1 adiciona o disparo pelo botão direito e aguarda teste manual. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
+ > **Validação:** a v0.11.0 passou no teste manual informado; a v0.11.1 ajustou o volume do áudio e a v0.12.0 adicionou as escolhas de melhoria. A v0.13.0 passou no teste manual informado pelo usuário nos sete itens verificados. A v0.14.0 foi validada; a v0.15.0 foi aprovada no teste manual em computador, com regressão mobile pendente. A v0.15.1 adiciona o disparo pelo botão direito e foi aprovada no teste manual em computador informado pelo usuário; a regressão mobile continua pendente. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
@@ -93,7 +93,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Histórico de versões
 
-O histórico para jogadores fica disponível no menu principal. O registro técnico completo está em [`CHANGELOG.md`](./CHANGELOG.md), com as versões mais recentes primeiro. A v0.14.0 foi validada pelo usuário; a v0.15.0 foi aprovada no teste em computador informado, com regressão mobile pendente. A v0.15.1 aguarda teste manual.
+O histórico para jogadores fica disponível no menu principal. O registro técnico completo está em [`CHANGELOG.md`](./CHANGELOG.md), com as versões mais recentes primeiro. A v0.14.0 foi validada pelo usuário; a v0.15.0 foi aprovada no teste em computador informado, com regressão mobile pendente. A v0.15.1 foi aprovada no teste manual em computador informado pelo usuário.
 
 ## GitHub Pages
 
