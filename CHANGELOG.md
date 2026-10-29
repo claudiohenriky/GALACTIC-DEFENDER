@@ -1,3 +1,15 @@
+## [0.28.4] — Candidata: mísseis duplos nas asas
+
+### Jogabilidade
+- Lança os dois mísseis a partir de pontos laterais alinhados às asas da nave, usando a rotação atual para calcular a posição corretamente.
+- Com pelo menos dois inimigos ativos, atribui alvos distintos aos mísseis; com apenas um inimigo, ambos podem persegui-lo.
+- Quando um alvo deixa de existir, tenta escolher um alvo ainda não reservado pelo outro míssil antes de compartilhar o mesmo alvo.
+- Aplica separação de trajetória quando os mísseis se aproximam e adiciona rastros curtos e leves para tornar cada percurso mais visível.
+
+### Estado e validação
+- Candidata na branch feature/v0.28.4-dual-wing-missiles; não mesclada em main.
+- Verificações estáticas não substituem o teste manual no celular. Confirmar lançamento nas duas asas, seleção de alvos, separação visual, dano e recarga.
+
 ## [0.28.3] - Candidata mobile
 
 - Atualiza o estado do botao de habilidade durante a recarga.
