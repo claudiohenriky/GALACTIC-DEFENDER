@@ -1,5 +1,5 @@
-import { Game } from './src/core/game.js?v=0.13.0';
-import { gameAudio } from './src/audio/game-audio.js?v=0.13.0';
+import { Game } from './src/core/game.js?v=0.14.0';
+import { gameAudio } from './src/audio/game-audio.js?v=0.14.0';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
@@ -12,6 +12,9 @@ const platformNote = document.querySelector('#platform-detection-note');
 const settingsPanel = document.querySelector('#settings-panel');
 const aboutPanel = document.querySelector('#about-panel');
 const versionHistoryPanel = document.querySelector('#version-history-panel');
+const achievementsPanel = document.querySelector('#achievements-panel');
+const achievementsList = document.querySelector('#achievements-list');
+const achievementSummary = document.querySelector('#achievement-summary');
 document.querySelectorAll('[data-upgrade]').forEach((button) => button.addEventListener('click', () => game.chooseUpgrade(button.dataset.upgrade)));
 document.querySelector('#dismiss-title-toast').addEventListener('click', () => document.querySelector('#title-unlock-toast').classList.add('hidden'));
 
@@ -36,6 +39,7 @@ function closeMenuPanels() {
   settingsPanel.classList.add('hidden');
   aboutPanel.classList.add('hidden');
   versionHistoryPanel.classList.add('hidden');
+  achievementsPanel.classList.add('hidden');
 }
 setPlatform(detectPlatform(), false);
 platformButtons.forEach((button) => button.addEventListener('click', () => setPlatform(button.dataset.platformChoice)));
@@ -51,19 +55,51 @@ document.querySelector('#menu-play-button').addEventListener('click', () => {
     game.start();
   });
 });
+document.querySelector('#menu-achievements-button').addEventListener('click', () => {
+  settingsPanel.classList.add('hidden');
+  aboutPanel.classList.add('hidden');
+  versionHistoryPanel.classList.add('hidden');
+  achievementsPanel.classList.remove('hidden');
+  renderAchievements();
+});
+function renderAchievements() {
+  const tracker = game.achievements;
+  const items = tracker.getAchievements();
+  const unlocked = items.filter((item) => item.unlocked).length;
+  achievementSummary.textContent = `${unlocked} de ${items.length} conquistas · ${tracker.stats.kills} eliminações · ${tracker.stats.bosses} chefes derrotados · ${tracker.stats.missions} missões concluídas · recorde ${tracker.stats.bestScore} pontos · maior onda ${tracker.stats.bestWave}`;
+  achievementsList.replaceChildren();
+  items.forEach((item) => {
+    const card = document.createElement('article');
+    card.className = `achievement-entry${item.unlocked ? ' is-unlocked' : ''}`;
+    const heading = document.createElement('div');
+    heading.className = 'achievement-entry-heading';
+    const name = document.createElement('strong');
+    name.textContent = item.name;
+    const status = document.createElement('span');
+    status.textContent = item.unlocked ? 'DESBLOQUEADA' : 'BLOQUEADA';
+    heading.append(name, status);
+    const description = document.createElement('p');
+    description.textContent = item.description;
+    card.append(heading, description);
+    achievementsList.append(card);
+  });
+}
 document.querySelector('#menu-settings-button').addEventListener('click', () => {
   aboutPanel.classList.add('hidden');
   versionHistoryPanel.classList.add('hidden');
+  achievementsPanel.classList.add('hidden');
   settingsPanel.classList.remove('hidden');
 });
 document.querySelector('#menu-about-button').addEventListener('click', () => {
   settingsPanel.classList.add('hidden');
   versionHistoryPanel.classList.add('hidden');
+  achievementsPanel.classList.add('hidden');
   aboutPanel.classList.remove('hidden');
 });
 document.querySelector('#menu-history-button').addEventListener('click', () => {
   settingsPanel.classList.add('hidden');
   aboutPanel.classList.add('hidden');
+  achievementsPanel.classList.add('hidden');
   versionHistoryPanel.classList.remove('hidden');
 });
 document.querySelectorAll('[data-close-panel]').forEach((button) => button.addEventListener('click', closeMenuPanels));

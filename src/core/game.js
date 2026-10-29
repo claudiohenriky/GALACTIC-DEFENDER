@@ -1,12 +1,13 @@
-import { Player } from '../player/player.js?v=0.13.0';
-import { Enemy } from '../enemies/enemy.js?v=0.13.0';
-import { Projectile } from '../combat/projectile.js?v=0.13.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.13.0';
-import { Progression } from '../progression/progression.js?v=0.13.0';
-import { Mission } from '../missions/missions.js?v=0.13.0';
-import { WaveManager } from './wave-manager.js?v=0.13.0';
-import { updateHud } from '../ui/hud.js?v=0.13.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.13.0';
+import { Player } from '../player/player.js?v=0.14.0';
+import { Enemy } from '../enemies/enemy.js?v=0.14.0';
+import { Projectile } from '../combat/projectile.js?v=0.14.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.14.0';
+import { Progression } from '../progression/progression.js?v=0.14.0';
+import { Mission } from '../missions/missions.js?v=0.14.0';
+import { WaveManager } from './wave-manager.js?v=0.14.0';
+import { updateHud } from '../ui/hud.js?v=0.14.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.14.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.14.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -21,6 +22,7 @@ export class Game {
     this.player = new Player(this.width, this.height);
 
     this.progression = new Progression();
+    this.achievements = new AchievementTracker();
     this.mission = new Mission();
     this.waveManager = new WaveManager();
     this.enemies = [];
@@ -260,6 +262,7 @@ export class Game {
     let total = 0;
     try { total = Number(localStorage.getItem('gd-missions-completed') || 0) + 1; localStorage.setItem('gd-missions-completed', String(total)); } catch { total = completion.completionNumber; }
     const unlocked = this.progression.recordMissionCompletion(total);
+    this.achievements.record('missions');
     const toast = document.querySelector('#mission-toast');
     toast.textContent = `MISSÃO CONCLUÍDA · +${completion.xp} XP · +${completion.score} PTS`;
     this.restartFeedbackAnimation(toast, 'mission-toast-active');
@@ -405,8 +408,10 @@ export class Game {
           enemy.health = Math.max(0, enemy.health - (shot.damage ?? 1));
           if (enemy.health <= 0) {
             enemy.active = false;
-            this.score += 100;
+            this.score += enemy.type === 'boss' ? 1000 : 100;
             this.destroyed += 1;
+            this.achievements.record('kills');
+            if (enemy.type === 'boss') this.achievements.record('bosses');
             const levelsGained = this.progression.addXp(25);
             if (levelsGained > 0) this.triggerLevelUp(levelsGained);
             this.handleMissionCompletion(this.mission.registerKill());
@@ -448,6 +453,7 @@ export class Game {
 
   endGame() {
     this.status = 'gameover';
+    this.achievements.recordRun(this.score, this.waveManager.wave);
     document.querySelector('#final-score').textContent = `Pontuação: ${String(this.score).padStart(6, '0')}`;
     this.gameoverOverlay.classList.remove('hidden');
     cancelAnimationFrame(this.animationId);

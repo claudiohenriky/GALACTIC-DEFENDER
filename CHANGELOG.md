@@ -1,49 +1,35 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
-Este arquivo registra mudanças publicadas e em desenvolvimento. As versões aparecem da mais recente para a mais antiga. Uma versão marcada como **em desenvolvimento** ainda não deve ser tratada como lançamento validado.
+Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; quando falta evidência para um marco antigo, isso é informado sem inventar recursos.
 
-## [0.13.0] — Em desenvolvimento
-
-### Adicionado
-- Histórico de versões acessível pelo menu principal, com as versões mais recentes no topo.
-- Chefes como encontros especiais a cada cinco ondas. O chefe tem integridade elevada, movimento lateral e disparos direcionados.
-
-### Alterado
-- Perseguidores vermelhos passam a poder disparar a partir da onda 2.
-- O alcance mínimo dos disparos dos perseguidores foi aumentado ligeiramente e o intervalo entre disparos foi reduzido.
-
-### Validação pendente
-- Confirmar no navegador que o histórico abre e fecha corretamente em PC e mobile.
-- Confirmar a primeira onda de chefe (onda 5), seus disparos, colisões e encerramento antes de integrar a versão à `main`.
-- Testar no GitHub Pages após o merge; a alteração ainda não foi validada em execução real.
-
-## [0.12.0] — Escolhas de melhoria
+## [0.14.0] — Em desenvolvimento
 
 ### Adicionado
-- Escolha de melhoria ao subir de nível: dano da arma, velocidade da nave ou escudo com reparo parcial.
-- Suporte a múltiplas escolhas quando o jogador ganha mais de um nível ao mesmo tempo.
+- Sistema persistente de conquistas e recordes pessoais, salvo no navegador.
+- Conquistas por eliminações, chefes derrotados, missões concluídas, pontuação e ondas alcançadas.
+- Painel no menu para consultar conquistas, estatísticas e recordes.
 
-### Alterado
-- O jogo pausa enquanto uma melhoria é escolhida e retoma após concluir todas as escolhas pendentes.
+## Histórico completo
 
-## [0.11.1] — Ajuste de áudio
+- **0.13.0:** chefes a cada cinco ondas, disparos direcionados, ajuste dos perseguidores vermelhos e histórico no menu. Teste manual informado aprovado nos sete itens.
+- **0.12.0:** escolhas de melhoria ao subir de nível: dano, velocidade ou escudo/reparo; suporte a escolhas acumuladas.
+- **0.11.1:** equilíbrio do áudio e controle de volume geral persistido.
+- **0.11.0:** música e efeitos sintetizados por Web Audio API; interceptador ciano.
+- **0.10.0:** missões rotativas, recompensas de XP/pontuação e títulos de piloto.
+- **0.9.2:** manutenção de desempenho e consolidação da versão.
+- **0.9.1:** refinamento do feedback de dano e ajustes de arena/HUD.
+- **0.9.0:** HUD compacta, faíscas de dano e barras de vida dos inimigos.
+- **0.8.0:** lobby, seleção PC/mobile, configurações e inicialização mobile mais segura.
+- **0.7.0:** joystick virtual analógico com disparo separado.
+- **0.6.0:** arena mobile em paisagem, controles maiores e disparos à distância dos perseguidores.
+- **0.5.0:** preparação e documentação dos disparos à distância dos perseguidores; registros descrevem a proposta e o alinhamento dos recursos.
+- **0.4.0:** sentinela com IA de combate à distância e projéteis direcionados.
+- **0.3.1:** refinamento dos controles de toque e da arena mobile.
+- **0.3.0:** perseguição básica, arena mobile ampliada e remoção do dano automático por inimigos que escapavam pela borda.
+- **0.2.0:** primeiros controles de toque responsivos e ajustes para celular.
+- **0.1.0:** não foi localizado registro separado confiável para atribuir funcionalidades específicas.
+- **0.0.0:** marco inicial; não foi localizado registro separado que descreva recursos com segurança.
 
-### Alterado
-- Equilíbrio de volume da música e do feedback sonoro de dano.
-- Controle de volume geral nas configurações, com preferência salva localmente.
-
-## [0.11.0] — Combate e áudio
-
-### Adicionado
-- Música ambiente e efeitos sonoros sintetizados com Web Audio API.
-- Inimigo interceptador ciano, rápido e frágil, que pressiona o jogador por meio do movimento.
-
-## [0.10.0] — Missões e títulos
-
-### Adicionado
-- Missões rotativas com objetivos e níveis de dificuldade diferentes.
-- Recompensas de XP e pontuação e títulos de piloto desbloqueáveis por progresso.
-
-## Observação
-
-O histórico cobre as versões cujas mudanças estão documentadas no estado atual do projeto. Registros anteriores serão ampliados quando houver documentação verificável para eles.
+## Observações
+- Atualizar este arquivo e o histórico dentro do jogo juntos.
+- A v0.14.0 permanece em desenvolvimento até revisão do Pull Request e testes manuais da versão publicada.

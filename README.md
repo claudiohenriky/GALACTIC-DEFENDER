@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em desenvolvimento:** `0.13.0` — chefes em ondas especiais, histórico de versões e ajuste de combate dos perseguidores.
+**Versão em desenvolvimento:** `0.14.0` — conquistas persistentes, estatísticas e recordes pessoais.
 
-**Fase:** primeira implementação do sistema de missões e progressão; validação manual no GitHub Pages pendente.
+**Fase:** evolução da progressão com conquistas e recordes; testes manuais da v0.14.0 pendentes.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: teclado para movimentação, mouse para mirar e joystick virtual analógico e botão de disparo em dispositivos compatíveis. A mira por mouse foi integrada em `main` e aguarda validação manual no computador.
@@ -36,7 +36,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Mecânicas atuais
 
- > **Validação:** a v0.11.0 passou no teste manual informado; a v0.11.1 ajustou o volume do áudio e a v0.12.0 adicionou as escolhas de melhoria. A v0.13.0 ainda precisa de validação manual no navegador e no GitHub Pages após a integração. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
+ > **Validação:** a v0.11.0 passou no teste manual informado; a v0.11.1 ajustou o volume do áudio e a v0.12.0 adicionou as escolhas de melhoria. A v0.13.0 passou no teste manual informado pelo usuário nos sete itens verificados. A v0.14.0 aguarda revisão e teste manual após a publicação. Os URLs do CSS, do ponto de entrada e de cada módulo incluem o identificador da versão para evitar recursos antigos em cache.
 
 - Movimento da nave e disparo de projéteis.
 - Inimigos perseguidores avançam diretamente contra a nave; colisões causam dano à integridade.
@@ -53,6 +53,8 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Missões rotativas: eliminar inimigos, sobreviver por tempo determinado e alcançar ondas específicas, com dificuldades fácil, média e difícil.
 - Recompensas de missão em XP e pontuação; a conclusão avança para o próximo objetivo.
 - Títulos de piloto desbloqueáveis por total de missões concluídas, armazenados localmente no navegador.
+- Conquistas persistentes por eliminações, chefes derrotados, missões concluídas, pontuação e ondas alcançadas, consultáveis pelo menu principal.
+- Recordes pessoais de pontuação e maior onda, armazenados no navegador.
 - HUD compacta dentro da arena com integridade, XP, nível, onda e pontuação sempre visíveis.
 - Feedback de dano com faíscas vermelhas de baixo custo, brilho de borda discreto e animações reiniciadas sem recálculo síncrono de layout.
 - Barras compactas de vida sobre os inimigos; perseguidores resistem a dois disparos e sentinelas a cinco.
@@ -92,8 +94,12 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Histórico de versões
 
-O histórico para jogadores fica disponível no menu principal. O registro técnico completo está em [`CHANGELOG.md`](./CHANGELOG.md), com as versões mais recentes primeiro. A v0.13.0 permanece em desenvolvimento até passar pela revisão e pelos testes de jogo.
+O histórico para jogadores fica disponível no menu principal. O registro técnico completo está em [`CHANGELOG.md`](./CHANGELOG.md), com as versões mais recentes primeiro. A v0.14.0 permanece em desenvolvimento até passar pela revisão e pelos testes de jogo.
 
 ## GitHub Pages
 
 O workflow em `.github/workflows/deploy.yml` publica o conteúdo do repositório quando há push em `main`. Em **Settings → Pages**, selecione **GitHub Actions** como fonte de build, se ainda não estiver selecionada.
+
+## Histórico completo de versões
+
+Consulte o [CHANGELOG.md](./CHANGELOG.md) para o histórico documentado desde os marcos v0.0.0 e v0.1.0. Quando não há registro verificável, isso é indicado explicitamente.

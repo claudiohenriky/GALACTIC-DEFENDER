@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#070b18">
   <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.13.0">
-  <link rel="stylesheet" href="./src/ui/version-history.css?v=0.13.0">
-  <script type="module" src="./main.js?v=0.13.0"></script>
+  <link rel="stylesheet" href="./style.css?v=0.14.0">
+  <link rel="stylesheet" href="./src/ui/version-history.css?v=0.14.0">
+  <script type="module" src="./main.js?v=0.14.0"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PRÉ-ALFA · 0.13.0</span>
+      <span class="build-tag">PRÉ-ALFA · 0.14.0</span>
     </header>
 
     <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
@@ -34,6 +34,7 @@
           <button id="menu-play-button" class="primary-button menu-play" type="button">JOGAR <span>↗</span></button>
           <button id="menu-settings-button" class="secondary-button" type="button">CONFIGURAÇÕES</button>
           <button id="menu-about-button" class="text-button" type="button">SOBRE O JOGO</button>
+          <button id="menu-achievements-button" class="text-button" type="button">CONQUISTAS E RECORDES</button>
           <button id="menu-history-button" class="text-button" type="button">HISTÓRICO DE VERSÕES</button>
         </div>
       </div>
@@ -51,18 +52,39 @@
       <section id="about-panel" class="menu-panel hidden" aria-labelledby="about-title">
         <div class="panel-heading"><div><p class="eyebrow">SOBRE O PROJETO</p><h2 id="about-title">Construído para evoluir</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar informações">×</button></div>
         <p class="menu-description">GALACTIC-DEFENDER é um jogo de ação espacial para navegador, desenvolvido com HTML, CSS e JavaScript, sem frameworks externos.</p>
-        <p class="menu-note">Versão 0.13.0 · Missões, áudio sintetizado e novos inimigos em desenvolvimento · Créditos e documentação serão ampliados durante a preparação da versão estável.</p>
+        <p class="menu-note">Versão 0.14.0 · Missões, áudio sintetizado e novos inimigos em desenvolvimento · Créditos e documentação serão ampliados durante a preparação da versão estável.</p>
         <button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button>
+      </section>
+      <section id="achievements-panel" class="menu-panel achievements-panel hidden" aria-labelledby="achievements-title">
+        <div class="panel-heading"><div><p class="eyebrow">PROGRESSO DO PILOTO</p><h2 id="achievements-title">Conquistas e recordes</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar conquistas e recordes">×</button></div>
+        <p class="menu-description">Conquistas desbloqueadas e melhores resultados ficam salvos neste navegador.</p>
+        <div id="achievement-summary" class="achievement-summary" aria-live="polite"></div>
+        <div id="achievements-list" class="achievements-list"></div>
+        <div class="panel-actions"><button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button></div>
       </section>
       <section id="version-history-panel" class="menu-panel version-history-panel hidden" aria-labelledby="version-history-title">
         <div class="panel-heading"><div><p class="eyebrow">REGISTRO DE DESENVOLVIMENTO</p><h2 id="version-history-title">Histórico de versões</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar histórico de versões">×</button></div>
         <p class="menu-description">Novidades, ajustes e correções do GALACTIC-DEFENDER, da versão mais recente para a mais antiga.</p>
         <div id="version-history-list" class="version-history-list">
-          <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.13.0</strong><span>EM DESENVOLVIMENTO</span></div><ul><li>Preparação de chefes e ondas especiais.</li><li>Ajuste dos perseguidores vermelhos para começar a atirar a partir da onda 2, com alcance um pouco maior e intervalo menor entre disparos.</li><li>Adição do histórico de versões acessível pelo menu principal.</li></ul></article>
-          <article class="version-entry"><div class="version-entry-heading"><strong>v0.12.0</strong><span>PROGRESSÃO</span></div><ul><li>Ao subir de nível, escolha uma melhoria: dano, velocidade ou escudo com reparo parcial.</li><li>Escolhas acumuladas são apresentadas uma por vez; a progressão continua após as escolhas.</li></ul></article>
-          <article class="version-entry"><div class="version-entry-heading"><strong>v0.11.1</strong><span>ÁUDIO</span></div><ul><li>Melhoria no equilíbrio do volume da música e do feedback sonoro de dano.</li><li>Controle de volume geral nas configurações, com preferência salva no navegador.</li></ul></article>
-          <article class="version-entry"><div class="version-entry-heading"><strong>v0.11.0</strong><span>COMBATE E ÁUDIO</span></div><ul><li>Adição de música e efeitos sonoros sintetizados com Web Audio API.</li><li>Adição do interceptador ciano: rápido, frágil e focado em pressionar o jogador pelo movimento.</li></ul></article>
-          <article class="version-entry"><div class="version-entry-heading"><strong>v0.10.0</strong><span>MISSÕES</span></div><ul><li>Missões rotativas com diferentes objetivos e níveis de dificuldade.</li><li>Recompensas de XP e pontuação, além de títulos desbloqueáveis para o piloto.</li></ul></article>
+          <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.14.0</strong><span>EM DESENVOLVIMENTO</span></div><ul><li>Conquistas persistentes e recordes pessoais.</li><li>Registro de eliminações, chefes, missões, melhor pontuação e maior onda alcançada.</li><li>Histórico ampliado desde as primeiras versões documentadas.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.13.0</strong><span>CHEFES E ONDAS ESPECIAIS</span></div><ul><li>Chefes a cada cinco ondas, com mais integridade, movimento lateral e disparos direcionados.</li><li>Perseguidores vermelhos podem atirar a partir da onda 2, com maior alcance e intervalo menor.</li><li>Histórico no menu principal; teste manual informado passou nos sete itens.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.12.0</strong><span>PROGRESSÃO</span></div><ul><li>Escolhas de melhoria ao subir de nível: dano, velocidade ou escudo com reparo parcial.</li><li>Suporte a escolhas acumuladas.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.11.1</strong><span>ÁUDIO</span></div><ul><li>Equilíbrio do volume e controle geral de áudio salvo localmente.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.11.0</strong><span>COMBATE E ÁUDIO</span></div><ul><li>Música e efeitos sintetizados por Web Audio API; interceptador ciano.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.10.0</strong><span>MISSÕES E TÍTULOS</span></div><ul><li>Missões rotativas, recompensas de XP/pontuação e títulos desbloqueáveis.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.9.2</strong><span>MANUTENÇÃO</span></div><ul><li>Manutenção de desempenho e consolidação da versão.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.9.1</strong><span>AJUSTES</span></div><ul><li>Refinamento do feedback de dano e ajustes de arena/HUD.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.9.0</strong><span>COMBATE E HUD</span></div><ul><li>HUD compacta, faíscas de dano e barras de vida dos inimigos.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.8.0</strong><span>MENU E PLATAFORMA</span></div><ul><li>Lobby, seleção PC/mobile, configurações e inicialização mobile mais segura.</li><li>Primeira onda mais lenta e proteção temporária ao surgir.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.7.0</strong><span>CONTROLES MOBILE</span></div><ul><li>Joystick virtual analógico com disparo separado.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.6.0</strong><span>COMBATE MOBILE</span></div><ul><li>Arena em paisagem, controles maiores e perseguidores com disparos à distância.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.5.0</strong><span>AJUSTES DE COMBATE</span></div><ul><li>Preparação e documentação dos disparos à distância dos perseguidores; registro de release menos detalhado.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.4.0</strong><span>INIMIGO SENTINELA</span></div><ul><li>Sentinela com IA à distância e projéteis direcionados.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.3.1</strong><span>AJUSTES MOBILE</span></div><ul><li>Alvos de toque maiores e melhorias na arena mobile.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.3.0</strong><span>MOVIMENTO INIMIGO</span></div><ul><li>Perseguição básica, arena ampliada e remoção do dano automático por fuga pela borda.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.2.0</strong><span>CONTROLES MOBILE</span></div><ul><li>Primeiros controles de toque responsivos e ajustes para celular.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.1.0</strong><span>REGISTRO INICIAL</span></div><ul><li>Não foi localizado um registro separado confiável para atribuir funcionalidades específicas a esta versão.</li></ul></article>
+          <article class="version-entry"><div class="version-entry-heading"><strong>v0.0.0</strong><span>INÍCIO DO PROJETO</span></div><ul><li>Marco inicial; não foi localizado registro separado que descreva recursos com segurança.</li></ul></article>
         </div>
         <p class="menu-note">O histórico será atualizado a cada versão. Versões antigas ficam disponíveis abaixo das mais recentes.</p>
         <div class="panel-actions"><button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button></div>
