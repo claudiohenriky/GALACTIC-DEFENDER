@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em desenvolvimento:** `0.14.0` — conquistas persistentes, estatísticas e recordes pessoais.
+**Versão em desenvolvimento:** `0.15.0` — polimento de interface, acessibilidade por teclado e consistência do histórico/cache.
 
-**Fase:** evolução da progressão com conquistas e recordes; testes manuais da v0.14.0 pendentes.
+**Fase:** polimento pré-alfa. A v0.14.0 foi validada pelo usuário; a v0.15.0 aguarda revisão e teste no computador e no celular.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: teclado para movimentação, mouse para mirar e joystick virtual analógico e botão de disparo em dispositivos compatíveis. A mira por mouse foi integrada em `main` e aguarda validação manual no computador.
@@ -94,7 +94,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Histórico de versões
 
-O histórico para jogadores fica disponível no menu principal. O registro técnico completo está em [`CHANGELOG.md`](./CHANGELOG.md), com as versões mais recentes primeiro. A v0.14.0 permanece em desenvolvimento até passar pela revisão e pelos testes de jogo.
+O histórico para jogadores fica disponível no menu principal. O registro técnico completo está em [`CHANGELOG.md`](./CHANGELOG.md), com as versões mais recentes primeiro. A v0.14.0 foi validada pelo usuário. A v0.15.0 aguarda revisão e teste manual após a publicação.
 
 ## GitHub Pages
 
