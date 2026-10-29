@@ -101,12 +101,12 @@ export class Enemy {
       }
       if (bestThreat && this.dodgeCooldown <= 0) {
         this.dodgeDirection = bestThreat.x >= 0 ? -1 : 1;
-        this.dodgeTimer = this.type === 'boss' ? 0.22 : 0.38;
+        this.dodgeTimer = this.type === 'boss' ? 0.26 : 0.48;
         this.dodgeCooldown = this.type === 'boss' ? 1.8 : this.type === 'artillery' ? 1.25 : 0.95;
       }
     }
     const dodgeStrength = this.dodgeTimer > 0
-      ? (this.type === 'sentinel' ? 82 : this.type === 'artillery' ? 62 : this.type === 'boss' ? 28 : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'boss' ? 0.22 : 0.38))
+      ? (this.type === 'sentinel' ? 132 : this.type === 'artillery' ? 104 : this.type === 'boss' ? 42 : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'boss' ? 0.26 : 0.48))
       : 0;
 
     if (this.type === 'boss') {
@@ -122,7 +122,7 @@ export class Enemy {
       // Bosses advance into the arena, then sweep across a broad horizontal lane.
       // Steering toward a sinusoidal destination avoids the old edge-to-edge velocity oscillation.
       const horizontalRange = Math.max(0, width * (this.bossPhase === 3 ? 0.36 : 0.32));
-      const desiredX = width / 2 + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange + dodgeStrength;
+      const desiredX = width / 2 + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange;
       const desiredY = Math.max(58, Math.min(targetY - Math.max(90, height * 0.18), height * 0.52));
       this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 1.65 : 1.35));
       this.y += (desiredY - this.y) * Math.min(1, dt * 1.1);
@@ -235,6 +235,9 @@ export class Enemy {
         };
       }
     }
+
+    // Apply lateral dodge after normal steering so it produces a meaningful curved displacement.
+    if (dodgeStrength !== 0) this.x += dodgeStrength * dt;
 
     // Keep enemies in the arena so reaching an edge never deals automatic damage.
     this.x = Math.max(this.radius, Math.min(width - this.radius, this.x));

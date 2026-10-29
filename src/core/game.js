@@ -1,5 +1,5 @@
 import { Player } from '../player/player.js?v=0.35.0';
-import { Enemy } from '../enemies/enemy.js?v=0.37.0';
+import { Enemy } from '../enemies/enemy.js?v=0.38.0';
 import { Projectile } from '../combat/projectile.js?v=0.35.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.35.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.35.0';
@@ -1159,6 +1159,44 @@ export class Game {
         gameAudio.playEnemyShot(shots[0].color);
       }
     });
+
+    // Soft local separation prevents hostile ships from stacking while preserving their current tactics.
+    for (let i = 0; i < this.enemies.length; i += 1) {
+      const first = this.enemies[i];
+      if (!first.active) continue;
+      for (let j = i + 1; j < this.enemies.length; j += 1) {
+        const second = this.enemies[j];
+        if (!second.active) continue;
+        let dx = second.x - first.x;
+        let dy = second.y - first.y;
+        let distanceSquared = dx * dx + dy * dy;
+        const minimumDistance = first.radius + second.radius + 4;
+        if (distanceSquared >= minimumDistance * minimumDistance) continue;
+        if (distanceSquared < 0.01) {
+          const angle = first.phase - second.phase || 0.5;
+          dx = Math.cos(angle);
+          dy = Math.sin(angle);
+          distanceSquared = 1;
+        }
+        const distance = Math.sqrt(distanceSquared);
+        const overlap = minimumDistance - distance;
+        const separation = Math.min(3.5, overlap * 0.32);
+        const totalRadius = Math.max(1, first.radius + second.radius);
+        const firstShare = second.radius / totalRadius;
+        const secondShare = first.radius / totalRadius;
+        const pushX = dx / distance * separation;
+        const pushY = dy / distance * separation;
+        first.x -= pushX * firstShare;
+        first.y -= pushY * firstShare;
+        second.x += pushX * secondShare;
+        second.y += pushY * secondShare;
+        first.x = Math.max(first.radius, Math.min(this.width - first.radius, first.x));
+        first.y = Math.max(first.radius, Math.min(this.height - first.radius, first.y));
+        second.x = Math.max(second.radius, Math.min(this.width - second.radius, second.x));
+        second.y = Math.max(second.radius, Math.min(this.height - second.radius, second.y));
+      }
+    }
+
     this.updateShieldThreats(dt);
 
     // Resolve projectile hits once, awarding score, XP, and mission progress.

@@ -1,3 +1,10 @@
+## [0.38.0] — Esquivas mais legíveis e separação entre inimigos
+
+- Aumenta moderadamente o deslocamento lateral de esquiva para sentinelas, artilheiros e chefe; mantém janelas curtas e recargas por classe, sem invulnerabilidade.
+- Adiciona separação suave entre inimigos próximos para reduzir a sobreposição de cascos, distribuindo o deslocamento conforme o tamanho relativo das unidades.
+- Preserva os padrões de mira, disparos, vida, dano e surgimento das classes.
+- Candidata para teste manual; ainda não validada em jogo real nem mesclada em `main`.
+
 ## [0.37.0] — Percepção de projéteis e esquivas limitadas
 
 - A IA de sentinelas, artilheiros e chefes estima a aproximação de projéteis do jogador com velocidade relativa e distância prevista de maior aproximação.
