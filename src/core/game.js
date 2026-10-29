@@ -621,15 +621,19 @@ export class Game {
     if (!button) return;
     const unlocked = this.player.guidedMissileLevel > 0;
     this.player.guidedMissileCooldown = this.guidedMissileCooldown;
+    const ready = this.guidedMissileCooldown <= 0 && this.overloadLockTimer <= 0;
     button.classList.toggle('hidden', !unlocked);
-    button.disabled = !unlocked || this.status !== 'running' || this.guidedMissileCooldown > 0;
+    button.disabled = !unlocked || this.status !== 'running' || !ready;
     const label = document.querySelector('#guided-missile-status');
     const fill = document.querySelector('#guided-missile-cooldown-fill');
-    const ready = this.guidedMissileCooldown <= 0;
-    const statusText = this.status !== 'running' ? 'DISPONÍVEL NA PARTIDA' : ready ? 'PRONTO · TOQUE / E' : 'RECARGA · ' + Math.ceil(this.guidedMissileCooldown) + 's';
+    const statusText = this.status !== 'running' ? 'DISPONÍVEL NA PARTIDA'
+      : this.overloadLockTimer > 0 ? 'SISTEMA SOBRECARREGADO'
+      : this.guidedMissileCooldown > 0 ? 'RECARGA · ' + Math.ceil(this.guidedMissileCooldown) + 's'
+      : this.overload >= 70 ? 'POTÊNCIA REDUZIDA · E'
+      : 'PRONTO · TOQUE / E';
     if (label && label.textContent !== statusText) label.textContent = statusText;
-    if (fill) fill.style.width = ready ? '0%' : (Math.min(1, this.guidedMissileCooldown / this.guidedMissileCooldownMax) * 100) + '%';
-    button.setAttribute('aria-label', ready ? 'Ativar mísseis teleguiados' : 'Mísseis teleguiados em recarga');
+    if (fill) fill.style.width = this.guidedMissileCooldown <= 0 ? '0%' : (Math.min(1, this.guidedMissileCooldown / this.guidedMissileCooldownMax) * 100) + '%';
+    button.setAttribute('aria-label', ready ? 'Ativar mísseis teleguiados' : 'Mísseis teleguiados indisponíveis');
   }
 
   explodeGuidedMissile(missile) {
@@ -642,6 +646,34 @@ export class Game {
       const dx = enemy.x - missile.x, dy = enemy.y - missile.y;
       if (dx * dx + dy * dy <= radiusSquared) {
         this.damageEnemy(enemy, enemy === missile.target ? missile.damage : missile.damage * 0.7);
+      }
+    }
+
+    // Level 3 splits into three weaker, short-lived fragments; fragments cannot split again.
+    if (missile.level >= 3 && this.guidedMissiles.length < 6) {
+      const targets = [];
+      for (const enemy of this.enemies) {
+        if (!enemy.active) continue;
+        const dx = enemy.x - missile.x, dy = enemy.y - missile.y;
+        const distance = dx * dx + dy * dy;
+        let insertAt = targets.findIndex((item) => distance < item.distance);
+        if (insertAt < 0) insertAt = targets.length;
+        if (insertAt < 3) targets.splice(insertAt, 0, { enemy, distance });
+        if (targets.length > 3) targets.pop();
+      }
+      for (let index = 0; index < 3 && this.guidedMissiles.length < 6; index += 1) {
+        const angle = -Math.PI / 2 + index * (Math.PI * 2 / 3);
+        const target = targets[index]?.enemy || null;
+        const fragment = new GuidedMissile(
+          missile.x + Math.cos(angle) * 12,
+          missile.y + Math.sin(angle) * 12,
+          target, 1, angle, index - 1
+        );
+        fragment.damage = missile.damage * 0.38;
+        fragment.blastRadius = 28;
+        fragment.speed = 275;
+        fragment.life = 2.2;
+        this.guidedMissiles.push(fragment);
       }
     }
   }
