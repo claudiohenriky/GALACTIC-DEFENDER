@@ -1,4 +1,4 @@
-# Arquitetura inicial
+# Arquitetura do GALACTIC-DEFENDER
 
 O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 
@@ -40,6 +40,14 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - A HUD HTML atualiza no máximo a cada 100 ms durante a partida e evita reescrever texto ou largura quando os valores não mudaram.
 - Brilhos de nave, inimigos e projéteis foram reduzidos; a chama da nave usa uma oscilação determinística em vez de gerar aleatoriedade a cada quadro.
 - Essas mudanças são hipóteses de otimização e precisam ser verificadas em dispositivos reais; não representam garantia universal de FPS.
+
+## Auditoria de desempenho — v0.18.0
+
+- O ciclo principal permanece em `src/core/game.js`; a reestruturação deve ocorrer em etapas, sem reescrita integral nem mudança de comportamento não planejada.
+- As verificações de colisão usam comparações de distância ao quadrado quando só precisam saber se dois objetos estão dentro de um raio combinado. Isso evita raízes quadradas em verificações frequentes sem alterar o critério geométrico pretendido.
+- A seleção da mira automática compara distâncias ao quadrado, pois a ordenação das distâncias é a mesma sem calcular a raiz quadrada.
+- A mudança reduz operações matemáticas, mas não prova, por si só, melhoria perceptível de FPS. A validação de desempenho depende de medição e de teste em dispositivos reais.
+- O próximo alvo de auditoria é o custo de atualização/remoção de listas de projéteis, inimigos e partículas e a separação das responsabilidades do ciclo principal. Mudanças nesses pontos devem ser feitas separadamente para facilitar a identificação de regressões.
 
 ## Próximas validações
 
