@@ -1,3 +1,15 @@
+## Candidata v0.37.0 — Percepção de projéteis e esquivas limitadas
+- [x] Prever o ponto de maior aproximação de projéteis usando velocidade relativa.
+- [x] Reações curtas e com recarga para sentinelas, artilheiros e chefe.
+- [x] Preservar dano, vida, cadência e regras de colisão.
+- [ ] Testar se as esquivas são legíveis, não excessivas e não deixam a IA difícil demais.
+- [ ] Verificar desempenho no celular e no computador, inclusive com muitos projéteis.
+- [ ] Investigar o relato de ausência da tropa roxa em uma etapa separada, identificando primeiro em quais ondas/classes ela deve aparecer.
+
+## Próxima etapa proposta
+- Cooperação tática entre guardião e sentinela: bloqueio/proteção e reposicionamento coordenado, separada da percepção de projéteis.
+- Balanceamento independente do Laser Contínuo: preparação visível, deslocamento visual do feixe, sobrecarga efetiva e Attack Clash reservado a ataques especiais.
+
 ## Candidata v0.36.0 — Fundação da IA inimiga
 - [x] Separar orientação visual da direção do movimento para sentinelas, artilheiros e chefe.
 - [x] Permitir que unidades de combate à distância mantenham o armamento apontado ao jogador durante reposicionamento.

@@ -1,3 +1,10 @@
+## [0.37.0] — Percepção de projéteis e esquivas limitadas
+
+- A IA de sentinelas, artilheiros e chefes estima a aproximação de projéteis do jogador com velocidade relativa e distância prevista de maior aproximação.
+- Introduz esquivas curtas com intensidade e intervalo de reação específicos por classe; os inimigos não ficam invulneráveis e não reagem a todos os disparos.
+- A lógica recebe os projéteis ativos já existentes e não altera dano, vida, cadência de disparo nem regras de colisão.
+- Candidata experimental: requer validação manual de comportamento, dificuldade, fluidez e regressões. Não mesclada em `main`.
+
 ## [0.36.0] — Fundação da IA: orientação tática
 
 - Separa a orientação visual da nave da direção do movimento para sentinelas, artilheiros e chefe.
