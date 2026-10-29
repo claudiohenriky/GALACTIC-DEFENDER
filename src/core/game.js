@@ -1,5 +1,5 @@
 import { Player } from '../player/player.js?v=0.35.0';
-import { Enemy } from '../enemies/enemy.js?v=0.35.0';
+import { Enemy } from '../enemies/enemy.js?v=0.36.0';
 import { Projectile } from '../combat/projectile.js?v=0.35.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.35.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.35.0';

@@ -25,6 +25,8 @@ export class Enemy {
     this.velocityX = 0;
     this.velocityY = 0;
     this.rotation = Math.PI / 2;
+    // Visual facing is separated from movement direction for ranged units that strafe or retreat while aiming.
+    this.facingRotation = this.rotation;
     this.bank = 0;
     this.thrust = 0;
     this.lateralThrust = 0;
@@ -198,6 +200,19 @@ export class Enemy {
     this.x = Math.max(this.radius, Math.min(width - this.radius, this.x));
     this.y = Math.max(this.radius, Math.min(height - this.radius, this.y));
     this.updateMotionFeedback(dt, previousX, previousY);
+
+    // Ranged classes keep their weapons oriented toward the pilot while repositioning.
+    // Movement rotation still drives the motion feedback; facing rotation drives the hull.
+    if (this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') {
+      const desiredFacing = Math.atan2(targetY - this.y, targetX - this.x);
+      const facingDelta = Math.atan2(
+        Math.sin(desiredFacing - this.facingRotation),
+        Math.cos(desiredFacing - this.facingRotation)
+      );
+      this.facingRotation += facingDelta * Math.min(1, dt * (this.type === 'boss' ? 3.2 : 4.5));
+    } else {
+      this.facingRotation = this.rotation;
+    }
     return shot;
   }
 
@@ -221,7 +236,7 @@ export class Enemy {
       ctx.stroke();
       ctx.globalAlpha = 1;
     }
-    ctx.rotate(this.rotation + Math.PI / 2);
+    ctx.rotate(this.facingRotation + Math.PI / 2);
     // A little squash-and-stretch plus stronger shear gives enemy hulls the player's elastic turn cue.
     ctx.transform(
       1 + this.lateralThrust * 0.10 - Math.abs(this.bank) * 0.05,
