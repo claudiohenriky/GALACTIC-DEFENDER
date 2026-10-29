@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.16.0';
-import { Enemy } from '../enemies/enemy.js?v=0.16.0';
-import { Projectile } from '../combat/projectile.js?v=0.16.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.16.0';
-import { Progression } from '../progression/progression.js?v=0.16.0';
-import { Mission } from '../missions/missions.js?v=0.16.0';
-import { WaveManager } from './wave-manager.js?v=0.16.0';
-import { updateHud } from '../ui/hud.js?v=0.16.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.16.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.16.0';
+import { Player } from '../player/player.js?v=0.16.1';
+import { Enemy } from '../enemies/enemy.js?v=0.16.1';
+import { Projectile } from '../combat/projectile.js?v=0.16.1';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.16.1';
+import { Progression } from '../progression/progression.js?v=0.16.1';
+import { Mission } from '../missions/missions.js?v=0.16.1';
+import { WaveManager } from './wave-manager.js?v=0.16.1';
+import { updateHud } from '../ui/hud.js?v=0.16.1';
+import { gameAudio } from '../audio/game-audio.js?v=0.16.1';
+import { AchievementTracker } from '../progression/achievements.js?v=0.16.1';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -47,6 +47,7 @@ export class Game {
     this.animationId = 0;
     this.levelUpParticles = [];
     this.damageSparks = [];
+    this.shieldBreakEffects = [];
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
     this.pendingUpgradeChoices = [];
@@ -154,6 +155,7 @@ export class Game {
     this.shotClock = 0;
     this.levelUpParticles = [];
     this.damageSparks = [];
+    this.shieldBreakEffects = [];
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
     this.pendingUpgradeChoices = [];
@@ -249,7 +251,7 @@ export class Game {
     const specials = [
       { type: 'doubleShot', icon: '✣', title: 'Tiro múltiplo', description: 'Adiciona projéteis laterais', category: 'HABILIDADE ESPECIAL' },
       { type: 'laser', icon: 'ϟ', title: 'Laser perfurante', description: 'Projéteis atravessam inimigos', category: 'HABILIDADE ESPECIAL' },
-      { type: 'shield', icon: '◈', title: 'Escudo de energia', description: 'Bloqueia um impacto adicional', category: 'HABILIDADE ESPECIAL' },
+      { type: 'shield', icon: '◈', title: 'Escudo de energia', description: 'Barreira regenerativa com explosão ao quebrar', category: 'HABILIDADE ESPECIAL' },
       { type: 'repair', icon: '✚', title: 'Reparo de emergência', description: 'Recupera 30% da integridade máxima', category: 'HABILIDADE ESPECIAL' }
     ];
     const options = [...(current.category === 'special' ? specials : attributes)];
@@ -280,7 +282,7 @@ export class Game {
     if (type === 'integrity') this.player.maxHealth = Math.min(this.player.baseMaxHealth * 1.6, this.player.maxHealth * 1.10);
     if (type === 'doubleShot') this.player.doubleShotLevel = Math.min(2, this.player.doubleShotLevel + 1);
     if (type === 'laser') this.player.laserLevel = Math.min(3, this.player.laserLevel + 1);
-    if (type === 'shield') this.player.shieldCharges = Math.min(3, this.player.shieldCharges + 1);
+    if (type === 'shield') this.player.upgradeShield();
     if (type === 'repair') this.player.health = Math.min(this.player.maxHealth, this.player.health + this.player.maxHealth * 0.30);
     this.pendingUpgradeChoices.shift();
     updateHud(this);
@@ -331,6 +333,90 @@ export class Game {
     const feedback = document.querySelector('#damage-feedback');
     feedback.textContent = `INTEGRIDADE -${amount}`;
     this.restartFeedbackAnimation(feedback, 'damage-active');
+  }
+
+  resolveIncomingDamage(amount) {
+    const shieldBefore = this.player.shieldHealth;
+    const tookDamage = this.player.takeDamage(amount);
+    if (shieldBefore > 0 && this.player.shieldHealth === 0) {
+      this.triggerShieldBreak();
+    } else if (tookDamage) {
+      this.triggerDamageFeedback(amount);
+      gameAudio.playDamage();
+    }
+  }
+
+  triggerShieldBreak() {
+    const x = this.player.x;
+    const y = this.player.y;
+    const radius = 96;
+    const life = 0.58;
+    this.shieldBreakEffects.push({ x, y, radius, life, maxLife: life });
+    // Two damage clears fragile hostiles but does not instantly defeat a boss.
+    for (const enemy of this.enemies) {
+      if (enemy.active && Math.hypot(enemy.x - x, enemy.y - y) <= radius) {
+        this.damageEnemy(enemy, 2);
+      }
+    }
+  }
+
+  damageEnemy(enemy, amount) {
+    if (!enemy.active) return;
+    enemy.health = Math.max(0, enemy.health - amount);
+    if (enemy.health > 0) return;
+    enemy.active = false;
+    this.score += enemy.type === 'boss' ? 1000 : 100;
+    this.destroyed += 1;
+    this.achievements.record('kills');
+    if (enemy.type === 'boss') this.achievements.record('bosses');
+    const levelsGained = this.progression.addXp(25);
+    if (levelsGained > 0) this.triggerLevelUp(levelsGained);
+    this.handleMissionCompletion(this.mission.registerKill());
+  }
+
+  drawShield(ctx) {
+    const player = this.player;
+    if (player.shieldLevel <= 0) return;
+    const ratio = player.shieldMaxHealth > 0 ? player.shieldHealth / player.shieldMaxHealth : 0;
+    if (player.shieldHealth > 0) {
+      const pulse = 1 + Math.sin(player.flamePhase * 4) * 0.025;
+      ctx.save();
+      ctx.translate(player.x, player.y);
+      ctx.scale(pulse, pulse);
+      ctx.shadowBlur = 13;
+      ctx.shadowColor = '#43bfff';
+      ctx.strokeStyle = '#79dcff';
+      ctx.globalAlpha = 0.78 + Math.sin(player.flamePhase * 5) * 0.12;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 23, 27, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 0.22;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 27, 31, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    const barWidth = 38;
+    const barHeight = 4;
+    let barY = player.y - 35;
+    if (barY < 8) barY = player.y + 34;
+    const barX = player.x - barWidth / 2;
+    ctx.save();
+    ctx.fillStyle = '#071526';
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+    ctx.strokeStyle = '#69cfff';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(barX, barY, barWidth, barHeight);
+    ctx.fillStyle = ratio > 0.34 ? '#4acbff' : '#ffbd69';
+    ctx.fillRect(barX + 1, barY + 1, Math.max(0, (barWidth - 2) * ratio), barHeight - 2);
+    ctx.font = '7px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#c9f0ff';
+    ctx.fillText(player.shieldHealth > 0 ? 'ESCUDO' : `RECARGA ${Math.ceil(player.shieldRechargeTimer)}s`, player.x, barY - 3);
+    ctx.restore();
   }
 
   setAimFromPointer(event) {
@@ -396,6 +482,8 @@ export class Game {
       spark.life -= dt;
     });
     this.damageSparks = this.damageSparks.filter((spark) => spark.life > 0);
+    this.shieldBreakEffects.forEach((effect) => { effect.life -= dt; });
+    this.shieldBreakEffects = this.shieldBreakEffects.filter((effect) => effect.life > 0);
     this.levelUpParticles.forEach((particle) => {
       particle.x += particle.vx * dt;
       particle.y += particle.vy * dt;
@@ -454,17 +542,7 @@ export class Game {
         if (enemy.active && !shot.hitEnemies.has(enemy) && Math.hypot(shot.x - enemy.x, shot.y - enemy.y) < enemy.radius + shot.radius) {
           shot.hitEnemies.add(enemy);
           if (!shot.piercing) shot.active = false;
-          enemy.health = Math.max(0, enemy.health - (shot.damage ?? 1));
-          if (enemy.health <= 0) {
-            enemy.active = false;
-            this.score += enemy.type === 'boss' ? 1000 : 100;
-            this.destroyed += 1;
-            this.achievements.record('kills');
-            if (enemy.type === 'boss') this.achievements.record('bosses');
-            const levelsGained = this.progression.addXp(25);
-            if (levelsGained > 0) this.triggerLevelUp(levelsGained);
-            this.handleMissionCompletion(this.mission.registerKill());
-          }
+          this.damageEnemy(enemy, shot.damage ?? 1);
           if (!shot.piercing) break;
         }
       }
@@ -475,7 +553,7 @@ export class Game {
       if (!enemy.active) continue;
       if (Math.hypot(this.player.x - enemy.x, this.player.y - enemy.y) < enemy.radius + this.player.radius) {
         enemy.active = false;
-        if (this.player.takeDamage(18)) { this.triggerDamageFeedback(18); gameAudio.playDamage(); }
+        this.resolveIncomingDamage(18);
       }
     }
 
@@ -484,7 +562,7 @@ export class Game {
       if (!shot.active) continue;
       if (Math.hypot(this.player.x - shot.x, this.player.y - shot.y) < this.player.radius + shot.radius) {
         shot.active = false;
-        if (this.player.takeDamage(shot.damage)) { this.triggerDamageFeedback(shot.damage); gameAudio.playDamage(); }
+        this.resolveIncomingDamage(shot.damage);
       }
     }
 
@@ -530,7 +608,23 @@ export class Game {
     // Blink during the brief invulnerability window after taking damage.
     const playerVisible = this.player.invulnerabilityTimer <= 0 ||
       Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
+    this.drawShield(ctx);
     this.player.draw(ctx, playerVisible);
+
+    // Shield-break shockwaves expand briefly and fade without blocking the arena.
+    this.shieldBreakEffects.forEach((effect) => {
+      const progress = 1 - effect.life / effect.maxLife;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, effect.life / effect.maxLife) * 0.8;
+      ctx.strokeStyle = '#67d8ff';
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = '#38aaff';
+      ctx.lineWidth = 3 * (1 - progress) + 1;
+      ctx.beginPath();
+      ctx.arc(effect.x, effect.y, effect.radius * progress, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    });
 
     // Red circuit sparks and a brief edge flash make incoming damage easier to notice.
     this.damageSparks.forEach((spark) => {
