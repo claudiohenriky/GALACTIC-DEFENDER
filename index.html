@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#070b18">
   <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.16.2">
-  <link rel="stylesheet" href="./src/ui/version-history.css?v=0.16.2">
-  <script type="module" src="./main.js?v=0.16.2"></script>
+  <link rel="stylesheet" href="./style.css?v=0.17.0">
+  <link rel="stylesheet" href="./src/ui/version-history.css?v=0.17.0">
+  <script type="module" src="./main.js?v=0.17.0"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PRÉ-ALFA · 0.16.2</span>
+      <span class="build-tag">PRÉ-ALFA · 0.17.0</span>
     </header>
 
     <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
@@ -52,7 +52,7 @@
       <section id="about-panel" class="menu-panel hidden" aria-labelledby="about-title">
         <div class="panel-heading"><div><p class="eyebrow">SOBRE O PROJETO</p><h2 id="about-title">Construído para evoluir</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar informações">×</button></div>
         <p class="menu-description">GALACTIC-DEFENDER é um jogo de ação espacial para navegador, desenvolvido com HTML, CSS e JavaScript, sem frameworks externos.</p>
-        <p class="menu-note">Versão 0.16.2 · Efeitos do escudo refinados e renderização otimizada.</p>
+        <p class="menu-note">Versão 0.17.0 · Rotação de 360°, movimento relativo e mira automática (em desenvolvimento).</p>
         <button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button>
       </section>
       <section id="achievements-panel" class="menu-panel achievements-panel hidden" aria-labelledby="achievements-title">
@@ -66,7 +66,7 @@
         <div class="panel-heading"><div><p class="eyebrow">REGISTRO DE DESENVOLVIMENTO</p><h2 id="version-history-title">Histórico de versões</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar histórico de versões">×</button></div>
         <p class="menu-description">Novidades, ajustes e correções do GALACTIC-DEFENDER, da versão mais recente para a mais antiga.</p>
         <div id="version-history-list" class="version-history-list">
-          <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.16.2</strong><span>DESEMPENHO DO ESCUDO</span></div><ul><li>Remove desfoque de sombra por quadro da barreira e da onda de energia para reduzir o custo de renderização em celulares.</li><li>Refina a barreira com preenchimento translúcido, contorno interno e mudança de cor quando a integridade está baixa.</li><li>A quebra usa duas ondas simples, mantendo o dano em área e a recarga automática.</li><li>Aguardando novo teste manual de fluidez no celular.</li></ul></article><article class="version-entry"><div class="version-entry-heading"><strong>v0.16.1</strong><span>ESCUDO REGENERATIVO</span></div><ul><li>Barreira de energia visível ao redor da nave, com barra de integridade.</li><li>Ao quebrar, libera uma onda de energia que causa dano a inimigos próximos.</li><li>Recarga automática após aproximadamente 7 segundos.</li></ul></article>
+          <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.17.0</strong><span>ROTAÇÃO E MIRA (EM DESENVOLVIMENTO)</span></div><ul><li>Rotação suave da nave em 360° para acompanhar a direção da mira.</li><li>No PC, WASD/setas com movimento relativo à orientação da nave; mouse para mirar e botão direito ou Espaço para disparar.</li><li>No mobile, joystick analógico e mira automática no inimigo ativo mais próximo.</li><li>Versão candidata: aguardando validação manual em computador e celular.</li></ul></article><article class="version-entry"><div class="version-entry-heading"><strong>v0.16.2</strong><span>DESEMPENHO DO ESCUDO</span></div><ul><li>Remove desfoque de sombra por quadro da barreira e da onda de energia para reduzir o custo de renderização em celulares.</li><li>Refina a barreira com preenchimento translúcido, contorno interno e mudança de cor quando a integridade está baixa.</li><li>A quebra usa duas ondas simples, mantendo o dano em área e a recarga automática.</li><li>Teste manual no celular aprovado pelo usuário: 6/6 itens passaram, incluindo fluidez e regressão das mecânicas.</li></ul></article><article class="version-entry"><div class="version-entry-heading"><strong>v0.16.1</strong><span>ESCUDO REGENERATIVO</span></div><ul><li>Barreira de energia visível ao redor da nave, com barra de integridade.</li><li>Ao quebrar, libera uma onda de energia que causa dano a inimigos próximos.</li><li>Recarga automática após aproximadamente 7 segundos.</li></ul></article>
           <article class="version-entry"><div class="version-entry-heading"><strong>v0.16.0</strong><span>PROGRESSÃO EM CARTAS</span></div><ul><li>Melhorias apresentadas em três cartas animadas; apenas uma pode ser escolhida por seleção.</li><li>Melhorias de atributos usam percentuais; habilidades especiais aparecem em marcos da progressão.</li><li>Teste funcional mobile aprovado pelo usuário; efeitos das habilidades especiais testados, com ajuste do escudo planejado na v0.16.1.</li></ul></article>
           <article class="version-entry"><div class="version-entry-heading"><strong>v0.15.1</strong><span>CONTROLES DE PC</span></div><ul><li>Botão direito do mouse para manter o disparo durante a movimentação com WASD.</li><li>Tecla Espaço mantida como alternativa; o menu de contexto do navegador é desativado durante a partida.</li><li>Testes manuais aprovados em computador e celular, conforme informado pelo usuário, sem erros reportados.</li></ul></article>
           <article class="version-entry"><div class="version-entry-heading"><strong>v0.15.0</strong><span>POLIMENTO E ACESSIBILIDADE</span></div><ul><li>Atualização dos identificadores de cache e da versão exibida no jogo.</li><li>Melhor indicação de foco para navegação por teclado e respeito à preferência por movimento reduzido.</li><li>Teste no computador aprovado; regressão mobile pendente.</li></ul></article>

@@ -1,5 +1,5 @@
-import { Game } from './src/core/game.js?v=0.16.2';
-import { gameAudio } from './src/audio/game-audio.js?v=0.16.2';
+import { Game } from './src/core/game.js?v=0.17.0';
+import { gameAudio } from './src/audio/game-audio.js?v=0.17.0';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
@@ -31,8 +31,8 @@ function setPlatform(platform, persist = true) {
     button.setAttribute('aria-pressed', String(selected));
   });
   platformNote.textContent = platform === 'mobile'
-    ? 'Modo mobile selecionado. Joystick e botão de disparo estarão disponíveis em dispositivos compatíveis.'
-    : 'Modo PC selecionado. Use WASD/setas, mouse para mirar e espaço para disparar.';
+    ? 'Modo mobile selecionado. Use o joystick para mover; a nave mira automaticamente no inimigo mais próximo e dispara pelo botão DISPARAR.'
+    : 'Modo PC selecionado. Mouse para mirar; W/S avançam e recuam em relação à nave, A/D fazem strafe; botão direito ou Espaço para disparar.';
   if (persist) localStorage.setItem('gd-platform', platform);
 }
 function closeMenuPanels() {
