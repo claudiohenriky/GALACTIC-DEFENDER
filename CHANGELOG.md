@@ -22,7 +22,7 @@
 - Atualiza os identificadores de cache, a versão exibida e o histórico do jogo.
 
 ### Validação
-- Correção registrada; aguarda teste manual no celular para validar retorno frontal, mira, disparo, movimentação e desempenho.
+- Versão aprovada pelo usuário após teste manual no celular; retorno frontal, mira, disparo e movimentação foram considerados corretos.
 
 ## [0.17.2] — Mira automática sem disparo automático
 
