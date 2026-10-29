@@ -39,11 +39,20 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Preservar mira, dano, integridade e regras de combate; validar no GitHub Pages em celular antes de iniciar a etapa seguinte.
 
 ## Etapa 3 — Novas cartas de atributos e habilidades
+- [ ] **v0.29.0 candidata:** validar a reestruturação visual do escudo, ativação da Onda do Escudo (botão/tecla Q), cancelamento de projéteis inimigos, dano moderado, recarga e desempenho em celular.
+- [ ] Etapa futura: unificar colisões para a onda interagir com feixes contínuos e ataques especiais de inimigos/bosses quando esses ataques forem implementados.
+- [ ] Após validar a otimização: fragmentação controlada dos mísseis no nível 3, com poucos fragmentos e dano adicional limitado.
 - [x] Auditar as cartas existentes e os marcos de progressão antes de adicionar outra opção.
 - [x] Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
 - [x] Definir limites de níveis para evitar que as novas cartas continuem aparecendo após o máximo.
 - [x] Revisar a distribuição funcional das cartas após o teste manual da v0.26.0; o usuário confirmou que tudo funciona corretamente.
-- [ ] Considerar o míssil como nova habilidade especial após a revisão do sistema de projéteis.
+- [x] **v0.28.0:** protótipo do Míssil teleguiado e pesos de aparição das raridades.
+- [x] **v0.28.6 — validação visual:** o usuário confirmou que os mísseis nas pontas da nave estão visualmente corretos. A garantia temporária da carta era diagnóstica; a raridade ponderada original foi restaurada na v0.29.0.
+- **v0.28.5:** candidata anterior com ajustes visuais de lançamento; substituída pela v0.28.6 para investigar a carta que não aparecia. Não mesclar separadamente.
+- **v0.28.4:** candidata anterior substituída pela v0.28.5; não mesclar separadamente.
+- **v0.28.3:** candidata anterior substituída pela v0.28.4; não mesclar separadamente.
+- **v0.28.2:** candidata substituída após teste manual; não mesclar separadamente.
+- **v0.28.1:** candidata anterior substituída após o relato de ativação intermitente, lançamento único e botão grande; não mesclar separadamente.
 - **v0.25.0:** Cadência aprimorada, +10% por nível, até cinco níveis.
 - **v0.26.0 validada pelo usuário:** Projéteis acelerados (+15% de velocidade por nível, até três níveis) e Controle de propulsão (+8% de aceleração por nível, até três níveis).
 
@@ -67,6 +76,14 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Combinar sustentação do ataque, ações curtas de reação e atributos da nave.
 - Implementar vitória, derrota e empate, incluindo deslocamento coreografado e limites da arena.
 - Integrar a mecânica a um boss apenas após validar controles de PC e mobile.
+
+## Candidata integrada v0.30.0 — habilidades e energia
+- [x] **Pulso de Ruptura:** habilidade frontal, separada da onda automática, disponível somente enquanto o escudo está quebrado; remove projéteis e aplica dano controlado uma vez por inimigo atingido.
+- [x] **Sobrecarga compartilhada:** lasers, mísseis e Pulso de Ruptura acumulam energia; acima de 70% há redução de potência/velocidade e no limite as habilidades especiais são bloqueadas temporariamente.
+- [x] **Mísseis nível 3:** fragmentação limitada a três projéteis secundários mais fracos, com limite total de mísseis ativos.
+- [ ] **Validação manual:** testar em celular e computador, especialmente janela curta do escudo quebrado, barreira frontal, recarga, sobrecarga e fragmentação.
+- [ ] **Balanceamento:** ajustar custos e recuperação de energia com base no teste; os valores atuais são iniciais.
+- [ ] **Attack Clash e ataques contínuos:** permanecem futuros; ainda falta uma interface comum de ataques e colisões para feixes e habilidades especiais de bosses.
 
 ## Regras de execução
 - Uma mudança lógica por PR, com commits pequenos e mensagens descritivas.

@@ -6,7 +6,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
-**Validação:** o PR #49 foi mesclado. O teste manual da v0.27.0 pelo GitHub Pages está pendente; não considerar a versão validada antes do retorno do usuário.
+**Validação:** a v0.27.0 foi testada manualmente pelo usuário no GitHub Pages e o Guardião funcionou corretamente. A v0.30.0 é uma candidata na branch `feature/v0.30.0-rupture-overload-missiles`; inclui o Pulso de Ruptura, medidor de sobrecarga e fragmentação dos mísseis de nível 3. A versão oficial `main` ainda não contém essas alterações. A candidata requer validação manual no celular e no computador.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
 
@@ -16,6 +16,13 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 - Compatibilidade inicial: navegadores modernos com suporte a Canvas e ES Modules.
 - Publicação: GitHub Pages via GitHub Actions.
 - Estrutura modular, sem frameworks ou dependências externas.
+
+## Combate e habilidades
+
+- Mísseis teleguiados lançados pelas asas, com alvos e explosão em área.
+- Escudo de energia redesenhado; o Pulso de Ruptura é uma habilidade de emergência ativável por botão ou tecla Q somente enquanto o escudo estiver quebrado. A barreira avança à frente da nave, bloqueia projéteis e causa dano limitado.
+- Medidor compartilhado de sobrecarga: habilidades e lasers consomem energia; em sobrecarga, a potência e a velocidade diminuem; no limite, habilidades especiais são bloqueadas temporariamente.
+- Mísseis de nível 3 se fragmentam em até três projéteis mais fracos; a quantidade simultânea é limitada para conter o custo de combate.
 
 ## Lobby, preparação e plataforma
 
