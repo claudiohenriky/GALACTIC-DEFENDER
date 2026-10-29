@@ -4,11 +4,11 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão publicada para validação:** `0.17.0` — candidata com rotação de 360°, movimento relativo à orientação no PC e mira automática no mobile. A versão está em `main` para teste manual; ainda não foi aprovada pelo usuário.
+**Versão candidata publicada para validação:** `0.17.1` — mira mobile por arraste quando não há inimigos e disparo automático contra inimigos ativos. Ainda aguarda teste manual do usuário.
 
-**Última versão aprovada:** `0.16.2`, validada em celular pelo usuário com 6/6 testes manuais aprovados.
+**Base funcional anterior:** `0.17.0`; a última versão com validação manual concluída é `0.16.2`, aprovada em celular com 6/6 testes.
 
-**Fase:** pré-alfa. A v0.17.0 está em validação manual; se surgir uma regressão, a v0.16.2 continua sendo a referência estável para correção ou reversão.
+**Fase:** pré-alfa. A v0.17.1 está em validação mobile; a mira automática deve priorizar inimigos e o arraste manual deve orientar a nave quando a arena estiver sem inimigos.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: WASD/setas para movimentação, mouse para mirar, botão direito (segurar) ou Espaço para disparar no computador; joystick virtual e botão de disparo em dispositivos móveis. O disparo pelo botão direito foi aprovado no teste manual informado pelo usuário.
@@ -31,8 +31,9 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 ## Controles
 
 - **PC (candidata 0.17.0):** mouse para mirar; `W/S` avançam e recuam em relação à orientação da nave; `A/D` fazem strafe; botão direito (segurar) ou `Espaço` para disparar.
-- **Celular (candidata 0.17.0):** joystick para movimentar; a nave mira automaticamente no inimigo ativo mais próximo; botão **DISPARAR** para atirar.
-- `P`: pausar ou retomar (teclado). Esses controles ainda aguardam validação manual.
+- **Celular (candidata 0.17.1):** joystick para movimentar; arraste o dedo na arena para orientar a nave quando não houver inimigos. Quando houver inimigo ativo, a mira prioriza o inimigo mais próximo e o disparo é automático.
+- **PC (base 0.17.0):** mouse para mirar; `W/S` avançam e recuam em relação à orientação da nave; `A/D` fazem strafe; botão direito ou `Espaço` para disparar. Ainda sem validação manual nesta rodada.
+- `P`: pausar ou retomar (teclado). A v0.17.1 aguarda teste manual no celular.
 
 ## Mecânicas atuais
 

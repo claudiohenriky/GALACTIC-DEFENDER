@@ -39,6 +39,8 @@ export class Game {
     this.joystick = { x: 0, y: 0 };
     // Mouse aim is optional: until a mouse moves over the arena, shots keep their original upward direction.
     this.aim = { x: this.width / 2, y: 0, active: false };
+    // Mobile drag sets a manual facing direction whenever no enemy is available.
+    this.touchAim = { x: this.width / 2, y: 0, active: false, pointerId: null };
     this.status = 'ready';
     this.score = 0;
     this.destroyed = 0;
@@ -443,9 +445,17 @@ export class Game {
     this.aim.active = true;
   }
 
+  setAimFromTouch(event) {
+    const rect = this.canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    this.touchAim.x = Math.max(0, Math.min(this.width, (event.clientX - rect.left) * this.width / rect.width));
+    this.touchAim.y = Math.max(0, Math.min(this.height, (event.clientY - rect.top) * this.height / rect.height));
+    this.touchAim.active = true;
+  }
+
   getAimAngle(mobileMode = document.documentElement.dataset.platform === 'mobile') {
     if (mobileMode) {
-      // Mobile aiming tracks the closest living enemy without adding touch-aim controls.
+      // Enemies always take priority; manual touch direction is used when the arena is clear.
       let target = null;
       let nearestDistance = Infinity;
       for (const enemy of this.enemies) {
@@ -457,6 +467,7 @@ export class Game {
         }
       }
       if (target) return Math.atan2(target.y - this.player.y, target.x - this.player.x);
+      if (this.touchAim.active) return Math.atan2(this.touchAim.y - this.player.y, this.touchAim.x - this.player.x);
       return this.player.rotation;
     }
     if (!this.aim.active) return this.player.rotation;
@@ -524,7 +535,8 @@ export class Game {
     this.levelUpParticles = this.levelUpParticles.filter((particle) => particle.life > 0);
 
     this.shotClock -= dt;
-    if (this.keys.has('space') && this.shotClock <= 0) {
+    const mobileAutoFire = document.documentElement.dataset.platform === 'mobile' && this.enemies.some((enemy) => enemy.active);
+    if ((this.keys.has('space') || mobileAutoFire) && this.shotClock <= 0) {
       const angle = this.getAimAngle();
       const muzzleDistance = 17;
       const muzzleX = this.player.x + Math.cos(angle) * muzzleDistance;
