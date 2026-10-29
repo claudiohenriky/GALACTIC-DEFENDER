@@ -1,12 +1,12 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
-## [0.17.0] — Rotação de 360° e mira por plataforma (em desenvolvimento)
+## [0.17.0] — Rotação de 360° e mira por plataforma (candidata em validação)
 
 ### Em desenvolvimento
 - Rotação suave da nave para acompanhar a direção da mira, sem sprites de rotação pré-renderizados.
 - No PC, WASD/setas com movimento relativo à orientação da nave, mira pelo mouse e disparo pelo botão direito ou Espaço.
 - No mobile, joystick com movimento analógico e mira automática no inimigo ativo mais próximo.
-- A versão permanece em branch de desenvolvimento até concluir a validação manual em computador e celular.
+- Candidata integrada em `main` para teste manual; ainda não aprovada. A v0.16.2 permanece como última versão validada.
 
 ### Plano de validação
 - Confirmar que a nave acompanha a mira sem saltos visuais ou inversões inesperadas.
@@ -109,4 +109,4 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 
 ## Observações
 - Atualizar este arquivo e o histórico dentro do jogo juntos.
-- A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; a v0.15.1 foi aprovada em computador e celular. A v0.16.2 passou nos seis testes manuais de desempenho e regressão no celular informados pelo usuário. A v0.17.0 continua em desenvolvimento e ainda não foi validada.
+- A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; a v0.15.1 foi aprovada em computador e celular. A v0.16.2 passou nos seis testes manuais de desempenho e regressão no celular informados pelo usuário. A v0.17.0 foi publicada como candidata em `main` e aguarda validação manual em computador e celular.
