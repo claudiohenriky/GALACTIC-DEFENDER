@@ -1,3 +1,10 @@
+## [0.39.0] — Cooperação tática entre Guardião e Sentinela
+
+- Guardiões próximos a Sentinelas passam a buscar uma posição de cobertura entre a unidade aliada e o jogador.
+- Sentinelas próximas a um Guardião ajustam gradualmente seu posicionamento para aproveitar a cobertura e manter uma linha de tiro.
+- A cooperação é apenas de posicionamento nesta primeira etapa; não transfere dano, não cria invulnerabilidade e não altera vida, dano, cadência ou regras de colisão.
+- Candidata experimental; verificar se a formação é legível, se não causa agrupamento/oscilação e se o desempenho permanece estável.
+
 ## [0.38.0] — Esquivas mais legíveis e separação entre inimigos
 
 - Aumenta moderadamente o deslocamento lateral de esquiva para sentinelas, artilheiros e chefe; mantém janelas curtas e recargas por classe, sem invulnerabilidade.
