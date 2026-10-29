@@ -16,6 +16,12 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Adicionar inclinação pseudo-3D ao movimento lateral sem alterar a lógica de mira ou o vetor de movimento.
 - Ajustar a preparação em tela cheia para manter ações acessíveis em telas baixas.
 
+## Etapa 2.1 — Resposta visual ao movimento (v0.23.0)
+- Fazer a propulsão responder à entrada do jogador: chama maior durante o deslocamento e retorno suave ao repouso.
+- Usar brilhos laterais discretos para reforçar o impulso sem modificar a física de movimento, a mira ou o dano.
+- Manter Canvas 2D, baixo custo de renderização e compatibilidade com controles de teclado e joystick.
+- Validar no GitHub Pages em celular e computador antes do merge.
+
 ## Etapa 3 — Novas cartas de atributos e habilidades
 - Auditar as cartas existentes e os marcos de progressão antes de adicionar outras.
 - Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
