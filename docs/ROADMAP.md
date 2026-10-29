@@ -39,6 +39,8 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Preservar mira, dano, integridade e regras de combate; validar no GitHub Pages em celular antes de iniciar a etapa seguinte.
 
 ## Etapa 3 — Novas cartas de atributos e habilidades
+- [ ] **v0.29.0 candidata:** validar a reestruturação visual do escudo, ativação da Onda do Escudo (botão/tecla Q), cancelamento de projéteis inimigos, dano moderado, recarga e desempenho em celular.
+- [ ] Etapa futura: unificar colisões para a onda interagir com feixes contínuos e ataques especiais de inimigos/bosses quando esses ataques forem implementados.
 - [x] Auditar as cartas existentes e os marcos de progressão antes de adicionar outra opção.
 - [x] Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
 - [x] Definir limites de níveis para evitar que as novas cartas continuem aparecendo após o máximo.
