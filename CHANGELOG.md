@@ -1,3 +1,18 @@
+## [0.28.2] — Candidata: confiabilidade do míssil e interface compacta
+
+### Correções
+- A ativação não depende mais de haver inimigos ativos exatamente no instante do toque; o míssil pode adquirir um alvo quando ele aparecer.
+- A partir do nível 2, são criados dois mísseis mesmo quando ambos precisam perseguir o mesmo inimigo.
+- Atualiza o estado do botão ao iniciar/retomar e impede que o clique da habilidade interfira com outros controles.
+
+### Interface
+- Reduz o botão, o ícone e os textos, com ajuste específico para telas móveis.
+- Mantém o indicador de recarga e melhora a área de toque.
+
+### Estado e validação
+- Candidata na branch `feature/v0.28.2-missile-reliability`; não mesclada em `main`.
+- Verificações estáticas não substituem o teste manual de disparo no celular.
+
 ## [0.28.1] — Candidata: habilidade de míssil ativável e ajustes visuais
 
 ### Jogabilidade
