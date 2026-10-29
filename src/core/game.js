@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.16.2';
-import { Enemy } from '../enemies/enemy.js?v=0.16.2';
-import { Projectile } from '../combat/projectile.js?v=0.16.2';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.16.2';
-import { Progression } from '../progression/progression.js?v=0.16.2';
-import { Mission } from '../missions/missions.js?v=0.16.2';
-import { WaveManager } from './wave-manager.js?v=0.16.2';
-import { updateHud } from '../ui/hud.js?v=0.16.2';
-import { gameAudio } from '../audio/game-audio.js?v=0.16.2';
-import { AchievementTracker } from '../progression/achievements.js?v=0.16.2';
+import { Player } from '../player/player.js?v=0.17.0';
+import { Enemy } from '../enemies/enemy.js?v=0.17.0';
+import { Projectile } from '../combat/projectile.js?v=0.17.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.17.0';
+import { Progression } from '../progression/progression.js?v=0.17.0';
+import { Mission } from '../missions/missions.js?v=0.17.0';
+import { WaveManager } from './wave-manager.js?v=0.17.0';
+import { updateHud } from '../ui/hud.js?v=0.17.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.17.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.17.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -443,8 +443,23 @@ export class Game {
     this.aim.active = true;
   }
 
-  getAimAngle() {
-    if (!this.aim.active) return -Math.PI / 2;
+  getAimAngle(mobileMode = document.documentElement.dataset.platform === 'mobile') {
+    if (mobileMode) {
+      // Mobile aiming tracks the closest living enemy without adding touch-aim controls.
+      let target = null;
+      let nearestDistance = Infinity;
+      for (const enemy of this.enemies) {
+        if (!enemy.active) continue;
+        const distance = Math.hypot(enemy.x - this.player.x, enemy.y - this.player.y);
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          target = enemy;
+        }
+      }
+      if (target) return Math.atan2(target.y - this.player.y, target.x - this.player.x);
+      return this.player.rotation;
+    }
+    if (!this.aim.active) return this.player.rotation;
     return Math.atan2(this.aim.y - this.player.y, this.aim.x - this.player.x);
   }
 
@@ -484,7 +499,9 @@ export class Game {
       }
     });
 
-    this.player.update(dt, this.keys, this.width, this.height, this.joystick);
+    const mobileMode = document.documentElement.dataset.platform === 'mobile';
+    const aimAngle = this.getAimAngle(mobileMode);
+    this.player.update(dt, this.keys, this.width, this.height, this.joystick, aimAngle, !mobileMode);
     this.levelUpToastTimer = Math.max(0, this.levelUpToastTimer - dt);
     const previousDamageFeedbackTimer = this.damageFeedbackTimer;
     this.damageFeedbackTimer = Math.max(0, this.damageFeedbackTimer - dt);
