@@ -47,8 +47,8 @@ export class Enemy {
     this.lateralThrust += (targetLateral - this.lateralThrust) * Math.min(1, dt * 8);
 
     // The hull leans into lateral motion, echoing the player's smooth pseudo-3D response.
-    const targetBank = Math.max(-0.38, Math.min(0.38, -this.velocityX / Math.max(1, this.speed) * 0.38));
-    this.bank += (targetBank - this.bank) * Math.min(1, dt * 7);
+    const targetBank = Math.max(-0.5, Math.min(0.5, -this.velocityX / Math.max(1, this.speed) * 0.5));
+    this.bank += (targetBank - this.bank) * Math.min(1, dt * 8);
   }
 
   update(dt, targetX, targetY, width, height) {
@@ -64,10 +64,13 @@ export class Enemy {
     let shot = null;
 
     if (this.type === 'boss') {
-      // Bosses hold a readable upper lane and sweep sideways before firing aimed heavy shots.
-      const desiredY = Math.max(58, height * 0.16);
-      this.x += Math.sin(this.phase * 0.75) * this.speed * 1.8 * dt;
-      this.y += (desiredY - this.y) * Math.min(1, dt * 1.4);
+      // Bosses advance into the arena, then sweep across a broad horizontal lane.
+      // Steering toward a sinusoidal destination avoids the old edge-to-edge velocity oscillation.
+      const horizontalRange = Math.max(0, width * 0.32);
+      const desiredX = width / 2 + Math.sin(this.phase * 0.8) * horizontalRange;
+      const desiredY = Math.max(58, Math.min(targetY - Math.max(90, height * 0.18), height * 0.52));
+      this.x += (desiredX - this.x) * Math.min(1, dt * 1.35);
+      this.y += (desiredY - this.y) * Math.min(1, dt * 1.1);
       this.x = Math.max(this.radius + 4, Math.min(width - this.radius - 4, this.x));
       this.fireCooldown -= dt;
       if (this.fireCooldown <= 0 && this.y > 18) {
@@ -154,7 +157,15 @@ export class Enemy {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.rotation + Math.PI / 2);
-    ctx.transform(1 - Math.abs(this.bank) * 0.08, 0, this.bank * 0.28, 1, 0, 0);
+    // A little squash-and-stretch plus stronger shear gives enemy hulls the player's elastic turn cue.
+    ctx.transform(
+      1 + this.lateralThrust * 0.12 - Math.abs(this.bank) * 0.06,
+      0,
+      this.bank * 0.42,
+      1 + this.thrust * 0.08,
+      0,
+      0
+    );
 
     // Small animated exhaust makes acceleration and direction changes visible without sprites.
     const flame = 3 + Math.sin(this.phase * 10) * 0.65 + this.thrust * 4.5;
