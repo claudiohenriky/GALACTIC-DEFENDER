@@ -89,8 +89,8 @@ export class Enemy {
       const towardX = dx / distance;
       const towardY = dy / distance;
       const weave = Math.sin(this.phase) * this.speed * 0.62;
-      this.x += towardX * this.speed * 0.78 - towardY * weave * dt;
-      this.y += towardY * this.speed * 0.78 + towardX * weave * dt;
+      this.x += towardX * this.speed * 0.78 * dt - towardY * weave * dt;
+      this.y += towardY * this.speed * 0.78 * dt + towardX * weave * dt;
     } else if (this.type === 'sentinel') {
       // Sentinels strafe around a moving firing lane instead of sliding directly toward the player.
       const laneOffset = Math.sin(this.phase * 0.8) * Math.min(105, width * 0.23);
