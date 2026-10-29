@@ -1,3 +1,15 @@
+## [0.28.0] — Candidata: míssil teleguiado e raridade das habilidades
+
+### Habilidades especiais
+- Adiciona o Míssil teleguiado, que persegue inimigos ativos e causa dano em colisão direta.
+- O míssil possui três níveis, com dano, velocidade e cadência de disparo ajustados por nível.
+- Introduz raridades visuais Comum, Raro e Épico e pesos de seleção para as cartas de habilidade especial.
+- A raridade altera a probabilidade relativa de seleção; não garante que uma carta apareça em toda escolha.
+
+### Estado e validação
+- Candidata em `feature/v0.28.0-guided-missile-rarity`; não mesclada em `main`.
+- Requer verificações automatizadas e teste manual pelo GitHub Pages antes da publicação.
+
 ## [0.27.0] — Nova classe de inimigo: Guardião
 
 ### Combate e ondas
