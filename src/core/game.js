@@ -138,6 +138,10 @@ export class Game {
   }
 
   reset() {
+    // Preserve the best run even when the player returns to the menu before game over.
+    if (this.achievements && this.waveManager) {
+      this.achievements.recordRun(this.score, this.waveManager.wave);
+    }
     this.player = new Player(this.width, this.height);
     this.progression = new Progression();
     this.mission = new Mission();

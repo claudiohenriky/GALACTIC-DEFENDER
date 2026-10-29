@@ -9,6 +9,9 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Conquistas por eliminações, chefes derrotados, missões concluídas, pontuação e ondas alcançadas.
 - Painel no menu para consultar conquistas, estatísticas e recordes.
 
+### Correção
+- Salva também o recorde da partida quando o jogador retorna ao menu antes da tela de fim de jogo.
+
 ## Histórico completo
 
 - **0.13.0:** chefes a cada cinco ondas, disparos direcionados, ajuste dos perseguidores vermelhos e histórico no menu. Teste manual informado aprovado nos sete itens.
