@@ -392,8 +392,9 @@ export class Game {
     enemy.active = false;
     this.score += enemy.type === 'boss' ? 1000 : 100;
     this.destroyed += 1;
-    this.achievements.record('kills');
-    if (enemy.type === 'boss') this.achievements.record('bosses');
+    const newlyUnlocked = this.achievements.record('kills');
+    if (enemy.type === 'boss') newlyUnlocked.push(...this.achievements.record('bosses'));
+    if (newlyUnlocked.length) this.showRewardBanner('CONQUISTA DESBLOQUEADA', newlyUnlocked.map(item => item.name).join(' · '), 'achievement');
     const xpRewards = { chaser: 20, interceptor: 15, sentinel: 35, boss: 180 };
     const xpGained = xpRewards[enemy.type] ?? 20;
     const levelsGained = this.progression.addXp(xpGained);
