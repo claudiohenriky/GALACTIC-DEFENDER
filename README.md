@@ -4,7 +4,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão candidata em desenvolvimento:** `0.19.0` — recompensas de XP por tipo de inimigo, curva de níveis linear e faixa de feedback ao vivo para missões, recompensas, títulos e conquistas. Está isolada na branch `feat/v0.19.0-gameplay-roadmap` e ainda precisa de validação manual pelo GitHub Pages.
+**Versão candidata em desenvolvimento:** `0.19.1` — recompensas de XP por tipo de inimigo, curva de níveis linear e faixa de feedback ao vivo para missões, recompensas, títulos e conquistas. Está isolada na branch `feat/v0.19.1-gameplay-roadmap` e ainda precisa de validação manual pelo GitHub Pages.
 
 **Base oficial em `main`:** `0.18.1` — ajuste pontual na renderização do escudo. A validação manual desta versão ainda precisa ser confirmada; não há ganho quantificado de desempenho.
 
@@ -48,11 +48,11 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - A cada cinco ondas, uma onda especial apresenta um chefe com mais integridade, movimento lateral e disparos direcionados.
 - Inimigos não causam dano automático ao ultrapassar a borda da arena.
 - Proteção inicial de 3 segundos ao surgir e invulnerabilidade temporária com efeito visual de piscar após receber dano.
-- XP, níveis e pontuação. Na candidata v0.19.0, os ganhos de XP passam a variar pelo tipo de inimigo (15–180 XP) e o requisito de nível cresce de forma linear, começando em 100 XP e aumentando 35 XP por nível.
+- XP, níveis e pontuação. Na candidata v0.19.1, os ganhos de XP passam a variar pelo tipo de inimigo (15–180 XP) e o requisito de nível cresce de forma linear, começando em 100 XP e aumentando 35 XP por nível.
 - A progressão v0.16.0 apresenta três cartas por seleção e permite escolher apenas uma. Melhorias de atributos usam percentuais; cartas de atributos aparecem em níveis ímpares a partir do nível 3, e cartas especiais em marcos a cada cinco níveis. Os valores e a frequência ainda precisam de balanceamento. Habilidades iniciais incluem tiro múltiplo, laser perfurante, escudo regenerativo e reparo de emergência. Na v0.16.1, o escudo recebeu barreira, integridade própria, onda de energia e recarga automática. Na v0.16.2, os efeitos visuais foram simplificados para evitar desfoque de sombra por quadro; a fluidez ainda precisa de novo teste manual.
 - Música ambiente espacial sintetizada e efeitos distintos para disparos do jogador, tiros inimigos e dano, gerados pela Web Audio API sem arquivos externos. O volume geral é ajustável nas configurações, com ganho reforçado para música e dano.
 - Missões rotativas: eliminar inimigos, sobreviver por tempo determinado e alcançar ondas específicas, com dificuldades fácil, média e difícil.
-- Recompensas de missão em XP e pontuação; a conclusão avança para o próximo objetivo. Na candidata v0.19.0, uma faixa animada dentro da arena comunica ao vivo a missão concluída, as recompensas, novos títulos e conquistas desbloqueadas.
+- Recompensas de missão em XP e pontuação; a conclusão avança para o próximo objetivo. Na candidata v0.19.1, uma faixa animada dentro da arena comunica ao vivo a missão concluída, as recompensas, novos títulos e conquistas desbloqueadas.
 - Títulos de piloto desbloqueáveis por total de missões concluídas, armazenados localmente no navegador.
 - Conquistas persistentes por eliminações, chefes derrotados, missões concluídas, pontuação e ondas alcançadas, consultáveis pelo menu principal.
 - Recordes pessoais de pontuação e maior onda, armazenados no navegador.
