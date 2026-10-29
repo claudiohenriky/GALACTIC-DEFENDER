@@ -131,6 +131,10 @@ export class Game {
     this.hideOverlays();
     this.lastTime = performance.now();
     this.hudUpdateTimer = 0;
+    if (this.performanceProfileEnabled) {
+      this.performanceProfileSamples = [];
+      this.performanceProfilePreviousFrameAt = 0;
+    }
     cancelAnimationFrame(this.animationId);
     this.animationId = requestAnimationFrame((time) => this.loop(time));
     updateHud(this);
