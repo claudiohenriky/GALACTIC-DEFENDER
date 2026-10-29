@@ -4,10 +4,10 @@ export class Enemy {
     this.y = y;
     this.type = type;
     this.level = level;
-    this.radius = type === 'boss' ? 23 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
-    this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
+    this.radius = type === 'boss' ? 23 : type === 'guardian' ? 15 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
+    this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'guardian' ? 7 + level : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
-    this.speed = (type === 'boss' ? 34 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * 2;
+    this.speed = (type === 'boss' ? 34 : type === 'guardian' ? 28 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'boss'
       ? 1.8
@@ -55,12 +55,12 @@ export class Enemy {
     const previousX = this.x;
     const previousY = this.y;
     this.contactCooldown = Math.max(0, this.contactCooldown - dt);
-    this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'interceptor' ? 3.2 : 2);
+    this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
 
     const dx = targetX - this.x;
     const dy = targetY - this.y;
     const distance = Math.hypot(dx, dy) || 1;
-    const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'interceptor' ? 5 : 9);
+    const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'guardian' ? 2.5 : this.type === 'interceptor' ? 5 : 9);
     let shot = null;
 
     if (this.type === 'boss') {
@@ -117,6 +117,10 @@ export class Enemy {
           glowColor: '#ffad55'
         };
       }
+    } else if (this.type === 'guardian') {
+      // Guardians trade speed and ranged pressure for a durable hull and steady advance.
+      this.x += (dx / distance) * this.speed * dt + drift * dt;
+      this.y += (dy / distance) * this.speed * dt;
     } else {
       // Chasers pursue directly while weaving laterally, keeping their movement readable.
       this.x += (dx / distance) * this.speed * dt + drift * dt;
@@ -149,10 +153,11 @@ export class Enemy {
 
   draw(ctx) {
     const boss = this.type === 'boss';
+    const guardian = this.type === 'guardian';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
-    const color = boss ? '#d59bff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
-    const edge = boss ? '#f1d7ff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
+    const color = boss ? '#d59bff' : guardian ? '#78d9a8' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
+    const edge = boss ? '#f1d7ff' : guardian ? '#d8ffea' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
     ctx.translate(this.x, this.y);
@@ -206,7 +211,7 @@ export class Enemy {
     ctx.fill();
     ctx.fillStyle = color;
     ctx.strokeStyle = edge;
-    ctx.lineWidth = boss ? 2 : 1.2;
+    ctx.lineWidth = boss || guardian ? 2 : 1.2;
     ctx.beginPath();
     if (boss) {
       ctx.moveTo(0, -this.radius * 1.35);
@@ -219,6 +224,15 @@ export class Enemy {
       ctx.lineTo(-this.radius * 0.88, this.radius * 0.72);
       ctx.lineTo(-this.radius * 1.35, -this.radius * 0.15);
       ctx.lineTo(-this.radius * 0.52, -this.radius * 0.72);
+    } else if (guardian) {
+      ctx.moveTo(-this.radius * 0.48, -this.radius * 1.15);
+      ctx.lineTo(this.radius * 0.48, -this.radius * 1.15);
+      ctx.lineTo(this.radius * 1.22, -this.radius * 0.55);
+      ctx.lineTo(this.radius * 1.18, this.radius * 0.55);
+      ctx.lineTo(this.radius * 0.62, this.radius * 1.0);
+      ctx.lineTo(-this.radius * 0.62, this.radius * 1.0);
+      ctx.lineTo(-this.radius * 1.18, this.radius * 0.55);
+      ctx.lineTo(-this.radius * 1.22, -this.radius * 0.55);
     } else if (interceptor) {
       ctx.moveTo(0, -this.radius * 1.45);
       ctx.lineTo(this.radius * 0.52, -this.radius * 0.15);
@@ -246,6 +260,16 @@ export class Enemy {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+
+    if (guardian) {
+      ctx.fillStyle = '#315b4b';
+      ctx.fillRect(-this.radius * 0.98, -this.radius * 0.25, this.radius * 0.34, this.radius * 0.75);
+      ctx.fillRect(this.radius * 0.64, -this.radius * 0.25, this.radius * 0.34, this.radius * 0.75);
+      ctx.strokeStyle = edge;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-this.radius * 0.98, -this.radius * 0.25, this.radius * 0.34, this.radius * 0.75);
+      ctx.strokeRect(this.radius * 0.64, -this.radius * 0.25, this.radius * 0.34, this.radius * 0.75);
+    }
 
     ctx.fillStyle = '#25152f';
     ctx.fillRect(-this.radius * 0.62, -this.radius * 0.1, this.radius * 1.24, this.radius * 0.38);
