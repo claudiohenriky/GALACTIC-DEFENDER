@@ -460,29 +460,26 @@ export class Game {
   }
 
   activateShieldPulse() {
-    const profileStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
-    if (this.status !== 'running' || this.player.shieldLevel <= 0 || this.shieldPulseCooldown > 0) return false;
+    if (this.status !== 'running' || this.player.shieldLevel <= 0 || this.player.shieldHealth > 0 ||
+        this.shieldPulseCooldown > 0 || this.overloadLockTimer > 0 || this.shieldPulseWave) return false;
+
+    const directionX = Math.cos(this.player.rotation);
+    const directionY = Math.sin(this.player.rotation);
     const level = this.player.shieldLevel;
-    const radius = 140 + level * 18;
-    const radiusSquared = radius * radius;
-    const x = this.player.x, y = this.player.y, life = 0.42;
-    if (this.shieldBreakEffects.length >= 4) this.shieldBreakEffects.shift();
-    this.shieldBreakEffects.push({ x, y, radius, life, maxLife: life, kind: 'pulse' });
-    // Resolve the pulse once at activation: bounded scans, no per-frame area checks.
-    for (const enemy of this.enemies) {
-      if (!enemy.active) continue;
-      const dx = enemy.x - x, dy = enemy.y - y;
-      if (dx * dx + dy * dy <= radiusSquared) this.damageEnemy(enemy, enemy.type === 'boss' ? 8 : 2);
-    }
-    for (const shot of this.enemyProjectiles) {
-      if (!shot.active) continue;
-      const dx = shot.x - x, dy = shot.y - y;
-      if (dx * dx + dy * dy <= radiusSquared) shot.active = false;
-    }
-    this.shieldPulseCooldownMax = Math.max(12, 18 - level * 2);
+    const overloaded = this.overload >= 70;
+    const originX = this.player.x + directionX * 24;
+    const originY = this.player.y + directionY * 24;
+    this.shieldPulseWave = {
+      originX, originY, x: originX, y: originY,
+      directionX, directionY, traveled: 0, speed: 430,
+      maxDistance: 360, halfWidth: overloaded ? 42 : 62, halfDepth: 20,
+      life: 0.9, maxLife: 0.9, damage: (level >= 3 ? 9 : 6) * (overloaded ? 0.7 : 1),
+      hitEnemies: new Set()
+    };
+    this.shieldPulseCooldownMax = Math.max(15, 21 - level * 2);
     this.shieldPulseCooldown = this.shieldPulseCooldownMax;
+    this.addOverload(28);
     this.updateShieldPulseButton();
-    if (this.performanceProfileEnabled) console.info('[GALACTIC-DEFENDER activation]', { ability: 'shield-pulse', durationMs: Number((performance.now() - profileStartedAt).toFixed(2)), enemiesChecked: this.enemies.length, projectilesChecked: this.enemyProjectiles.length });
     return true;
   }
 
@@ -490,35 +487,46 @@ export class Game {
     const button = document.querySelector('#shield-pulse-button');
     if (!button) return;
     const unlocked = this.player.shieldLevel > 0;
+    const broken = this.player.shieldHealth <= 0;
+    const ready = this.shieldPulseCooldown <= 0 && this.overloadLockTimer <= 0 && !this.shieldPulseWave;
     button.classList.toggle('hidden', !unlocked);
-    const ready = this.shieldPulseCooldown <= 0;
-    button.disabled = !unlocked || this.status !== 'running' || !ready;
+    button.disabled = !unlocked || !broken || this.status !== 'running' || !ready;
     const label = document.querySelector('#shield-pulse-status');
     const fill = document.querySelector('#shield-pulse-cooldown-fill');
-    const statusText = this.status !== 'running' ? 'DISPONÍVEL NA PARTIDA' : ready ? 'PRONTO · TOQUE / Q' : `RECARGA · ${Math.ceil(this.shieldPulseCooldown)}s`;
+    let statusText = this.status !== 'running' ? 'DISPONÍVEL NA PARTIDA'
+      : !broken ? 'EXIGE ESCUDO QUEBRADO'
+      : this.overloadLockTimer > 0 ? 'SISTEMA SOBRECARREGADO'
+      : this.shieldPulseWave ? 'PULSO EM CURSO'
+      : this.shieldPulseCooldown > 0 ? `RECARGA · ${Math.ceil(this.shieldPulseCooldown)}s`
+      : 'PRONTO · TOQUE / Q';
     if (label && label.textContent !== statusText) label.textContent = statusText;
     if (fill) {
-      const width = ready ? '0%' : `${Math.min(1, this.shieldPulseCooldown / this.shieldPulseCooldownMax) * 100}%`;
+      const width = this.shieldPulseCooldown <= 0 ? '0%' : `${Math.min(1, this.shieldPulseCooldown / this.shieldPulseCooldownMax) * 100}%`;
       if (fill.style.width !== width) fill.style.width = width;
     }
-    button.setAttribute('aria-label', ready ? 'Ativar onda de choque do escudo' : 'Onda de choque do escudo em recarga');
+    button.setAttribute('aria-label', ready && broken ? 'Ativar Pulso de Ruptura' : 'Pulso de Ruptura indisponível');
   }
 
-  createGuidedMissileFromWing(side, target, level) {
-    // Match Player.draw's exact local transform, including its small banking skew.
-    const shipDrawAngle = this.player.rotation + Math.PI / 2;
-    const bank = this.player.bank || 0;
-    const localX = side * 17;
-    const localY = 5;
-    const transformedX = localX * (1 - Math.abs(bank) * 0.08) + localY * (bank * 0.32);
-    const transformedY = localY;
-    const launchX = this.player.x + transformedX * Math.cos(shipDrawAngle) - transformedY * Math.sin(shipDrawAngle);
-    const launchY = this.player.y + transformedX * Math.sin(shipDrawAngle) + transformedY * Math.cos(shipDrawAngle);
-    const fallbackAngle = Number.isFinite(this.player.rotation) ? this.player.rotation : -Math.PI / 2;
-    const initialAngle = target && target.active
-      ? Math.atan2(target.y - launchY, target.x - launchX)
-      : fallbackAngle;
-    this.guidedMissiles.push(new GuidedMissile(launchX, launchY, target, level, initialAngle, side));
+  addOverload(amount) {
+    if (amount <= 0 || this.overloadLockTimer > 0) return;
+    this.overload = Math.min(this.overloadMax, this.overload + amount);
+    if (this.overload >= this.overloadMax) {
+      this.overloadLockTimer = 3.5;
+      this.overload = this.overloadMax;
+      this.restartFeedbackAnimation(document.querySelector('#overload-status'), 'overload-critical');
+    }
+    this.updateOverloadHud();
+  }
+
+  updateOverloadHud() {
+    const element = document.querySelector('#overload-status');
+    if (!element) return;
+    const percent = Math.round(this.overload);
+    const state = this.overloadLockTimer > 0 ? 'BLOQUEIO'
+      : this.overload >= 70 ? 'SOBRECARGA'
+      : this.overload >= 35 ? 'AQUECENDO' : 'ESTÁVEL';
+    element.textContent = `ENERGIA ${percent}% · ${state}`;
+    element.dataset.state = this.overloadLockTimer > 0 ? 'critical' : this.overload >= 70 ? 'overloaded' : 'stable';
   }
 
   activateGuidedMissile() {
