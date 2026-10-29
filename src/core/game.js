@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.24.2';
-import { Enemy } from '../enemies/enemy.js?v=0.24.2';
-import { Projectile } from '../combat/projectile.js?v=0.24.2';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.24.2';
-import { Progression } from '../progression/progression.js?v=0.24.2';
-import { Mission } from '../missions/missions.js?v=0.24.2';
-import { WaveManager } from './wave-manager.js?v=0.24.2';
-import { updateHud } from '../ui/hud.js?v=0.24.2';
-import { gameAudio } from '../audio/game-audio.js?v=0.24.2';
-import { AchievementTracker } from '../progression/achievements.js?v=0.24.2';
+import { Player } from '../player/player.js?v=0.25.0';
+import { Enemy } from '../enemies/enemy.js?v=0.25.0';
+import { Projectile } from '../combat/projectile.js?v=0.25.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.25.0';
+import { Progression } from '../progression/progression.js?v=0.25.0';
+import { Mission } from '../missions/missions.js?v=0.25.0';
+import { WaveManager } from './wave-manager.js?v=0.25.0';
+import { updateHud } from '../ui/hud.js?v=0.25.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.25.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.25.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -260,7 +260,8 @@ export class Game {
     const attributes = [
       { type: 'damage', icon: '✦', title: 'Arma reforçada', description: '+10% de dano da arma', category: 'ATRIBUTO' },
       { type: 'speed', icon: '➤', title: 'Propulsão aprimorada', description: '+6% de velocidade', category: 'ATRIBUTO' },
-      { type: 'integrity', icon: '⬡', title: 'Estrutura reforçada', description: '+10% de integridade máxima', category: 'ATRIBUTO' }
+      { type: 'integrity', icon: '⬡', title: 'Estrutura reforçada', description: '+10% de integridade máxima', category: 'ATRIBUTO' },
+      { type: 'cadence', icon: '»', title: 'Cadência aprimorada', description: 'Dispara 10% mais rápido · máx. 5 níveis', category: 'ATRIBUTO' }
     ];
     const specials = [
       { type: 'doubleShot', icon: '✣', title: 'Tiro múltiplo', description: 'Adiciona projéteis laterais', category: 'HABILIDADE ESPECIAL' },
@@ -268,7 +269,10 @@ export class Game {
       { type: 'shield', icon: '◈', title: 'Escudo de energia', description: 'Barreira regenerativa com explosão ao quebrar', category: 'HABILIDADE ESPECIAL' },
       { type: 'repair', icon: '✚', title: 'Reparo de emergência', description: 'Recupera 30% da integridade máxima', category: 'HABILIDADE ESPECIAL' }
     ];
-    const options = [...(current.category === 'special' ? specials : attributes)];
+    const availableOptions = current.category === 'special'
+      ? specials
+      : attributes.filter((option) => option.type !== 'cadence' || this.player.fireRateLevel < 5);
+    const options = [...availableOptions];
     for (let i = options.length - 1; i > 0; i -= 1) {
       const j = Math.floor(Math.random() * (i + 1));
       [options[i], options[j]] = [options[j], options[i]];
@@ -294,6 +298,7 @@ export class Game {
     if (type === 'damage') this.player.weaponDamage = Math.min(2.5, this.player.weaponDamage * 1.10);
     if (type === 'speed') this.player.speed = Math.min(this.player.baseSpeed * 1.5, this.player.speed * 1.06);
     if (type === 'integrity') this.player.maxHealth = Math.min(this.player.baseMaxHealth * 1.6, this.player.maxHealth * 1.10);
+    if (type === 'cadence') this.player.fireRateLevel = Math.min(5, this.player.fireRateLevel + 1);
     if (type === 'doubleShot') this.player.doubleShotLevel = Math.min(2, this.player.doubleShotLevel + 1);
     if (type === 'laser') this.player.laserLevel = Math.min(3, this.player.laserLevel + 1);
     if (type === 'shield') this.player.upgradeShield();
@@ -653,7 +658,7 @@ export class Game {
         this.projectiles.push(projectile);
       }
       gameAudio.playPlayerShot();
-      this.shotClock = .22;
+      this.shotClock = .22 / (1 + this.player.fireRateLevel * 0.1);
     }
 
     // WaveManager decides when an enemy should spawn and when the next wave begins.

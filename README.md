@@ -4,7 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão oficial em `main`:** `0.24.2` — ajuste fino da elasticidade visual dos inimigos, mantendo a correção de aproximação do chefe introduzida na v0.24.1.
+**Versão oficial em `main`:** `0.24.2` — ajuste fino da elasticidade visual dos inimigos.
+
+**Candidata em desenvolvimento:** `0.25.0` — nova carta de atributo para aumentar a cadência de disparo, com limite de cinco níveis. Ainda depende de revisão, verificações automatizadas e teste manual no GitHub Pages.
 
 **Validação:** aguarda teste manual desta atualização pelo GitHub Pages; não considerar a versão validada antes do retorno do usuário.
 

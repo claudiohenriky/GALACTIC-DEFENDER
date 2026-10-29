@@ -7,6 +7,7 @@ export class Player {
     this.maxHealth = this.baseMaxHealth;
     this.health = this.maxHealth;
     this.weaponDamage = 1;
+    this.fireRateLevel = 0;
     this.doubleShotLevel = 0;
     this.laserLevel = 0;
     this.shieldLevel = 0;

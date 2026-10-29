@@ -39,10 +39,11 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Preservar mira, dano, integridade e regras de combate; validar no GitHub Pages em celular antes de iniciar a etapa seguinte.
 
 ## Etapa 3 — Novas cartas de atributos e habilidades
-- Auditar as cartas existentes e os marcos de progressão antes de adicionar outras.
-- Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
-- Definir regras de raridade, compatibilidade e limites para evitar combinações desbalanceadas.
-- Considerar o míssil como nova habilidade especial após a revisão do sistema de projéteis.
+- [x] Auditar as cartas existentes e os marcos de progressão antes de adicionar outra opção.
+- [ ] Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
+- [ ] Definir regras de raridade, compatibilidade e limites para evitar combinações desbalanceadas.
+- [ ] Considerar o míssil como nova habilidade especial após a revisão do sistema de projéteis.
+- **Em desenvolvimento na v0.25.0:** carta Cadência aprimorada, com aumento de 10% por nível e limite de cinco níveis; candidata ainda depende de validação.
 
 ## Etapa 4 — Novas classes de inimigos
 - Adicionar classes com comportamentos próprios, por exemplo guardião, artilheiro e elite.
