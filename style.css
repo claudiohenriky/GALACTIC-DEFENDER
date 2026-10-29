@@ -346,3 +346,10 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .app-shell:fullscreen #mission-prep{max-height:calc(100dvh - 76px);min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}.app-shell:fullscreen .prep-launch{padding-bottom:max(12px,env(safe-area-inset-bottom))}
 .app-shell:fullscreen .prep-start-button,.app-shell:fullscreen .prep-fullscreen-button,.app-shell:fullscreen #prep-back-button{min-height:48px;touch-action:manipulation}
 @media(max-height:520px) and (orientation:landscape){.app-shell:fullscreen{padding:8px}.app-shell:fullscreen .topbar{padding-bottom:8px}.app-shell:fullscreen #mission-prep{margin:8px auto;padding:14px}.app-shell:fullscreen .prep-heading{flex-direction:row;align-items:center;padding-bottom:12px}.app-shell:fullscreen .prep-content{grid-template-columns:minmax(0,1fr) minmax(210px,.8fr);gap:14px;padding:12px 0}.app-shell:fullscreen .prep-mode-card{min-height:120px;padding:10px}.app-shell:fullscreen .prep-checklist{padding:10px}.app-shell:fullscreen .prep-check-item{padding:7px 0}.app-shell:fullscreen .prep-launch{padding-top:12px;gap:10px}.app-shell:fullscreen .prep-start-button{min-height:44px}}
+
+/* v0.28.0: rarity labels for special ability cards. */
+.upgrade-card-rarity{display:inline-flex;align-items:center;border:1px solid currentColor;border-radius:999px;padding:2px 7px;font-size:8px;font-weight:900;letter-spacing:.1em;line-height:1.4}
+.rarity-common{color:#a9c1d8}
+.rarity-rare{color:#6fcfff}
+.rarity-epic{color:#c6a5ff}
+.rarity-legendary{color:#ffcb70}
