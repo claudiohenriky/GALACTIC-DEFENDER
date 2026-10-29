@@ -16,6 +16,11 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - `src/ui/hud.js`: atualização dos indicadores da página e da HUD compacta dentro da arena.
 - `main.js`: também controla a entrada e saída da tela cheia, com tentativa opcional de orientar o celular na horizontal.
 
+## Estado da versão
+
+- A v0.19.2 ajusta o dano da onda de quebra do escudo contra chefes (12 pontos), mantendo 2 pontos contra inimigos comuns.
+- O contato com o escudo não deve eliminar inimigos automaticamente; a validação final é feita pelo usuário no GitHub Pages.
+
 ## Decisões técnicas
 
 - Canvas 2D para a arena, com desenho escalável por densidade de pixels.
