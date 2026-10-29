@@ -27,6 +27,11 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Dar padrões laterais legíveis por classe: curvas de aproximação para interceptadores, faixa de tiro móvel para sentinelas e desvios controlados para perseguidores.
 - Preservar os valores atuais de dano, integridade, cadência e mira dos projéteis; observar equilíbrio e fluidez no GitHub Pages antes de avançar.
 
+## Etapa 2.3 — Polimento do movimento inimigo (v0.24.1)
+- Reforçar o alongamento e a inclinação dos inimigos durante mudanças de direção, aproximando a resposta visual da nave do jogador.
+- Corrigir a trajetória do chefe para avançar até uma faixa de combate e percorrer a arena horizontalmente de forma suave.
+- Preservar mira, dano, integridade e regras de combate; validar no GitHub Pages em celular antes de iniciar a etapa seguinte.
+
 ## Etapa 3 — Novas cartas de atributos e habilidades
 - Auditar as cartas existentes e os marcos de progressão antes de adicionar outras.
 - Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
