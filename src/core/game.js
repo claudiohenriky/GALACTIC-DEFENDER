@@ -483,6 +483,40 @@ export class Game {
     return true;
   }
 
+  updateShieldPulseWave(dt) {
+    const wave = this.shieldPulseWave;
+    if (!wave) return;
+    wave.life -= dt;
+    wave.traveled += wave.speed * dt;
+    wave.x = wave.originX + wave.directionX * wave.traveled;
+    wave.y = wave.originY + wave.directionY * wave.traveled;
+    const perpendicularX = -wave.directionY;
+    const perpendicularY = wave.directionX;
+
+    for (const enemy of this.enemies) {
+      if (!enemy.active || wave.hitEnemies.has(enemy)) continue;
+      const dx = enemy.x - wave.x, dy = enemy.y - wave.y;
+      const forward = dx * wave.directionX + dy * wave.directionY;
+      const lateral = dx * perpendicularX + dy * perpendicularY;
+      if (Math.abs(forward) <= wave.halfDepth + enemy.radius &&
+          Math.abs(lateral) <= wave.halfWidth + enemy.radius) {
+        wave.hitEnemies.add(enemy);
+        this.damageEnemy(enemy, enemy.type === 'boss' ? wave.damage * 0.8 : wave.damage);
+      }
+    }
+
+    for (const shot of this.enemyProjectiles) {
+      if (!shot.active) continue;
+      const dx = shot.x - wave.x, dy = shot.y - wave.y;
+      const forward = dx * wave.directionX + dy * wave.directionY;
+      const lateral = dx * perpendicularX + dy * perpendicularY;
+      if (Math.abs(forward) <= wave.halfDepth + shot.radius &&
+          Math.abs(lateral) <= wave.halfWidth + shot.radius) shot.active = false;
+    }
+
+    if (wave.life <= 0 || wave.traveled >= wave.maxDistance) this.shieldPulseWave = null;
+  }
+
   updateShieldPulseButton() {
     const button = document.querySelector('#shield-pulse-button');
     if (!button) return;
@@ -872,6 +906,12 @@ export class Game {
     this.guidedMissileCooldown = Math.max(0, this.guidedMissileCooldown - dt);
     this.player.guidedMissileCooldown = this.guidedMissileCooldown;
     this.shieldPulseCooldown = Math.max(0, this.shieldPulseCooldown - dt);
+    this.overloadLockTimer = Math.max(0, this.overloadLockTimer - dt);
+    this.overload = Math.max(0, this.overload - dt * (this.overloadLockTimer > 0 ? 22 : this.overload >= 70 ? 7 : 12));
+    if (this.overloadLockTimer === 0 && this.overload >= this.overloadMax) this.overload = 68;
+    this.player.overloadSpeedFactor = this.overloadLockTimer > 0 ? 0.68 : this.overload >= 70 ? 0.82 : 1;
+    this.updateShieldPulseWave(dt);
+    this.updateOverloadHud();
     // Fire the second missile after a short delay so both launches are readable.
     if (this.pendingGuidedMissileLaunch) {
       this.pendingGuidedMissileLaunch.timer -= dt;
