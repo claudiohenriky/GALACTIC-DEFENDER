@@ -1,3 +1,14 @@
+## [0.24.0] — Movimento fluido dos inimigos
+
+### Movimento e leitura visual
+- Adiciona rotação e inclinação suaves orientadas pela velocidade real de cada inimigo, seguindo o princípio visual já usado pela nave do jogador.
+- Adiciona propulsão e brilhos laterais leves em Canvas 2D, sem sprites pré-renderizados, motor 3D ou dependências externas.
+- Interceptadores fazem curvas laterais durante a perseguição; sentinelas percorrem uma faixa de tiro; perseguidores mantêm desvios controlados; chefes preservam sua faixa e varredura horizontal.
+- Mantém os valores de dano, integridade e os disparos direcionados existentes; os tiros continuam mirando a posição do jogador no momento do disparo.
+
+### Validação
+- Candidata em pull request. Verificações automatizadas e teste manual pelo GitHub Pages ainda precisam ser confirmados; computador não foi testado nesta etapa.
+
 # Histórico de versões — GALACTIC-DEFENDER
 
 ## [0.23.0] — Resposta visual da nave ao movimento
