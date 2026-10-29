@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.28.0';
-import { Enemy } from '../enemies/enemy.js?v=0.28.0';
-import { Projectile } from '../combat/projectile.js?v=0.28.0';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.28.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.28.0';
-import { Progression } from '../progression/progression.js?v=0.28.0';
-import { Mission } from '../missions/missions.js?v=0.28.0';
-import { WaveManager } from './wave-manager.js?v=0.28.0';
-import { updateHud } from '../ui/hud.js?v=0.28.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.28.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.28.0';
+import { Player } from '../player/player.js?v=0.28.1';
+import { Enemy } from '../enemies/enemy.js?v=0.28.1';
+import { Projectile } from '../combat/projectile.js?v=0.28.1';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.28.1';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.28.1';
+import { Progression } from '../progression/progression.js?v=0.28.1';
+import { Mission } from '../missions/missions.js?v=0.28.1';
+import { WaveManager } from './wave-manager.js?v=0.28.1';
+import { updateHud } from '../ui/hud.js?v=0.28.1';
+import { gameAudio } from '../audio/game-audio.js?v=0.28.1';
+import { AchievementTracker } from '../progression/achievements.js?v=0.28.1';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -31,7 +31,9 @@ export class Game {
     this.enemies = [];
     this.projectiles = [];
     this.guidedMissiles = [];
-    this.guidedMissileClock = 1.0;
+    this.guidedMissileCooldown = 0;
+    this.guidedMissileCooldownMax = 12;
+    this.guidedMissileEffects = [];
     this.enemyProjectiles = [];
     this.stars = Array.from({ length: 95 }, () => ({
       x: Math.random(),
@@ -167,7 +169,9 @@ export class Game {
     this.enemies = [];
     this.projectiles = [];
     this.guidedMissiles = [];
-    this.guidedMissileClock = 1.0;
+    this.guidedMissileCooldown = 0;
+    this.guidedMissileCooldownMax = 12;
+    this.guidedMissileEffects = [];
     this.enemyProjectiles = [];
     this.score = 0;
     this.destroyed = 0;
@@ -203,6 +207,10 @@ export class Game {
     const key = this.normalizeKey(event.code, event.key);
     this.keys.add(key);
     if (event.repeat) return;
+    if (event.code === 'KeyE' && this.status === 'running') {
+      this.activateGuidedMissile();
+      return;
+    }
 
     if (event.code === 'KeyP' && this.status === 'running') {
       this.status = 'paused';
@@ -312,7 +320,7 @@ export class Game {
     [...overlay.querySelectorAll('[data-upgrade]')].forEach((button, index) => {
       const card = this.currentUpgradeOptions[index];
       button.dataset.upgrade = card.type;
-      button.className = 'upgrade-card';
+      button.className = 'upgrade-card' + (card.rarity ? ' rarity-' + card.rarity : '');
       button.setAttribute('aria-label', `${card.title}. ${card.description}`);
       const rarityText = { common: 'COMUM', rare: 'RARO', epic: 'ÉPICO', legendary: 'LENDÁRIO' };
       const rarityLabel = card.rarity ? '<span class="upgrade-card-rarity rarity-' + card.rarity + '">' + rarityText[card.rarity] + '</span>' : '';
@@ -332,11 +340,15 @@ export class Game {
     if (type === 'propulsionControl') this.player.propulsionControlLevel = Math.min(3, this.player.propulsionControlLevel + 1);
     if (type === 'doubleShot') this.player.doubleShotLevel = Math.min(2, this.player.doubleShotLevel + 1);
     if (type === 'laser') this.player.laserLevel = Math.min(3, this.player.laserLevel + 1);
-    if (type === 'guidedMissile') this.player.guidedMissileLevel = Math.min(3, this.player.guidedMissileLevel + 1);
+    if (type === 'guidedMissile') {
+      this.player.guidedMissileLevel = Math.min(3, this.player.guidedMissileLevel + 1);
+      this.updateGuidedMissileButton();
+    }
     if (type === 'shield') this.player.upgradeShield();
     if (type === 'repair') this.player.health = Math.min(this.player.maxHealth, this.player.health + this.player.maxHealth * 0.30);
     this.pendingUpgradeChoices.shift();
     updateHud(this);
+    this.updateGuidedMissileButton();
     if (this.pendingUpgradeChoices.length) { this.renderUpgradeChoice(); return; }
     document.querySelector('#upgrade-overlay').classList.add('hidden');
     document.querySelector('#upgrade-overlay').classList.remove('is-special-choice');
@@ -422,6 +434,57 @@ export class Game {
       if (enemy.active && dx * dx + dy * dy <= radiusSquared) {
         // Make the shockwave's impact visible on durable bosses as well as small enemies.
         this.damageEnemy(enemy, enemy.type === 'boss' ? 12 : 2);
+      }
+    }
+  }
+
+  activateGuidedMissile() {
+    if (this.status !== 'running' || this.player.guidedMissileLevel <= 0 || this.guidedMissileCooldown > 0) return false;
+    const targets = this.enemies.filter((enemy) => enemy.active).sort((a, b) => {
+      const adx = a.x - this.player.x, ady = a.y - this.player.y;
+      const bdx = b.x - this.player.x, bdy = b.y - this.player.y;
+      return adx * adx + ady * ady - (bdx * bdx + bdy * bdy);
+    });
+    if (!targets.length) return false;
+    const level = this.player.guidedMissileLevel;
+    const missileCount = level >= 2 ? 2 : 1;
+    const launchAngle = this.player.rotation;
+    for (let index = 0; index < Math.min(missileCount, targets.length); index += 1) {
+      const side = index === 0 ? -1 : 1;
+      const launchX = this.player.x + Math.cos(launchAngle + Math.PI / 2) * side * 7;
+      const launchY = this.player.y + Math.sin(launchAngle + Math.PI / 2) * side * 7;
+      this.guidedMissiles.push(new GuidedMissile(launchX, launchY, targets[index], level));
+    }
+    this.guidedMissileCooldownMax = level >= 3 ? 9 : level >= 2 ? 10 : 12;
+    this.guidedMissileCooldown = this.guidedMissileCooldownMax;
+    this.updateGuidedMissileButton();
+    return true;
+  }
+
+  updateGuidedMissileButton() {
+    const button = document.querySelector('#guided-missile-button');
+    if (!button) return;
+    const unlocked = this.player.guidedMissileLevel > 0;
+    button.classList.toggle('hidden', !unlocked);
+    button.disabled = !unlocked || this.status !== 'running' || this.guidedMissileCooldown > 0;
+    const label = document.querySelector('#guided-missile-status');
+    const fill = document.querySelector('#guided-missile-cooldown-fill');
+    const ready = this.guidedMissileCooldown <= 0;
+    const statusText = this.status !== 'running' ? 'DISPONÍVEL NA PARTIDA' : ready ? 'PRONTO · TOQUE / E' : 'RECARGA · ' + Math.ceil(this.guidedMissileCooldown) + 's';
+    if (label && label.textContent !== statusText) label.textContent = statusText;
+    if (fill) fill.style.width = ready ? '0%' : (Math.min(1, this.guidedMissileCooldown / this.guidedMissileCooldownMax) * 100) + '%';
+    button.setAttribute('aria-label', ready ? 'Ativar mísseis teleguiados' : 'Mísseis teleguiados em recarga');
+  }
+
+  explodeGuidedMissile(missile) {
+    const radius = missile.blastRadius;
+    this.guidedMissileEffects.push({ x: missile.x, y: missile.y, radius, life: 0.48, maxLife: 0.48 });
+    const radiusSquared = radius * radius;
+    for (const enemy of this.enemies) {
+      if (!enemy.active) continue;
+      const dx = enemy.x - missile.x, dy = enemy.y - missile.y;
+      if (dx * dx + dy * dy <= radiusSquared) {
+        this.damageEnemy(enemy, enemy === missile.target ? missile.damage : missile.damage * 0.7);
       }
     }
   }
@@ -578,6 +641,7 @@ export class Game {
     if (this.hudUpdateTimer >= this.hudUpdateInterval) {
       this.hudUpdateTimer %= this.hudUpdateInterval;
       updateHud(this);
+      this.updateGuidedMissileButton();
       const runAchievements = this.achievements.checkRunMilestones(this.score, this.waveManager.wave);
       if (runAchievements.length) this.showRewardBanner('CONQUISTA DESBLOQUEADA', runAchievements.map(item => item.name).join(' · '), 'achievement');
     }
@@ -713,21 +777,14 @@ export class Game {
     }
 
     this.projectiles.forEach((shot) => shot.update(dt));
-    this.guidedMissileClock -= dt;
-    if (this.player.guidedMissileLevel > 0 && this.guidedMissileClock <= 0) {
-      let target = null; let nearestDistance = Infinity;
-      for (const enemy of this.enemies) {
-        if (!enemy.active) continue;
-        const dx = enemy.x - this.player.x; const dy = enemy.y - this.player.y;
-        const distance = dx * dx + dy * dy;
-        if (distance < nearestDistance) { nearestDistance = distance; target = enemy; }
-      }
-      if (target) {
-        this.guidedMissiles.push(new GuidedMissile(this.player.x, this.player.y - this.player.radius, target, this.player.guidedMissileLevel));
-        this.guidedMissileClock = Math.max(1.65, 3.5 - this.player.guidedMissileLevel * 0.55);
-      } else this.guidedMissileClock = 0.2;
-    }
+    this.guidedMissileCooldown = Math.max(0, this.guidedMissileCooldown - dt);
     this.guidedMissiles.forEach((missile) => missile.update(dt, this.enemies, this.width, this.height));
+    let effectWriteIndex = 0;
+    for (const effect of this.guidedMissileEffects) {
+      effect.life -= dt;
+      if (effect.life > 0) this.guidedMissileEffects[effectWriteIndex++] = effect;
+    }
+    this.guidedMissileEffects.length = effectWriteIndex;
     this.enemyProjectiles.forEach((shot) => shot.update(dt));
     this.enemies.forEach((enemy) => {
       const shot = enemy.update(dt, this.player.x, this.player.y, this.width, this.height);
@@ -753,15 +810,17 @@ export class Game {
       }
     }
 
-    // Guided missiles resolve a single direct hit against active enemies.
+    // Each guided missile detonates once and deals area damage to nearby enemies.
     for (const missile of this.guidedMissiles) {
       if (!missile.active) continue;
       for (const enemy of this.enemies) {
         if (!enemy.active) continue;
-        const dx = missile.x - enemy.x; const dy = missile.y - enemy.y;
+        const dx = missile.x - enemy.x, dy = missile.y - enemy.y;
         const combinedRadius = missile.radius + enemy.radius;
         if (dx * dx + dy * dy < combinedRadius * combinedRadius) {
-          missile.active = false; this.damageEnemy(enemy, missile.damage); break;
+          missile.active = false;
+          this.explodeGuidedMissile(missile);
+          break;
         }
       }
     }
@@ -865,6 +924,19 @@ export class Game {
     this.guidedMissiles.forEach((missile) => missile.draw(ctx));
     this.enemyProjectiles.forEach((shot) => shot.draw(ctx));
     this.enemies.forEach((enemy) => enemy.draw(ctx));
+    this.guidedMissileEffects.forEach((effect) => {
+      const progress = 1 - effect.life / effect.maxLife;
+      const fade = Math.max(0, effect.life / effect.maxLife);
+      const radius = effect.radius * (0.35 + progress * 0.65);
+      ctx.save();
+      ctx.globalAlpha = fade * 0.18; ctx.fillStyle = '#ffb45e';
+      ctx.beginPath(); ctx.arc(effect.x, effect.y, radius, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = fade * 0.9; ctx.strokeStyle = '#ffb45e'; ctx.lineWidth = 3 * fade + 0.5;
+      ctx.beginPath(); ctx.arc(effect.x, effect.y, radius, 0, Math.PI * 2); ctx.stroke();
+      ctx.globalAlpha = fade * 0.72; ctx.strokeStyle = '#fff0c8'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(effect.x, effect.y, radius * 0.68, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+    });
 
     // Blink during the brief invulnerability window after taking damage.
     const playerVisible = this.player.invulnerabilityTimer <= 0 ||
