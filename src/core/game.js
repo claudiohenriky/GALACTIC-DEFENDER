@@ -528,20 +528,34 @@ export class Game {
     if (previousDamageFeedbackTimer > 0 && this.damageFeedbackTimer === 0) {
       document.querySelector('#damage-feedback').classList.remove('damage-active');
     }
-    this.damageSparks.forEach((spark) => {
+    // Update and compact short-lived effects in place to avoid allocating new arrays every frame.
+    let writeIndex = 0;
+    for (let index = 0; index < this.damageSparks.length; index += 1) {
+      const spark = this.damageSparks[index];
       spark.x += spark.vx * dt;
       spark.y += spark.vy * dt;
       spark.life -= dt;
-    });
-    this.damageSparks = this.damageSparks.filter((spark) => spark.life > 0);
-    this.shieldBreakEffects.forEach((effect) => { effect.life -= dt; });
-    this.shieldBreakEffects = this.shieldBreakEffects.filter((effect) => effect.life > 0);
-    this.levelUpParticles.forEach((particle) => {
+      if (spark.life > 0) this.damageSparks[writeIndex++] = spark;
+    }
+    this.damageSparks.length = writeIndex;
+
+    writeIndex = 0;
+    for (let index = 0; index < this.shieldBreakEffects.length; index += 1) {
+      const effect = this.shieldBreakEffects[index];
+      effect.life -= dt;
+      if (effect.life > 0) this.shieldBreakEffects[writeIndex++] = effect;
+    }
+    this.shieldBreakEffects.length = writeIndex;
+
+    writeIndex = 0;
+    for (let index = 0; index < this.levelUpParticles.length; index += 1) {
+      const particle = this.levelUpParticles[index];
       particle.x += particle.vx * dt;
       particle.y += particle.vy * dt;
       particle.life -= dt;
-    });
-    this.levelUpParticles = this.levelUpParticles.filter((particle) => particle.life > 0);
+      if (particle.life > 0) this.levelUpParticles[writeIndex++] = particle;
+    }
+    this.levelUpParticles.length = writeIndex;
 
     this.shotClock -= dt;
     if (this.keys.has('space') && this.shotClock <= 0) {
@@ -627,13 +641,39 @@ export class Game {
 
     this.handleMissionCompletion(this.mission.update(dt, this.waveManager.wave));
 
-    this.projectiles = this.projectiles.filter((shot) =>
-      shot.active && shot.x > -20 && shot.x < this.width + 20 && shot.y > -20 && shot.y < this.height + 20
-    );
-    this.enemyProjectiles = this.enemyProjectiles.filter((shot) =>
-      shot.active && shot.x > -20 && shot.x < this.width + 20 && shot.y > -20 && shot.y < this.height + 20
-    );
-    this.enemies = this.enemies.filter((enemy) => enemy.active);
+    // Compact entity lists in place instead of allocating replacement arrays each frame.
+    let projectileWriteIndex = 0;
+    for (let index = 0; index < this.projectiles.length; index += 1) {
+      const shot = this.projectiles[index];
+      if (
+        shot.active &&
+        shot.x > -20 && shot.x < this.width + 20 &&
+        shot.y > -20 && shot.y < this.height + 20
+      ) {
+        this.projectiles[projectileWriteIndex++] = shot;
+      }
+    }
+    this.projectiles.length = projectileWriteIndex;
+
+    let enemyProjectileWriteIndex = 0;
+    for (let index = 0; index < this.enemyProjectiles.length; index += 1) {
+      const shot = this.enemyProjectiles[index];
+      if (
+        shot.active &&
+        shot.x > -20 && shot.x < this.width + 20 &&
+        shot.y > -20 && shot.y < this.height + 20
+      ) {
+        this.enemyProjectiles[enemyProjectileWriteIndex++] = shot;
+      }
+    }
+    this.enemyProjectiles.length = enemyProjectileWriteIndex;
+
+    let enemyWriteIndex = 0;
+    for (let index = 0; index < this.enemies.length; index += 1) {
+      const enemy = this.enemies[index];
+      if (enemy.active) this.enemies[enemyWriteIndex++] = enemy;
+    }
+    this.enemies.length = enemyWriteIndex;
     if (this.player.health <= 0) this.endGame();
   }
 
