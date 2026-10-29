@@ -9,17 +9,6 @@
 ### Validação
 - Aguardando verificações automatizadas do pull request e teste manual no GitHub Pages.
 
-## [0.27.0] — Nova classe de inimigo: Guardião
-
-### Combate e ondas
-- Introduz o Guardião a partir da onda 3, com casco maior, integridade elevada e deslocamento mais lento.
-- O Guardião não dispara à distância: sua função é pressionar o jogador pela resistência e pelo avanço constante.
-- Concede 180 pontos e 45 XP ao ser derrotado.
-- Preserva as classes existentes e os chefes que surgem a cada cinco ondas.
-
-### Validação
-- Aguardando verificações automatizadas do pull request e teste manual no GitHub Pages.
-
 ## [0.26.0] — Novas cartas de atributos de combate
 
 ### Atributos da nave
