@@ -4,7 +4,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em desenvolvimento:** `0.18.0` — atualização dedicada à arquitetura e ao desempenho do Canvas 2D. A primeira etapa reduz cálculos de raiz quadrada em verificações frequentes de colisão e remove cálculos redundantes antes da criação de projéteis. Ainda não há medição que comprove ganho de FPS; a validação manual no celular será feita antes de considerar a atualização aprovada.
+**Versão em desenvolvimento:** `0.18.0` — atualização dedicada à arquitetura e ao desempenho do Canvas 2D. As etapas iniciais reduzem cálculos de raiz quadrada em verificações frequentes e compactam listas de entidades e efeitos no próprio array para evitar arrays substitutos por quadro. Ainda não há medição que comprove ganho de FPS; a validação manual no celular será feita antes de considerar a atualização aprovada.
 
 **Última versão estável aprovada pelo usuário:** `0.17.3` — mira automática no inimigo mais próximo, arraste manual quando a arena está vazia, retorno suave à direção frontal e disparo manual.
 
