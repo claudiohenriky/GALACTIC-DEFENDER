@@ -22,6 +22,11 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Manter Canvas 2D, baixo custo de renderização e compatibilidade com controles de teclado e joystick.
 - Validar no GitHub Pages em celular e computador antes do merge.
 
+## Etapa 2.2 — Movimento fluido da facção inimiga (v0.24.0)
+- Aplicar rotação e inclinação suaves orientadas pelo movimento real de cada inimigo, com propulsão leve em Canvas 2D.
+- Dar padrões laterais legíveis por classe: curvas de aproximação para interceptadores, faixa de tiro móvel para sentinelas e desvios controlados para perseguidores.
+- Preservar os valores atuais de dano, integridade, cadência e mira dos projéteis; observar equilíbrio e fluidez no GitHub Pages antes de avançar.
+
 ## Etapa 3 — Novas cartas de atributos e habilidades
 - Auditar as cartas existentes e os marcos de progressão antes de adicionar outras.
 - Introduzir escolhas com efeitos distintos, não apenas bônus numéricos.
