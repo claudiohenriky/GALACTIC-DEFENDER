@@ -18,6 +18,8 @@ export class Player {
     // Temporary spawn protection prevents an unavoidable hit while the pilot gets oriented.
     this.invulnerabilityTimer = 3;
     this.flamePhase = 0;
+    // The ship points upward by default; rotation is stored as a world-space angle.
+    this.rotation = -Math.PI / 2;
     this.x = width / 2;
     this.y = height * (width > height ? 0.66 : 0.78);
     this.fitToArena(width, height);
@@ -28,7 +30,7 @@ export class Player {
     this.y = Math.max(this.radius + 5, Math.min(height - this.radius - 5, this.y));
   }
 
-  update(dt, keys, width, height, joystick = null) {
+  update(dt, keys, width, height, joystick = null, targetAngle = this.rotation, relativeMovement = false) {
     this.invulnerabilityTimer = Math.max(0, this.invulnerabilityTimer - dt);
     if (this.shieldLevel > 0 && this.shieldHealth <= 0) {
       this.shieldRechargeTimer = Math.max(0, this.shieldRechargeTimer - dt);
@@ -36,9 +38,16 @@ export class Player {
     }
     this.flamePhase += dt;
 
+    // Smoothly rotate toward the active aim direction using the shortest angular path.
+    const angleDelta = Math.atan2(
+      Math.sin(targetAngle - this.rotation),
+      Math.cos(targetAngle - this.rotation)
+    );
+    this.rotation += angleDelta * Math.min(1, dt * 14);
+
     let dx = 0, dy = 0;
     if (joystick && Math.hypot(joystick.x, joystick.y) > 0.04) {
-      // Analog movement preserves partial tilt for fine positioning and caps diagonal speed.
+      // Mobile joystick movement stays screen-relative so it remains intuitive.
       dx = joystick.x;
       dy = joystick.y;
       const magnitude = Math.hypot(dx, dy);
@@ -47,11 +56,19 @@ export class Player {
         dy /= magnitude;
       }
     } else {
-      if (keys.has('a') || keys.has('arrowleft')) dx -= 1;
-      if (keys.has('d') || keys.has('arrowright')) dx += 1;
-      if (keys.has('w') || keys.has('arrowup')) dy -= 1;
-      if (keys.has('s') || keys.has('arrowdown')) dy += 1;
-      // Normalize keyboard diagonals so they are not faster than horizontal movement.
+      const forward = (keys.has('w') || keys.has('arrowup') ? 1 : 0)
+        - (keys.has('s') || keys.has('arrowdown') ? 1 : 0);
+      const strafe = (keys.has('d') || keys.has('arrowright') ? 1 : 0)
+        - (keys.has('a') || keys.has('arrowleft') ? 1 : 0);
+      if (relativeMovement) {
+        // W/S move along the ship's facing; A/D strafe without changing aim.
+        dx = Math.cos(this.rotation) * forward + Math.cos(this.rotation + Math.PI / 2) * strafe;
+        dy = Math.sin(this.rotation) * forward + Math.sin(this.rotation + Math.PI / 2) * strafe;
+      } else {
+        dx = strafe;
+        dy = -forward;
+      }
+      // Normalize diagonals so they are never faster than straight movement.
       const magnitude = Math.hypot(dx, dy) || 1;
       dx /= magnitude;
       dy /= magnitude;
@@ -86,6 +103,7 @@ export class Player {
 
     ctx.save();
     ctx.translate(this.x, this.y);
+    ctx.rotate(this.rotation + Math.PI / 2);
     ctx.shadowBlur = 8;
     ctx.shadowColor = '#58e4e8';
     ctx.fillStyle = '#58e4e8';
