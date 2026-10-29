@@ -77,6 +77,14 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Implementar vitória, derrota e empate, incluindo deslocamento coreografado e limites da arena.
 - Integrar a mecânica a um boss apenas após validar controles de PC e mobile.
 
+## Candidata integrada v0.30.0 — habilidades e energia
+- [x] **Pulso de Ruptura:** habilidade frontal, separada da onda automática, disponível somente enquanto o escudo está quebrado; remove projéteis e aplica dano controlado uma vez por inimigo atingido.
+- [x] **Sobrecarga compartilhada:** lasers, mísseis e Pulso de Ruptura acumulam energia; acima de 70% há redução de potência/velocidade e no limite as habilidades especiais são bloqueadas temporariamente.
+- [x] **Mísseis nível 3:** fragmentação limitada a três projéteis secundários mais fracos, com limite total de mísseis ativos.
+- [ ] **Validação manual:** testar em celular e computador, especialmente janela curta do escudo quebrado, barreira frontal, recarga, sobrecarga e fragmentação.
+- [ ] **Balanceamento:** ajustar custos e recuperação de energia com base no teste; os valores atuais são iniciais.
+- [ ] **Attack Clash e ataques contínuos:** permanecem futuros; ainda falta uma interface comum de ataques e colisões para feixes e habilidades especiais de bosses.
+
 ## Regras de execução
 - Uma mudança lógica por PR, com commits pequenos e mensagens descritivas.
 - Manter Canvas 2D até o marco v1.0.0.
