@@ -1,3 +1,13 @@
+## [0.24.2] — Ajuste fino da elasticidade inimiga
+
+### Ajustes visuais
+- Reduz discretamente o alongamento longitudinal, a expansão lateral e o cisalhamento dos cascos inimigos para evitar uma sensação excessivamente molenga.
+- Preserva a leitura de movimento responsiva e as correções de trajetória do chefe da v0.24.1.
+- Não altera IA, padrões de perseguição, mira, dano, integridade ou cadência de disparos.
+
+### Validação
+- Verificações automatizadas e teste manual no GitHub Pages ainda precisam ser confirmados após a publicação.
+
 ## [0.24.1] — Polimento do movimento inimigo e correção do chefe
 
 ### Correções e ajustes

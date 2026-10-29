@@ -22,6 +22,12 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Manter Canvas 2D, baixo custo de renderização e compatibilidade com controles de teclado e joystick.
 - Validar no GitHub Pages em celular e computador antes do merge.
 
+## Ajuste de polimento — Elasticidade inimiga (v0.24.2)
+- Reduzir discretamente o alongamento visual dos inimigos após o feedback do teste da v0.24.1, sem remover a resposta elástica.
+- Manter a correção de aproximação e varredura horizontal do chefe da onda 5.
+- IA e padrões de perseguição permanecem como estão; revisar inteligência e comportamento em uma etapa futura separada.
+- Validar a nova intensidade no GitHub Pages em celular antes de iniciar a próxima etapa.
+
 ## Etapa 2.2 — Movimento fluido da facção inimiga (v0.24.0)
 - Aplicar rotação e inclinação suaves orientadas pelo movimento real de cada inimigo, com propulsão leve em Canvas 2D.
 - Dar padrões laterais legíveis por classe: curvas de aproximação para interceptadores, faixa de tiro móvel para sentinelas e desvios controlados para perseguidores.

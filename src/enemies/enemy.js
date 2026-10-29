@@ -159,10 +159,10 @@ export class Enemy {
     ctx.rotate(this.rotation + Math.PI / 2);
     // A little squash-and-stretch plus stronger shear gives enemy hulls the player's elastic turn cue.
     ctx.transform(
-      1 + this.lateralThrust * 0.12 - Math.abs(this.bank) * 0.06,
+      1 + this.lateralThrust * 0.10 - Math.abs(this.bank) * 0.05,
       0,
-      this.bank * 0.42,
-      1 + this.thrust * 0.08,
+      this.bank * 0.38,
+      1 + this.thrust * 0.07,
       0,
       0
     );
