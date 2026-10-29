@@ -1,3 +1,12 @@
+## [0.40.0] — Primeira Tropa de Elite: Artilheiro de Elite (candidata)
+
+- Adiciona o Artilheiro de Elite como variante do Artilheiro existente, não como uma quinta classe.
+- Introduz a variante ocasionalmente a partir da onda 12, preservando o surgimento normal de chefes e classes.
+- Diferencia o casco com armadura escura, detalhes roxos e núcleo verde.
+- Adiciona escudo de energia visível que absorve dano antes da integridade do casco; dano excedente atinge a vida normalmente.
+- Mantém o padrão de movimento e leque de disparos do Artilheiro-base nesta primeira prova de conceito.
+- Candidata para teste manual; ainda não validada pelo usuário e não mesclada em `main`.
+
 ## [0.39.0] — Cooperação tática entre Guardião e Sentinela
 
 - Guardiões próximos a Sentinelas passam a buscar uma posição de cobertura entre a unidade aliada e o jogador.
