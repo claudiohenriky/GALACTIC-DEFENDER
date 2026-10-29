@@ -2,7 +2,16 @@
 
 Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; quando falta evidência para um marco antigo, isso é informado sem inventar recursos.
 
-## [0.14.0] — Em desenvolvimento
+## [0.15.0] — Em desenvolvimento
+
+### Polimento e consistência
+- Atualiza os identificadores de cache para `0.15.0` nos pontos de entrada e módulos que os versionam.
+- Melhora a indicação visual de foco para navegação por teclado e respeita a preferência do sistema por movimento reduzido.
+- Atualiza a versão exibida, o histórico dentro do jogo e a documentação do projeto.
+- Corrige a documentação dos controles para remover a instrução duplicada da tecla Espaço.
+- Testes manuais em computador e celular ainda pendentes; não declarar esta versão validada antes deles.
+
+## [0.14.0] — Validada pelo usuário
 
 ### Adicionado
 - Sistema persistente de conquistas e recordes pessoais, salvo no navegador.
@@ -35,4 +44,4 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 
 ## Observações
 - Atualizar este arquivo e o histórico dentro do jogo juntos.
-- A v0.14.0 permanece em desenvolvimento até revisão do Pull Request e testes manuais da versão publicada.
+- A v0.14.0 foi validada pelo usuário. A v0.15.0 aguarda revisão e testes manuais em computador e celular.
