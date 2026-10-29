@@ -396,36 +396,37 @@ export class Game {
       ? player.shieldHealth / player.shieldMaxHealth
       : 0;
 
+    // One state save/restore covers both the barrier and its status bar.
+    // Drawing in world coordinates avoids a per-frame translate for this small effect.
+    ctx.save();
+
     if (player.shieldHealth > 0) {
-      // Avoid Canvas shadowBlur on every frame: it is expensive on mobile GPUs.
+      // Keep the shield glow lightweight: no shadowBlur or particle system.
       const pulse = 0.5 + Math.sin(player.flamePhase * 4) * 0.06;
       const weak = ratio <= 0.34;
       const mainColor = weak ? '#ffc477' : '#79dcff';
       const edgeColor = weak ? '#ff9d62' : '#43bfff';
 
-      ctx.save();
-      ctx.translate(player.x, player.y);
       ctx.globalAlpha = 0.12 + pulse * 0.16;
       ctx.fillStyle = edgeColor;
       ctx.beginPath();
-      ctx.ellipse(0, 0, 24, 28, 0, 0, Math.PI * 2);
+      ctx.ellipse(player.x, player.y, 24, 28, 0, 0, Math.PI * 2);
       ctx.fill();
 
       ctx.globalAlpha = 0.72 + pulse * 0.35;
       ctx.strokeStyle = mainColor;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.ellipse(0, 0, 23, 27, 0, 0, Math.PI * 2);
+      ctx.ellipse(player.x, player.y, 23, 27, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      // An inset contour adds depth without blur filters or particle systems.
+      // The inset contour preserves depth without blur filters.
       ctx.globalAlpha = 0.35 + pulse * 0.2;
       ctx.strokeStyle = edgeColor;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.ellipse(0, 0, 19, 23, 0, Math.PI * 1.12, Math.PI * 1.88);
+      ctx.ellipse(player.x, player.y, 19, 23, 0, Math.PI * 1.12, Math.PI * 1.88);
       ctx.stroke();
-      ctx.restore();
     }
 
     const barWidth = 38;
@@ -433,7 +434,7 @@ export class Game {
     let barY = player.y - 35;
     if (barY < 8) barY = player.y + 34;
     const barX = player.x - barWidth / 2;
-    ctx.save();
+    ctx.globalAlpha = 1;
     ctx.fillStyle = '#071526';
     ctx.fillRect(barX, barY, barWidth, barHeight);
     ctx.strokeStyle = '#69cfff';

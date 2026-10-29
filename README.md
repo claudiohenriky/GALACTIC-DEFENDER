@@ -4,11 +4,11 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em desenvolvimento:** `0.18.0` — atualização dedicada à arquitetura e ao desempenho do Canvas 2D. As etapas iniciais reduzem cálculos de raiz quadrada em verificações frequentes e compactam listas de entidades e efeitos no próprio array para evitar arrays substitutos por quadro. O diagnóstico opcional de desempenho pode ser ativado com `?profile=1`; ainda não há resultados comparativos de FPS em dispositivos reais. A validação manual no celular será feita antes de considerar a atualização aprovada.
+**Versão candidata:** `0.18.1` — ajuste pontual na renderização do escudo, reduzindo alterações de estado do Canvas por quadro sem alterar a mecânica ou o visual pretendido. A versão aguarda teste manual pelo GitHub Pages; nenhum ganho quantificado de desempenho é afirmado.
 
-**Última versão estável aprovada pelo usuário:** `0.17.3` — mira automática no inimigo mais próximo, arraste manual quando a arena está vazia, retorno suave à direção frontal e disparo manual.
+**Última versão aprovada pelo usuário:** `0.18.0` — otimizações do ciclo principal e teste manual no GitHub Pages concluído pelo usuário. O escudo ainda apresenta espaço para investigação.
 
-**Fase:** pré-alfa. A v0.18.0 não está declarada como estável. A atualização prioriza desempenho e manutenção interna, sem adicionar mecânicas novas nem reformular a arte.
+**Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável solicitado pelo professor.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: WASD/setas para movimentação, mouse para mirar, botão direito (segurar) ou Espaço para disparar no computador; joystick virtual para movimentar, mira automática no inimigo mais próximo e botão DISPARAR para atirar em dispositivos móveis.

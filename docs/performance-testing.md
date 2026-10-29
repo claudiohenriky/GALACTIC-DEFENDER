@@ -1,10 +1,10 @@
-# Validação de desempenho — v0.18.0
+# Validação de desempenho — v0.18.1
 
 Esta rotina ajuda a comparar cenários, mas não substitui teste em dispositivos reais.
 
 ## Diagnóstico opcional do ciclo
 
-1. Abra a candidata v0.18.0 em um navegador com as ferramentas de desenvolvedor disponíveis.
+1. Abra a candidata v0.18.1 pelo GitHub Pages no navegador disponível.
 2. Acrescente `?profile=1` ao endereço da página (por exemplo, `index.html?profile=1`).
 3. Inicie uma partida e deixe o jogo funcionar por pelo menos 30 segundos.
 4. No console, procure mensagens `[GALACTIC-DEFENDER profile]`. Cada relatório reúne 180 quadros e mostra:
@@ -22,9 +22,10 @@ Esta rotina ajuda a comparar cenários, mas não substitui teste em dispositivos
 - Compare o mesmo cenário. Diferenças de ondas, inimigos, efeitos, economia de energia, temperatura e abas em segundo plano podem distorcer os resultados.
 - Não declare melhoria de desempenho antes de reunir dados reais. Registre também travamentos, erros e qualquer alteração percebida nos controles.
 
-## Critério de aprovação da v0.18.0
+## Critério de aprovação da v0.18.1
 
 - Verificações automáticas de sintaxe e caminhos de imports aprovadas.
-- Sem regressões funcionais no computador e no celular.
-- Teste de desempenho repetível, com resultados registrados, sem exigir um ganho arbitrário se não houver gargalo mensurável.
-- Revisão final do diff e aprovação antes de integrar à `main`.
+- O usuário confirma no GitHub Pages que a barreira, a barra, a quebra, o dano em área e a recarga continuam funcionando.
+- Comparar a fluidez percebida com a versão de referência no mesmo dispositivo e cenário; não afirmar melhoria medida sem dados.
+- Revisão final do diff e aprovação explícita antes de integrar à `main`.
+- O projeto é validado pelo navegador publicado; não exigir execução local do usuário.

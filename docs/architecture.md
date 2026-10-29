@@ -41,7 +41,7 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - Brilhos de nave, inimigos e projéteis foram reduzidos; a chama da nave usa uma oscilação determinística em vez de gerar aleatoriedade a cada quadro.
 - Essas mudanças são hipóteses de otimização e precisam ser verificadas em dispositivos reais; não representam garantia universal de FPS.
 
-## Auditoria de desempenho — v0.18.0
+## Auditoria de desempenho — v0.18.0 e v0.18.1
 
 - O ciclo principal permanece em `src/core/game.js`; a reestruturação deve ocorrer em etapas, sem reescrita integral nem mudança de comportamento não planejada.
 - As verificações de colisão usam comparações de distância ao quadrado quando só precisam saber se dois objetos estão dentro de um raio combinado. Isso evita raízes quadradas em verificações frequentes sem alterar o critério geométrico pretendido.
@@ -50,7 +50,8 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - Essas alterações reduzem operações matemáticas e alocações explícitas no ciclo, mas não provam, por si só, melhoria perceptível de FPS. A validação depende de medição e de teste em dispositivos reais.
 - O diagnóstico opcional `?profile=1` registra intervalos de quadro, tempo de atualização, tempo de renderização e contagens de entidades em lotes de 180 quadros. Ele tem custo de instrumentação e serve para comparação aproximada, não como benchmark científico.
 - `game.js` ainda concentra atualização, colisões, efeitos e desenho. Não foi extraído um renderer nesta etapa porque mover o desenho de uma só vez teria risco de regressão sem testes de navegador; a próxima refatoração deve separar uma responsabilidade por vez, começando por desenho ou colisões após os resultados do profiler.
-- Próximo alvo: executar as verificações automáticas e medir o ciclo em cenário reproduzível; só então escolher a extração seguinte com base nos dados.
+- Na v0.18.1, `drawShield()` agrupa a barreira e a barra de integridade em uma única seção `save/restore` e usa coordenadas absolutas, removendo uma translação de contexto por quadro. É uma otimização pequena e conservadora; sua eficácia ainda precisa de validação no navegador.
+- Próximo alvo após validar a correção do escudo: voltar ao plano de evolução estrutural incremental e escolher uma extração pequena de `game.js`, sem reescrita ampla do renderer. Medições do profiler podem ajudar quando estiverem acessíveis.
 
 ## Próximas validações
 
