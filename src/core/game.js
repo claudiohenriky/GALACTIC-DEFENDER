@@ -1,14 +1,15 @@
-import { Player } from '../player/player.js?v=0.32.0';
-import { Enemy } from '../enemies/enemy.js?v=0.32.0';
-import { Projectile } from '../combat/projectile.js?v=0.32.0';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.32.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.32.0';
-import { Progression } from '../progression/progression.js?v=0.32.0';
-import { Mission } from '../missions/missions.js?v=0.32.0';
-import { WaveManager } from './wave-manager.js?v=0.32.0';
-import { updateHud } from '../ui/hud.js?v=0.32.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.32.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.32.0';
+import { Player } from '../player/player.js?v=0.33.0';
+import { Enemy } from '../enemies/enemy.js?v=0.33.0';
+import { Projectile } from '../combat/projectile.js?v=0.33.0';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.33.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.33.0';
+import { circlesOverlap } from '../combat/collision.js?v=0.33.0';
+import { Progression } from '../progression/progression.js?v=0.33.0';
+import { Mission } from '../missions/missions.js?v=0.33.0';
+import { WaveManager } from './wave-manager.js?v=0.33.0';
+import { updateHud } from '../ui/hud.js?v=0.33.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.33.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.33.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1114,10 +1115,7 @@ export class Game {
     for (const shot of this.projectiles) {
       if (!shot.active) continue;
       for (const enemy of this.enemies) {
-        const dx = shot.x - enemy.x;
-        const dy = shot.y - enemy.y;
-        const combinedRadius = enemy.radius + shot.radius;
-        if (enemy.active && !shot.hitEnemies.has(enemy) && dx * dx + dy * dy < combinedRadius * combinedRadius) {
+        if (enemy.active && !shot.hitEnemies.has(enemy) && circlesOverlap(shot, enemy)) {
           shot.hitEnemies.add(enemy);
           if (!shot.piercing) shot.active = false;
           this.damageEnemy(enemy, shot.damage ?? 1);
@@ -1131,9 +1129,7 @@ export class Game {
       if (!missile.active) continue;
       for (const enemy of this.enemies) {
         if (!enemy.active) continue;
-        const dx = missile.x - enemy.x, dy = missile.y - enemy.y;
-        const combinedRadius = missile.radius + enemy.radius;
-        if (dx * dx + dy * dy < combinedRadius * combinedRadius) {
+        if (circlesOverlap(missile, enemy)) {
           missile.active = false;
           this.explodeGuidedMissile(missile);
           break;
@@ -1145,10 +1141,7 @@ export class Game {
     // without instantly destroying enemies or losing all charge in a few frames.
     for (const enemy of this.enemies) {
       if (!enemy.active) continue;
-      const dx = this.player.x - enemy.x;
-      const dy = this.player.y - enemy.y;
-      const combinedRadius = enemy.radius + this.player.radius;
-      if (dx * dx + dy * dy < combinedRadius * combinedRadius && enemy.contactCooldown <= 0) {
+      if (circlesOverlap(this.player, enemy) && enemy.contactCooldown <= 0) {
         const shieldWasActive = this.player.shieldHealth > 0;
         enemy.contactCooldown = 0.75;
         if (!shieldWasActive) enemy.active = false;
@@ -1159,10 +1152,7 @@ export class Game {
     // Enemy shots deal damage on direct impact and respect the player's invulnerability window.
     for (const shot of this.enemyProjectiles) {
       if (!shot.active) continue;
-      const dx = this.player.x - shot.x;
-      const dy = this.player.y - shot.y;
-      const combinedRadius = this.player.radius + shot.radius;
-      if (dx * dx + dy * dy < combinedRadius * combinedRadius) {
+      if (circlesOverlap(this.player, shot)) {
         shot.active = false;
         this.resolveIncomingDamage(shot.damage, shot.x, shot.y, shot.damage >= 10);
       }
