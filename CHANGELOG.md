@@ -1,3 +1,11 @@
+## [0.28.3] - Candidata mobile
+
+- Atualiza o estado do botao de habilidade durante a recarga.
+- Ativa a habilidade no inicio do toque para reduzir atraso.
+- Separa a trajetoria dos dois misseis no nivel 2+.
+- Reposiciona o botao para longe dos controles inferiores e compacta avisos em paisagem.
+- Ainda precisa de teste manual no celular; nao mesclada em main.
+
 ## [0.28.2] — Candidata: confiabilidade do míssil e interface compacta
 
 ### Correções
