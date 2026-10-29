@@ -13,6 +13,7 @@ export class Player {
     this.velocityX = 0;
     this.velocityY = 0;
     this.doubleShotLevel = 0;
+    this.guidedMissileLevel = 0;
     this.laserLevel = 0;
     this.shieldLevel = 0;
     this.shieldHealth = 0;
