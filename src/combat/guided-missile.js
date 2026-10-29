@@ -1,8 +1,8 @@
 export class GuidedMissile {
-  constructor(x, y, target, level = 1) {
+  constructor(x, y, target, level = 1, initialAngle = -Math.PI / 2) {
     this.x = x; this.y = y; this.target = target; this.level = level;
     this.radius = 6.5;
-    this.angle = Math.atan2(target.y - y, target.x - x);
+    this.angle = target && target.active ? Math.atan2(target.y - y, target.x - x) : initialAngle;
     this.speed = 235 + level * 18;
     this.turnRate = 3.5 + level * 0.3;
     this.damage = 16 + level * 5;
