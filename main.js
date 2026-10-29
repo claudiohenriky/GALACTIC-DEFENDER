@@ -1,5 +1,5 @@
-import { Game } from './src/core/game.js?v=0.34.0';
-import { gameAudio } from './src/audio/game-audio.js?v=0.34.0';
+import { Game } from './src/core/game.js?v=0.35.0';
+import { gameAudio } from './src/audio/game-audio.js?v=0.35.0';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
@@ -18,6 +18,13 @@ guidedMissileButton?.addEventListener('click', (event) => {
   else { event.preventDefault(); event.stopPropagation(); }
 });
 
+const continuousLaserButton = document.querySelector('#continuous-laser-button');
+function laserDown(event) { event.preventDefault(); event.stopPropagation(); if (event.type === 'pointerdown' && event.pointerType === 'mouse' && event.button !== 0) return; game.activateContinuousLaser(); }
+function laserUp(event) { if (event) { event.preventDefault(); event.stopPropagation(); } game.releaseContinuousLaser(); }
+continuousLaserButton?.addEventListener('pointerdown', laserDown, { passive: false });
+['pointerup','pointercancel','lostpointercapture'].forEach(type => continuousLaserButton?.addEventListener(type, laserUp));
+continuousLaserButton?.addEventListener('click', event => { if (event.detail === 0) laserDown(event); else { event.preventDefault(); event.stopPropagation(); } });
+document.querySelectorAll('[data-laser-clash]').forEach(button => button.addEventListener('click', () => game.resolveContinuousLaserClash(button.dataset.laserClash)));
 const shieldPulseButton = document.querySelector('#shield-pulse-button');
 function activateShieldPulseFromControl(event) {
   event.preventDefault();
@@ -240,6 +247,7 @@ window.addEventListener('keydown', (event) => {
 });
 window.addEventListener('keyup', (event) => game.handleKeyUp(event));
 window.addEventListener('blur', () => {
+  game.releaseContinuousLaser();
   game.clearInput();
   document.querySelectorAll('.touch-button.is-pressed').forEach((button) => button.classList.remove('is-pressed'));
 });
