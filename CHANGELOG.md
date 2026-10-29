@@ -1,6 +1,18 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
-## [0.18.0] — Otimização do núcleo e do Canvas 2D (em desenvolvimento)
+## [0.18.1] — Ajuste pontual na renderização do escudo (candidata em validação)
+
+### Otimização
+- Agrupa o desenho da barreira e da barra do escudo em uma única seção de estado do Canvas.
+- Desenha a barreira em coordenadas da arena, removendo a translação de contexto por quadro sem mudar a geometria, as cores ou a lógica de integridade/recarga.
+- Mantém a onda de quebra, o dano em área e a recarga automática inalterados.
+- Atualiza o identificador de cache do módulo principal do jogo e a versão exibida.
+
+### Validação
+- Alteração candidata baseada em revisão estática do código; o ganho de desempenho ainda não foi medido.
+- Aguarda validação manual pelo usuário no GitHub Pages antes de integrar em `main`.
+
+## [0.18.0] — Otimização do núcleo e do Canvas 2D (aprovada após teste manual)
 
 ### Otimizações iniciais
 - Substitui cálculos de distância com `Math.hypot()` por comparações com distâncias ao quadrado nas verificações frequentes de colisão entre projéteis, inimigos e jogador, além da área de impacto do escudo.
@@ -12,8 +24,9 @@
 - Atualiza os identificadores de cache e a versão exibida para `0.18.0`.
 
 ### Validação
-- O diagnóstico foi implementado, mas ainda não foram recolhidos resultados comparativos de FPS em dispositivos reais; nenhum ganho quantificado é afirmado.
-- A versão permanece em desenvolvimento até a revisão do código, a execução das verificações automáticas e o teste manual de regressão no celular.
+- O usuário testou a versão publicada no GitHub Pages e informou que o jogo funcionou corretamente; percebeu uma pequena melhora subjetiva, especialmente ao usar o escudo.
+- Não foram recolhidos resultados comparativos de FPS em dispositivos reais; nenhum ganho quantificado é afirmado.
+- A investigação do escudo continua na v0.18.1.
 
 
 ## [0.17.3] — Retorno frontal da nave no mobile
