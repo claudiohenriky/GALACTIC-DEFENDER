@@ -4,16 +4,18 @@ export class Enemy {
     this.y = y;
     this.type = type;
     this.level = level;
-    this.radius = type === 'boss' ? 23 : type === 'guardian' ? 15 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
-    this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'guardian' ? 7 + level : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
+    this.radius = type === 'boss' ? 23 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
+    this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'guardian' ? 7 + level : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
-    this.speed = (type === 'boss' ? 34 : type === 'guardian' ? 28 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
+    this.speed = (type === 'boss' ? 34 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'boss'
       ? 1.8
-      : type === 'sentinel'
-        ? 1.1 + Math.random() * 0.8
-        : 2.4 + Math.random() * 0.8;
+      : type === 'artillery'
+        ? 2.6 + Math.random() * 0.8
+        : type === 'sentinel'
+          ? 1.1 + Math.random() * 0.8
+          : 2.4 + Math.random() * 0.8;
     this.active = true;
     this.contactCooldown = 0;
 
@@ -55,12 +57,12 @@ export class Enemy {
     const previousX = this.x;
     const previousY = this.y;
     this.contactCooldown = Math.max(0, this.contactCooldown - dt);
-    this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
+    this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? 0.9 : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
 
     const dx = targetX - this.x;
     const dy = targetY - this.y;
     const distance = Math.hypot(dx, dy) || 1;
-    const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'guardian' ? 2.5 : this.type === 'interceptor' ? 5 : 9);
+    const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'artillery' ? 3 : this.type === 'guardian' ? 2.5 : this.type === 'interceptor' ? 5 : 9);
     let shot = null;
 
     if (this.type === 'boss') {
@@ -94,6 +96,32 @@ export class Enemy {
       const weave = Math.sin(this.phase) * this.speed * 0.62;
       this.x += towardX * this.speed * 0.78 * dt - towardY * weave * dt;
       this.y += towardY * this.speed * 0.78 * dt + towardX * weave * dt;
+    } else if (this.type === 'artillery') {
+      // Artillery keeps a distant firing lane and uses a readable three-shot fan.
+      const desiredX = width / 2 + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150);
+      const desiredY = Math.max(36, targetY - Math.min(235, height * 0.42));
+      this.x += (desiredX - this.x) * Math.min(1, dt * 0.8);
+      this.y += (desiredY - this.y) * Math.min(1, dt * 1.0);
+      this.fireCooldown -= dt;
+      if (this.fireCooldown <= 0 && this.y > 18) {
+        this.fireCooldown = 3.4;
+        const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
+        const spread = 0.22;
+        shot = [-1, 0, 1].map((offset) => {
+          const angle = baseAngle + offset * spread;
+          return {
+            x: this.x,
+            y: this.y + this.radius,
+            targetX: this.x + Math.cos(angle) * 420,
+            targetY: this.y + Math.sin(angle) * 420,
+            damage: 5,
+            speed: 150,
+            radius: 3.5,
+            color: '#d6a0ff',
+            glowColor: '#a95cff'
+          };
+        });
+      }
     } else if (this.type === 'sentinel') {
       // Sentinels strafe around a moving firing lane instead of sliding directly toward the player.
       const laneOffset = Math.sin(this.phase * 0.8) * Math.min(105, width * 0.23);
@@ -154,10 +182,11 @@ export class Enemy {
   draw(ctx) {
     const boss = this.type === 'boss';
     const guardian = this.type === 'guardian';
+    const artillery = this.type === 'artillery';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
-    const color = boss ? '#d59bff' : guardian ? '#78d9a8' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
-    const edge = boss ? '#f1d7ff' : guardian ? '#d8ffea' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
+    const color = boss ? '#d59bff' : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
+    const edge = boss ? '#f1d7ff' : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
     ctx.translate(this.x, this.y);
@@ -242,6 +271,15 @@ export class Enemy {
       ctx.lineTo(-this.radius * 0.2, this.radius * 0.35);
       ctx.lineTo(-this.radius * 1.05, this.radius * 0.55);
       ctx.lineTo(-this.radius * 0.52, -this.radius * 0.15);
+    } else if (artillery) {
+      ctx.moveTo(0, -this.radius * 1.3);
+      ctx.lineTo(this.radius * 0.58, -this.radius * 0.58);
+      ctx.lineTo(this.radius * 1.28, -this.radius * 0.12);
+      ctx.lineTo(this.radius * 0.88, this.radius * 0.78);
+      ctx.lineTo(0, this.radius * 0.5);
+      ctx.lineTo(-this.radius * 0.88, this.radius * 0.78);
+      ctx.lineTo(-this.radius * 1.28, -this.radius * 0.12);
+      ctx.lineTo(-this.radius * 0.58, -this.radius * 0.58);
     } else if (ranged) {
       ctx.moveTo(0, -this.radius * 1.15);
       ctx.lineTo(this.radius * 1.15, -this.radius * 0.35);
@@ -260,6 +298,16 @@ export class Enemy {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+
+    if (artillery) {
+      ctx.fillStyle = '#6d3b9d';
+      ctx.fillRect(-this.radius * 0.78, -this.radius * 0.35, this.radius * 0.34, this.radius * 0.8);
+      ctx.fillRect(this.radius * 0.44, -this.radius * 0.35, this.radius * 0.34, this.radius * 0.8);
+      ctx.strokeStyle = edge;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(-this.radius * 0.78, -this.radius * 0.35, this.radius * 0.34, this.radius * 0.8);
+      ctx.strokeRect(this.radius * 0.44, -this.radius * 0.35, this.radius * 0.34, this.radius * 0.8);
+    }
 
     if (guardian) {
       ctx.fillStyle = '#315b4b';
