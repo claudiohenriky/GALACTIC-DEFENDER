@@ -17,7 +17,7 @@
 
 ### Validação
 - Candidata para teste manual; não mesclada em `main`.
-- A verificação estática e o workflow do GitHub Actions ainda precisam confirmar esta revisão. Testes reais de jogabilidade, equilíbrio e desempenho continuam necessários.
+- O workflow `Validate project` passou nas verificações de sintaxe JavaScript, imports relativos e whitespace para a revisão de código verificada. Testes reais de jogabilidade, equilíbrio e desempenho continuam necessários.
 
 ## [0.29.1] — Diagnóstico e otimização de desempenho
 
