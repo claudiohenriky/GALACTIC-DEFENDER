@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.18.0';
-import { Enemy } from '../enemies/enemy.js?v=0.18.0';
-import { Projectile } from '../combat/projectile.js?v=0.18.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.18.0';
-import { Progression } from '../progression/progression.js?v=0.18.0';
-import { Mission } from '../missions/missions.js?v=0.18.0';
-import { WaveManager } from './wave-manager.js?v=0.18.0';
-import { updateHud } from '../ui/hud.js?v=0.18.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.18.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.18.0';
+import { Player } from '../player/player.js?v=0.19.0';
+import { Enemy } from '../enemies/enemy.js?v=0.19.0';
+import { Projectile } from '../combat/projectile.js?v=0.19.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.19.0';
+import { Progression } from '../progression/progression.js?v=0.19.0';
+import { Mission } from '../missions/missions.js?v=0.19.0';
+import { WaveManager } from './wave-manager.js?v=0.19.0';
+import { updateHud } from '../ui/hud.js?v=0.19.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.19.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.19.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -306,20 +306,31 @@ export class Game {
     this.animationId = requestAnimationFrame((time) => this.loop(time));
   }
 
-  handleMissionCompletion(completion) {
+  showRewardBanner(heading, detail, kind = 'mission') {
+    const banner = document.querySelector('#reward-banner');
+    banner.className = `reward-banner reward-banner-${kind}`;
+    document.querySelector('#reward-banner-heading').textContent = heading;
+    document.querySelector('#reward-banner-detail').textContent = detail;
+    this.restartFeedbackAnimation(banner, 'reward-banner-active');
+  }
+
+  handleMissionCompletion(completion, killAchievements = []) {
     if (!completion) return;
     this.score += completion.score;
     const levelsGained = this.progression.addXp(completion.xp);
     if (levelsGained > 0) this.triggerLevelUp(levelsGained);
     let total = 0;
     try { total = Number(localStorage.getItem('gd-missions-completed') || 0) + 1; localStorage.setItem('gd-missions-completed', String(total)); } catch { total = completion.completionNumber; }
-    const unlocked = this.progression.recordMissionCompletion(total);
-    this.achievements.record('missions');
+    const unlockedTitles = this.progression.recordMissionCompletion(total);
+    const unlockedAchievements = [...killAchievements, ...this.achievements.record('missions')];
     const toast = document.querySelector('#mission-toast');
     toast.textContent = `MISSÃO CONCLUÍDA · +${completion.xp} XP · +${completion.score} PTS`;
     this.restartFeedbackAnimation(toast, 'mission-toast-active');
-    if (unlocked.length) {
-      document.querySelector('#title-unlock-label').textContent = `NOVO TÍTULO: ${unlocked[unlocked.length - 1].name}`;
+    const titleText = unlockedTitles.length ? ` · TÍTULO: ${unlockedTitles[unlockedTitles.length - 1].name}` : '';
+    const achievementText = unlockedAchievements.length ? ` · CONQUISTA${unlockedAchievements.length > 1 ? 'S' : ''}: ${unlockedAchievements.map(item => item.name).join(', ')}` : '';
+    this.showRewardBanner('MISSÃO CONCLUÍDA', `${completion.name} · +${completion.xp} XP · +${completion.score} PTS${titleText}${achievementText}`);
+    if (unlockedTitles.length) {
+      document.querySelector('#title-unlock-label').textContent = `NOVO TÍTULO: ${unlockedTitles[unlockedTitles.length - 1].name}`;
       document.querySelector('#title-unlock-toast').classList.remove('hidden');
     }
   }
@@ -381,11 +392,16 @@ export class Game {
     enemy.active = false;
     this.score += enemy.type === 'boss' ? 1000 : 100;
     this.destroyed += 1;
-    this.achievements.record('kills');
-    if (enemy.type === 'boss') this.achievements.record('bosses');
-    const levelsGained = this.progression.addXp(25);
+    const newlyUnlocked = this.achievements.record('kills');
+    if (enemy.type === 'boss') newlyUnlocked.push(...this.achievements.record('bosses'));
+    const xpRewards = { chaser: 20, interceptor: 15, sentinel: 35, boss: 180 };
+    const xpGained = xpRewards[enemy.type] ?? 20;
+    const levelsGained = this.progression.addXp(xpGained);
+    if (enemy.type === 'boss') this.showRewardBanner('CHEFE DERROTADO', `+${xpGained} XP · +1.000 PTS`, 'boss');
     if (levelsGained > 0) this.triggerLevelUp(levelsGained);
-    this.handleMissionCompletion(this.mission.registerKill());
+    const missionCompletion = this.mission.registerKill();
+    if (missionCompletion) this.handleMissionCompletion(missionCompletion, newlyUnlocked);
+    else if (newlyUnlocked.length) this.showRewardBanner('CONQUISTA DESBLOQUEADA', newlyUnlocked.map(item => item.name).join(' · '), 'achievement');
   }
 
   drawShield(ctx) {
@@ -521,6 +537,8 @@ export class Game {
     if (this.hudUpdateTimer >= this.hudUpdateInterval) {
       this.hudUpdateTimer %= this.hudUpdateInterval;
       updateHud(this);
+      const runAchievements = this.achievements.checkRunMilestones(this.score, this.waveManager.wave);
+      if (runAchievements.length) this.showRewardBanner('CONQUISTA DESBLOQUEADA', runAchievements.map(item => item.name).join(' · '), 'achievement');
     }
 
     if (this.performanceProfileEnabled) {

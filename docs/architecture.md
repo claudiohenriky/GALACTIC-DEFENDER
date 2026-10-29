@@ -11,7 +11,7 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - `src/enemies/enemy.js`: movimento de perseguição, comportamento de sentinelas, disparos e desenho dos inimigos.
 - `src/combat/projectile.js`: projéteis do jogador.
 - `src/combat/enemy-projectile.js`: projéteis inimigos direcionados à posição da nave no disparo.
-- `src/progression/progression.js`: experiência, níveis e classes de piloto.
+- `src/progression/progression.js`: experiência, níveis, curva de XP e classes de piloto.
 - `src/missions/missions.js`: progresso de objetivo e estado de conclusão.
 - `src/ui/hud.js`: atualização dos indicadores da página e da HUD compacta dentro da arena.
 - `main.js`: também controla a entrada e saída da tela cheia, com tentativa opcional de orientar o celular na horizontal.
@@ -21,6 +21,7 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - Canvas 2D para a arena, com desenho escalável por densidade de pixels.
 - HTML para menus e interface acessível; CSS para apresentação responsiva.
 - A HUD da arena mostra integridade e XP durante a partida, inclusive em tela cheia.
+- A faixa de recompensas ao vivo usa HTML/CSS fora do Canvas para comunicar conclusão de missões, XP/pontos, novos títulos, conquistas e chefes sem desenhar texto a cada quadro.
 - O dano confirmado ativa um aviso visual temporário; subir de nível ativa um aviso e partículas douradas no Canvas.
 - Tela cheia é iniciada por ação explícita do jogador; o bloqueio de orientação horizontal é opcional, pois depende do navegador/dispositivo.
 - Controles de toque usam Pointer Events e reutilizam as mesmas entradas lógicas do teclado, permitindo movimento simultâneo e disparo.

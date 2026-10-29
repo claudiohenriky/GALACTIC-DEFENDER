@@ -1,5 +1,17 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
+## [0.19.0] — Progressão de XP e recompensas ao vivo (candidata em validação)
+
+### Progressão e recompensas
+- Ajusta o XP por tipo de inimigo: perseguidores 20 XP, interceptadores 15 XP, sentinelas 35 XP e chefes 180 XP.
+- Troca o crescimento exponencial do requisito de nível por uma curva linear: 100 XP para o nível 2, aumentando 35 XP por nível seguinte.
+- Adiciona uma faixa animada dentro da arena para comunicar missões concluídas, XP/pontos recebidos, novos títulos, conquistas desbloqueadas (incluindo marcos de pontuação/ondas) e derrotas de chefes.
+- Atualiza os identificadores de cache e a versão exibida para `0.19.0`.
+
+### Validação
+- Alterações revisadas estaticamente; ainda não foram testadas manualmente no GitHub Pages.
+- `main` permanece a versão oficial; esta candidata está isolada na branch `feat/v0.19.0-gameplay-roadmap`.
+
 ## [0.18.1] — Ajuste pontual na renderização do escudo (candidata em validação)
 
 ### Otimização
