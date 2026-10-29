@@ -1,5 +1,16 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
+## [0.20.0] — Notificações compactas de recompensa
+
+### Interface
+- Move as notificações de missão, recompensa, conquista e chefe para o lado direito da arena, com entrada e saída horizontais.
+- Reduz largura, tamanho de texto e altura; o detalhe é limitado a três linhas para diminuir a sobreposição da HUD.
+- Ajusta o posicionamento especificamente para celular na horizontal, mantendo a região esquerda da HUD mais livre.
+
+### Validação
+- Revisão estática concluída; o comportamento visual precisa ser confirmado pelo usuário no GitHub Pages, principalmente em celular na horizontal.
+
+
 ## [0.19.2] — Dano da explosão do escudo
 
 ### Corrigido
