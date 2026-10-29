@@ -6,6 +6,8 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
+**Candidata em desenvolvimento:** `0.31.0` — adiciona o Artilheiro na branch `feature/v0.31.0-artillery-enemy`; ainda não publicada como versão oficial e aguardando teste manual.
+
 **Validação:** a v0.27.0 foi testada manualmente pelo usuário no GitHub Pages e o Guardião funcionou corretamente. A v0.30.0 é uma candidata na branch `feature/v0.30.0-rupture-overload-missiles`; a v0.30.1 é a candidata com pulso semicircular e diagnóstico de FPS; a v0.30.4, na branch `feature/v0.30.2-hud-effects-optimization`, corrige posições da HUD e reduz efeitos de partículas. A versão oficial `main` ainda não contém essas alterações. A candidata requer validação manual no celular e no computador.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
@@ -62,6 +64,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Perseguidores avançam contra a nave com desvios laterais controlados; interceptadores fazem curvas de aproximação, sentinelas percorrem uma faixa de tiro e chefes mantêm movimento lateral. A candidata `0.24.0` acrescenta inclinação e rotação visual suave conforme a direção do movimento. Colisões causam dano à integridade.
 - A partir da onda 2, interceptadores ciano, rápidos e frágeis pressionam a nave com movimento agressivo.
 - A partir da onda 2, alguns inimigos sentinelas tentam manter distância e disparam projéteis direcionados à posição da nave no momento do disparo.
+- Na candidata v0.31.0, o Artilheiro aparece a partir da onda 4, mantém uma faixa distante e dispara três projéteis em leque; concede 150 pontos e 55 XP.
 - Projéteis dos sentinelas causam 10 pontos de dano em impacto direto e respeitam a invulnerabilidade temporária.
 - A partir da onda 2, perseguidores vermelhos também podem disparar projéteis mais lentos, causando de 3 a 5 pontos de dano conforme o tamanho do inimigo; o disparo exige um pouco mais de distância e tem intervalo moderado.
 - A cada cinco ondas, uma onda especial apresenta um chefe com mais integridade, movimento lateral e disparos direcionados.

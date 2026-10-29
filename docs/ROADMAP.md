@@ -89,9 +89,11 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - **v0.26.0 validada pelo usuário:** Projéteis acelerados (+15% de velocidade por nível, até três níveis) e Controle de propulsão (+8% de aceleração por nível, até três níveis).
 
 ## Etapa 4 — Novas classes de inimigos
+- [x] **v0.31.0 candidata:** adicionar o Artilheiro a partir da onda 4, com movimento lateral à distância e salva de três tiros em leque.
+- [x] **Teste manual concluído pelo usuário:** Artilheiro aparece na onda 4+, silhueta identificável, leque legível, dano/frequência equilibrados, desempenho aceitável e classes/chefe existentes funcionando.
 - [x] **v0.27.0:** Adicionar o Guardião, uma classe lenta e resistente que pressiona o jogador sem disparos à distância; aparece a partir da onda 3.
-- [ ] Adicionar outras classes com comportamentos próprios, como artilheiro ou elite, sem duplicar sentinelas, interceptadores e perseguidores.
-- [ ] Ajustar a frequência de surgimento e a dificuldade por onda com base no teste manual.
+- [ ] Adicionar outra classe com comportamento próprio, como elite, sem duplicar sentinelas, interceptadores, perseguidores ou o Artilheiro.
+- [ ] Ajustar a frequência de surgimento e a dificuldade por onda somente se novos testes identificarem desequilíbrio.
 
 ## Etapa 5 — Bosses com fases
 - Definir identidade e padrões de ataque para o boss atual.

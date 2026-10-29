@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.30.4';
-import { Enemy } from '../enemies/enemy.js?v=0.30.4';
-import { Projectile } from '../combat/projectile.js?v=0.30.4';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.30.4';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.30.4';
-import { Progression } from '../progression/progression.js?v=0.30.4';
-import { Mission } from '../missions/missions.js?v=0.30.4';
-import { WaveManager } from './wave-manager.js?v=0.30.4';
-import { updateHud } from '../ui/hud.js?v=0.30.4';
-import { gameAudio } from '../audio/game-audio.js?v=0.30.4';
-import { AchievementTracker } from '../progression/achievements.js?v=0.30.4';
+import { Player } from '../player/player.js?v=0.31.0';
+import { Enemy } from '../enemies/enemy.js?v=0.31.0';
+import { Projectile } from '../combat/projectile.js?v=0.31.0';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.31.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.31.0';
+import { Progression } from '../progression/progression.js?v=0.31.0';
+import { Mission } from '../missions/missions.js?v=0.31.0';
+import { WaveManager } from './wave-manager.js?v=0.31.0';
+import { updateHud } from '../ui/hud.js?v=0.31.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.31.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.31.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -759,11 +759,11 @@ export class Game {
     enemy.health = Math.max(0, enemy.health - amount);
     if (enemy.health > 0) return;
     enemy.active = false;
-    this.score += enemy.type === 'boss' ? 1000 : 100;
+    this.score += enemy.type === 'boss' ? 1000 : enemy.type === 'artillery' ? 150 : 100;
     this.destroyed += 1;
     const newlyUnlocked = this.achievements.record('kills');
     if (enemy.type === 'boss') newlyUnlocked.push(...this.achievements.record('bosses'));
-    const xpRewards = { chaser: 20, interceptor: 15, sentinel: 35, guardian: 45, boss: 180 };
+    const xpRewards = { chaser: 20, interceptor: 15, sentinel: 35, guardian: 45, artillery: 55, boss: 180 };
     const xpGained = xpRewards[enemy.type] ?? 20;
     const levelsGained = this.progression.addXp(xpGained);
     if (enemy.type === 'boss') this.showRewardBanner('CHEFE DERROTADO', `+${xpGained} XP · +1.000 PTS`, 'boss');
@@ -1051,10 +1051,11 @@ export class Game {
       const roll = Math.random();
       const bossWave = this.waveManager.wave % 5 === 0;
       const type = bossWave ? 'boss'
-        : this.waveManager.wave >= 3 && roll < 0.12 ? 'guardian'
-          : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 3 ? 0.37 : 0.25) ? 'sentinel'
-            : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 3 ? 0.55 : 0.43) ? 'interceptor'
-              : 'chaser';
+        : this.waveManager.wave >= 4 && roll < 0.12 ? 'artillery'
+          : this.waveManager.wave >= 3 && roll < (this.waveManager.wave >= 4 ? 0.24 : 0.12) ? 'guardian'
+            : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.49 : this.waveManager.wave >= 3 ? 0.37 : 0.25) ? 'sentinel'
+              : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.67 : this.waveManager.wave >= 3 ? 0.55 : 0.43) ? 'interceptor'
+                : 'chaser';
       this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave, type));
     }
 
@@ -1100,8 +1101,11 @@ export class Game {
     this.enemies.forEach((enemy) => {
       const shot = enemy.update(dt, this.player.x, this.player.y, this.width, this.height);
       if (shot) {
-        this.enemyProjectiles.push(new EnemyProjectile(shot.x, shot.y, shot.targetX, shot.targetY, shot));
-        gameAudio.playEnemyShot(shot.color);
+        const shots = Array.isArray(shot) ? shot : [shot];
+        for (const projectileData of shots) {
+          this.enemyProjectiles.push(new EnemyProjectile(projectileData.x, projectileData.y, projectileData.targetX, projectileData.targetY, projectileData));
+        }
+        gameAudio.playEnemyShot(shots[0].color);
       }
     });
     this.updateShieldThreats(dt);
