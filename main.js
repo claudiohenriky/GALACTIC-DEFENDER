@@ -61,7 +61,7 @@ function closeMenuPanels() {
 }
 setPlatform(detectPlatform(), false);
 platformButtons.forEach((button) => button.addEventListener('click', () => setPlatform(button.dataset.platformChoice)));
-// JOGAR opens a preparation screen only; gameplay stays stopped until confirmation.
+// JOGAR opens the hangar; gameplay remains stopped until mission confirmation.
 document.querySelector('#menu-play-button').addEventListener('click', () => {
   closeMenuPanels(); mainMenu.classList.add('is-hidden'); hangarScreen.classList.remove('is-hidden');
 });
