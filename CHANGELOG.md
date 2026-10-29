@@ -1,5 +1,16 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
+## [0.19.2] — Dano da explosão do escudo
+
+### Corrigido
+- Aumenta o dano da onda de quebra contra chefes para 12 pontos, tornando o impacto perceptível na barra de vida.
+- Mantém o dano da explosão contra inimigos comuns em 2 pontos.
+- Preserva a correção da v0.19.1: o contato com o escudo não aniquila inimigos automaticamente.
+- Atualiza os identificadores de cache e a versão exibida para `0.19.2`.
+
+### Validação
+- Aguardando teste manual do usuário no GitHub Pages, com foco no dano da explosão contra o chefe da onda 5 e na regressão do contato com inimigos comuns.
+
 ## [0.19.1] — Correção de colisão do escudo e otimização de renderização
 
 ### Corrigido
