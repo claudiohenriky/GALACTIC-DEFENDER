@@ -1,14 +1,14 @@
-import { Player } from '../player/player.js?v=0.28.1';
-import { Enemy } from '../enemies/enemy.js?v=0.28.1';
-import { Projectile } from '../combat/projectile.js?v=0.28.1';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.28.1';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.28.1';
-import { Progression } from '../progression/progression.js?v=0.28.1';
-import { Mission } from '../missions/missions.js?v=0.28.1';
-import { WaveManager } from './wave-manager.js?v=0.28.1';
-import { updateHud } from '../ui/hud.js?v=0.28.1';
-import { gameAudio } from '../audio/game-audio.js?v=0.28.1';
-import { AchievementTracker } from '../progression/achievements.js?v=0.28.1';
+import { Player } from '../player/player.js?v=0.28.2';
+import { Enemy } from '../enemies/enemy.js?v=0.28.2';
+import { Projectile } from '../combat/projectile.js?v=0.28.2';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.28.2';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.28.2';
+import { Progression } from '../progression/progression.js?v=0.28.2';
+import { Mission } from '../missions/missions.js?v=0.28.2';
+import { WaveManager } from './wave-manager.js?v=0.28.2';
+import { updateHud } from '../ui/hud.js?v=0.28.2';
+import { gameAudio } from '../audio/game-audio.js?v=0.28.2';
+import { AchievementTracker } from '../progression/achievements.js?v=0.28.2';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -145,6 +145,7 @@ export class Game {
     cancelAnimationFrame(this.animationId);
     this.animationId = requestAnimationFrame((time) => this.loop(time));
     updateHud(this);
+    this.updateGuidedMissileButton();
   }
 
   resume() {
@@ -445,15 +446,19 @@ export class Game {
       const bdx = b.x - this.player.x, bdy = b.y - this.player.y;
       return adx * adx + ady * ady - (bdx * bdx + bdy * bdy);
     });
-    if (!targets.length) return false;
     const level = this.player.guidedMissileLevel;
     const missileCount = level >= 2 ? 2 : 1;
-    const launchAngle = this.player.rotation;
-    for (let index = 0; index < Math.min(missileCount, targets.length); index += 1) {
+    const launchAngle = Number.isFinite(this.player.rotation) ? this.player.rotation : -Math.PI / 2;
+    for (let index = 0; index < missileCount; index += 1) {
       const side = index === 0 ? -1 : 1;
-      const launchX = this.player.x + Math.cos(launchAngle + Math.PI / 2) * side * 7;
-      const launchY = this.player.y + Math.sin(launchAngle + Math.PI / 2) * side * 7;
-      this.guidedMissiles.push(new GuidedMissile(launchX, launchY, targets[index], level));
+      const launchX = this.player.x + Math.cos(launchAngle + Math.PI / 2) * side * 10;
+      const launchY = this.player.y + Math.sin(launchAngle + Math.PI / 2) * side * 10;
+      // Both missiles launch even with one target; untargeted missiles can acquire one later.
+      const target = targets[index] || targets[0] || null;
+      const initialAngle = target
+        ? Math.atan2(target.y - launchY, target.x - launchX) + (missileCount === 2 ? side * 0.08 : 0)
+        : launchAngle;
+      this.guidedMissiles.push(new GuidedMissile(launchX, launchY, target, level, initialAngle));
     }
     this.guidedMissileCooldownMax = level >= 3 ? 9 : level >= 2 ? 10 : 12;
     this.guidedMissileCooldown = this.guidedMissileCooldownMax;
