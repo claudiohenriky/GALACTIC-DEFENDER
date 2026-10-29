@@ -6,7 +6,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão candidata em desenvolvimento:** `0.22.0` — hangar com três cascos visuais selecionáveis, inclinação pseudo-3D da nave e silhuetas renovadas para a facção inimiga.
 
-**Base oficial em `main`:** `0.20.0` — notificações de recompensa compactas à direita da arena. Publicada no GitHub Pages; a nova candidata `0.21.0` ainda aguarda revisão e teste manual.
+**Base oficial em `main`:** `0.21.0` — tela de preparação da missão. A candidata `0.22.0` aguarda teste manual antes de qualquer merge.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
 
