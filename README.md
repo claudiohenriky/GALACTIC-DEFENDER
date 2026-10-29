@@ -6,7 +6,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão candidata em desenvolvimento:** `0.21.0` — tela de preparação da missão, escolha do modo disponível e tela cheia opcional antes de iniciar.
 
-**Base oficial em `main`:** `0.19.2` — ajuste do dano da explosão do escudo contra chefes. Publicada no GitHub Pages; o usuário optou por adiar a validação manual até perceber algum problema.
+**Base oficial em `main`:** `0.20.0` — notificações de recompensa compactas à direita da arena. Publicada no GitHub Pages; a nova candidata `0.21.0` ainda aguarda revisão e teste manual.
 
 **Fase:** pré-alfa. A série `0.x` continua em desenvolvimento; a v1.0.0 será tratada como marco de versão estável.
 
