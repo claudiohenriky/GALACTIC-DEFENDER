@@ -567,8 +567,10 @@ export class Game {
     const state = this.overloadLockTimer > 0 ? 'BLOQUEIO'
       : this.overload >= 70 ? 'SOBRECARGA'
       : this.overload >= 35 ? 'AQUECENDO' : 'ESTÁVEL';
-    element.textContent = `ENERGIA ${percent}% · ${state}`;
-    element.dataset.state = this.overloadLockTimer > 0 ? 'critical' : this.overload >= 70 ? 'overloaded' : 'stable';
+    const statusText = `ENERGIA ${percent}% · ${state}`;
+    if (element.textContent !== statusText) element.textContent = statusText;
+    const visualState = this.overloadLockTimer > 0 ? 'critical' : this.overload >= 70 ? 'overloaded' : 'stable';
+    if (element.dataset.state !== visualState) element.dataset.state = visualState;
   }
 
   createGuidedMissileFromWing(side, target, level) {
@@ -823,6 +825,7 @@ export class Game {
       updateHud(this);
       this.updateGuidedMissileButton();
       this.updateShieldPulseButton();
+      this.updateOverloadHud();
       const runAchievements = this.achievements.checkRunMilestones(this.score, this.waveManager.wave);
       if (runAchievements.length) this.showRewardBanner('CONQUISTA DESBLOQUEADA', runAchievements.map(item => item.name).join(' · '), 'achievement');
     }
@@ -967,7 +970,6 @@ export class Game {
     if (this.overloadLockTimer === 0 && this.overload >= this.overloadMax) this.overload = 68;
     this.player.overloadSpeedFactor = this.overloadLockTimer > 0 ? 0.68 : this.overload >= 70 ? 0.82 : 1;
     this.updateShieldPulseWave(dt);
-    this.updateOverloadHud();
     // Fire the second missile after a short delay so both launches are readable.
     if (this.pendingGuidedMissileLaunch) {
       this.pendingGuidedMissileLaunch.timer -= dt;
