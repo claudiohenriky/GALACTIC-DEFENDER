@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.19.1';
-import { Enemy } from '../enemies/enemy.js?v=0.19.1';
-import { Projectile } from '../combat/projectile.js?v=0.19.1';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.19.1';
-import { Progression } from '../progression/progression.js?v=0.19.1';
-import { Mission } from '../missions/missions.js?v=0.19.1';
-import { WaveManager } from './wave-manager.js?v=0.19.1';
-import { updateHud } from '../ui/hud.js?v=0.19.1';
-import { gameAudio } from '../audio/game-audio.js?v=0.19.1';
-import { AchievementTracker } from '../progression/achievements.js?v=0.19.1';
+import { Player } from '../player/player.js?v=0.19.2';
+import { Enemy } from '../enemies/enemy.js?v=0.19.2';
+import { Projectile } from '../combat/projectile.js?v=0.19.2';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.19.2';
+import { Progression } from '../progression/progression.js?v=0.19.2';
+import { Mission } from '../missions/missions.js?v=0.19.2';
+import { WaveManager } from './wave-manager.js?v=0.19.2';
+import { updateHud } from '../ui/hud.js?v=0.19.2';
+import { gameAudio } from '../audio/game-audio.js?v=0.19.2';
+import { AchievementTracker } from '../progression/achievements.js?v=0.19.2';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -380,7 +380,8 @@ export class Game {
       const dx = enemy.x - x;
       const dy = enemy.y - y;
       if (enemy.active && dx * dx + dy * dy <= radiusSquared) {
-        this.damageEnemy(enemy, 2);
+        // Make the shockwave's impact visible on durable bosses as well as small enemies.
+        this.damageEnemy(enemy, enemy.type === 'boss' ? 12 : 2);
       }
     }
   }
