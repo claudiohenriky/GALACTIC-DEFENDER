@@ -537,6 +537,8 @@ export class Game {
     if (this.hudUpdateTimer >= this.hudUpdateInterval) {
       this.hudUpdateTimer %= this.hudUpdateInterval;
       updateHud(this);
+      const runAchievements = this.achievements.checkRunMilestones(this.score, this.waveManager.wave);
+      if (runAchievements.length) this.showRewardBanner('CONQUISTA DESBLOQUEADA', runAchievements.map(item => item.name).join(' · '), 'achievement');
     }
 
     if (this.performanceProfileEnabled) {
