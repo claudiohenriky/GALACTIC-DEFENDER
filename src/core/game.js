@@ -691,7 +691,7 @@ export class Game {
     }
 
     // Contact damage is throttled per enemy. A charged shield absorbs contact
-    // without instantly destroying enemies (especially bosses) or losing all charge in one frame.
+    // without instantly destroying enemies or losing all charge in a few frames.
     for (const enemy of this.enemies) {
       if (!enemy.active) continue;
       const dx = this.player.x - enemy.x;
