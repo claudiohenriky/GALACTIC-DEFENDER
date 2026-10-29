@@ -1,3 +1,17 @@
+## Candidata v0.39.0 — Cooperação tática entre Guardião e Sentinela
+- [x] Fazer o Guardião procurar uma posição de cobertura quando uma Sentinela estiver próxima.
+- [x] Fazer a Sentinela ajustar suavemente sua posição para usar a cobertura do Guardião.
+- [x] Preservar dano, integridade, disparos, colisões e invulnerabilidade existentes.
+- [ ] Testar se a formação é compreensível e se as unidades não ficam presas, agrupadas ou oscilando.
+- [ ] Validar ondas com várias classes e observar desempenho em celular e computador.
+- [ ] Não mesclar em `main` sem aprovação explícita após teste manual.
+
+## Investigação pendente — espaço útil da arena em celular na horizontal
+- [ ] Medir/confirmar o espaço útil real durante uma partida, incluindo HUD e controles sobrepostos.
+- [ ] Separar problema de dimensão do Canvas de percepção de densidade causada pelo tamanho dos inimigos e pela quantidade simultânea.
+- [ ] Escolher ajuste somente após identificar a causa; não aumentar escala ou velocidade às cegas, nem comprometer legibilidade dos controles.
+- [ ] Testar orientação, tela cheia, redimensionamento e limites de movimentação antes de considerar resolvido.
+
 ## Candidata v0.38.0 — Esquivas mais legíveis e separação entre inimigos
 - [x] Aumentar moderadamente a amplitude lateral das esquivas sem alterar invulnerabilidade, dano ou cadência.
 - [x] Adicionar separação local e suave para reduzir sobreposição entre cascos inimigos.
