@@ -630,6 +630,8 @@ export class Game {
       if (target) this.damageEnemy(target, (target.type === 'boss' || target.type === 'megaboss' ? 16 : 5) + this.player.continuousLaserLevel * 3);
       this.addOverload(18); this.continuousLaserCooldown = 2.5;
     } else if (outcome === 'draw') { this.addOverload(8); this.continuousLaserCooldown = 1.2; } else this.continuousLaserCooldown = 4;
+    this.status = 'running'; this.lastTime = performance.now();
+    this.animationId = requestAnimationFrame((time) => this.loop(time));
     this.updateContinuousLaserButton();
   }
   updateContinuousLaser(dt) {
@@ -638,7 +640,7 @@ export class Game {
     const dx = Math.cos(this.player.rotation), dy = Math.sin(this.player.rotation), sx = this.player.x + dx * 18, sy = this.player.y + dy * 18, ex = sx + dx * 460, ey = sy + dy * 460;
     for (const shot of this.enemyProjectiles) {
       if (!shot.active || !circleOverlapsSegment(shot, sx, sy, ex, ey, 7)) continue;
-      shot.active = false; this.continuousLaserClash = { x: shot.x, y: shot.y }; this.continuousLaserHeld = false;
+      shot.active = false; this.continuousLaserClash = { x: shot.x, y: shot.y }; this.continuousLaserHeld = false; this.status = 'paused';
       document.querySelector('#laser-clash-overlay')?.classList.remove('hidden'); this.updateContinuousLaserButton(); return;
     }
     if (this.continuousLaserDamageClock <= 0) {
