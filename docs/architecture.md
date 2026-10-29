@@ -18,7 +18,7 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 
 ## Estado da versão
 
-- A candidata v0.20.0 compacta as notificações de recompensa no lado direito da arena e limita o texto para reduzir a sobreposição da HUD.
+- A candidata v0.21.0 adiciona uma tela de preparação antes da partida; o loop de jogo só começa após confirmação explícita. A v0.20.0 compacta as notificações de recompensa no lado direito da arena.
 - A v0.19.2 ajusta o dano da onda de quebra do escudo contra chefes (12 pontos), mantendo 2 pontos contra inimigos comuns.
 - A confirmação manual da candidata v0.20.0 é feita pelo usuário no GitHub Pages, com foco em celular na horizontal.
 
@@ -29,7 +29,8 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - A HUD da arena mostra integridade e XP durante a partida, inclusive em tela cheia.
 - A faixa de recompensas ao vivo usa HTML/CSS fora do Canvas para comunicar conclusão de missões, XP/pontos, novos títulos, conquistas e chefes sem desenhar texto a cada quadro.
 - O dano confirmado ativa um aviso visual temporário; subir de nível ativa um aviso e partículas douradas no Canvas.
-- Tela cheia é iniciada por ação explícita do jogador; o bloqueio de orientação horizontal é opcional, pois depende do navegador/dispositivo.
+- Tela cheia é iniciada por ação explícita do jogador; pode ser ativada na preparação antes de começar ou dentro da arena. O bloqueio de orientação horizontal é opcional, pois depende do navegador/dispositivo.
+- A tela de preparação é independente do ciclo de jogo e não deve iniciar ondas, áudio ou movimento antes de `INICIAR MISSÃO`.
 - Controles de toque usam Pointer Events e reutilizam as mesmas entradas lógicas do teclado, permitindo movimento simultâneo e disparo.
 - `requestAnimationFrame` com delta time limitado para reduzir saltos após quedas de FPS.
 - O sistema de ondas é separado do ciclo principal para facilitar balanceamento e expansão.
