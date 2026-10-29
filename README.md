@@ -6,6 +6,8 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
+**Candidata atual para teste:** `0.39.0` — cooperação de posicionamento entre Guardião e Sentinela na branch `feature/v0.39.0-guardian-sentinel-tactics`. A `main` permanece inalterada; esta candidata requer teste manual antes de aprovação. A questão do espaço útil da arena em celular na horizontal está registrada para investigação separada.
+
 **Candidata anterior testada:** `0.31.0` — adiciona o Artilheiro na branch `feature/v0.31.0-artillery-enemy`; o usuário aprovou manualmente a leitura visual, o leque, o equilíbrio, o desempenho percebido e o funcionamento das classes existentes.
 
 **Candidata em teste:** `0.32.0` — chefe com três fases na branch `feature/v0.32.0-boss-phases`. O usuário gostou do combate, mas relatou uma queda pontual para cerca de 7 FPS / 146 ms ao derrotar o chefe; a causa ainda não foi identificada.
