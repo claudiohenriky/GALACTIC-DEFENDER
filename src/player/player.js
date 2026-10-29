@@ -161,7 +161,7 @@ export class Player {
       ctx.lineWidth = 1;
       for (const side of [-1, 1]) {
         ctx.beginPath();
-        ctx.roundRect(side * 17 - 2.5, 1, 5, 10, 2);
+        ctx.rect(side * 17 - 2.5, 1, 5, 10);
         ctx.fill();
         ctx.stroke();
         ctx.fillStyle = '#ffb45e';
