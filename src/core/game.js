@@ -456,6 +456,17 @@ export class Game {
         length: rand(7, 13)
       });
     }
+    // A few low-cost orange sparks and smoke puffs make hull damage feel physical.
+    if (this.damageSparks.length < 28) {
+      for (let i = 0; i < 3; i += 1) {
+        const angle = rand(0, Math.PI * 2), speed = rand(28, 64), life = rand(0.2, 0.38);
+        this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 9, y: this.player.y + Math.sin(angle) * 9, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, length: rand(4, 8), size: rand(1, 2), color: '#ff9d45' });
+      }
+      for (let i = 0; i < 2; i += 1) {
+        const angle = rand(0, Math.PI * 2), speed = rand(7, 18), life = rand(0.28, 0.48);
+        this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 8, y: this.player.y + Math.sin(angle) * 8, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, length: 0, size: rand(2, 3.2), color: '#788493', kind: 'smoke' });
+      }
+    }
     const feedback = document.querySelector('#damage-feedback');
     feedback.textContent = `INTEGRIDADE -${amount}`;
     this.restartFeedbackAnimation(feedback, 'damage-active');
@@ -1260,8 +1271,16 @@ export class Game {
       const fade = Math.max(0, spark.life / spark.maxLife);
       ctx.save();
       ctx.translate(spark.x, spark.y);
-      ctx.rotate(Math.atan2(spark.vy, spark.vx));
       ctx.globalAlpha = fade;
+      if (spark.kind === 'smoke') {
+        ctx.fillStyle = spark.color || '#788493';
+        ctx.beginPath();
+        ctx.arc(0, 0, spark.size * (1 + (1 - fade) * 0.7), 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        return;
+      }
+      ctx.rotate(Math.atan2(spark.vy, spark.vx));
       ctx.strokeStyle = spark.color || (fade > 0.55 ? '#ffdce3' : '#ff526f');
       ctx.lineWidth = 2.2;
       ctx.beginPath();
