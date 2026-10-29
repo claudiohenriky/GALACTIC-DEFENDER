@@ -54,6 +54,11 @@ O protótipo usa JavaScript moderno com ES Modules, sem bibliotecas externas.
 - Na v0.18.1, `drawShield()` agrupa a barreira e a barra de integridade em uma única seção `save/restore` e usa coordenadas absolutas, removendo uma translação de contexto por quadro. É uma otimização pequena e conservadora; sua eficácia ainda precisa de validação no navegador.
 - Próximo alvo após validar a correção do escudo: voltar ao plano de evolução estrutural incremental e escolher uma extração pequena de `game.js`, sem reescrita ampla do renderer. Medições do profiler podem ajudar quando estiverem acessíveis.
 
+## Correção candidata v0.19.1
+
+- Colisões com a nave usam um intervalo de contato por inimigo. Com o escudo ativo, o contato consome carga sem remover automaticamente o inimigo; a explosão de quebra continua sendo a mecânica separada de dano em área.
+- Removidos os efeitos de sombra desfocada por quadro da nave e dos inimigos como tentativa conservadora de reduzir picos de renderização. O resultado precisa ser comparado no navegador real.
+
 ## Próximas validações
 
 1. Confirmar carregamento de todos os módulos em HTTP/HTTPS.
