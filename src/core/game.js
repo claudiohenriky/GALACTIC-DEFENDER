@@ -1,5 +1,5 @@
 import { Player } from '../player/player.js?v=0.35.0';
-import { Enemy } from '../enemies/enemy.js?v=0.36.0';
+import { Enemy } from '../enemies/enemy.js?v=0.37.0';
 import { Projectile } from '../combat/projectile.js?v=0.35.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.35.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.35.0';
@@ -1150,7 +1150,7 @@ export class Game {
     this.guidedMissileEffects.length = effectWriteIndex;
     this.enemyProjectiles.forEach((shot) => shot.update(dt));
     this.enemies.forEach((enemy) => {
-      const shot = enemy.update(dt, this.player.x, this.player.y, this.width, this.height);
+      const shot = enemy.update(dt, this.player.x, this.player.y, this.width, this.height, this.projectiles);
       if (shot) {
         const shots = Array.isArray(shot) ? shot : [shot];
         for (const projectileData of shots) {
