@@ -9,6 +9,8 @@ export class Projectile {
     this.vx = Math.cos(angle) * this.speed;
     this.vy = Math.sin(angle) * this.speed;
     this.active = true;
+    this.piercing = false;
+    this.hitEnemies = new Set();
   }
 
   update(dt) {
@@ -21,10 +23,10 @@ export class Projectile {
     ctx.translate(this.x, this.y);
     // The projectile's long axis points upward at angle -PI/2 by default.
     ctx.rotate(this.angle + Math.PI / 2);
-    ctx.shadowBlur = 5;
-    ctx.shadowColor = '#58e4e8';
-    ctx.fillStyle = '#c4ffff';
-    ctx.fillRect(-1.5, -8, 3, 12);
+    ctx.shadowBlur = this.piercing ? 9 : 5;
+    ctx.shadowColor = this.piercing ? '#a68cff' : '#58e4e8';
+    ctx.fillStyle = this.piercing ? '#e0d4ff' : '#c4ffff';
+    ctx.fillRect(this.piercing ? -2 : -1.5, this.piercing ? -12 : -8, this.piercing ? 4 : 3, this.piercing ? 20 : 12);
     ctx.restore();
   }
 }

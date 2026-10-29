@@ -17,11 +17,12 @@ export function updateHud(game) {
   const healthValue = document.querySelector('#health-value');
   const healthText = String(game.player.health);
   if (healthValue.firstChild?.textContent !== healthText) healthValue.firstChild.textContent = healthText;
-  setWidth('#health-bar', game.player.health);
-  setText('#arena-health-value', `${game.player.health}%`);
-  setWidth('#arena-health-bar', game.player.health);
+  const healthPercent = Math.min(100, game.player.health / game.player.maxHealth * 100);
+  setWidth('#health-bar', healthPercent);
+  setText('#arena-health-value', `${Math.round(healthPercent)}%`);
+  setWidth('#arena-health-bar', healthPercent);
   const arenaHealthBlock = document.querySelector('.hud-health');
-  arenaHealthBlock.classList.toggle('is-critical', game.player.health <= 30);
+  arenaHealthBlock.classList.toggle('is-critical', healthPercent <= 30);
   setText('#xp-label', `${game.progression.xp} / ${game.progression.nextLevelXp}`);
   const xpPercent = Math.min(100, game.progression.xp / game.progression.nextLevelXp * 100);
   setWidth('#xp-bar', xpPercent);

@@ -265,3 +265,25 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 /* v0.15.0: keyboard focus and reduced-motion accessibility polish */
 :where(button, a, input, select, textarea, [tabindex]):focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* v0.16.0: touch-friendly upgrade cards and distinct special-skill presentation. */
+.upgrade-overlay{gap:12px}
+.upgrade-overlay h2{margin-bottom:0}
+.upgrade-overlay>p:not(.eyebrow){margin:0 0 4px}
+.upgrade-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;width:min(100%,760px);margin-top:8px}
+.upgrade-card{display:flex;min-width:0;min-height:190px;flex-direction:column;align-items:flex-start;gap:8px;padding:14px 12px;text-align:left;border:1px solid #35516f;border-radius:10px;background:linear-gradient(155deg,#13233b,#0a1426);color:var(--text);cursor:pointer;transition:transform .18s,border-color .18s,background .18s,box-shadow .18s;touch-action:manipulation}
+.upgrade-card:hover,.upgrade-card:focus-visible{transform:translateY(-3px);border-color:var(--cyan);background:linear-gradient(155deg,#17364a,#101b31);box-shadow:0 8px 24px #0004,0 0 0 1px #58e4e822}
+.upgrade-card-icon{display:grid;place-items:center;width:36px;height:36px;border:1px solid #42617d;border-radius:9px;background:#132e43;color:var(--cyan);font-size:22px}
+.upgrade-card-category{font-size:8px;font-weight:900;letter-spacing:.13em;color:var(--cyan)}
+.upgrade-card strong{font-size:clamp(11px,1.2vw,14px);line-height:1.3}
+.upgrade-card small{font-size:10px;line-height:1.5;color:var(--muted)}
+#upgrade-overlay.is-special-choice .upgrade-card-icon{border-color:#7461aa;background:#292044;color:#d3baff}
+#upgrade-overlay.is-special-choice .upgrade-card-category{color:#d3baff}
+#upgrade-overlay.is-special-choice .upgrade-card:hover,#upgrade-overlay.is-special-choice .upgrade-card:focus-visible{border-color:#b59aff;background:linear-gradient(155deg,#282044,#121a30)}
+#upgrade-overlay:not(.hidden) .upgrade-card{animation:upgrade-card-enter .28s ease-out both}
+#upgrade-overlay:not(.hidden) .upgrade-card:nth-child(2){animation-delay:.06s}
+#upgrade-overlay:not(.hidden) .upgrade-card:nth-child(3){animation-delay:.12s}
+@keyframes upgrade-card-enter{from{opacity:0;transform:translateY(9px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:560px){.upgrade-card-grid{grid-template-columns:1fr;gap:8px;max-height:min(58vh,470px);overflow-y:auto;padding:2px 3px 6px}.upgrade-card{display:grid;grid-template-columns:38px minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:10px;row-gap:4px;min-height:88px;padding:10px}.upgrade-card-icon{grid-column:1;grid-row:1/4;align-self:center}.upgrade-card-category{grid-column:2;grid-row:1}.upgrade-card strong{grid-column:2;grid-row:2;font-size:12px}.upgrade-card small{grid-column:2;grid-row:3;font-size:10px}.upgrade-overlay{padding:14px 12px;gap:8px}.upgrade-overlay h2{font-size:clamp(25px,7vw,34px)}.upgrade-overlay .eyebrow{margin-bottom:4px}#upgrade-level-label{font-size:10px;line-height:1.4}}
+@media(prefers-reduced-motion:reduce){.upgrade-card{transition:none}.upgrade-card:hover,.upgrade-card:focus-visible{transform:none}#upgrade-overlay:not(.hidden) .upgrade-card{animation:none}}

@@ -1,9 +1,14 @@
 export class Player {
   constructor(width = 360, height = 780) {
     this.radius = 13;
-    this.speed = 250;
-    this.health = 100;
+    this.baseSpeed = 250;
+    this.speed = this.baseSpeed;
+    this.baseMaxHealth = 100;
+    this.maxHealth = this.baseMaxHealth;
+    this.health = this.maxHealth;
     this.weaponDamage = 1;
+    this.doubleShotLevel = 0;
+    this.laserLevel = 0;
     this.shieldCharges = 0;
     this.invulnerabilityDuration = 1.25;
     // Temporary spawn protection prevents an unavoidable hit while the pilot gets oriented.

@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.15.1';
-import { Enemy } from '../enemies/enemy.js?v=0.15.1';
-import { Projectile } from '../combat/projectile.js?v=0.15.1';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.15.1';
-import { Progression } from '../progression/progression.js?v=0.15.1';
-import { Mission } from '../missions/missions.js?v=0.15.1';
-import { WaveManager } from './wave-manager.js?v=0.15.1';
-import { updateHud } from '../ui/hud.js?v=0.15.1';
-import { gameAudio } from '../audio/game-audio.js?v=0.15.1';
-import { AchievementTracker } from '../progression/achievements.js?v=0.15.1';
+import { Player } from '../player/player.js?v=0.16.0';
+import { Enemy } from '../enemies/enemy.js?v=0.16.0';
+import { Projectile } from '../combat/projectile.js?v=0.16.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.16.0';
+import { Progression } from '../progression/progression.js?v=0.16.0';
+import { Mission } from '../missions/missions.js?v=0.16.0';
+import { WaveManager } from './wave-manager.js?v=0.16.0';
+import { updateHud } from '../ui/hud.js?v=0.16.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.16.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.16.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -49,7 +49,7 @@ export class Game {
     this.damageSparks = [];
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
-    this.pendingUpgradeChoices = 0;
+    this.pendingUpgradeChoices = [];
     this.hudUpdateInterval = 0.1;
     this.hudUpdateTimer = 0;
     this.backgroundCanvas = document.createElement('canvas');
@@ -156,7 +156,8 @@ export class Game {
     this.damageSparks = [];
     this.levelUpToastTimer = 0;
     this.damageFeedbackTimer = 0;
-    this.pendingUpgradeChoices = 0;
+    this.pendingUpgradeChoices = [];
+    this.currentUpgradeOptions = [];
     this.hudUpdateTimer = 0;
     document.querySelector('#upgrade-overlay').classList.add('hidden');
     document.querySelector('#level-up-toast').classList.remove('level-up-active');
@@ -215,44 +216,78 @@ export class Game {
   }
 
   triggerLevelUp(levelsGained) {
-    this.pendingUpgradeChoices += levelsGained;
-    this.status = 'upgrade';
-    cancelAnimationFrame(this.animationId);
-    document.querySelector('#upgrade-overlay').classList.remove('hidden');
-    document.querySelector('#upgrade-level-label').textContent = `NÍVEL ${this.progression.level} · ESCOLHA ${this.pendingUpgradeChoices > 1 ? 'UMA MELHORIA' : 'SUA MELHORIA'}`;
+    const firstLevel = this.progression.level - levelsGained + 1;
+    for (let level = firstLevel; level <= this.progression.level; level += 1) {
+      if (level > 1 && level % 5 === 0) this.pendingUpgradeChoices.push({ level, category: 'special' });
+      else if (level >= 3 && level % 2 === 1) this.pendingUpgradeChoices.push({ level, category: 'attribute' });
+    }
     this.levelUpToastTimer = 1.35;
     const toast = document.querySelector('#level-up-toast');
     toast.textContent = levelsGained > 1 ? `✦ NÍVEIS +${levelsGained}` : '✦ NÍVEL AUMENTADO';
     this.restartFeedbackAnimation(toast, 'level-up-active');
-
     for (let i = 0; i < 22; i += 1) {
       const angle = (Math.PI * 2 * i) / 22 + rand(-0.15, 0.15);
       const speed = rand(32, 105);
       const life = rand(0.45, 0.95);
-      this.levelUpParticles.push({
-        x: this.player.x + rand(-7, 7),
-        y: this.player.y + rand(-7, 7),
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        life,
-        maxLife: life,
-        size: rand(2, 4.5)
-      });
+      this.levelUpParticles.push({ x: this.player.x + rand(-7, 7), y: this.player.y + rand(-7, 7), vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, size: rand(2, 4.5) });
+    }
+    if (this.pendingUpgradeChoices.length > 0 && this.status !== 'upgrade') {
+      this.status = 'upgrade';
+      cancelAnimationFrame(this.animationId);
+      this.renderUpgradeChoice();
     }
   }
 
-  chooseUpgrade(type) {
-    if (this.status !== 'upgrade' || this.pendingUpgradeChoices < 1) return;
-    if (type === 'damage') this.player.weaponDamage = Math.min(4, this.player.weaponDamage + 1);
-    if (type === 'speed') this.player.speed = Math.min(340, this.player.speed + 22);
-    if (type === 'shield') { this.player.shieldCharges = Math.min(3, this.player.shieldCharges + 1); this.player.health = Math.min(100, this.player.health + 25); }
-    this.pendingUpgradeChoices -= 1;
-    updateHud(this);
-    if (this.pendingUpgradeChoices > 0) {
-      document.querySelector('#upgrade-level-label').textContent = `NÍVEL ${this.progression.level} · FALTAM ${this.pendingUpgradeChoices} ESCOLHAS`;
-      return;
+  renderUpgradeChoice() {
+    const current = this.pendingUpgradeChoices[0];
+    if (!current) return;
+    const attributes = [
+      { type: 'damage', icon: '✦', title: 'Arma reforçada', description: '+10% de dano da arma', category: 'ATRIBUTO' },
+      { type: 'speed', icon: '➤', title: 'Propulsão aprimorada', description: '+6% de velocidade', category: 'ATRIBUTO' },
+      { type: 'integrity', icon: '⬡', title: 'Estrutura reforçada', description: '+10% de integridade máxima', category: 'ATRIBUTO' }
+    ];
+    const specials = [
+      { type: 'doubleShot', icon: '✣', title: 'Tiro múltiplo', description: 'Adiciona projéteis laterais', category: 'HABILIDADE ESPECIAL' },
+      { type: 'laser', icon: 'ϟ', title: 'Laser perfurante', description: 'Projéteis atravessam inimigos', category: 'HABILIDADE ESPECIAL' },
+      { type: 'shield', icon: '◈', title: 'Escudo de energia', description: 'Bloqueia um impacto adicional', category: 'HABILIDADE ESPECIAL' },
+      { type: 'repair', icon: '✚', title: 'Reparo de emergência', description: 'Recupera 30% da integridade máxima', category: 'HABILIDADE ESPECIAL' }
+    ];
+    const options = [...(current.category === 'special' ? specials : attributes)];
+    for (let i = options.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [options[i], options[j]] = [options[j], options[i]];
     }
+    this.currentUpgradeOptions = options.slice(0, 3);
+    const overlay = document.querySelector('#upgrade-overlay');
+    overlay.classList.remove('hidden');
+    document.querySelector('#upgrade-title').innerHTML = current.category === 'special' ? 'Escolha uma<br><span>habilidade especial.</span>' : 'Escolha uma<br><span>melhoria.</span>';
+    document.querySelector('#upgrade-level-label').textContent = `NÍVEL ${current.level} · ${current.category === 'special' ? 'HABILIDADE ESPECIAL' : 'ATRIBUTOS DA NAVE'}`;
+    [...overlay.querySelectorAll('[data-upgrade]')].forEach((button, index) => {
+      const card = this.currentUpgradeOptions[index];
+      button.dataset.upgrade = card.type;
+      button.className = 'upgrade-card';
+      button.setAttribute('aria-label', `${card.title}. ${card.description}`);
+      button.innerHTML = `<span class="upgrade-card-icon" aria-hidden="true">${card.icon}</span><span class="upgrade-card-category">${card.category}</span><strong>${card.title}</strong><small>${card.description}</small>`;
+    });
+    overlay.classList.toggle('is-special-choice', current.category === 'special');
+  }
+
+  chooseUpgrade(type) {
+    if (this.status !== 'upgrade' || !this.pendingUpgradeChoices.length) return;
+    if (!this.currentUpgradeOptions.some((option) => option.type === type)) return;
+    if (type === 'damage') this.player.weaponDamage = Math.min(2.5, this.player.weaponDamage * 1.10);
+    if (type === 'speed') this.player.speed = Math.min(this.player.baseSpeed * 1.5, this.player.speed * 1.06);
+    if (type === 'integrity') this.player.maxHealth = Math.min(this.player.baseMaxHealth * 1.6, this.player.maxHealth * 1.10);
+    if (type === 'doubleShot') this.player.doubleShotLevel = Math.min(2, this.player.doubleShotLevel + 1);
+    if (type === 'laser') this.player.laserLevel = Math.min(3, this.player.laserLevel + 1);
+    if (type === 'shield') this.player.shieldCharges = Math.min(3, this.player.shieldCharges + 1);
+    if (type === 'repair') this.player.health = Math.min(this.player.maxHealth, this.player.health + this.player.maxHealth * 0.30);
+    this.pendingUpgradeChoices.shift();
+    updateHud(this);
+    if (this.pendingUpgradeChoices.length) { this.renderUpgradeChoice(); return; }
     document.querySelector('#upgrade-overlay').classList.add('hidden');
+    document.querySelector('#upgrade-overlay').classList.remove('is-special-choice');
+    this.currentUpgradeOptions = [];
     this.status = 'running';
     this.lastTime = performance.now();
     this.animationId = requestAnimationFrame((time) => this.loop(time));
@@ -374,9 +409,18 @@ export class Game {
       const muzzleDistance = 17;
       const muzzleX = this.player.x + Math.cos(angle) * muzzleDistance;
       const muzzleY = this.player.y + Math.sin(angle) * muzzleDistance;
-      const projectile = new Projectile(muzzleX, muzzleY, angle);
-      projectile.damage = this.player.weaponDamage;
-      this.projectiles.push(projectile);
+      const projectileCount = 1 + this.player.doubleShotLevel;
+      const spread = 0.14;
+      for (let index = 0; index < projectileCount; index += 1) {
+        const offset = (index - (projectileCount - 1) / 2) * spread;
+        const projectileAngle = angle + offset;
+        const muzzleX = this.player.x + Math.cos(projectileAngle) * muzzleDistance;
+        const muzzleY = this.player.y + Math.sin(projectileAngle) * muzzleDistance;
+        const projectile = new Projectile(muzzleX, muzzleY, projectileAngle);
+        projectile.damage = this.player.weaponDamage * (1 + this.player.laserLevel * 0.25);
+        projectile.piercing = this.player.laserLevel > 0;
+        this.projectiles.push(projectile);
+      }
       gameAudio.playPlayerShot();
       this.shotClock = .22;
     }
@@ -407,8 +451,9 @@ export class Game {
     for (const shot of this.projectiles) {
       if (!shot.active) continue;
       for (const enemy of this.enemies) {
-        if (enemy.active && Math.hypot(shot.x - enemy.x, shot.y - enemy.y) < enemy.radius + shot.radius) {
-          shot.active = false;
+        if (enemy.active && !shot.hitEnemies.has(enemy) && Math.hypot(shot.x - enemy.x, shot.y - enemy.y) < enemy.radius + shot.radius) {
+          shot.hitEnemies.add(enemy);
+          if (!shot.piercing) shot.active = false;
           enemy.health = Math.max(0, enemy.health - (shot.damage ?? 1));
           if (enemy.health <= 0) {
             enemy.active = false;
@@ -420,7 +465,7 @@ export class Game {
             if (levelsGained > 0) this.triggerLevelUp(levelsGained);
             this.handleMissionCompletion(this.mission.registerKill());
           }
-          break;
+          if (!shot.piercing) break;
         }
       }
     }

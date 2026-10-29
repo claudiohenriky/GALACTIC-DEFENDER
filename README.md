@@ -4,9 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Versão em desenvolvimento:** `0.15.1` — disparo com botão direito do mouse no computador.
+**Versão em desenvolvimento:** `0.16.0` — progressão em cartas e habilidades especiais (em validação).
 
-**Fase:** polimento pré-alfa. A v0.14.0 foi validada pelo usuário; a v0.15.0 foi aprovada no teste manual em computador informado pelo usuário. A v0.15.1 foi aprovada nos testes manuais em computador e celular, conforme informado pelo usuário, sem erros reportados.
+**Fase:** pré-alfa. A v0.15.1 foi validada manualmente em computador e celular. A v0.16.0 está em implementação e ainda precisa de testes manuais no GitHub Pages.
 
 - Plataforma: navegadores modernos em computador e celular.
 - Controles: WASD/setas para movimentação, mouse para mirar, botão direito (segurar) ou Espaço para disparar no computador; joystick virtual e botão de disparo em dispositivos móveis. O disparo pelo botão direito foi aprovado no teste manual informado pelo usuário.
@@ -47,7 +47,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Inimigos não causam dano automático ao ultrapassar a borda da arena.
 - Proteção inicial de 3 segundos ao surgir e invulnerabilidade temporária com efeito visual de piscar após receber dano.
 - XP, níveis e pontuação.
-- Ao subir de nível, o jogo pausa para uma escolha entre dano da arma, velocidade da nave ou escudo consumível com reparo parcial. Dano e velocidade têm limites; o escudo bloqueia um impacto e pode acumular até três cargas.
+- A progressão v0.16.0 apresenta três cartas por seleção e permite escolher apenas uma. Melhorias de atributos usam percentuais; cartas de atributos aparecem em níveis ímpares a partir do nível 3, e cartas especiais em marcos a cada cinco níveis. Os valores e a frequência ainda precisam de balanceamento. Habilidades iniciais incluem tiro múltiplo, laser perfurante, escudo e reparo de emergência.
 - Música ambiente espacial sintetizada e efeitos distintos para disparos do jogador, tiros inimigos e dano, gerados pela Web Audio API sem arquivos externos. O volume geral é ajustável nas configurações, com ganho reforçado para música e dano.
 - Missões rotativas: eliminar inimigos, sobreviver por tempo determinado e alcançar ondas específicas, com dificuldades fácil, média e difícil.
 - Recompensas de missão em XP e pontuação; a conclusão avança para o próximo objetivo.

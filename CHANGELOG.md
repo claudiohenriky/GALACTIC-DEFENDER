@@ -1,5 +1,18 @@
 # Histórico de versões — GALACTIC-DEFENDER
 
+## [0.16.0] — Progressão em cartas (em validação)
+
+### Adicionado
+- Interface de três cartas para escolhas de progressão, com animação de interação e adaptação a telas móveis.
+- Melhorias de atributos percentuais: dano da arma, velocidade e integridade máxima.
+- Habilidades especiais em marcos da progressão: tiro múltiplo, laser perfurante, escudo de energia e reparo de emergência.
+- Cartas de atributos em níveis ímpares a partir do nível 3; cartas especiais a cada cinco níveis. Frequência e valores são provisórios.
+- O requisito de XP continua crescendo progressivamente a cada nível.
+
+### Validação
+- Implementação inicial publicada para teste; ainda não considerada aprovada até os testes manuais no computador e celular.
+
+
 Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; quando falta evidência para um marco antigo, isso é informado sem inventar recursos.
 
 ## [0.15.1] — Testes manuais em computador e celular aprovados
