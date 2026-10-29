@@ -1,3 +1,10 @@
+## Candidata v0.40.0 — Artilheiro de Elite
+
+- Implementação inicial registrada em `feature/v0.40.0-elite-variants`.
+- O Artilheiro de Elite aparece ocasionalmente a partir da onda 12, mantém o comportamento de artilharia-base e recebe escudo de energia de 8 pontos que absorve dano antes do casco.
+- Identidade visual: casco escuro, detalhes roxos e núcleo verde; o anel verde indica escudo ativo.
+- Estado: aguardando teste manual; não mesclado em `main`.
+
 ## Planejamento v0.40.0 — Fundação das Tropas de Elite
 
 ### Princípios aprovados
@@ -9,11 +16,11 @@
 - Não adicionar um inimigo genérico chamado `elite` como nova classe. Identificar a variante de Elite junto à classe-base para preservar comportamento, visual e balanceamento próprios.
 
 ### Implementação em etapas
-- [ ] Auditar a criação, renderização, IA, dano e surgimento das classes existentes antes de alterar código.
-- [ ] Definir e implementar uma única variante inicial de Elite como prova de conceito; não ativar todas as variantes simultaneamente.
-- [ ] Garantir indicação visual clara de Elite e uma habilidade especial com telegráfico/contrajogo legível.
+- [x] Auditar a criação, renderização, IA, dano e surgimento das classes existentes antes de alterar código.
+- [x] Implementar uma única variante inicial como prova de conceito: Artilheiro de Elite, sem ativar as demais variantes.
+- [x] Adicionar identidade visual clara (casco escuro, detalhes roxos, núcleo verde) e escudo visível com absorção de dano; o escudo pode ser desgastado por disparos.
 - [ ] Preservar as versões normais das quatro classes e a cooperação Guardião–Sentinela.
-- [ ] Atualizar versionamento de cache, changelog, README e roadmap na mesma etapa de código.
+- [x] Atualizar versionamento de cache, changelog, README e roadmap na mesma etapa de código.
 - [ ] Executar validações estáticas disponíveis e preparar branch de prévia + PR em rascunho.
 - [ ] Entregar link Raw.githack para teste manual no celular; ajustar com base no feedback antes de avançar para outras variantes.
 - [ ] Não mesclar em `main` sem aprovação explícita do usuário.
