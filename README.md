@@ -31,7 +31,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 ## Controles
 
 - **PC (candidata 0.17.0):** mouse para mirar; `W/S` avançam e recuam em relação à orientação da nave; `A/D` fazem strafe; botão direito (segurar) ou `Espaço` para disparar.
-- **Celular (candidata 0.17.2):** joystick para movimentar; arraste o dedo na arena para orientar a nave quando não houver inimigos. Quando houver inimigo ativo, a mira prioriza o inimigo mais próximo e o disparo é automático.
+- **Celular (candidata 0.17.2):** joystick para movimentar; arraste o dedo na arena para orientar a nave quando não houver inimigos. Quando houver inimigo ativo, a mira prioriza o inimigo mais próximo; o disparo depende do botão DISPARAR.
 - **PC (base 0.17.0):** mouse para mirar; `W/S` avançam e recuam em relação à orientação da nave; `A/D` fazem strafe; botão direito ou `Espaço` para disparar. Ainda sem validação manual nesta rodada.
 - `P`: pausar ou retomar (teclado). A v0.17.2 aguarda teste manual no celular.
 
