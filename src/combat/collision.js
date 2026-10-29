@@ -17,7 +17,7 @@ export function distanceSquared(ax, ay, bx, by) {
 /** Test two circular hit areas. Tangency counts as a collision. */
 export function circlesOverlap(a, b, radiusA = a.radius ?? 0, radiusB = b.radius ?? 0) {
   const combinedRadius = radiusA + radiusB;
-  return distanceSquared(a.x, a.y, b.x, b.y) <= combinedRadius * combinedRadius;
+  return distanceSquared(a.x, a.y, b.x, b.y) < combinedRadius * combinedRadius;
 }
 
 /** Test a circular hit area against a line segment, useful for swept attacks. */
