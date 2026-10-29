@@ -1,13 +1,13 @@
-import { Player } from '../player/player.js?v=0.16.1';
-import { Enemy } from '../enemies/enemy.js?v=0.16.1';
-import { Projectile } from '../combat/projectile.js?v=0.16.1';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.16.1';
-import { Progression } from '../progression/progression.js?v=0.16.1';
-import { Mission } from '../missions/missions.js?v=0.16.1';
-import { WaveManager } from './wave-manager.js?v=0.16.1';
-import { updateHud } from '../ui/hud.js?v=0.16.1';
-import { gameAudio } from '../audio/game-audio.js?v=0.16.1';
-import { AchievementTracker } from '../progression/achievements.js?v=0.16.1';
+import { Player } from '../player/player.js?v=0.16.2';
+import { Enemy } from '../enemies/enemy.js?v=0.16.2';
+import { Projectile } from '../combat/projectile.js?v=0.16.2';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.16.2';
+import { Progression } from '../progression/progression.js?v=0.16.2';
+import { Mission } from '../missions/missions.js?v=0.16.2';
+import { WaveManager } from './wave-manager.js?v=0.16.2';
+import { updateHud } from '../ui/hud.js?v=0.16.2';
+import { gameAudio } from '../audio/game-audio.js?v=0.16.2';
+import { AchievementTracker } from '../progression/achievements.js?v=0.16.2';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -377,24 +377,39 @@ export class Game {
   drawShield(ctx) {
     const player = this.player;
     if (player.shieldLevel <= 0) return;
-    const ratio = player.shieldMaxHealth > 0 ? player.shieldHealth / player.shieldMaxHealth : 0;
+
+    const ratio = player.shieldMaxHealth > 0
+      ? player.shieldHealth / player.shieldMaxHealth
+      : 0;
+
     if (player.shieldHealth > 0) {
-      const pulse = 1 + Math.sin(player.flamePhase * 4) * 0.025;
+      // Avoid Canvas shadowBlur on every frame: it is expensive on mobile GPUs.
+      const pulse = 0.5 + Math.sin(player.flamePhase * 4) * 0.06;
+      const weak = ratio <= 0.34;
+      const mainColor = weak ? '#ffc477' : '#79dcff';
+      const edgeColor = weak ? '#ff9d62' : '#43bfff';
+
       ctx.save();
       ctx.translate(player.x, player.y);
-      ctx.scale(pulse, pulse);
-      ctx.shadowBlur = 13;
-      ctx.shadowColor = '#43bfff';
-      ctx.strokeStyle = '#79dcff';
-      ctx.globalAlpha = 0.78 + Math.sin(player.flamePhase * 5) * 0.12;
+      ctx.globalAlpha = 0.12 + pulse * 0.16;
+      ctx.fillStyle = edgeColor;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 24, 28, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.globalAlpha = 0.72 + pulse * 0.35;
+      ctx.strokeStyle = mainColor;
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.ellipse(0, 0, 23, 27, 0, 0, Math.PI * 2);
       ctx.stroke();
-      ctx.globalAlpha = 0.22;
+
+      // An inset contour adds depth without blur filters or particle systems.
+      ctx.globalAlpha = 0.35 + pulse * 0.2;
+      ctx.strokeStyle = edgeColor;
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.ellipse(0, 0, 27, 31, 0, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, 19, 23, 0, Math.PI * 1.12, Math.PI * 1.88);
       ctx.stroke();
       ctx.restore();
     }
@@ -611,17 +626,23 @@ export class Game {
     this.drawShield(ctx);
     this.player.draw(ctx, playerVisible);
 
-    // Shield-break shockwaves expand briefly and fade without blocking the arena.
+    // Lightweight dual-ring shockwave without per-frame shadow blur.
     this.shieldBreakEffects.forEach((effect) => {
       const progress = 1 - effect.life / effect.maxLife;
+      const fade = Math.max(0, effect.life / effect.maxLife);
       ctx.save();
-      ctx.globalAlpha = Math.max(0, effect.life / effect.maxLife) * 0.8;
-      ctx.strokeStyle = '#67d8ff';
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = '#38aaff';
-      ctx.lineWidth = 3 * (1 - progress) + 1;
+      ctx.globalAlpha = fade * 0.78;
+      ctx.strokeStyle = '#8be5ff';
+      ctx.lineWidth = 2.5 * (1 - progress) + 0.7;
       ctx.beginPath();
       ctx.arc(effect.x, effect.y, effect.radius * progress, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.globalAlpha = fade * 0.42;
+      ctx.strokeStyle = '#d5f7ff';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(effect.x, effect.y, effect.radius * progress * 0.72, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     });
