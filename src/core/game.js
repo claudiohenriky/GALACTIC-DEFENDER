@@ -1194,9 +1194,9 @@ export class Game {
         (this.waveManager.wave >= 14 && type === 'sentinel' && Math.random() < 0.30) ||
         (this.waveManager.wave >= 16 && type === 'guardian' && Math.random() < 0.24)
       );
-      this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave, type, isElite));
+      this.enemies.push(new Enemy(spawnX, bossWave ? -180 : -20, this.waveManager.wave, type, isElite));
       if (bossWave) {
-        this.showRewardBanner('NAVE INIMIGA DE GRANDE PORTE', 'CONTATO HOSTIL DETECTADO NA ÁREA', 'boss');
+        this.showRewardBanner('NAVE INIMIGA DE GRANDE PORTE DETECTADA', 'ALERTA · CONTATO HOSTIL DE GRANDE PORTE NA ÁREA', 'boss');
       }
       if (isElite && !this.eliteAlertsShown.has(type)) {
         this.eliteAlertsShown.add(type);
