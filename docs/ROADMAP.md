@@ -1,3 +1,15 @@
+## Patch v0.44.1 — Auditoria de sobrecarga e impacto pesado
+
+- [x] Ejetar visualmente módulos destruídos catastroficamente durante a sobrecarga.
+- [x] Manter módulos recuperáveis no encaixe e reconstruí-los com estado danificado.
+- [x] Atualizar mensagem de impacto pesado para indicar estabilização dos sistemas.
+- [x] Adicionar teste automatizado para ejeção e reconstrução de módulos.
+- [ ] Validar animação de destroços, escala e legibilidade em gameplay.
+- [ ] Validar no jogo a intensidade do knockback e o consumo instantâneo do escudo.
+- [ ] Confirmar visualmente a Ruptura e o tempo de desorientação dos inimigos.
+
+**Validação de navegador e dispositivos reais pendente.**
+
 ## Patch v0.44.1 — Estabilização e legibilidade de combate
 
 - [x] Restringir disparos de cada módulo ao arco, alcance e alinhamento físico da respectiva montagem.
