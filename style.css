@@ -458,6 +458,20 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 @media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.boss-hud{top:8px;right:8px;width:min(32%,300px);padding:5px 7px}.boss-health-track{height:5px;margin:4px 0 3px}}
 
 
+/* v0.44.0 — visual-only main cannon charge and danger telemetry. */
+.boss-cannon-panel{margin:5px 0 2px;padding:4px 6px;border:1px solid #39748b;background:#071c29}
+.boss-cannon-panel.hidden{display:none!important}
+.boss-cannon-heading{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.boss-cannon-heading strong{color:#9befff;font-size:7px;font-weight:900;letter-spacing:.06em}
+.boss-cannon-heading span{color:#7297a8;font-size:6px;font-weight:800;letter-spacing:.08em}
+.boss-cannon-track{height:5px;margin-top:4px;overflow:hidden;border:1px solid #28566b;background:#06111b}
+#boss-cannon-fill{width:0;height:100%;background:#65dff5;box-shadow:0 0 7px #65dff5;transition:width .12s linear}
+.boss-cannon-panel[data-state="warning"]{border-color:#a84e42;background:#2a1114}
+.boss-cannon-panel[data-state="warning"] .boss-cannon-heading strong{color:#ff9a7e}
+.boss-cannon-panel[data-state="warning"] #boss-cannon-fill{background:#ff765d;box-shadow:0 0 7px #ff765d}
+@media(max-width:700px){.boss-cannon-panel{margin:4px 0 1px;padding:3px 5px}.boss-cannon-heading strong{font-size:6px}.boss-cannon-heading span{font-size:5px}.boss-cannon-track{height:4px;margin-top:3px}}
+@media(prefers-reduced-motion:reduce){#boss-cannon-fill{transition:none}}
+
 /* v0.44.0 — HUD visual foundation for the planned pixel-art direction. */
 .in-game-hud{
   gap:6px;
