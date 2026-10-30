@@ -456,3 +456,126 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .boss-hud-footer strong{color:#f2e7ff;font-size:8px;font-variant-numeric:tabular-nums}
 @media(max-width:700px){.boss-hud{top:9px;right:8px;width:min(36%,260px);padding:6px 7px 5px}.boss-hud-heading strong{font-size:6px;letter-spacing:.06em}.boss-hud-heading span{font-size:6px}.boss-health-track{height:6px;margin:5px 0 3px}.boss-hud-footer span{font-size:5px}.boss-hud-footer strong{font-size:7px}}
 @media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.boss-hud{top:8px;right:8px;width:min(32%,300px);padding:5px 7px}.boss-health-track{height:5px;margin:4px 0 3px}}
+
+
+/* v0.44.0 — HUD visual foundation for the planned pixel-art direction. */
+.in-game-hud{
+  gap:6px;
+  width:min(60%,420px);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  letter-spacing:0;
+}
+.hud-readout{
+  padding:7px 9px;
+  border:2px solid #536783;
+  border-radius:2px;
+  background:#08111feF;
+  box-shadow:inset 0 0 0 1px #101e31;
+}
+.hud-readout-heading{
+  margin-bottom:6px;
+  color:#c4d3e8;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.hud-readout-heading strong{
+  color:#f4f7ff;
+  font-size:10px;
+  font-variant-numeric:tabular-nums;
+}
+.hud-pip{
+  display:inline-block;
+  width:7px;
+  height:7px;
+  margin-right:5px;
+  vertical-align:1px;
+  background:#8cf5c7;
+  box-shadow:2px 2px 0 #254e4a;
+}
+.hud-pip-xp{background:#8eaaff;box-shadow:2px 2px 0 #344b85}
+.hud-level-tag{
+  display:inline-block;
+  margin-left:5px;
+  padding:2px 4px;
+  border:1px solid #526b91;
+  color:#d7e2ff;
+  background:#172844;
+  font-size:8px;
+}
+.hud-level-tag b{color:#fff;font-variant-numeric:tabular-nums}
+.hud-meter{
+  height:8px;
+  border:1px solid #536783;
+  border-radius:0;
+  background:repeating-linear-gradient(90deg,#1a2940 0 8px,#0b1423 8px 10px);
+}
+.hud-meter>div{
+  border-radius:0;
+  transition:width .18s steps(12,end),background .18s;
+}
+.health-meter>div{
+  background:repeating-linear-gradient(90deg,#70e7b5 0 8px,#39aa88 8px 10px);
+}
+.xp-meter>div{
+  background:repeating-linear-gradient(90deg,#a9baff 0 8px,#7188ff 8px 10px);
+}
+.hud-health.is-critical .health-meter>div{
+  background:repeating-linear-gradient(90deg,#ff9b83 0 8px,#e94e68 8px 10px);
+}
+.hud-meta{
+  gap:6px;
+  padding:0;
+  border:0;
+  background:transparent;
+  backdrop-filter:none;
+}
+.hud-meta>span{
+  display:flex;
+  flex:1;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-width:0;
+  padding:5px 8px;
+  border:2px solid #465b78;
+  border-radius:2px;
+  background:#08111feF;
+  color:#aebfd9;
+  font-size:8px;
+  letter-spacing:.1em;
+}
+.hud-meta small{font-size:7px;font-weight:900}
+.hud-meta b{color:#f4f7ff;font-size:10px;font-variant-numeric:tabular-nums}
+.boss-hud{
+  border:2px solid #a56b82;
+  border-radius:2px;
+  background:#160d1af2;
+  box-shadow:inset 0 0 0 1px #3b1d32;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+.boss-health-track{
+  height:10px;
+  border:1px solid #a56b82;
+  border-radius:0;
+  background:repeating-linear-gradient(90deg,#30182b 0 9px,#170e1b 9px 11px);
+}
+.boss-health-track>div{
+  border-radius:0;
+  background:repeating-linear-gradient(90deg,#ff9a9f 0 9px,#d64e70 9px 11px);
+  transition:width .18s steps(16,end);
+}
+.boss-hud-heading,.boss-hud-footer{font-family:inherit;letter-spacing:.1em}
+@media(max-width:560px){
+  .in-game-hud{width:min(72%,420px);gap:5px}
+  .hud-readout{padding:6px 7px}
+  .hud-meta>span{padding:5px 6px}
+}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape){
+  .in-game-hud{width:min(58%,420px)}
+  .hud-readout{padding:5px 7px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hud-meter>div,.boss-health-track>div{transition:none}
+}
