@@ -638,7 +638,7 @@ export class Enemy {
         Math.sin(desiredFacing - this.facingRotation),
         Math.cos(desiredFacing - this.facingRotation)
       );
-      this.facingRotation += facingDelta * Math.min(1, dt * (this.type === 'boss' ? 0.34 : 4.5));
+      this.facingRotation += facingDelta * Math.min(1, dt * (this.type === 'boss' ? 0.16 : 4.5));
     } else {
       this.facingRotation = this.rotation;
     }
@@ -651,8 +651,8 @@ export class Enemy {
     const artillery = this.type === 'artillery';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
-    const color = this.isElite ? (artillery ? '#171d24' : ranged ? '#59377f' : guardian ? '#245b4b' : '#7546a6') : boss ? (this.bossPhase === 3 ? '#ff6d8f' : this.bossPhase === 2 ? '#ffb36b' : '#d59bff') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
-    const edge = this.isElite ? (artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
+    const color = this.isElite ? (artillery ? '#171d24' : ranged ? '#59377f' : guardian ? '#245b4b' : '#7546a6') : boss ? (this.bossPhase === 3 ? '#29475b' : this.bossPhase === 2 ? '#35566a' : '#263d52') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
+    const edge = this.isElite ? (artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : boss ? '#83e6ff' : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
     // The death update already integrates wreck velocity into x/y; do not add a second visual drift offset here.
@@ -1048,15 +1048,21 @@ export class Enemy {
               const pulse = 0.72 + Math.sin(this.phase * (7 + chargeRatio * 12) + mx) * 0.2;
               ctx.save();
               ctx.globalAlpha = Math.min(0.9, chargeRatio * pulse);
-              ctx.strokeStyle = '#ff9d5c';
-              ctx.lineWidth = 1.5 + chargeRatio * 2;
+              ctx.globalCompositeOperation = 'lighter';
+              ctx.strokeStyle = '#55dfff';
+              ctx.lineWidth = 1.25 + chargeRatio * 1.4;
+              for (let ring = 0; ring < 3; ring += 1) {
+                const ringPhase = (chargeRatio * 1.65 + ring / 3) % 1;
+                const ringRadius = moduleHalfSize * (0.38 + ringPhase * 1.55);
+                ctx.globalAlpha = Math.min(0.92, (0.22 + chargeRatio * 0.65) * (1 - ringPhase * 0.32) * pulse);
+                ctx.beginPath();
+                ctx.arc(mx, my, ringRadius, 0, Math.PI * 2);
+                ctx.stroke();
+              }
+              ctx.fillStyle = '#d9fbff';
+              ctx.globalAlpha = chargeRatio * pulse;
               ctx.beginPath();
-              ctx.arc(mx, my, moduleHalfSize + 4 + chargeRatio * 8, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * chargeRatio);
-              ctx.stroke();
-              ctx.fillStyle = '#ffd6a1';
-              ctx.globalAlpha = chargeRatio * pulse * 0.75;
-              ctx.beginPath();
-              ctx.arc(mx, my, 2 + chargeRatio * 4, 0, Math.PI * 2);
+              ctx.arc(mx, my, 2.5 + chargeRatio * 4.5, 0, Math.PI * 2);
               ctx.fill();
               ctx.restore();
             }
