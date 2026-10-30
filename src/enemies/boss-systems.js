@@ -158,6 +158,7 @@ export class BossSystems {
         module.replacementInstalled = true;
         module.transitionType = 'replacement';
         module.transitionTimer = 2.2;
+        module.transitionFromKind = module.kind;
         module.kind = module.replacement;
         // Newly installed plasma mounts must complete a visible charge cycle before firing.
         module.plasmaChargeTimer = module.kind.includes('plasma') ? module.plasmaChargeDuration : 0;
