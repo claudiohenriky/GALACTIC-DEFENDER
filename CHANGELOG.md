@@ -20,7 +20,9 @@
 - Amplia os gatilhos da validação automatizada para executar também na branch candidata e em PRs direcionadas à base de desenvolvimento; a validação inclui sintaxe JS, resolução de imports relativos e whitespace do diff.
 - Validação automatizada aprovada no HEAD atual: sintaxe de todos os módulos JavaScript, resolução dos imports relativos e verificação de whitespace do diff.
 - Mantém o cache do fundo limitado ao tamanho do viewport para evitar multiplicar o consumo de memória pela expansão do mundo.
-- Ainda pendentes: arte final em pixel art, efeitos avançados de fogo/fumaça/faíscas, refinamentos de HUD, balanceamento, auditoria estática completa e testes de navegador/desempenho.
+- Amplia o HUD do chefe: separa integridade do casco, quatro setores de escudo com estado e percentual próprios e dez indicadores de módulos com estados operacional/danificado/inoperante/destruído; a fase identifica a reconstrução da sobrecarga e a sequência de destruição.
+- Mantém a atualização do painel na cadência limitada da HUD, sem adicionar trabalho de DOM por quadro; layout compacto com grade responsiva para celular e desktop.
+- Ainda pendentes: validação visual em navegador/celular/desktop, arte final em pixel art, efeitos avançados fora da sequência de destruição, balanceamento, auditoria estática completa e testes de desempenho.
 - Candidata em desenvolvimento; não mesclada em `main`.
 
 ## [0.43.0] — Evolução da IA inimiga (candidata)
