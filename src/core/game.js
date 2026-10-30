@@ -4,6 +4,7 @@ import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, orientedEllipseOverlapsSegment } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
+import { resolveAttackClash } from '../combat/attack-clash.js?v=0.44.0-attack-clash-resistance';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { WaveManager } from './wave-manager.js?v=0.44.0';
@@ -1578,16 +1579,7 @@ export class Game {
         const combinedRadius = (playerShot.radius ?? 0) + (enemyShot.radius ?? 0);
         if (Math.abs(playerShot.x - enemyShot.x) >= combinedRadius ||
             Math.abs(playerShot.y - enemyShot.y) >= combinedRadius) continue;
-        if (circlesOverlap(playerShot, enemyShot)) {
-          const playerPower = Math.max(1, Math.floor((playerShot.damage ?? 1) / 4));
-          playerShot.active = false;
-          if (playerPower >= (enemyShot.clashResistance ?? 1)) {
-            enemyShot.active = false;
-          } else {
-            enemyShot.clashResistance -= playerPower;
-          }
-          break;
-        }
+        if (resolveAttackClash(playerShot, enemyShot)) break;
       }
     }
 
