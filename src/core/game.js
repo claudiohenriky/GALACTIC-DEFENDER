@@ -994,9 +994,13 @@ export class Game {
       const closestX = rx + shot.vx * closestTime;
       const closestY = ry + shot.vy * closestTime;
       if (closestX * closestX + closestY * closestY > dangerRadiusSquared) continue;
-      const angle = Math.atan2(ry, rx);
+
+      // Aim the visual response at the predicted contact point, not the projectile's
+      // current position. The defensive rule itself remains omnidirectional.
+      const angle = Math.atan2(closestY, closestX);
       const sector = ((Math.round((angle + Math.PI) / (Math.PI / 4)) % 8) + 8) % 8;
-      arcs[sector] = 0.2;
+      const urgency = 1 - closestTime / 0.55;
+      arcs[sector] = Math.max(arcs[sector], 0.28 + urgency * 0.18);
     }
   }
 
@@ -1016,18 +1020,31 @@ export class Game {
         const life = this.shieldThreatArcs[i];
         if (life <= 0) continue;
         const angle = -Math.PI + i * (Math.PI / 4);
-        const alpha = Math.min(0.9, life / 0.12);
-        ctx.globalAlpha = alpha * 0.3;
+        const progress = Math.max(0, Math.min(1, 1 - life / 0.46));
+        const radius = player.radius + 2 + progress * 10;
+        const spread = 0.16 + progress * 0.12;
+        const alpha = Math.min(0.92, life / 0.16);
+        ctx.globalAlpha = alpha * 0.24;
         ctx.strokeStyle = weak ? '#ffad68' : '#57cfff';
-        ctx.lineWidth = 7;
+        ctx.lineWidth = 9 - progress * 3;
         ctx.beginPath();
-        ctx.arc(player.x, player.y, player.radius + 10, angle - 0.24, angle + 0.24);
+        ctx.arc(player.x, player.y, radius, angle - spread, angle + spread);
         ctx.stroke();
         ctx.globalAlpha = alpha;
         ctx.strokeStyle = weak ? '#ffbd82' : '#a8f5ff';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.2;
         ctx.beginPath();
-        ctx.arc(player.x, player.y, player.radius + 10, angle - 0.24, angle + 0.24);
+        ctx.arc(player.x, player.y, radius, angle - spread, angle + spread);
+        ctx.stroke();
+        // Two short radial traces make the local barrier feel like it is forming
+        // over the ship surface instead of simply blinking into existence.
+        ctx.globalAlpha = alpha * 0.72;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(player.x + Math.cos(angle - spread) * (player.radius - 1), player.y + Math.sin(angle - spread) * (player.radius - 1));
+        ctx.lineTo(player.x + Math.cos(angle - spread) * (radius + 2), player.y + Math.sin(angle - spread) * (radius + 2));
+        ctx.moveTo(player.x + Math.cos(angle + spread) * (player.radius - 1), player.y + Math.sin(angle + spread) * (player.radius - 1));
+        ctx.lineTo(player.x + Math.cos(angle + spread) * (radius + 2), player.y + Math.sin(angle + spread) * (radius + 2));
         ctx.stroke();
       }
     }
