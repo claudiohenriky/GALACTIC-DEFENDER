@@ -1413,6 +1413,9 @@ export class Game {
     // without instantly destroying enemies or losing all charge in a few frames.
     for (const enemy of this.enemies) {
       if (!enemy.active) continue;
+      const contactRadius = (this.player.radius ?? 0) + (enemy.radius ?? 0);
+      if (Math.abs(this.player.x - enemy.x) >= contactRadius ||
+          Math.abs(this.player.y - enemy.y) >= contactRadius) continue;
       if (circlesOverlap(this.player, enemy) && enemy.contactCooldown <= 0) {
         const shieldWasActive = this.player.shieldHealth > 0;
         enemy.contactCooldown = 0.75;
@@ -1425,6 +1428,9 @@ export class Game {
     // Enemy shots deal damage on direct impact and respect the player's invulnerability window.
     for (const shot of this.enemyProjectiles) {
       if (!shot.active) continue;
+      const impactRadius = (this.player.radius ?? 0) + (shot.radius ?? 0);
+      if (Math.abs(this.player.x - shot.x) >= impactRadius ||
+          Math.abs(this.player.y - shot.y) >= impactRadius) continue;
       if (circlesOverlap(this.player, shot)) {
         shot.active = false;
         this.resolveIncomingDamage(shot.damage, shot.x, shot.y, shot.damage >= 10);
