@@ -1234,6 +1234,49 @@ export class Enemy {
         }
       }
 
+      // Four deterministic armor fragments detach over time and drift away from the wreck.
+      // They are drawn from fixed local transforms: no per-frame arrays or particle objects.
+      for (let index = 0; index < 4; index += 1) {
+        const detachStart = 1.1 + index * 0.82;
+        const fragmentAge = deathTime - detachStart;
+        if (fragmentAge < 0 || fragmentAge > 3.7) continue;
+
+        const side = index % 2 === 0 ? -1 : 1;
+        const originX = side * this.radius * (0.48 + (index % 2) * 0.1);
+        const originY = this.radius * (-0.92 + index * 0.62);
+        const fragmentX = originX + side * (10 + fragmentAge * 28);
+        const fragmentY = originY + fragmentAge * (12 + index * 1.5);
+        const fragmentFade = Math.min(1, fragmentAge / 0.18) * Math.max(0, 1 - fragmentAge / 3.7);
+
+        ctx.save();
+        ctx.translate(fragmentX, fragmentY);
+        ctx.rotate(side * (fragmentAge * 0.72 + index * 0.16));
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fragmentFade * 0.92;
+        ctx.fillStyle = index % 2 === 0 ? '#263747' : '#343044';
+        ctx.strokeStyle = '#b5c6d2';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(-11, -5);
+        ctx.lineTo(5, -8);
+        ctx.lineTo(13, -1);
+        ctx.lineTo(7, 7);
+        ctx.lineTo(-8, 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.globalAlpha = fragmentFade * (0.45 + Math.sin(deathTime * 19 + index) * 0.18);
+        ctx.strokeStyle = '#ffad63';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(-5, -2);
+        ctx.lineTo(2, 1);
+        ctx.lineTo(7, 4);
+        ctx.stroke();
+        ctx.restore();
+      }
+
       const finalAge = deathTime - 4.15;
       if (finalAge >= 0) {
         const finalFade = Math.max(0, 1 - finalAge / 1.45);

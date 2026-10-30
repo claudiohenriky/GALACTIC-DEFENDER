@@ -672,3 +672,10 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Aumentada a amplitude horizontal de reposicionamento do encouraçado para que o flanqueamento continue legível no enquadramento mais amplo.
 - Nenhuma regra de dano, cadência, colisão, resistência de projéteis ou controle de nave foi alterada nesta etapa.
 - Validação manual mobile/desktop e de flanqueamento ainda pendente; CI automatizado não será tratado como teste de gameplay.
+
+
+### Desprendimento estrutural na destruição do encouraçado — 30/10/2026
+- A finalização agora ejeta quatro placas de blindagem em momentos escalonados, com afastamento lateral, deriva e rotação independentes.
+- Os fragmentos preservam uma silhueta metálica legível e uma linha interna de calor/falha, desaparecendo antes do encerramento da sequência.
+- O efeito usa quatro transformações determinísticas no desenho existente; não cria arrays, entidades físicas ou partículas por quadro.
+- Movimento, colisões e integridade do combate não são alterados; a validação visual da sequência completa permanece pendente.

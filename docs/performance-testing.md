@@ -254,3 +254,10 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Verificar flanqueamento e acesso aos quatro setores de escudo em combate real.
 - [ ] Medir tempo de update/render, memória do cache de fundo e FPS em celular e desktop; registrar dispositivo e condições.
 - Nota: o aumento de área não cria canvas de fundo proporcional ao mundo; o cache permanece limitado ao viewport visível. Checks de sintaxe/imports não comprovam FPS nem jogabilidade.
+
+
+## Desprendimento estrutural — validação pendente
+- [ ] Observar as quatro placas se soltando em tempos diferentes durante a finalização de 8,4 s.
+- [ ] Confirmar deriva lateral, rotação e desaparecimento antes da remoção final do chefe.
+- [ ] Verificar que fragmentos são puramente visuais, sem hitbox, dano, colisão ou seleção de mísseis.
+- [ ] Observar o custo de renderização com zoom tático em celular e desktop; não inferir FPS pelo CI.

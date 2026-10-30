@@ -423,3 +423,12 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [ ] Validar mira por mouse, toque, joystick e teclado durante a transição de zoom.
 - [ ] Confirmar em gameplay que o encouraçado oferece espaço e tempo suficientes para flanquear e atingir os quatro setores de escudo.
 - [ ] Medir memória, tempo de renderização e FPS em dispositivos reais; não inferir desempenho a partir do CI.
+
+
+## Desprendimento estrutural da destruição — 30/10/2026
+- [x] Ejetar quatro placas de blindagem em tempos escalonados durante a sequência de 8,4 s.
+- [x] Dar deriva lateral e rotação própria aos fragmentos, preservando leitura de peças estruturais separadas do casco.
+- [x] Encerrar a visibilidade dos fragmentos antes da remoção final do destroço.
+- [x] Usar desenho determinístico sem criar coleções, entidades ou partículas por quadro.
+- [ ] Validar em gameplay a leitura dos fragmentos com o zoom tático e a deriva do casco.
+- [ ] Confirmar que os fragmentos não parecem projéteis ativos nem interferem em colisões ou recompensas.
