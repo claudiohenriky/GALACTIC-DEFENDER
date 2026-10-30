@@ -278,7 +278,7 @@ export class Enemy {
     } else if (this.type === 'guardian') {
       // Each Guardian screens its own assigned formation of at most two allies.
       const formation = (this.protectedAllies || []).filter((ally) => ally.active);
-      if (formation.length && supportDistance < 340) {
+      if (formation.length) {
         const centerX = formation.reduce((sum, ally) => sum + ally.x, 0) / formation.length;
         const centerY = formation.reduce((sum, ally) => sum + ally.y, 0) / formation.length;
         const screenX = centerX + (targetX - centerX) * 0.45;
