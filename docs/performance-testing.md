@@ -243,3 +243,14 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Destruir/inoperar o módulo e confirmar que a telemetria é interrompida; verificar retomada após reconstrução.
 - [ ] Confirmar que o canhão não cria projéteis, feixes ofensivos, dano ao jogador ou eventos de Attack Clash.
 - [ ] Verificar legibilidade em celular e desktop com zoom tático ativo e a preferência de movimento reduzido.
+
+
+## Expansão adicional da arena — validação pendente (30/10/2026)
+- [ ] Confirmar limites físicos em todos os quatro lados com o mundo em 2,4× viewport por eixo.
+- [ ] Confirmar que a câmera enquadra a arena inteira ao atingir o zoom calculado de `1 / 2.4` e não ultrapassa seus limites.
+- [ ] Testar conversão de coordenadas de mira com mouse e toque antes, durante e depois da transição de zoom.
+- [ ] Testar movimento por teclado, joystick e toque nos quatro quadrantes, incluindo os limites do mundo.
+- [ ] Testar spawn e entrada do encouraçado, patrulha e reposicionamento horizontal no novo espaço.
+- [ ] Verificar flanqueamento e acesso aos quatro setores de escudo em combate real.
+- [ ] Medir tempo de update/render, memória do cache de fundo e FPS em celular e desktop; registrar dispositivo e condições.
+- Nota: o aumento de área não cria canvas de fundo proporcional ao mundo; o cache permanece limitado ao viewport visível. Checks de sintaxe/imports não comprovam FPS nem jogabilidade.

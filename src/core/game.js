@@ -22,7 +22,8 @@ export class Game {
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
     // The simulation world is larger than the visible canvas; the camera follows the pilot.
-    this.arenaScale = 2.0;
+    this.arenaScale = 2.4;
+    this.cameraMinZoom = 1 / this.arenaScale;
     this.worldWidth = this.width * this.arenaScale;
     this.worldHeight = this.height * this.arenaScale;
     this.cameraX = 0;
@@ -1085,7 +1086,7 @@ export class Game {
   }
 
   updateCamera(dt, snap = false) {
-    const zoom = Math.max(0.5, this.cameraZoom || 1);
+    const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
     const halfViewWidth = this.width / (2 * zoom);
     const halfViewHeight = this.height / (2 * zoom);
     const minX = halfViewWidth - this.width / 2;
@@ -1105,7 +1106,7 @@ export class Game {
   }
 
   screenToWorld(screenX, screenY) {
-    const zoom = Math.max(0.5, this.cameraZoom || 1);
+    const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
     const centerX = this.width / 2;
     const centerY = this.height / 2;
     return {
@@ -1254,9 +1255,9 @@ export class Game {
       if (enemy.active && enemy.type === 'boss') { bossPresent = true; break; }
     }
     if (bossPresent) this.bossEncounterSeen = true;
-    // At 2x world dimensions, 0.5 zoom fits the complete arena in the viewport.
-    // Keep this tactical overview after the boss is defeated until the next run.
-    const targetCameraZoom = this.bossEncounterSeen ? 0.5 : 1;
+    // The 2.4x world is fully visible at its calculated minimum zoom (1 / arenaScale).
+    // Keep the tactical overview after the boss is defeated until the next run.
+    const targetCameraZoom = this.bossEncounterSeen ? this.cameraMinZoom : 1;
     this.cameraZoom += (targetCameraZoom - this.cameraZoom) * Math.min(1, dt * 1.65);
 
     for (let index = 0; index < this.stars.length; index += 1) {
@@ -1337,7 +1338,7 @@ export class Game {
     // WaveManager decides when an enemy should spawn and when the next wave begins.
     if (this.waveManager.update(dt, this.enemies.length)) {
       const bossWave = this.waveManager.wave >= 10 && this.waveManager.wave % 5 === 0;
-      const zoom = Math.max(0.5, this.cameraZoom || 1);
+      const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
       const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * zoom);
       const viewTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
       const visibleWidth = this.width / zoom;
@@ -1477,7 +1478,7 @@ export class Game {
 
     for (let index = 0; index < this.enemies.length; index += 1) {
       const enemy = this.enemies[index];
-      const zoom = Math.max(0.5, this.cameraZoom || 1);
+      const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
       const cameraTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
       const shot = enemy.update(dt, this.player.x, this.player.y, this.worldWidth, this.worldHeight, this.projectiles, this.enemies, cameraTop);
       if (enemy.type === 'boss' && enemy.bossDying) {
@@ -1685,7 +1686,7 @@ export class Game {
     if (!this.ctx || !this.width || !this.height) return;
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
-    const cameraZoom = Math.max(0.5, Math.min(1, this.cameraZoom || 1));
+    const cameraZoom = Math.max(this.cameraMinZoom, Math.min(1, this.cameraZoom || 1));
     ctx.save();
     ctx.translate(this.width / 2, this.height / 2);
     ctx.scale(cameraZoom, cameraZoom);
@@ -1830,7 +1831,7 @@ export class Game {
       ctx.globalAlpha = flash * 0.16;
       ctx.strokeStyle = '#ff526f';
       ctx.lineWidth = 3;
-      const zoom = Math.max(0.5, this.cameraZoom || 1);
+      const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
       const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * zoom);
       const viewTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
       ctx.strokeRect(viewLeft + 4 / zoom, viewTop + 4 / zoom, (this.width - 8) / zoom, (this.height - 8) / zoom);

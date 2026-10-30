@@ -412,3 +412,14 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Preservar o canhão como sistema exclusivamente visual: nenhum projétil, dano, feixe ofensivo ou habilidade de Attack Clash é criado.
 - [ ] Validar leitura do indicador e alerta em celular/desktop, incluindo zoom tático 0,5 e preferência de movimento reduzido.
 - [ ] Confirmar em gameplay que o ciclo não altera a cadência dos demais armamentos nem cria dano indireto.
+
+
+## Expansão adicional da arena e enquadramento tático — 30/10/2026
+- [x] Aumentar o mundo físico de 2,0× para 2,4× o viewport em cada eixo, totalizando 5,76× a área de um viewport.
+- [x] Calcular o zoom mínimo como `1 / arenaScale`, mantendo o mapa inteiro enquadrado durante e após o encontro com o chefe.
+- [x] Aplicar o mesmo zoom mínimo à câmera, renderização, conversão mouse/toque e cálculo de spawn baseado na área visível.
+- [x] Aumentar a amplitude de reposicionamento horizontal do encouraçado para manter o flanqueamento perceptível no novo enquadramento.
+- [ ] Validar movimento até os quatro limites da arena e confirmar que a câmera não revela áreas fora do mundo.
+- [ ] Validar mira por mouse, toque, joystick e teclado durante a transição de zoom.
+- [ ] Confirmar em gameplay que o encouraçado oferece espaço e tempo suficientes para flanquear e atingir os quatro setores de escudo.
+- [ ] Medir memória, tempo de renderização e FPS em dispositivos reais; não inferir desempenho a partir do CI.

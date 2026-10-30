@@ -1,4 +1,4 @@
-import { BossSystems } from './boss-systems.js?v=0.44.0-cannon-telegraph';
+import { BossSystems } from './boss-systems.js?v=0.44.0-arena-2-4';
 
 export class Enemy {
   constructor(x, y, level = 1, type = 'chaser', isElite = false) {

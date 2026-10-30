@@ -663,3 +663,12 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Encouraçado: os quatro setores regionais exibem pulsos localizados ao absorver dano, mantendo baixa presença visual em repouso.
 - Tropas de elite: segmentos de escudo reagem com flash e expansão curta quando absorvem dano.
 - Mantidas as regras atuais de proteção 360°, integridade, absorção, recarga e colisões; os efeitos são apenas visuais e não usam esfera permanente nem partículas por quadro.
+
+
+### Expansão adicional da arena e enquadramento tático — 30/10/2026
+- Mundo físico ampliado de 2,0× para 2,4× a largura e a altura do viewport (44% mais área de jogo).
+- Zoom mínimo agora é derivado de `1 / arenaScale` em vez de um limite fixo de 0,5; o enquadramento integral acompanha automaticamente a dimensão real do mundo.
+- Câmera, conversão de coordenadas de mouse/toque, spawn de inimigos, renderização e limites de visualização usam o mesmo zoom mínimo calculado.
+- Aumentada a amplitude horizontal de reposicionamento do encouraçado para que o flanqueamento continue legível no enquadramento mais amplo.
+- Nenhuma regra de dano, cadência, colisão, resistência de projéteis ou controle de nave foi alterada nesta etapa.
+- Validação manual mobile/desktop e de flanqueamento ainda pendente; CI automatizado não será tratado como teste de gameplay.
