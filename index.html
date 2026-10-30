@@ -162,9 +162,18 @@
         <div class="arena-status"><span><i class="status-dot"></i><span id="status-label">SISTEMA PRONTO</span></span><span id="wave-label">SETOR 01</span></div>
         <div class="canvas-frame"><canvas id="game-canvas" aria-label="Jogo espacial. Use WASD ou as setas para mover, o mouse para mirar e o botão direito ou Espaço para disparar; no celular, use os controles de toque."></canvas>
           <div class="in-game-hud" aria-label="Indicadores da nave">
-            <div class="hud-readout hud-health"><div class="hud-readout-heading"><span>INTEGRIDADE</span><strong id="arena-health-value">100%</strong></div><div class="hud-meter health-meter"><div id="arena-health-bar"></div></div></div>
-            <div class="hud-readout hud-xp"><div class="hud-readout-heading"><span>XP · NÍVEL <b id="arena-level-value">01</b></span><strong id="arena-xp-label">0 / 100</strong></div><div class="hud-meter xp-meter"><div id="arena-xp-bar"></div></div></div>
-            <div class="hud-meta"><span>ONDA <b id="arena-wave-value">01</b></span><span>PONTOS <b id="arena-score-value">000000</b></span></div>
+            <div class="hud-readout hud-health">
+              <div class="hud-readout-heading"><span><i class="hud-pip hud-pip-health" aria-hidden="true"></i> CASCO</span><strong id="arena-health-value">100%</strong></div>
+              <div class="hud-meter health-meter" role="meter" aria-label="Integridade da nave" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="arena-health-bar"></div></div>
+            </div>
+            <div class="hud-readout hud-xp">
+              <div class="hud-readout-heading"><span><i class="hud-pip hud-pip-xp" aria-hidden="true"></i> XP <span class="hud-level-tag">NV <b id="arena-level-value">01</b></span></span><strong id="arena-xp-label">0 / 100</strong></div>
+              <div class="hud-meter xp-meter" role="meter" aria-label="Progresso de experiência" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="arena-xp-bar"></div></div>
+            </div>
+            <div class="hud-meta">
+              <span><small>ONDA</small><b id="arena-wave-value">01</b></span>
+              <span><small>PONTUAÇÃO</small><b id="arena-score-value">000000</b></span>
+            </div>
           </div>
           <section id="boss-hud" class="boss-hud hidden" role="progressbar" aria-label="Integridade da nave de guerra inimiga" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
             <div class="boss-hud-heading"><strong>NAVE DE GUERRA PESADA</strong><span id="boss-phase-label">FASE I</span></div>
