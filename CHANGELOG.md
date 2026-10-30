@@ -1,6 +1,7 @@
 ## [0.44.0] — Primeiro chefe: nave de guerra pesada (em desenvolvimento)
 
 - Corrige a geometria de colisão do laser contínuo: o teste agora considera o raio real de projéteis inimigos e entidades (incluindo a hitbox ampliada do boss), somado à largura do feixe. Isso evita falsos negativos em interseções visíveis sem alterar dano, cadência ou alcance.
+
 ## [0.43.0] — Evolução da IA inimiga (candidata)
 
 - Rebalanceia a Sentinela normal: esquiva menos frequente e menos intensa, com deslocamento lateral mais contido e reposicionamento menos agressivo.
