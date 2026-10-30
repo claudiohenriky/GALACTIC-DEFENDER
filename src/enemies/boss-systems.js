@@ -48,7 +48,9 @@ export class BossSystems {
       health: shield.maxHealth,
       rechargeTimer: 0,
       disabled: false,
-      repairGlow: 0
+      repairGlow: 0,
+      impactFlash: 0,
+      impactStrength: 0
     }));
     // The auxiliary generator is stable for this boss lifetime; cache its reference
     // instead of searching the module array on every simulation frame.
@@ -101,6 +103,10 @@ export class BossSystems {
 
     const absorbed = Math.min(shield.health, amount);
     shield.health -= absorbed;
+    if (absorbed > 0) {
+      shield.impactFlash = 0.46;
+      shield.impactStrength = Math.min(1, Math.max(shield.impactStrength, absorbed / Math.max(1, shield.maxHealth * 0.16)));
+    }
     const remaining = amount - absorbed;
 
     if (shield.health <= 0) {
@@ -146,6 +152,10 @@ export class BossSystems {
     }
     for (const shield of this.shields) {
       if (shield.repairGlow > 0) shield.repairGlow = Math.max(0, shield.repairGlow - dt * 0.42);
+      if (shield.impactFlash > 0) {
+        shield.impactFlash = Math.max(0, shield.impactFlash - dt);
+        if (shield.impactFlash === 0) shield.impactStrength = 0;
+      }
     }
 
     if (this.rebuildTimer > 0) {
