@@ -1124,7 +1124,7 @@ export class Enemy {
           ctx.strokeStyle = '#67dcff';
           ctx.lineWidth = 5;
           ctx.beginPath();
-          ctx.arc(0, 0, radius * 1.38, arcStart, arcEnd);
+          ctx.ellipse(0, 0, radius * 1.05, radius * 2.32, 0, arcStart, arcEnd);
           ctx.stroke();
           if (shield.impactFlash > 0) {
             const impactProgress = 1 - shield.impactFlash / 0.46;
@@ -1133,13 +1133,13 @@ export class Enemy {
             ctx.strokeStyle = '#b8f7ff';
             ctx.lineWidth = 3 + shield.impactStrength * 2;
             ctx.beginPath();
-            ctx.arc(0, 0, impactRadius, arcStart, arcEnd);
+            ctx.ellipse(0, 0, radius * (1.02 + impactProgress * 0.14), radius * (2.26 + impactProgress * 0.2), 0, arcStart, arcEnd);
             ctx.stroke();
             ctx.globalAlpha = shield.impactFlash * 1.2;
             ctx.strokeStyle = '#5fe5ff';
             ctx.lineWidth = 1.2;
             ctx.beginPath();
-            ctx.arc(0, 0, impactRadius + 4, arcStart, arcEnd);
+            ctx.ellipse(0, 0, radius * (1.06 + impactProgress * 0.14), radius * (2.3 + impactProgress * 0.2), 0, arcStart, arcEnd);
             ctx.stroke();
           }
           if (shield.repairGlow > 0.08) {
@@ -1147,7 +1147,7 @@ export class Enemy {
             ctx.strokeStyle = '#b4f8ff';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(0, 0, radius * 1.48, arcStart, arcEnd);
+            ctx.ellipse(0, 0, radius * 1.12, radius * 2.42, 0, arcStart, arcEnd);
             ctx.stroke();
           }
           ctx.globalAlpha = 1;
