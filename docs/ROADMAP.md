@@ -432,3 +432,20 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Usar desenho determinístico sem criar coleções, entidades ou partículas por quadro.
 - [ ] Validar em gameplay a leitura dos fragmentos com o zoom tático e a deriva do casco.
 - [ ] Confirmar que os fragmentos não parecem projéteis ativos nem interferem em colisões ou recompensas.
+
+
+## Refinamento integrado do encouraçado — candidata v0.44.0
+- [x] Ampliar a escala visual do casco e reforçar a leitura de nave capital com sponsons laterais e dois propulsores de popa.
+- [x] Aumentar a patrulha lateral e manter a proa afastada da posição do piloto durante o encontro.
+- [x] Usar colisão elíptica orientada para casco, projéteis, mísseis e contato do jogador.
+- [x] Melhorar a legibilidade do HUD tático em telas móveis.
+- [x] Adicionar 9 testes automatizados de geometria, módulos, escudos, sobrecarga/reconstrução e disparos do boss.
+- [ ] Validar visualmente o design e o HUD em celular e computador.
+- [ ] Testar flanqueamento, colisões, dano regional, reconstrução, Attack Clash, habilidades do jogador e desempenho.
+- [ ] Abrir a prévia somente após revisão integrada e autorização explícita do usuário.
+
+### Estado da rodada
+- HEAD: `4542afa81c682bcb7b5f6ea5a8efe937b3f979ab`.
+- CI aprovado: [run 41075516210](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41075516210).
+- Os checks incluem sintaxe, testes unitários, imports e whitespace; não comprovam aparência, gameplay ou FPS.
+- PR #78 continua Draft e a prévia permanece fechada.

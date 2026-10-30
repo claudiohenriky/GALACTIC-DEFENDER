@@ -261,3 +261,18 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Confirmar deriva lateral, rotação e desaparecimento antes da remoção final do chefe.
 - [ ] Verificar que fragmentos são puramente visuais, sem hitbox, dano, colisão ou seleção de mísseis.
 - [ ] Observar o custo de renderização com zoom tático em celular e desktop; não inferir FPS pelo CI.
+
+
+## Nova cobertura automatizada e checklist manual — v0.44.0
+- A suíte `node --experimental-default-type=module --test tests/*.mjs` cobre nove casos: colisão circular, colisão elíptica orientada e rotação, dez hardpoints, quatro escudos regionais, absorção de dano, estados de módulos, reconstrução/substituição por sobrecarga, recarga condicionada ao sistema auxiliar e disparos após a entrada do boss.
+- CI aprovado no HEAD `4542afa81c682bcb7b5f6ea5a8efe937b3f979ab`: [run 41075516210](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41075516210).
+- Checklist manual ainda obrigatório:
+  - [ ] Confirmar a silhueta ampliada e a leitura dos sponsons, torres e motores.
+  - [ ] Verificar colisão na proa, popa e laterais durante diferentes ângulos de rotação.
+  - [ ] Testar se a distância da proa ao piloto preserva espaço para manobra.
+  - [ ] Validar os quatro setores de escudo e o dano aos dez módulos.
+  - [ ] Confirmar a sobrecarga, preservação de módulos intactos, reparo, reconstrução e substituição.
+  - [ ] Testar projéteis leves/pesados, mísseis guiados e Attack Clash.
+  - [ ] Verificar HUD em telas estreitas, celulares em paisagem e desktop.
+  - [ ] Medir FPS, memória e estabilidade em ondas cheias e durante a destruição do boss.
+- A aprovação do CI não substitui nenhuma dessas verificações em navegador real.

@@ -679,3 +679,13 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Os fragmentos preservam uma silhueta metálica legível e uma linha interna de calor/falha, desaparecendo antes do encerramento da sequência.
 - O efeito usa quatro transformações determinísticas no desenho existente; não cria arrays, entidades físicas ou partículas por quadro.
 - Movimento, colisões e integridade do combate não são alterados; a validação visual da sequência completa permanece pendente.
+
+
+## v0.44.0 — revisão integrada do encouraçado
+- Aumentada a escala do boss para um casco mais imponente; adicionados sponsons laterais e propulsores duplos na popa.
+- A patrulha lateral foi ampliada e a proa mantém uma distância mínima do piloto durante o combate.
+- Colisões de tiros, mísseis guiados e contato do jogador usam uma elipse orientada pelo casco; a hitbox agora acompanha o comprimento e a largura visíveis da nave.
+- HUD tático móvel recebeu ajustes de legibilidade.
+- Adicionada suíte automatizada com 9 testes para colisão, módulos, escudos, sobrecarga/reconstrução e disparos do boss.
+- GitHub Actions aprovado no HEAD `4542afa81c682bcb7b5f6ea5a8efe937b3f979ab` (run [41075516210](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41075516210)): sintaxe, 9 testes automatizados, imports relativos e whitespace.
+- Testes visuais e de gameplay em navegador, responsividade e FPS continuam pendentes.
