@@ -227,7 +227,7 @@ export class Enemy {
       this.bossEntranceTimer = Math.max(0, this.bossEntranceTimer - dt);
       const entranceProgress = 1 - this.bossEntranceTimer / Math.max(0.001, this.bossEntranceDuration);
       const entranceEase = entranceProgress * entranceProgress * (3 - 2 * entranceProgress);
-      const horizontalRange = Math.min(width * (this.bossPhase === 3 ? 0.14 : 0.11), this.bossPhase === 3 ? 120 : 92);
+      const horizontalRange = Math.min(width * (this.bossPhase === 3 ? 0.14 : 0.11), this.bossPhase === 3 ? 190 : 150);
       // The battleship repositions around the encounter instead of mirroring every player movement.
       // Its slow drift leaves room for the pilot to circle and attack different shield sectors.
       const patrolX = targetX + Math.sin(this.phase * (this.bossPhase === 3 ? 0.62 : 0.42)) * horizontalRange;
