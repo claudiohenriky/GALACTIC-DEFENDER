@@ -151,3 +151,13 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Testar navegação, mira e legibilidade com o mapa completo em celular e desktop.
 - [ ] Validar visualmente a classificação de módulos recuperáveis versus irrecuperáveis e o comportamento de disparo após a reconstrução.
 - [ ] Medir FPS/tempo de quadro em dispositivos reais; alterações estáticas não constituem medição de desempenho.
+
+
+## Torres independentes e colisão Attack Clash
+
+- [x] Adicionar ângulo individual de torre e limites de arco conforme a família e o lado do casco.
+- [x] Limitar a velocidade de rotação de metralhadoras, plasma, mísseis e canhão principal.
+- [x] Habilitar guiagem gradual dos projéteis de míssil do encouraçado em direção à nave do jogador.
+- [x] Introduzir resistência de colisão dos projéteis inimigos baseada na classe de dano; o disparo do jogador consome resistência e pode neutralizar o projétil em colisões subsequentes.
+- [ ] Validar visualmente os arcos, direção dos canos e equilíbrio do Attack Clash em celular/desktop.
+- [ ] Testar se os mísseis podem ser evitados e se a guiagem não produz curvas abruptas.

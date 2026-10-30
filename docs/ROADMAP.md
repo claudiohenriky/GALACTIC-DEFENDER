@@ -356,3 +356,12 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [ ] Implementar alerta de ameaça e entrada cinematográfica validada em tela real.
 - [ ] Implementar sequência de falha estrutural, explosões distribuídas e deriva final do casco.
 - [ ] Testar o novo enquadramento e a legibilidade do boss em celular/desktop; não há validação visual real nesta etapa.
+
+
+### Armamentos independentes e Attack Clash — rodada de desenvolvimento
+
+- [x] Cada hardpoint armado acompanha o jogador com ângulo próprio, velocidade de rotação por família e arco angular limitado pela posição/tipo da arma.
+- [x] Disparos do encouraçado usam a orientação atual da torre, em vez de mirar instantaneamente através do casco.
+- [x] Lançadores de mísseis do boss criam projéteis teleguiados com velocidade angular limitada.
+- [x] Attack Clash aplica resistência graduada: projéteis leves são neutralizados por um impacto forte o suficiente; projéteis pesados exigem mais de um impacto ou disparos mais potentes.
+- [ ] Testar arcos e rotação das torres em todas as posições relativas do jogador; validar homing e resistência dos projéteis em gameplay.

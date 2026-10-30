@@ -36,7 +36,8 @@ export class BossSystems {
       repairGlow: 0,
       replacementInstalled: false,
       catastrophic: false,
-      originalKind: module.kind
+      originalKind: module.kind,
+      turretAngle: 0
     }));
     this.shields = SHIELD_TEMPLATES.map((shield) => ({
       ...shield,

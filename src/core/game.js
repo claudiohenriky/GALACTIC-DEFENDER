@@ -1417,7 +1417,10 @@ export class Game {
       if (shot) {
         const shots = Array.isArray(shot) ? shot : [shot];
         for (const projectileData of shots) {
-          this.enemyProjectiles.push(new EnemyProjectile(projectileData.x, projectileData.y, projectileData.targetX, projectileData.targetY, projectileData));
+          this.enemyProjectiles.push(new EnemyProjectile(
+            projectileData.x, projectileData.y, projectileData.targetX, projectileData.targetY,
+            { ...projectileData, target: projectileData.homing ? this.player : null }
+          ));
         }
         gameAudio.playEnemyShot(shots[0].color);
       }
@@ -1495,8 +1498,13 @@ export class Game {
         if (Math.abs(playerShot.x - enemyShot.x) >= combinedRadius ||
             Math.abs(playerShot.y - enemyShot.y) >= combinedRadius) continue;
         if (circlesOverlap(playerShot, enemyShot)) {
+          const playerPower = Math.max(1, Math.floor((playerShot.damage ?? 1) / 4));
           playerShot.active = false;
-          enemyShot.active = false;
+          if (playerPower >= (enemyShot.clashResistance ?? 1)) {
+            enemyShot.active = false;
+          } else {
+            enemyShot.clashResistance -= playerPower;
+          }
           break;
         }
       }

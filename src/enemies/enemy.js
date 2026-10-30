@@ -195,6 +195,47 @@ export class Enemy {
       this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 0.18 : 0.14));
       this.y += (entryY - this.y) * Math.min(1, dt * (this.bossEntranceTimer > 0 ? 1.8 : this.bossPhase === 3 ? 0.16 : 0.12));
       this.x = Math.max(this.collisionRadius + 4, Math.min(width - this.collisionRadius - 4, this.x));
+
+      // Independent weapon tracking: each hardpoint turns toward the pilot only inside its own firing arc.
+      const turretSystems = this.bossSystems;
+      if (turretSystems && this.bossEntranceTimer <= 0) {
+        const hullRotation = this.facingRotation + Math.PI / 2;
+        const cosHull = Math.cos(hullRotation);
+        const sinHull = Math.sin(hullRotation);
+        for (const module of turretSystems.modules) {
+          if (module.kind.includes('support') || module.state === 'destroyed' || module.state === 'disabled') continue;
+          const localX = module.x * this.radius;
+          const localY = (module.y - 0.16) * this.radius;
+          const muzzleX = this.x + localX * cosHull - localY * sinHull;
+          const muzzleY = this.y + localX * sinHull + localY * cosHull;
+          const rawAngle = Math.atan2(targetY - muzzleY, targetX - muzzleX) - this.facingRotation;
+          const desired = Math.atan2(Math.sin(rawAngle), Math.cos(rawAngle));
+          const side = Math.sign(module.x);
+          let minArc = -0.85;
+          let maxArc = 0.85;
+          if (module.kind.includes('energy') || module.kind.includes('overload-cannon')) {
+            minArc = -0.22; maxArc = 0.22;
+          } else if (module.kind.includes('light-laser')) {
+            minArc = -0.78; maxArc = 0.78;
+          } else if (module.kind.includes('missile') || module.kind.includes('rocket')) {
+            minArc = side < 0 ? -2.45 : -0.85;
+            maxArc = side > 0 ? 2.45 : 0.85;
+          } else if (module.kind.includes('plasma')) {
+            minArc = side < 0 ? -2.05 : -0.72;
+            maxArc = side > 0 ? 2.05 : 0.72;
+          } else if (module.kind.includes('machine-gun')) {
+            minArc = side < 0 ? -2.25 : -0.72;
+            maxArc = side > 0 ? 2.25 : 0.72;
+          }
+          const targetAngle = Math.max(minArc, Math.min(maxArc, desired));
+          const delta = Math.atan2(Math.sin(targetAngle - (module.turretAngle ?? 0)), Math.cos(targetAngle - (module.turretAngle ?? 0)));
+          const turnSpeed = module.kind.includes('energy') ? 0.42
+            : module.kind.includes('plasma') ? 0.82
+              : module.kind.includes('missile') || module.kind.includes('rocket') ? 1.05 : 1.35;
+          module.turretAngle = (module.turretAngle ?? 0) + Math.max(-turnSpeed * dt, Math.min(turnSpeed * dt, delta));
+        }
+      }
+
       this.fireCooldown -= dt;
       if (this.bossEntranceTimer <= 0 && this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
         const systems = this.bossSystems;
@@ -213,7 +254,7 @@ export class Enemy {
         };
         const makeShot = (module, options = {}) => {
           const muzzle = getMuzzle(module, options.forwardOffset ?? 0.16);
-          const angle = Math.atan2(targetY - muzzle.y, targetX - muzzle.x) + (options.angleOffset ?? 0);
+          const angle = this.facingRotation + (module.turretAngle ?? 0) + (options.angleOffset ?? 0);
           const speed = options.speed ?? 190;
           return {
             x: muzzle.x,
@@ -224,7 +265,9 @@ export class Enemy {
             speed,
             radius: options.radius ?? 4,
             color: options.color ?? '#73e7ff',
-            glowColor: options.glowColor ?? '#36aee8'
+            glowColor: options.glowColor ?? '#36aee8',
+            homing: options.homing ?? false,
+            turnRate: options.turnRate ?? 1.8
           };
         };
 
@@ -251,7 +294,7 @@ export class Enemy {
           } else if (module.kind.includes('missile') || module.kind.includes('rocket')) {
             const spread = this.bossPhase === 3 ? 0.12 : 0.19;
             shots.push(makeShot(module, {
-              damage: 9, speed: 118, radius: 7,
+              damage: 9, speed: 118, radius: 7, homing: true, turnRate: 1.35,
               angleOffset: module.x < 0 ? -spread : spread,
               color: '#d7b6ff', glowColor: '#9d6cff'
             }));

@@ -662,3 +662,8 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Sobrecarga adaptativa preserva módulos intactos, repara os danificados, reconstrói armamentos destruídos recuperáveis e substitui somente montagens classificadas como catastróficas.
 - Arena ampliada para 2× o viewport; zoom de 0,5 enquadra o mapa completo após o surgimento do chefe e permanece até o reinício da partida.
 - Rotação visual do casco reduzida para reforçar a sensação de massa. Mira independente das torres, IA de mísseis, entrada com alerta e finalização estendida permanecem em desenvolvimento.
+
+
+- Torres do encouraçado agora acompanham o jogador de forma independente, respeitando arcos e velocidades de rotação próprios.
+- Lançadores do boss passam a disparar projéteis teleguiados.
+- Attack Clash agora considera resistência dos projéteis inimigos, evitando que ataques pesados sejam neutralizados por um único disparo leve.
