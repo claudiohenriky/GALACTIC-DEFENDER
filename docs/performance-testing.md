@@ -212,3 +212,11 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Dar resposta de absorção aos escudos das tropas de elite sem alterar seus valores de proteção.
 - [ ] Validar leitura visual, múltiplos projéteis simultâneos, orientação relativa, escala do zoom e custo em celular/desktop.
 - Nota: esta etapa altera somente apresentação; valores de integridade, absorção, recarga e colisão permanecem inalterados. Checks automatizados não substituem teste real de gameplay ou FPS.
+
+
+## Correções da auditoria integrada — 30/10/2026
+
+- [x] Corrigida a aplicação duplicada do fator de desestabilização no movimento do jogador. A autoridade de controle agora é reduzida uma única vez na velocidade-alvo, mantendo a recuperação progressiva prevista (38% até 100%).
+- [x] Corrigido o pulso visual dos escudos de elite: `eliteShieldFlash` agora decai com `dt` durante a atualização da entidade, em vez de permanecer no estado de impacto até o escudo ser esgotado.
+- [ ] Validar em gameplay a duração perceptível do pulso de elite e a recuperação do controle após impacto de plasma.
+- [ ] Confirmar que não há regressão de movimento com teclado, joystick e toque; CI não substitui esses testes.
