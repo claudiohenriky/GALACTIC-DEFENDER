@@ -110,7 +110,7 @@ export class Enemy {
 
     // Estimate closest approach over a short horizon using relative velocity.
     // Only Sentinel, Artillery and Boss react in this first pass; each has a different response strength.
-    if (this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') {
+    if ((this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') && this.dodgeCooldown <= 0) {
       let bestThreat = null;
       let bestClearance = Infinity;
       for (const projectile of playerProjectiles) {
