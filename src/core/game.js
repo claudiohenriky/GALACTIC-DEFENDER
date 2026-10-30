@@ -1,15 +1,15 @@
-import { Player } from '../player/player.js?v=0.43.0';
-import { Enemy } from '../enemies/enemy.js?v=0.43.0';
-import { Projectile } from '../combat/projectile.js?v=0.43.0';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.43.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.43.0';
-import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.43.0';
-import { Progression } from '../progression/progression.js?v=0.43.0';
-import { Mission } from '../missions/missions.js?v=0.43.0';
-import { WaveManager } from './wave-manager.js?v=0.43.0';
-import { updateHud } from '../ui/hud.js?v=0.43.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.43.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.43.0';
+import { Player } from '../player/player.js?v=0.44.0';
+import { Enemy } from '../enemies/enemy.js?v=0.44.0';
+import { Projectile } from '../combat/projectile.js?v=0.44.0';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
+import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.44.0';
+import { Progression } from '../progression/progression.js?v=0.44.0';
+import { Mission } from '../missions/missions.js?v=0.44.0';
+import { WaveManager } from './wave-manager.js?v=0.44.0';
+import { updateHud } from '../ui/hud.js?v=0.44.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -807,8 +807,44 @@ export class Game {
     }
   }
 
-  damageEnemy(enemy, amount) {
-    if (!enemy.active) return;
+  damageEnemy(enemy, amount, impactX = null, impactY = null) {
+    if (!enemy.active || amount <= 0) return;
+
+    // The dreadnought resolves regional shields and independent weapon modules before hull damage.
+    if (enemy.type === 'boss' && enemy.bossSystems) {
+      let remainingDamage = amount;
+      let hitModule = null;
+      if (Number.isFinite(impactX) && Number.isFinite(impactY)) {
+        const dx = impactX - enemy.x;
+        const dy = impactY - enemy.y;
+        const rotation = -(enemy.facingRotation + Math.PI / 2);
+        const localX = dx * Math.cos(rotation) - dy * Math.sin(rotation);
+        const localY = dx * Math.sin(rotation) + dy * Math.cos(rotation);
+        const radius = Math.max(1, enemy.radius);
+        const region = localY < -radius * 0.34 ? 'front'
+          : localY > radius * 0.48 ? 'rear'
+            : localX < 0 ? 'left' : 'right';
+        const shieldResult = enemy.bossSystems.damageShield(region, remainingDamage);
+        remainingDamage = shieldResult.remaining;
+
+        let nearestDistance = Infinity;
+        for (const module of enemy.bossSystems.modules) {
+          if (module.state === 'destroyed') continue;
+          const mx = module.x * radius;
+          const my = module.y * radius;
+          const distanceSquared = (localX - mx) ** 2 + (localY - my) ** 2;
+          if (distanceSquared < nearestDistance) {
+            nearestDistance = distanceSquared;
+            hitModule = module;
+          }
+        }
+        if (remainingDamage > 0 && hitModule && nearestDistance <= (radius * 0.42) ** 2) {
+          enemy.bossSystems.damageModule(hitModule.id, remainingDamage);
+        }
+      }
+      if (remainingDamage <= 0) return;
+      amount = remainingDamage;
+    }
     // A protected ally's incoming damage is absorbed by its assigned Elite Guardian's shared barrier.
     for (const guardian of this.enemies) {
       if (!guardian.active || !guardian.isElite || guardian.type !== 'guardian' || guardian.guardianCoverShield <= 0 || !(guardian.protectedAllies || []).includes(enemy)) continue;
@@ -826,6 +862,17 @@ export class Game {
       if (amount <= 0) return;
     }
     enemy.health = Math.max(0, enemy.health - amount);
+
+    // One overload transformation: the ship ejects/replaces destroyed modules and returns at 50% hull.
+    if (enemy.type === 'boss' && enemy.bossSystems && !enemy.bossSystems.overloadUsed &&
+        enemy.health / Math.max(1, enemy.maxHealth) <= 0.33) {
+      enemy.bossPhase = 3;
+      enemy.bossPhaseTransition = 4.5;
+      enemy.health = Math.max(1, Math.round(enemy.maxHealth * 0.5));
+      enemy.bossSystems.beginOverloadRebuild();
+      enemy.fireCooldown = Math.max(enemy.fireCooldown, 4.5);
+      return;
+    }
     if (enemy.health > 0) return;
     enemy.active = false;
     this.score += enemy.type === 'boss' ? 1000 : enemy.isElite ? 150 : enemy.type === 'artillery' ? 150 : 100;
@@ -1266,7 +1313,7 @@ export class Game {
         if (enemy.active && !shot.hitEnemies.has(enemy) && circlesOverlap(shot, enemy)) {
           shot.hitEnemies.add(enemy);
           if (!shot.piercing) shot.active = false;
-          this.damageEnemy(enemy, shot.damage ?? 1);
+          this.damageEnemy(enemy, shot.damage ?? 1, shot.x, shot.y);
           if (!shot.piercing) break;
         }
       }
