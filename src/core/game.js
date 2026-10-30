@@ -1246,14 +1246,18 @@ export class Game {
     for (const missile of this.guidedMissiles) {
       if (missile.active && missile.target?.active) reservedMissileTargets.add(missile.target);
     }
-    this.guidedMissiles.forEach((missile) => missile.update(dt, this.enemies, this.width, this.height, this.guidedMissiles, reservedMissileTargets));
+    for (let index = 0; index < this.guidedMissiles.length; index += 1) {
+      this.guidedMissiles[index].update(dt, this.enemies, this.width, this.height, this.guidedMissiles, reservedMissileTargets);
+    }
     let effectWriteIndex = 0;
     for (const effect of this.guidedMissileEffects) {
       effect.life -= dt;
       if (effect.life > 0) this.guidedMissileEffects[effectWriteIndex++] = effect;
     }
     this.guidedMissileEffects.length = effectWriteIndex;
-    this.enemyProjectiles.forEach((shot) => shot.update(dt));
+    for (let index = 0; index < this.enemyProjectiles.length; index += 1) {
+      this.enemyProjectiles[index].update(dt);
+    }
 
     // Reassign formations at a low cadence to avoid sorting the enemy roster every frame.
     this.guardianAssignmentTimer = Math.max(0, this.guardianAssignmentTimer - dt);
