@@ -8,7 +8,9 @@
 - Escudos: quatro setores regionais; o sistema auxiliar condiciona a recarga.
 - Sobrecarga: uma transformação ao atingir 33% do casco; módulos destruídos são substituídos, danificados/inoperantes recebem reparos emergenciais e o casco retorna a 50%.
 - Ataques: pressão contínua de lasers/metralhadoras, mísseis de trajetória lenta, plasma de alto impacto e canhão principal.
-- Interface: barra exclusiva de integridade do casco e indicação de fase, atualizadas junto da telemetria já limitada por intervalo.\n- Otimização inicial: seleção do alvo do laser sem ordenação de arrays, checagem de aproximação com distância ao quadrado, reservas de alvos dos mísseis calculadas uma vez por quadro e remoção de `shadowBlur` no núcleo do chefe; ainda sem medição de FPS.\n- Visual: primeira composição de nave de guerra em Canvas; pixel art final, fumaça/partículas avançadas e destruição completa ainda pendentes; entrada cinematográfica e zoom de câmera implementados, aguardando validação visual.
+- Interface: barra exclusiva de integridade do casco e indicação de fase, atualizadas junto da telemetria já limitada por intervalo.
+- Otimização inicial: seleção do alvo do laser sem ordenação de arrays, checagem de aproximação com distância ao quadrado, reservas de alvos dos mísseis calculadas uma vez por quadro e remoção de `shadowBlur` no núcleo do chefe; ainda sem medição de FPS.
+- Visual: primeira composição de nave de guerra em Canvas; pixel art final, fumaça/partículas avançadas e destruição completa ainda pendentes; entrada cinematográfica e zoom de câmera implementados, aguardando validação visual.
 - Arena: expansão real do espaço jogável e ajuste da câmera permanecem pendentes; não confundir zoom visual com aumento dos limites do mundo.
 - Validação: revisar colisões, ordem de absorção de escudos/dano de módulos/casco, frequência dos ataques, acessibilidade mobile e custo de renderização. Próxima etapa: auditoria de desempenho geral (projéteis, colisões, partículas, IA e renderização), seguida de verificações estáticas e testes em navegador. Nenhum teste de navegador ou FPS foi executado até aqui.
 - Não mesclar em `main` sem aprovação explícita.
