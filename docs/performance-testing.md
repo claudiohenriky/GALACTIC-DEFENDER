@@ -26,6 +26,7 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Remover o desfoque de sombra do núcleo do chefe, substituindo-o por camadas sólidas.
 - [x] Pré-calcular reservas de alvos dos mísseis guiados uma vez por quadro e reutilizar o conjunto, evitando varrer todos os mísseis para cada inimigo candidato.
 - [x] Selecionar os dois aliados de cada Guardião por varredura linear, preservando prioridade de Sentinelas e proximidade sem criar, mapear ou ordenar listas de candidatos.
+- [x] Remover também o `filter()`/`sort()` temporário do roster de Guardiões; duas passagens estáveis mantêm Guardiões de Elite primeiro, sem alterar a ordem relativa dentro de cada grupo.
 - [x] Auditar os pontos de colisão e adicionar rejeição AABB barata antes do teste circular exato em projétil/inimigo, projétil/projétil e míssil/inimigo. A regra final de sobreposição circular e a ordem de resolução foram preservadas.
 - [ ] Auditar atualizações e desenho de partículas, fumaça, fogo, faíscas, escudos e rastros.
 - [ ] Auditar a IA e a separação espacial quando houver muitos inimigos e projéteis simultâneos.
