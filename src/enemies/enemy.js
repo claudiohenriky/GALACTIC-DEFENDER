@@ -4,9 +4,9 @@ export class Enemy {
     this.y = y;
     this.type = type;
     this.level = level;
-    this.isElite = Boolean(isElite && (type === 'artillery' || type === 'sentinel'));
-    // The energy shield remains exclusive to the Artillery Elite.
-    this.eliteMaxShield = this.isElite && type === 'artillery' ? 8 : 0;
+    this.isElite = Boolean(isElite && (type === 'artillery' || type === 'sentinel' || type === 'guardian'));
+    // Artillery keeps its 8-point shield; Guardian Elite has a stronger defensive reserve.
+    this.eliteMaxShield = this.isElite ? (type === 'artillery' ? 8 : type === 'guardian' ? 12 : 0) : 0;
     this.eliteShield = this.eliteMaxShield;
     this.eliteSpawnTimer = this.isElite ? 1.65 : 0;
     this.radius = type === 'boss' ? 23 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
@@ -336,8 +336,8 @@ export class Enemy {
     const artillery = this.type === 'artillery';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
-    const color = this.isElite ? '#7546a6' : boss ? (this.bossPhase === 3 ? '#ff6d8f' : this.bossPhase === 2 ? '#ffb36b' : '#d59bff') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
-    const edge = this.isElite ? '#d9b8ff' : boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
+    const color = this.isElite ? (artillery ? '#171d24' : ranged ? '#59377f' : guardian ? '#245b4b' : '#7546a6') : boss ? (this.bossPhase === 3 ? '#ff6d8f' : this.bossPhase === 2 ? '#ffb36b' : '#d59bff') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
+    const edge = this.isElite ? (artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
     ctx.translate(this.x, this.y);
@@ -503,8 +503,39 @@ export class Enemy {
       ctx.lineTo(this.radius * 1.18, this.radius * 0.18);
       ctx.closePath();
       ctx.fill();
-      ctx.strokeStyle = '#d9b8ff';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = '#c9a5ff';
+      ctx.lineWidth = 1.2;
+      ctx.stroke();
+      ctx.fillStyle = '#2a1a3b';
+      ctx.beginPath();
+      ctx.moveTo(0, -this.radius * 1.22);
+      ctx.lineTo(this.radius * 0.28, -this.radius * 0.42);
+      ctx.lineTo(0, -this.radius * 0.12);
+      ctx.lineTo(-this.radius * 0.28, -this.radius * 0.42);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#8fdcff';
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+    }
+
+    if (this.isElite && guardian) {
+      // Broad defensive shoulders make the Guardian Elite read as a shield unit.
+      ctx.fillStyle = '#173b34';
+      ctx.beginPath();
+      ctx.moveTo(-this.radius * 1.25, -this.radius * 0.55);
+      ctx.lineTo(-this.radius * 0.48, -this.radius * 0.25);
+      ctx.lineTo(-this.radius * 0.72, this.radius * 0.72);
+      ctx.lineTo(-this.radius * 1.42, this.radius * 0.25);
+      ctx.closePath();
+      ctx.moveTo(this.radius * 1.25, -this.radius * 0.55);
+      ctx.lineTo(this.radius * 0.48, -this.radius * 0.25);
+      ctx.lineTo(this.radius * 0.72, this.radius * 0.72);
+      ctx.lineTo(this.radius * 1.42, this.radius * 0.25);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#a7f2ce';
+      ctx.lineWidth = 1.2;
       ctx.stroke();
     }
 
@@ -512,7 +543,7 @@ export class Enemy {
     ctx.fillRect(-this.radius * 0.62, -this.radius * 0.1, this.radius * 1.24, this.radius * 0.38);
     ctx.fillStyle = edge;
     ctx.fillRect(-this.radius * 0.2, -this.radius * 0.24, this.radius * 0.4, this.radius * 0.48);
-    ctx.fillStyle = boss ? '#fff2ff' : this.isElite && ranged ? '#8fdcff' : this.isElite ? '#65c98b' : color;
+    ctx.fillStyle = boss ? '#fff2ff' : this.isElite && ranged ? '#8fdcff' : this.isElite && guardian ? '#9fffd1' : this.isElite ? '#65c98b' : color;
     ctx.fillRect(-this.radius * 0.08, this.radius * 0.3, this.radius * 0.16, this.radius * 0.32);
     if (boss) {
       ctx.strokeStyle = '#fff0ff';
@@ -525,17 +556,23 @@ export class Enemy {
       ctx.stroke();
     }
 
-    const barWidth = this.radius * 2.2;
+    const barWidth = this.radius * (this.isElite ? 2.5 : 2.2);
     const barY = this.radius + 5;
-    ctx.fillStyle = '#182338';
-    ctx.fillRect(-barWidth / 2, barY, barWidth, 3);
-    ctx.fillStyle = this.health / this.maxHealth <= 0.35 ? '#ff526f' : '#8cf5c7';
-    ctx.fillRect(-barWidth / 2, barY, barWidth * (this.health / this.maxHealth), 3);
+    const barHeight = this.isElite ? 4 : 3;
+    ctx.fillStyle = this.isElite ? '#101a27' : '#182338';
+    ctx.fillRect(-barWidth / 2, barY, barWidth, barHeight);
+    ctx.fillStyle = this.health / this.maxHealth <= 0.35 ? '#ff526f' : this.isElite ? (guardian ? '#8af0bf' : artillery ? '#76dc98' : '#c6a0ff') : '#8cf5c7';
+    ctx.fillRect(-barWidth / 2, barY, barWidth * (this.health / this.maxHealth), barHeight);
+    if (this.isElite) {
+      ctx.strokeStyle = edge;
+      ctx.lineWidth = 0.8;
+      ctx.strokeRect(-barWidth / 2, barY, barWidth, barHeight);
+    }
     if (this.isElite && this.eliteShield > 0) {
       // Lightweight segmented shield cue, visually consistent with the player's shield arcs.
       const shieldRatio = this.eliteShield / Math.max(1, this.eliteMaxShield);
       ctx.globalAlpha = 0.35 + shieldRatio * 0.35;
-      ctx.strokeStyle = '#82dca2';
+      ctx.strokeStyle = guardian ? '#a7f2ce' : '#82dca2';
       ctx.lineWidth = 2;
       ctx.lineCap = 'round';
       ctx.beginPath();
@@ -546,19 +583,19 @@ export class Enemy {
     }
 
     if (this.isElite && this.eliteSpawnTimer > 0) {
+      // Brief spatial refraction: three thin fading ellipses, without particles or text.
       const progress = 1 - this.eliteSpawnTimer / 1.65;
-      const fade = Math.min(1, this.eliteSpawnTimer / 0.35);
-      ctx.globalAlpha = fade * 0.75;
-      ctx.strokeStyle = '#b68be8';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(0, 0, this.radius + 9 + progress * 16, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.globalAlpha = fade;
-      ctx.fillStyle = '#e8d5ff';
-      ctx.font = 'bold 9px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(this.type === 'sentinel' ? 'SENTINELA DE ELITE' : 'ARTILHEIRO DE ELITE', 0, -this.radius - 17);
+      const fade = Math.min(1, this.eliteSpawnTimer / 0.28);
+      const tint = guardian ? '#8af0bf' : artillery ? '#76dc98' : '#b68be8';
+      ctx.globalAlpha = fade * 0.42;
+      ctx.strokeStyle = tint;
+      ctx.lineWidth = 1.2;
+      for (let ring = 0; ring < 3; ring += 1) {
+        const spread = 5 + progress * 15 + ring * 4;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, this.radius + spread, (this.radius + spread) * 0.62, (ring - 1) * 0.12, 0, Math.PI * 2);
+        ctx.stroke();
+      }
       ctx.globalAlpha = 1;
     }
 

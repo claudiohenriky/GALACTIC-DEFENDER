@@ -6,7 +6,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
-**Candidata atual:** `0.41.0` — Sentinela de Elite na branch `feature/v0.41.0-sentinel-elite`. Introduz uma salva dupla de plasma, identidade visual própria e surgimento ocasional a partir da onda 14, mantendo a movimentação e o papel tático da Sentinela-base. O Artilheiro de Elite e os ajustes da v0.40.1 permanecem como base; a candidata ainda aguarda teste manual. `main` permanece inalterada. A ampliação da área útil da arena em celular segue planejada como etapa separada.
+**Candidata atual:** `0.42.0` — refinamento das identidades Elite e Guardião de Elite na branch `feature/v0.42.0-elite-identity-guardian`. Restaura o Artilheiro preto/verde, diferencia a Sentinela, adiciona o Guardião com escudo próprio, avisos de primeira aparição, barra de integridade especial e entrada por distorção espacial. A queda de FPS segue pendente de investigação dedicada. Aguarda teste manual; `main` permanece inalterada.
 
 **Candidata anterior testada:** `0.31.0` — adiciona o Artilheiro na branch `feature/v0.31.0-artillery-enemy`; o usuário aprovou manualmente a leitura visual, o leque, o equilíbrio, o desempenho percebido e o funcionamento das classes existentes.
 

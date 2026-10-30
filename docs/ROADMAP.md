@@ -1,3 +1,23 @@
+## Candidata v0.42.0 — Identidade Elite e Guardião de Elite
+
+- Branch: `feature/v0.42.0-elite-identity-guardian`, baseada na candidata v0.41.0.
+- Artilheiro de Elite: recuperar casco predominantemente preto e detalhes verdes; preservar escudo de 8 pontos.
+- Sentinela de Elite: reforçar silhueta e identidade visual sem alterar a salva dupla de plasma.
+- Guardião de Elite: entrada a partir da onda 16, escudo defensivo próprio de 12 pontos e manutenção da função de proteção tática de aliados.
+- Remover nomes flutuantes; mostrar alerta de ameaça uma única vez por classe em cada partida e somente após o spawn real.
+- Usar barra de integridade reforçada e efeito de entrada por distorção espacial breve, com renderização leve.
+- Desempenho: queda de FPS relatada continua pendente de perfilamento e otimização em etapa dedicada; não declarar resolvida nesta versão.
+- Estado: candidata; requer teste manual em celular e computador. Não mesclada em `main`.
+
+## Próxima sequência do sistema Elite
+
+- [x] Artilheiro de Elite — primeira prova de conceito e refinamento visual.
+- [x] Sentinela de Elite — salva dupla de plasma e identidade visual revisada.
+- [x] Guardião de Elite — escudo próprio e papel defensivo preservado.
+- [ ] Interceptador de Elite — preservar perseguição veloz e criar habilidade ofensiva própria.
+- [ ] Revisar frequência e balanceamento das quatro variantes após teste geral.
+- [ ] Investigar e otimizar a queda de FPS com perfilamento isolado.
+
 ## Candidata v0.41.0 — Segunda Tropa de Elite: Sentinela de Elite
 
 - Branch: `feature/v0.41.0-sentinel-elite`, baseada na candidata v0.40.1.
