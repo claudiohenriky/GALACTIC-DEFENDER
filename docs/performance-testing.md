@@ -102,7 +102,7 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 ## Sequência de destruição do encouraçado — candidata v0.44.0
 
 - Ao chegar a zero de integridade após a transformação de sobrecarga, o chefe entra em estado de destruição e deixa de se mover, disparar, receber dano ou servir como alvo de mísseis guiados.
-- A sequência visual dura 4,5 segundos: cinco detonações locais temporizadas percorrem o casco e são seguidas por uma explosão final. Os efeitos são desenhados por tempo decorrido e posições determinísticas; não são criadas partículas nem arrays por quadro.
+- A sequência visual dura 4,5 segundos: cinco detonações locais temporizadas percorrem o casco, com chamas curtas nas brechas, fumaça que persiste e deriva por tempo decorrido, e duas ondas de choque na explosão final. Os efeitos usam cinco posições determinísticas e loops de tamanho fixo; não são criadas partículas nem arrays por quadro.
 - A entidade permanece ativa durante a animação para manter a câmera enquadrada. Ao terminar, é removida e a recompensa é processada uma única vez: pontuação, XP, contador de eliminações, conquistas e progresso de missão.
 - Inimigos comuns preservam a remoção e a concessão imediata de recompensas.
 - [ ] Testar se o chefe permanece visível e imóvel durante toda a sequência.
