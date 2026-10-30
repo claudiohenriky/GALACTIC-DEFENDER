@@ -231,6 +231,7 @@ export class Game {
     this.guardianAssignmentTimer = 0;
     this.projectiles = [];
     this.guidedMissiles = [];
+    this.guidedMissileTargetReservations.clear();
     this.guidedMissileCooldown = 0;
     this.guidedMissileCooldownMax = 12;
     this.pendingGuidedMissileLaunch = null;
@@ -243,6 +244,8 @@ export class Game {
     this.levelUpParticles = [];
     this.damageSparks = [];
     this.shieldBreakEffects = [];
+    this.shieldThreatScanTimer = 0;
+    this.shieldThreatArcs.fill(0);
     this.shieldPulseCooldown = 0;
     this.shieldPulseCooldownMax = 18;
     this.shieldPulseWave = null;
@@ -259,6 +262,10 @@ export class Game {
     document.querySelector('#damage-feedback').classList.remove('damage-active');
     this.status = 'ready';
     this.clearInput();
+    // A new run must not inherit pointer targets or a held touch-drag from the previous run.
+    this.aim.active = false;
+    this.touchAim.active = false;
+    this.touchAim.pointerId = null;
     updateHud(this);
     this.updateShieldPulseButton();
     this.updateGuidedMissileButton();
