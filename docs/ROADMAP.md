@@ -387,3 +387,11 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Disparo pesado com projétil alongado, dano alto e impacto de repulsão forte.
 - Ao atingir escudo ativo do jogador, o plasma rompe o escudo imediatamente, dispara o efeito de ruptura existente e aplica forte repulsão; sem escudo, causa dano elevado e repulsão ainda maior.
 - O ciclo de carga é local por canhão, sem aumentar a frequência dos demais armamentos. Valores iniciais são de balanceamento e exigem teste de gameplay.
+
+
+## Reformulação visual dos escudos — primeira passagem (30/10/2026)
+- Jogador: a cobertura lógica continua 360°, mas apenas o setor previsto como ameaçado é desenhado. A previsão agora usa o ponto de aproximação mais próximo e forma uma pequena barreira animada que expande e dissipa; impactos absorvidos reforçam o setor correspondente.
+- Encouraçado: os quatro setores mantêm indicação discreta em repouso e respondem a impactos com pulsos regionais mais evidentes.
+- Tropas de elite: os segmentos de escudo recebem uma expansão/flash curto quando absorvem dano.
+- A camada visual não participa da decisão de colisão ou dano; não foi criada esfera contínua, sistema de partículas por quadro ou alteração de integridade/recarga.
+- Pendente: validação manual de múltiplas ameaças, orientação, zoom e fluidez em dispositivos reais; depois ajustar tempos e intensidade visual com feedback de gameplay.
