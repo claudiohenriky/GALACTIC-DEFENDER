@@ -217,6 +217,7 @@ export class Game {
     this.player = new Player(this.worldWidth, this.worldHeight);
     this.cameraX = 0;
     this.cameraY = 0;
+    this.updateCamera(0, true);
     this.player.shipClass = this.selectedShip || 'vanguard';
     this.progression = new Progression();
     this.mission = new Mission();
@@ -1379,7 +1380,9 @@ export class Game {
 
     for (let index = 0; index < this.enemies.length; index += 1) {
       const enemy = this.enemies[index];
-      const shot = enemy.update(dt, this.player.x, this.player.y, this.worldWidth, this.worldHeight, this.projectiles, this.enemies);
+      const zoom = Math.max(0.5, this.cameraZoom || 1);
+      const cameraTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
+      const shot = enemy.update(dt, this.player.x, this.player.y, this.worldWidth, this.worldHeight, this.projectiles, this.enemies, cameraTop);
       if (shot) {
         const shots = Array.isArray(shot) ? shot : [shot];
         for (const projectileData of shots) {
