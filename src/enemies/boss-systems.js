@@ -95,7 +95,11 @@ export class BossSystems {
   }
 
   update(dt) {
+    const shieldGenerator = this.modules.find((module) => module.id === 'auxiliary-system');
+    const canRechargeShields = shieldGenerator &&
+      shieldGenerator.state !== 'destroyed' && shieldGenerator.state !== 'disabled';
     for (const shield of this.shields) {
+      if (!canRechargeShields) continue;
       if (shield.health > 0 || !shield.disabled) continue;
       shield.rechargeTimer = Math.max(0, shield.rechargeTimer - dt);
       if (shield.rechargeTimer === 0) {
