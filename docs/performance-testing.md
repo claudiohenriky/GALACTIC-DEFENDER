@@ -289,3 +289,7 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - Integridade temporal dos hardpoints: módulos em transição não rastreiam, carregam nem disparam; os testes confirmam liberação somente após o fim da instalação. Suíte total: 22 testes. CI: [run 41078411594](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41078411594).
 
 - Atalho de validação do encontro: abrir a prévia com `?bossTest=1` para iniciar diretamente na onda 10; `&fps=1` exibe o contador de FPS. Sem esses parâmetros, a progressão normal continua começando na onda 1.
+
+- Cenário de teste do boss: `?bossTest=1` inicia na onda 10; `&fps=1` ativa o contador FPS. Uso normal sem parâmetros permanece inalterado.
+- Prévia planejada em subdiretório separado `/previews/v0.44.0/`; workflow copia a raiz oficial de `main` e adiciona apenas os arquivos estáticos da candidata nessa subpasta.
+- CI atual: 23 testes aprovados no run [41079746816](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41079746816).

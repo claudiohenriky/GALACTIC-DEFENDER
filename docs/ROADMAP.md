@@ -466,3 +466,8 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Confirmar 22 testes automatizados aprovados no CI [41078411594](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41078411594).
 
 - [x] Criar cenário opcional de teste do boss por query string (`?bossTest=1`), sem alterar a progressão padrão; opção `&fps=1` exibe FPS na prévia.
+
+- [x] Criar workflow de prévia isolada sob `/previews/v0.44.0/`, mantendo o site oficial de `main` na raiz.
+- [x] Criar atalho opcional para onda 10 (`?bossTest=1`) e contador FPS (`&fps=1`), sem afetar a progressão padrão.
+- [x] CI aprovado com 23 testes automatizados: [run 41079746816](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41079746816).
+- [ ] Atualizar a branch de prévia e confirmar o deploy isolado antes de fornecer o link de teste.

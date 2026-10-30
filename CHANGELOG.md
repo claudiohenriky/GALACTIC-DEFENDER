@@ -705,3 +705,7 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 
 - Corrige a sobrecarga para impedir que torres em reparo, reconstrução ou substituição acompanhem o alvo, carreguem plasma ou disparem antes de a instalação terminar.
 - CI aprovado no HEAD `a4283aae8d0a8b5faf3dbedaf3f374f930f0d651` (run [41078411594](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41078411594)); suíte com 22 testes.
+
+- Adicionado atalho de validação `?bossTest=1` para iniciar diretamente na onda 10 e `&fps=1` para exibir FPS; a progressão padrão permanece na onda 1.
+- Criado workflow de prévia isolada: publica a versão candidata em `/previews/v0.44.0/`, preservando o conteúdo oficial de `main` na raiz do GitHub Pages.
+- CI aprovado no HEAD `5bbfbbb6471798e8f555ba2617a001b75247cdb9` (run [41079746816](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41079746816)); suíte total: 23 testes.
