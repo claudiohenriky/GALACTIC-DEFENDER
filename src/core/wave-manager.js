@@ -19,7 +19,7 @@ export class WaveManager {
       this.timer -= dt;
       if (this.timer <= 0) {
         this.wave += 1;
-        const bossWave = this.wave >= 10 && this.wave % 10 === 0;
+        const bossWave = this.wave >= 10 && this.wave % 5 === 0;
         this.enemyCount = bossWave ? 1 : Math.min(5 + (this.wave - 1) * 2, 18);
         this.spawnedCount = 0;
         this.state = 'spawning';
