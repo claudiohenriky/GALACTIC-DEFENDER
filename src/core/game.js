@@ -1,5 +1,5 @@
 import { Player } from '../player/player.js?v=0.44.0';
-import { Enemy } from '../enemies/enemy.js?v=0.44.0';
+import { Enemy } from '../enemies/enemy.js?v=0.44.0-cannon-telegraph';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
@@ -7,7 +7,7 @@ import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { WaveManager } from './wave-manager.js?v=0.44.0';
-import { updateHud } from '../ui/hud.js?v=0.44.0';
+import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 
