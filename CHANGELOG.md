@@ -646,3 +646,5 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 ## Observações
 - Atualizar este arquivo e o histórico dentro do jogo juntos.
 - A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; a v0.15.1 foi aprovada em computador e celular. A v0.16.2 passou nos seis testes manuais de desempenho e regressão no celular informados pelo usuário. A v0.17.0 foi publicada como candidata em `main`. A v0.17.1 adiciona mira por arraste e disparo automático mobile; aguarda validação manual no celular.
+
+- Refinamento do HUD do encouraçado: os dez indicadores de armamento agora exibem abreviações identificáveis em uma grade 5×2, mantendo cores e estados distintos; os nomes completos permanecem disponíveis nos rótulos acessíveis e dicas.
