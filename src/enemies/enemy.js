@@ -286,7 +286,7 @@ export class Enemy {
       // but deliberately creates no projectile and applies no damage in v0.44.0.
       const mainCannon = turretSystems?.getModule('main-energy-cannon');
       if (mainCannon) {
-        const cannonAvailable = mainCannon.state !== 'destroyed' && mainCannon.state !== 'disabled';
+        const cannonAvailable = mainCannon.state !== 'destroyed' && mainCannon.state !== 'disabled' && mainCannon.transitionTimer <= 0;
         if (!cannonAvailable) {
           mainCannon.energyState = 'offline';
           mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
