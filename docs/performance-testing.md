@@ -63,6 +63,8 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Chefe da onda 10 com todos os módulos e escudos ativos.
 - [ ] Chefe após perder vários armamentos e setores de escudo.
 - [ ] Transição de sobrecarga e reconstrução de módulos.
+- [ ] Pulso de Ruptura atingindo grupos de inimigos: medir se o recuo não é cancelado pela perseguição e se a IA retoma após a recuperação.
+- [ ] Impacto de plasma no jogador: conferir repulsão, aviso de sistemas desestabilizados e recuperação progressiva do controle.
 - [ ] Habilidade de mísseis guiados com vários alvos e fragmentação.
 - [ ] Comparar três rodadas no mesmo aparelho, navegador, orientação e duração; registrar mediana de FPS, tempo de quadro, atualização e renderização.
 - [ ] Confirmar ausência de erros no console e verificar responsividade dos controles.
@@ -89,26 +91,26 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 
 ## Expansão física da arena — candidata v0.44.0
 
-- O mundo de simulação passa a medir 1,6 vez a largura e a altura da área visível do Canvas.
-- A câmera acompanha suavemente a nave do jogador e respeita os limites do mundo, inclusive durante o zoom dinâmico do chefe.
+- O mundo de simulação mede 2× a largura e 2× a altura da área visível do Canvas.
+- A câmera acompanha suavemente a nave do jogador e respeita os limites do mundo; ao encontrar o chefe, o zoom converge para 0,5 e mantém o enquadramento tático após a derrota até reiniciar a partida.
 - Jogador, inimigos, separação espacial, projéteis e mísseis teleguiados usam os limites do mundo expandido; a tela continua sendo apenas a janela de visualização.
 - Mouse e toque são convertidos de coordenadas de tela para coordenadas do mundo considerando posição e zoom da câmera.
 - Inimigos comuns surgem no topo da área atualmente visível; a entrada do chefe usa o topo da câmera. O encouraçado mantém reposicionamento e rotação deliberadamente lentos, para não espelhar cada movimento do jogador e permitir flanqueamento.
 - As estrelas usam coordenadas do mundo; o fundo em grade é cacheado no tamanho do viewport e acompanha a câmera sem criar um bitmap do mundo inteiro.
 
-**Validação pendente:** revisão estática dos limites e transformações concluída parcialmente; ainda é necessário executar a suíte de sintaxe/imports e testar gameplay real em celular e desktop. Não há medição de FPS para esta alteração. Verificar principalmente movimentação até as quatro bordas, mira por toque/mouse, entrada do chefe, colisões e limpeza de projéteis.
+**Validação pendente:** limites e transformações foram revisados estaticamente; a suíte de sintaxe/imports passou no CI. Ainda é necessário testar gameplay real em celular e desktop. Não há medição de FPS para esta alteração. Verificar principalmente movimentação até as quatro bordas, mira por toque/mouse, entrada do chefe, colisões e limpeza de projéteis.
 
 
 ## Sequência de destruição do encouraçado — candidata v0.44.0
 
-- Ao chegar a zero de integridade após a transformação de sobrecarga, o chefe entra em estado de destruição e deixa de se mover, disparar, receber dano ou servir como alvo de mísseis guiados.
-- A sequência visual dura 4,5 segundos: cinco detonações locais temporizadas percorrem o casco, com chamas curtas nas brechas, fumaça que persiste e deriva por tempo decorrido, e duas ondas de choque na explosão final. Os efeitos usam cinco posições determinísticas e loops de tamanho fixo; não são criadas partículas nem arrays por quadro.
-- A entidade permanece ativa durante a animação para manter a câmera enquadrada. Ao terminar, é removida e a recompensa é processada uma única vez: pontuação, XP, contador de eliminações, conquistas e progresso de missão.
+- Ao chegar a zero de integridade após a transformação de sobrecarga, o chefe entra em estado de destruição e deixa de atacar, receber dano ou servir como alvo de mísseis guiados.
+- A sequência dura 8,4 segundos. O casco perde estabilidade, gira e deriva progressivamente pelo espaço enquanto os efeitos de dano já ativos continuam visíveis; a opacidade diminui apenas na parte final da sequência.
+- A entidade permanece ativa como destroço visual durante a animação. Ao terminar, é removida e a recompensa é processada uma única vez: pontuação, XP, contador de eliminações, conquistas e progresso de missão.
 - Inimigos comuns preservam a remoção e a concessão imediata de recompensas.
-- [ ] Testar se o chefe permanece visível e imóvel durante toda a sequência.
+- [ ] Testar se o destroço permanece legível durante a deriva e a rotação.
 - [ ] Confirmar que projéteis, laser contínuo, contato e mísseis não causam dano adicional durante a destruição.
 - [ ] Confirmar uma única concessão de pontuação/XP/conquista/progresso de missão.
-- [ ] Verificar se a câmera retorna suavemente ao zoom normal após a remoção.
+- [ ] Confirmar que o zoom tático de 0,5 permanece após a remoção do chefe até reiniciar a partida.
 - [ ] Perfil de desempenho no celular e desktop; não há FPS medido nesta revisão.
 
 
