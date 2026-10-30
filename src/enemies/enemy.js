@@ -46,6 +46,9 @@ export class Enemy {
     this.dodgeCooldown = 0;
     this.dodgeTimer = 0;
     this.dodgeDirection = 0;
+    this.disruptionTimer = 0;
+    this.disruptionImpulseX = 0;
+    this.disruptionImpulseY = 0;
 
     // Motion feedback is visual only: steering does not change damage or projectile rules.
     this.velocityX = 0;
@@ -56,6 +59,12 @@ export class Enemy {
     this.bank = 0;
     this.thrust = 0;
     this.lateralThrust = 0;
+  }
+
+  applyDisruption(impulseX, impulseY, duration = 0.82) {
+    this.disruptionTimer = Math.max(this.disruptionTimer, duration);
+    this.disruptionImpulseX += impulseX;
+    this.disruptionImpulseY += impulseY;
   }
 
   updateMotionFeedback(dt, previousX, previousY) {
@@ -106,6 +115,27 @@ export class Enemy {
       return null;
     }
 
+    // Disruption temporarily suspends steering and firing so AI pursuit cannot
+    // immediately cancel the physical impulse that pushed this ship away.
+    if (this.disruptionTimer > 0) {
+      this.disruptionTimer = Math.max(0, this.disruptionTimer - dt);
+      const damping = Math.exp(-3.2 * dt);
+      this.disruptionImpulseX *= damping;
+      this.disruptionImpulseY *= damping;
+      this.x += this.disruptionImpulseX * dt;
+      this.y += this.disruptionImpulseY * dt;
+      const movementRadius = this.collisionRadius ?? this.radius;
+      this.x = Math.max(movementRadius, Math.min(width - movementRadius, this.x));
+      this.y = Math.max(movementRadius, Math.min(height - movementRadius, this.y));
+      this.fireCooldown = Math.max(this.fireCooldown, 0.18);
+      this.updateMotionFeedback(dt, previousX, previousY);
+      return null;
+    }
+
+    // Clear residual impulse before normal steering resumes; the damping above
+    // leaves only a small tail, avoiding a visible snap when the recovery ends.
+    this.disruptionImpulseX *= Math.exp(-8 * dt);
+    this.disruptionImpulseY *= Math.exp(-8 * dt);
     const dx = targetX - this.x;
     const dy = targetY - this.y;
     // Ranged classes steer toward explicit lanes and do not consume target distance.
