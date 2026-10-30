@@ -79,6 +79,32 @@ function updateBossHud(boss) {
   setText('#boss-phase-label', phaseLabel);
   setState(bossHud, boss.bossDying ? 'dying' : boss.bossPhase === 3 ? 'overload' : 'stable');
 
+  const cannon = systems?.getModule('main-energy-cannon');
+  const cannonPanel = bossHud.querySelector('#boss-cannon-panel');
+  const cannonTrack = bossHud.querySelector('#boss-cannon-track');
+  const cannonFill = bossHud.querySelector('#boss-cannon-fill');
+  const cannonStatus = bossHud.querySelector('#boss-cannon-status');
+  const cannonActive = !boss.bossDying && (cannon?.energyState === 'charging' || cannon?.energyState === 'warning');
+  if (cannonPanel) {
+    cannonPanel.classList.toggle('hidden', !cannonActive);
+    if (cannonActive) {
+      const warning = cannon.energyState === 'warning';
+      cannonPanel.dataset.state = warning ? 'warning' : 'charging';
+      const progress = warning ? 100 : Math.max(0, Math.min(100,
+        (1 - cannon.energyChargeTimer / Math.max(0.1, cannon.energyChargeDuration)) * 100));
+      if (cannonStatus) cannonStatus.textContent = warning
+        ? 'ALERTA · ENERGIA CRÍTICA'
+        : 'CANHÃO PRINCIPAL · CARREGANDO';
+      const width = `${progress}%`;
+      if (cannonFill && cannonFill.style.width !== width) cannonFill.style.width = width;
+      const ariaValue = String(Math.round(progress));
+      if (cannonTrack?.getAttribute('aria-valuenow') !== ariaValue) cannonTrack.setAttribute('aria-valuenow', ariaValue);
+      if (cannonTrack) cannonTrack.setAttribute('aria-label', warning
+        ? 'Aviso visual do canhão principal; nenhum disparo será realizado nesta versão'
+        : 'Carga visual do canhão principal; nenhum disparo será realizado nesta versão');
+    }
+  }
+
   if (!systems) return;
 
   let activeShields = 0;
