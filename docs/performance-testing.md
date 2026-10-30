@@ -63,3 +63,7 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Seleção do aliado de suporte de Guardião/Sentinela compara distâncias ao quadrado e calcula a raiz apenas uma vez para o aliado escolhido; prioridades e desempate por proximidade permanecem iguais.
 - [x] Previsão de esquiva deixa de criar um objeto temporário para cada melhor ameaça; guarda apenas a coordenada horizontal necessária para decidir o lado da manobra.
 - [x] Converter os callbacks de renderização de estrelas, projéteis, inimigos, mísseis e efeitos de ruptura em loops indexados, mantendo a ordem de desenho e a lógica de cada elemento.
+
+
+- [x] Calcular a distância até o jogador apenas nas classes que realmente a consomem (Interceptor, Guardião e perseguidores); Sentinela, Artilharia e chefe mantêm suas rotas próprias sem uma raiz quadrada descartada.
+- [x] Na separação entre inimigos, aplicar rejeição pelos eixos antes das multiplicações e do teste de distância ao quadrado; a ordem dos pares e a resolução exata do afastamento permanecem inalteradas.
