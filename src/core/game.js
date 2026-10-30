@@ -36,7 +36,7 @@ export class Game {
     this.mission = new Mission();
     this.waveManager = new WaveManager();
     this.enemies = [];
-    // Boss encounters widen the visible playfield without changing world-space physics.
+    // The visible viewport moves through a larger world; boss zoom remains a separate camera effect.
     this.cameraZoom = 1;
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
@@ -215,6 +215,7 @@ export class Game {
       this.achievements.recordRun(this.score, this.waveManager.wave);
     }
     this.player = new Player(this.worldWidth, this.worldHeight);
+    this.cameraZoom = 1;
     this.cameraX = 0;
     this.cameraY = 0;
     this.updateCamera(0, true);
@@ -1713,7 +1714,10 @@ export class Game {
       ctx.globalAlpha = flash * 0.16;
       ctx.strokeStyle = '#ff526f';
       ctx.lineWidth = 3;
-      ctx.strokeRect(this.cameraX + 4, this.cameraY + 4, this.width - 8, this.height - 8);
+      const zoom = Math.max(0.5, this.cameraZoom || 1);
+      const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * zoom);
+      const viewTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
+      ctx.strokeRect(viewLeft + 4 / zoom, viewTop + 4 / zoom, (this.width - 8) / zoom, (this.height - 8) / zoom);
       ctx.restore();
     }
 
