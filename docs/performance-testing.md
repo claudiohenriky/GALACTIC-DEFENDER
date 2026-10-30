@@ -193,3 +193,11 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - Ruptura aplica um estado temporário de desestabilização aos inimigos: a IA suspende perseguição e disparos enquanto o impulso físico é amortecido, evitando o conflito de aproximação/recuo. O estado usa dois escalares de impulso e um temporizador por inimigo, sem listas auxiliares ou tarefas por quadro.
 - Impactos de plasma aplicam desestabilização temporária aos controles do jogador, com recuperação progressiva da autoridade de movimento; a mensagem reutiliza o feedback existente.
 - Ainda é necessária medição real em dispositivos mobile e desktop com o perfil de desempenho ativado; CI não mede FPS.
+
+
+## Revisão de consistência do arsenal do boss — 30/10/2026
+- [x] Comparar a cadência global de disparo (2,35 s / 2,05 s / 1,7 s por fase) com os ciclos locais de plasma (2,6 s) e com os módulos ativos.
+- [x] Identificar e remover o disparo de dano do canhão principal de energia nas fases 2 e 3; nesta candidata ele mantém hardware e rastreamento visual, mas não lança projéteis.
+- [ ] Projetar e validar separadamente a telemetria de carga, alerta de perigo, janela de reação e contra-jogo do canhão principal antes de habilitar qualquer ataque.
+- [ ] Balancear dano acumulado por salva, pressão de mísseis guiados, dois canhões de plasma e sobrevivência dos módulos somente após teste real de gameplay.
+- Observação: os valores atuais de dano/cadência permanecem parâmetros provisórios; a auditoria estática não substitui observação de tempo para reagir nem medição de dificuldade.
