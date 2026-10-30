@@ -166,6 +166,11 @@
             <div class="hud-readout hud-xp"><div class="hud-readout-heading"><span>XP · NÍVEL <b id="arena-level-value">01</b></span><strong id="arena-xp-label">0 / 100</strong></div><div class="hud-meter xp-meter"><div id="arena-xp-bar"></div></div></div>
             <div class="hud-meta"><span>ONDA <b id="arena-wave-value">01</b></span><span>PONTOS <b id="arena-score-value">000000</b></span></div>
           </div>
+          <section id="boss-hud" class="boss-hud hidden" role="progressbar" aria-label="Integridade da nave de guerra inimiga" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+            <div class="boss-hud-heading"><strong>NAVE DE GUERRA PESADA</strong><span id="boss-phase-label">FASE I</span></div>
+            <div class="boss-health-track"><div id="boss-health-fill"></div></div>
+            <div class="boss-hud-footer"><span>BLINDAGEM DO CASCO</span><strong id="boss-health-value">100%</strong></div>
+          </section>
           <aside id="overload-panel" class="overload-panel" data-state="stable" aria-label="Medidor de sobrecarga"><span class="overload-panel-title">SOBRECARGA</span><div class="overload-meter-vertical" aria-hidden="true"><div id="overload-meter-fill"></div></div><span id="overload-status" class="overload-status" data-state="stable" role="status" aria-live="polite">0% · ESTÁVEL</span></aside>
           <div id="fps-counter" class="fps-counter hidden" role="status" aria-live="off">FPS -- · -- ms</div>
           <div id="level-up-toast" class="level-up-toast" role="status" aria-live="polite">✦ NÍVEL AUMENTADO</div>
