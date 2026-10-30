@@ -44,7 +44,7 @@ test('overload replaces catastrophic mounts and rebuilds recoverable wreckage on
 test('regional shields recharge when auxiliary system is operational',()=>{
  const systems=new BossSystems();systems.damageShield('front',110);systems.update(13);
  assert.equal(systems.shieldById.get('front').disabled,false);
- assert.equal(systems.shieldById.get('front').health,60.5);
+ assert.ok(Math.abs(systems.shieldById.get('front').health-60.5)<1e-9);
 });
 test('destroyed auxiliary system prevents regional shield regeneration',()=>{
  const systems=new BossSystems();systems.damageShield('front',110);
