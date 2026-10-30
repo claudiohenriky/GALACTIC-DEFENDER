@@ -155,28 +155,29 @@ export class Game {
   cacheBackground() {
     const ratio = this.pixelRatio || 1;
     const canvas = this.backgroundCanvas;
-    canvas.width = Math.round(this.worldWidth * ratio);
-    canvas.height = Math.round(this.worldHeight * ratio);
+    // Cache only one viewport-sized background; the world is larger, but must not multiply offscreen memory.
+    canvas.width = this.canvas.width;
+    canvas.height = this.canvas.height;
     const ctx = canvas.getContext('2d');
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    const bg = ctx.createLinearGradient(0, 0, 0, this.worldHeight);
+    const bg = ctx.createLinearGradient(0, 0, 0, this.height);
     bg.addColorStop(0, '#071126');
     bg.addColorStop(1, '#050813');
     ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, this.worldWidth, this.worldHeight);
+    ctx.fillRect(0, 0, this.width, this.height);
     ctx.strokeStyle = '#1a3450';
     ctx.globalAlpha = 0.45;
     ctx.lineWidth = 1;
-    for (let x = 0; x < this.worldWidth; x += 42) {
+    for (let x = 0; x < this.width; x += 42) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
-      ctx.lineTo(x, this.worldHeight);
+      ctx.lineTo(x, this.height);
       ctx.stroke();
     }
-    for (let y = 0; y < this.worldHeight; y += 42) {
+    for (let y = 0; y < this.height; y += 42) {
       ctx.beginPath();
       ctx.moveTo(0, y);
-      ctx.lineTo(this.worldWidth, y);
+      ctx.lineTo(this.width, y);
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
@@ -1577,7 +1578,9 @@ export class Game {
     ctx.scale(cameraZoom, cameraZoom);
     ctx.translate(-this.width / 2 - this.cameraX, -this.height / 2 - this.cameraY);
     if (this.backgroundCanvas.width && this.backgroundCanvas.height) {
-      ctx.drawImage(this.backgroundCanvas, 0, 0, this.worldWidth, this.worldHeight);
+      const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * cameraZoom);
+      const viewTop = this.height / 2 + this.cameraY - this.height / (2 * cameraZoom);
+      ctx.drawImage(this.backgroundCanvas, viewLeft, viewTop, this.width / cameraZoom, this.height / cameraZoom);
     }
 
     for (let index = 0; index < this.stars.length; index += 1) {
