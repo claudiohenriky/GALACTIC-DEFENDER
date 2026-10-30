@@ -1239,7 +1239,12 @@ export class Game {
         this.createGuidedMissileFromWing(pending.side, pending.target, pending.level);
       }
     }
-    this.guidedMissiles.forEach((missile) => missile.update(dt, this.enemies, this.width, this.height, this.guidedMissiles));
+    // Build target reservations once per frame instead of rescanning every missile for every candidate enemy.
+    const reservedMissileTargets = new Set();
+    for (const missile of this.guidedMissiles) {
+      if (missile.active && missile.target?.active) reservedMissileTargets.add(missile.target);
+    }
+    this.guidedMissiles.forEach((missile) => missile.update(dt, this.enemies, this.width, this.height, this.guidedMissiles, reservedMissileTargets));
     let effectWriteIndex = 0;
     for (const effect of this.guidedMissileEffects) {
       effect.life -= dt;
