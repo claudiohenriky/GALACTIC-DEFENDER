@@ -501,6 +501,14 @@ export class Game {
     this.restartFeedbackAnimation(feedback, 'damage-active');
   }
 
+  triggerSystemDisruption(duration = 1.4) {
+    this.player.applySystemDisruption(duration);
+    const feedback = document.querySelector('#damage-feedback');
+    if (!feedback) return;
+    feedback.textContent = 'SISTEMAS DESESTABILIZADOS';
+    this.restartFeedbackAnimation(feedback, 'damage-active');
+  }
+
   resolvePlasmaImpact(shot) {
     const player = this.player;
     const shieldWasActive = player.shieldHealth > 0;
@@ -519,6 +527,7 @@ export class Game {
     const impulse = shieldWasActive ? 560 : 680;
     player.knockbackX += dx / length * impulse;
     player.knockbackY += dy / length * impulse;
+    this.triggerSystemDisruption(1.45);
   }
 
   resolveIncomingDamage(amount, sourceX = this.player.x, sourceY = this.player.y, heavyImpact = false) {
@@ -614,8 +623,12 @@ export class Game {
       const boss = enemy.type === 'boss' || enemy.type === 'megaboss';
       const distance = Math.sqrt(distanceSquared) || 1;
       const push = wave.repulsion * (boss ? 0.28 : 1);
-      enemy.x += dx / distance * push * dt * 8;
-      enemy.y += dy / distance * push * dt * 8;
+      const disruptionImpulse = push * 1.45;
+      enemy.applyDisruption(
+        dx / distance * disruptionImpulse,
+        dy / distance * disruptionImpulse,
+        boss ? 0.58 : 0.86
+      );
       this.damageEnemy(enemy, boss ? wave.damage * 0.6 : wave.damage);
     }
 
