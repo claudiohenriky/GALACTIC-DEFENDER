@@ -10,6 +10,14 @@ const setWidth = (selector, value) => {
   if (element.style.width !== width) element.style.width = width;
 };
 
+const setMeterValue = (selector, value) => {
+  const element = document.querySelector(selector);
+  const nextValue = String(Math.round(Math.max(0, Math.min(100, value))));
+  if (element.getAttribute('aria-valuenow') !== nextValue) {
+    element.setAttribute('aria-valuenow', nextValue);
+  }
+};
+
 export function updateHud(game) {
   setText('#score-value', String(game.score).padStart(6, '0'));
   setText('#enemy-value', String(game.destroyed).padStart(2, '0'));
@@ -17,8 +25,10 @@ export function updateHud(game) {
   const healthValue = document.querySelector('#health-value');
   const healthText = String(game.player.health);
   if (healthValue.firstChild?.textContent !== healthText) healthValue.firstChild.textContent = healthText;
-  const healthPercent = Math.min(100, game.player.health / game.player.maxHealth * 100);
+  const healthPercent = Math.max(0, Math.min(100, game.player.health / Math.max(1, game.player.maxHealth) * 100));
   setWidth('#health-bar', healthPercent);
+  setMeterValue('.health-meter', healthPercent);
+  setMeterValue('.xp-meter', game.progression.xp / Math.max(1, game.progression.nextLevelXp) * 100);
   setText('#arena-health-value', `${Math.round(healthPercent)}%`);
   setWidth('#arena-health-bar', healthPercent);
   const arenaHealthBlock = document.querySelector('.hud-health');
@@ -48,6 +58,7 @@ export function updateHud(game) {
   if (boss) {
     const healthPercent = Math.max(0, Math.min(100, boss.health / Math.max(1, boss.maxHealth) * 100));
     setWidth('#boss-health-fill', healthPercent);
+    setMeterValue('#boss-hud', healthPercent);
     setText('#boss-health-value', String(Math.ceil(healthPercent)) + '%');
     setText('#boss-phase-label', boss.bossPhase === 3 ? 'FASE III · SOBRECARGA' : boss.bossPhase === 2 ? 'FASE II' : 'FASE I');
     bossHud.setAttribute('aria-valuenow', String(Math.round(healthPercent)));
