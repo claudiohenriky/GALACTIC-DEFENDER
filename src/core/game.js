@@ -928,6 +928,7 @@ export class Game {
     if (enemy.isElite && enemy.eliteShield > 0) {
       const absorbed = Math.min(enemy.eliteShield, amount);
       enemy.eliteShield -= absorbed;
+      if (absorbed > 0) enemy.eliteShieldFlash = 0.42;
       amount -= absorbed;
       if (amount <= 0) return;
     }
