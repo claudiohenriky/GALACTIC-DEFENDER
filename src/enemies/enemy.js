@@ -862,38 +862,93 @@ export class Enemy {
       const deathTime = this.bossDeathTimer;
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      // Five timed internal detonations travel across the hull; all positions are deterministic.
+
+      // Five deterministic internal detonations travel across the hull.
       for (let index = 0; index < 5; index += 1) {
-        const burstAge = deathTime - (0.42 + index * 0.58);
-        if (burstAge < 0 || burstAge > 0.56) continue;
+        const burstStart = 0.42 + index * 0.58;
+        const burstAge = deathTime - burstStart;
         const side = index % 2 === 0 ? -1 : 1;
         const burstX = side * this.radius * (0.22 + (index % 3) * 0.19);
         const burstY = this.radius * (-0.48 + index * 0.22);
-        const fade = 1 - burstAge / 0.56;
-        ctx.globalAlpha = fade * 0.88;
-        ctx.strokeStyle = index % 2 === 0 ? '#ffb45f' : '#8feaff';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(burstX, burstY, 5 + burstAge * 76, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.fillStyle = '#fff0b5';
-        ctx.beginPath();
-        ctx.arc(burstX, burstY, 3 + fade * 5, 0, Math.PI * 2);
-        ctx.fill();
+
+        // A short-lived pressure ring marks each internal detonation.
+        if (burstAge >= 0 && burstAge <= 0.56) {
+          const fade = 1 - burstAge / 0.56;
+          ctx.globalAlpha = fade * 0.88;
+          ctx.strokeStyle = index % 2 === 0 ? '#ffb45f' : '#8feaff';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(burstX, burstY, 5 + burstAge * 76, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Local flame tongues flicker from fixed hull breaches without particle allocation.
+          const flicker = 0.72 + Math.sin(deathTime * 31 + index * 2.1) * 0.18;
+          ctx.globalAlpha = fade * flicker;
+          ctx.fillStyle = '#ff9b45';
+          ctx.beginPath();
+          ctx.ellipse(burstX, burstY, 5 + fade * 7, 10 + fade * 15, side * 0.22, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fff0b5';
+          ctx.beginPath();
+          ctx.arc(burstX, burstY, 3 + fade * 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Smoke remains visible after each blast and slowly drifts away from the breach.
+        if (burstAge > 0.08 && burstAge < 2.65) {
+          const smokeAge = burstAge - 0.08;
+          const smokeFade = Math.min(0.48, (1 - smokeAge / 2.65) * 0.42);
+          const drift = smokeAge * (8 + index * 1.2);
+          ctx.globalAlpha = smokeFade;
+          ctx.fillStyle = '#8995a3';
+          ctx.beginPath();
+          ctx.ellipse(
+            burstX + Math.sin(smokeAge * 2.4 + index) * 5,
+            burstY - drift,
+            7 + smokeAge * 5,
+            5 + smokeAge * 4,
+            smokeAge * 0.12,
+            0,
+            Math.PI * 2
+          );
+          ctx.fill();
+          ctx.globalAlpha = smokeFade * 0.52;
+          ctx.fillStyle = '#c1c9d0';
+          ctx.beginPath();
+          ctx.arc(burstX - 4 + Math.cos(smokeAge * 1.8 + index) * 4, burstY - drift - 5, 4 + smokeAge * 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
+
       const finalAge = deathTime - 3.35;
       if (finalAge >= 0) {
         const finalFade = Math.max(0, 1 - finalAge / 1.15);
+        const shockRadius = 12 + finalAge * 145;
+
+        // Two expanding shockwave rings create a stronger final detonation silhouette.
         ctx.globalAlpha = finalFade * 0.9;
         ctx.strokeStyle = '#fff0c2';
         ctx.lineWidth = 4;
         ctx.beginPath();
-        ctx.arc(0, 0, 12 + finalAge * 145, 0, Math.PI * 2);
+        ctx.arc(0, 0, shockRadius, 0, Math.PI * 2);
         ctx.stroke();
+        ctx.globalAlpha = finalFade * 0.58;
+        ctx.strokeStyle = '#ff9b54';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, Math.max(2, shockRadius - 22), 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Bright core flash fades before the hull is removed.
         ctx.globalAlpha = finalFade * 0.22;
         ctx.fillStyle = '#ff9b54';
         ctx.beginPath();
         ctx.arc(0, 0, 9 + finalAge * 54, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = finalFade * 0.34;
+        ctx.fillStyle = '#fff0c2';
+        ctx.beginPath();
+        ctx.arc(0, 0, 5 + finalFade * 13, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
