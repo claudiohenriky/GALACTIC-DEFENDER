@@ -1,3 +1,18 @@
+## Candidata v0.44.0 — Primeiro chefe: nave de guerra pesada
+
+- Branch: `feature/v0.44.0-boss-evolution`, baseada na candidata v0.43.0; PR #77 e `main` permanecem sem merge.
+- Aparição: primeira batalha na onda 10; recorrência a cada cinco ondas a partir daí.
+- Nave: casco muito maior e lento, orientação de armamentos independente do deslocamento, silhueta de encouraçado espacial.
+- Arsenal inicial: dez módulos independentes (metralhadoras, mísseis, lasers leves, canhões de plasma, canhão de energia e suporte).
+- Componentes: estados operacional, danificado, inoperante e destruído; dano direcionado por região de impacto.
+- Escudos: quatro setores regionais; o sistema auxiliar condiciona a recarga.
+- Sobrecarga: uma transformação ao atingir 33% do casco; módulos destruídos são substituídos, danificados/inoperantes recebem reparos emergenciais e o casco retorna a 50%.
+- Ataques: pressão contínua de lasers/metralhadoras, mísseis de trajetória lenta, plasma de alto impacto e canhão principal.
+- Visual: primeira composição de nave de guerra em Canvas; pixel art final, fumaça/partículas avançadas, entrada cinematográfica e destruição completa ainda pendentes.
+- Arena: expansão real do espaço jogável e ajuste da câmera permanecem pendentes; não confundir zoom visual com aumento dos limites do mundo.
+- Validação: revisar colisões, ordem de absorção de escudos/dano de módulos/casco, frequência dos ataques, acessibilidade mobile e custo de renderização. Nenhum teste de navegador ou FPS foi executado nesta etapa.
+- Não mesclar em `main` sem aprovação explícita.
+
 ## Candidata v0.43.0 — Evolução da IA inimiga
 
 - Branch: `feature/v0.43.0-enemy-ai-evolution`, baseada no commit da candidata v0.42.1; PR #76 e `main` permanecem sem merge.
