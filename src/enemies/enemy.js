@@ -615,6 +615,27 @@ export class Enemy {
             ctx.fill();
             ctx.globalAlpha = 1;
           }
+          if (module.sparks > 0.08) {
+            const sparkPhase = this.phase * 19 + mx * 0.7 + my;
+            const sparkAlpha = Math.min(0.9, module.sparks);
+            ctx.globalAlpha = sparkAlpha;
+            ctx.strokeStyle = '#ffe2a3';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(mx - 5 + Math.sin(sparkPhase) * 3, my - 3);
+            ctx.lineTo(mx - 1 + Math.sin(sparkPhase + 1.2) * 4, my - 8);
+            ctx.moveTo(mx + 3, my + 2);
+            ctx.lineTo(mx + 7 + Math.cos(sparkPhase) * 3, my - 3);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+          if (module.repairGlow > 0.08) {
+            ctx.globalAlpha = module.repairGlow * (0.55 + damagePulse * 0.12);
+            ctx.strokeStyle = '#78f4ff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(mx - moduleHalfSize - 3, my - moduleHalfSize - 3, moduleSize + 6, moduleSize + 6);
+            ctx.globalAlpha = 1;
+          }
         }
 
         // Scalar arc bounds avoid allocating four temporary arrays on every boss draw.
@@ -641,6 +662,14 @@ export class Enemy {
           ctx.beginPath();
           ctx.arc(0, 0, radius * 1.38, arcStart, arcEnd);
           ctx.stroke();
+          if (shield.repairGlow > 0.08) {
+            ctx.globalAlpha = shield.repairGlow * 0.72;
+            ctx.strokeStyle = '#b4f8ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 1.48, arcStart, arcEnd);
+            ctx.stroke();
+          }
           ctx.globalAlpha = 1;
         }
       }
