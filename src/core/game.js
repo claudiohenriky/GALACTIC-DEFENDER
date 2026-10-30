@@ -34,6 +34,7 @@ export class Game {
     this.guardianAssignmentTimer = 0;
     this.projectiles = [];
     this.guidedMissiles = [];
+    this.guidedMissileTargetReservations = new Set();
     this.guidedMissileCooldown = 0;
     this.guidedMissileCooldownMax = 12;
     this.pendingGuidedMissileLaunch = null;
@@ -1240,7 +1241,8 @@ export class Game {
       }
     }
     // Build target reservations once per frame instead of rescanning every missile for every candidate enemy.
-    const reservedMissileTargets = new Set();
+    const reservedMissileTargets = this.guidedMissileTargetReservations;
+    reservedMissileTargets.clear();
     for (const missile of this.guidedMissiles) {
       if (missile.active && missile.target?.active) reservedMissileTargets.add(missile.target);
     }
