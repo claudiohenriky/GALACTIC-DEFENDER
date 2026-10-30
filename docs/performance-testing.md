@@ -110,3 +110,13 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Confirmar uma única concessão de pontuação/XP/conquista/progresso de missão.
 - [ ] Verificar se a câmera retorna suavemente ao zoom normal após a remoção.
 - [ ] Perfil de desempenho no celular e desktop; não há FPS medido nesta revisão.
+
+
+## HUD tático do chefe — candidata v0.44.0
+
+- [x] Indicadores de casco, quatro escudos e dez módulos atualizados na mesma cadência limitada da HUD existente.
+- [x] Atualização dos indicadores usa referências DOM existentes e altera apenas atributos/textos/estilos quando os valores mudam.
+- [x] Não há criação de elementos DOM, arrays temporários ou partículas no caminho de atualização do HUD.
+- [ ] Verificar legibilidade e sobreposição em telas pequenas, celulares em paisagem e desktop.
+- [ ] Conferir em gameplay a transição de escudo operacional para danificado/inoperante e a reconstrução após sobrecarga.
+- [ ] Confirmar que o resumo de módulos acompanha corretamente os estados dos dez componentes.
