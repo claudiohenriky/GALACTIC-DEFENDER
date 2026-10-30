@@ -15,6 +15,7 @@
 - Reforça a identidade de encouraçado: reposicionamento lento e limitado, rotação gradual de 0,85 rad/s e hitbox de colisão ampliada para acompanhar a silhueta blindada, permitindo ao jogador flanquear e atacar os setores regionais.
 - Aplica a hitbox ampliada também aos testes circulares exatos de impacto, garantindo consistência entre a rejeição rápida e a colisão efetiva.
 - Adiciona uma destruição em etapas para o encouraçado: cinco detonações locais e uma explosão final temporizada; o chefe interrompe ataques, movimento e colisões durante a sequência, e só então concede pontuação, XP, progresso de missão e conquista uma única vez.
+- Refina a destruição com chamas localizadas, fumaça persistente e duas ondas de choque na explosão final; os efeitos usam cinco posições determinísticas e não instanciam partículas por quadro.
 - Mísseis guiados deixam de selecionar ou perseguir o chefe após o início da destruição; os efeitos são desenhados deterministicamente, sem criar partículas por quadro.
 - Amplia os gatilhos da validação automatizada para executar também na branch candidata e em PRs direcionadas à base de desenvolvimento; a validação inclui sintaxe JS, resolução de imports relativos e whitespace do diff.
 - Validação automatizada aprovada no HEAD atual: sintaxe de todos os módulos JavaScript, resolução dos imports relativos e verificação de whitespace do diff.
