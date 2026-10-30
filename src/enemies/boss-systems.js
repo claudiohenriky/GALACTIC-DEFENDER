@@ -43,14 +43,16 @@ export class BossSystems {
     }));
     // The auxiliary generator is stable for this boss lifetime; cache its reference
     // instead of searching the module array on every simulation frame.
-    this.shieldGenerator = this.modules.find((module) => module.id === 'auxiliary-system') || null;
+    this.moduleById = new Map(this.modules.map((module) => [module.id, module]));
+    this.shieldById = new Map(this.shields.map((shield) => [shield.id, shield]));
+    this.shieldGenerator = this.moduleById.get('auxiliary-system') || null;
     this.overloadUsed = false;
     this.rebuildTimer = 0;
     this.rebuildComplete = false;
   }
 
   getModule(moduleId) {
-    return this.modules.find((module) => module.id === moduleId) || null;
+    return this.moduleById.get(moduleId) || null;
   }
 
   damageModule(moduleId, amount) {
@@ -81,7 +83,7 @@ export class BossSystems {
   }
 
   damageShield(region, amount) {
-    const shield = this.shields.find((item) => item.id === region);
+    const shield = this.shieldById.get(region) || null;
     if (!shield || amount <= 0 || shield.health <= 0) return { absorbed: 0, remaining: amount };
 
     const absorbed = Math.min(shield.health, amount);
