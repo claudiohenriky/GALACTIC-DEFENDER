@@ -6,7 +6,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
-**Candidata atual para teste:** `0.40.0` — primeira variante de Tropa de Elite: Artilheiro de Elite, com casco escuro e escudo de energia, na branch `feature/v0.40.0-elite-variants`. Surge ocasionalmente a partir da onda 12. A versão requer teste manual; `main` permanece inalterada. A questão do espaço útil da arena em celular na horizontal continua registrada para investigação separada. A candidata anterior v0.39.0 introduz a cooperação tática entre Guardião e Sentinela.
+**Candidata atual para teste geral:** `0.40.1` — refinamento das Tropas de Elite na branch `feature/v0.40.1-elite-polish-performance`. Inclui redução de efeitos contínuos do escudo, entrada identificada, paleta roxa/preta/verde, mobilidade evasiva moderada e prioridade do Guardião às unidades Elite. A correção aguarda validação geral no dispositivo; `main` permanece inalterada. A v0.40.0 foi a primeira prova de conceito do Artilheiro de Elite. A questão da área útil da arena em celular na horizontal segue separada.
 
 **Candidata anterior testada:** `0.31.0` — adiciona o Artilheiro na branch `feature/v0.31.0-artillery-enemy`; o usuário aprovou manualmente a leitura visual, o leque, o equilíbrio, o desempenho percebido e o funcionamento das classes existentes.
 
