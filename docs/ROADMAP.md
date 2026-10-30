@@ -1,3 +1,21 @@
+## Candidata v0.41.0 — Segunda Tropa de Elite: Sentinela de Elite
+
+- Branch: `feature/v0.41.0-sentinel-elite`, baseada na candidata v0.40.1.
+- A Sentinela de Elite surge ocasionalmente a partir da onda 14, sem substituir as Sentinelas normais.
+- Preserva o reposicionamento lateral, a mira no jogador e a cooperação tática com Guardiões.
+- Habilidade especial: salva dupla de plasma com dois projéteis ligeiramente divergentes; cada projétil causa dano reduzido, mantendo dano total próximo ao disparo normal.
+- Identidade visual: casco roxo, placas escuras, núcleo luminoso azul-claro e nome temporário na entrada.
+- O escudo de 8 pontos continua exclusivo do Artilheiro de Elite.
+- Estado: implementação candidata; validar frequência, legibilidade, balanceamento e desempenho no teste manual. Não mesclada em `main`.
+
+## Próxima sequência do sistema Elite
+
+- [x] Artilheiro de Elite — primeira prova de conceito e refinamento visual.
+- [x] Sentinela de Elite — segunda variante, com salva dupla de plasma.
+- [ ] Guardião de Elite — preservar a função de proteção e criar habilidade defensiva própria.
+- [ ] Interceptador de Elite — preservar perseguição veloz e criar habilidade ofensiva própria.
+- [ ] Revisar frequência e balanceamento das quatro variantes após teste geral.
+
 ## Candidata v0.40.1 — Refinamento das Tropas de Elite
 
 - Branch: `feature/v0.40.1-elite-polish-performance`, baseada na candidata v0.40.0.
