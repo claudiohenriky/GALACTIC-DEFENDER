@@ -74,7 +74,7 @@ export class Enemy {
     this.bank += (targetBank - this.bank) * Math.min(1, dt * 8);
   }
 
-  update(dt, targetX, targetY, width, height, playerProjectiles = [], allies = []) {
+  update(dt, targetX, targetY, width, height, playerProjectiles = [], allies = [], cameraTop = 0) {
     const previousX = this.x;
     const previousY = this.y;
     this.contactCooldown = Math.max(0, this.contactCooldown - dt);
@@ -173,10 +173,11 @@ export class Enemy {
       const entranceProgress = 1 - this.bossEntranceTimer / Math.max(0.001, this.bossEntranceDuration);
       const entranceEase = entranceProgress * entranceProgress * (3 - 2 * entranceProgress);
       const horizontalRange = Math.max(0, width * (this.bossPhase === 3 ? 0.25 : 0.20));
-      const patrolX = width / 2 + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange;
+      const patrolX = targetX + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange;
       const desiredY = Math.max(58, Math.min(targetY - Math.max(90, height * 0.18), height * 0.52));
-      const entryY = -this.radius * 1.9 + (desiredY + this.radius * 1.9) * entranceEase;
-      const desiredX = width / 2 + (patrolX - width / 2) * entranceEase;
+      const entryStartY = cameraTop - this.radius * 1.9;
+      const entryY = entryStartY + (desiredY - entryStartY) * entranceEase;
+      const desiredX = targetX + (patrolX - targetX) * entranceEase;
       this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 0.48 : 0.36));
       this.y += (entryY - this.y) * Math.min(1, dt * (this.bossEntranceTimer > 0 ? 1.8 : 0.34));
       this.x = Math.max(this.radius + 4, Math.min(width - this.radius - 4, this.x));
