@@ -402,3 +402,13 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] O feixe considera o raio de colisão da entidade, incluindo o footprint do encouraçado, evitando falsos negativos nas bordas.
 - [ ] Validar em gameplay os contatos tangenciais contra projéteis, inimigos comuns e boss; confirmar que a colisão acompanha a leitura visual.
 - A alteração não modifica valores de dano, cadência, alcance ou duração.
+
+
+## Canhão principal de energia — telemetria visual v0.44.0
+- [x] Ativar a carga visual apenas nas fases II/III e depois da entrada cinematográfica.
+- [x] Exibir progresso de carga no HUD tático, com aviso de energia crítica ao concluir a preparação.
+- [x] Reforçar visualmente o núcleo e o anel do canhão frontal durante carga e alerta.
+- [x] Desativar a telemetria quando o módulo é destruído/inoperante; permitir retomada após reparo/reconstrução.
+- [x] Preservar o canhão como sistema exclusivamente visual: nenhum projétil, dano, feixe ofensivo ou habilidade de Attack Clash é criado.
+- [ ] Validar leitura do indicador e alerta em celular/desktop, incluindo zoom tático 0,5 e preferência de movimento reduzido.
+- [ ] Confirmar em gameplay que o ciclo não altera a cadência dos demais armamentos nem cria dano indireto.
