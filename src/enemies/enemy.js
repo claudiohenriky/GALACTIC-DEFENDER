@@ -101,6 +101,7 @@ export class Enemy {
     this.dodgeTimer = Math.max(0, this.dodgeTimer - dt);
     this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? (this.isElite ? 1.25 : 0.9) : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
     this.eliteSpawnTimer = Math.max(0, this.eliteSpawnTimer - dt);
+    this.eliteShieldFlash = Math.max(0, this.eliteShieldFlash - dt);
 
     // A destroyed dreadnought becomes a non-combat visual entity until its finale completes.
     if (this.type === 'boss' && this.bossDying) {
