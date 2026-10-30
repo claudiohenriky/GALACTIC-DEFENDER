@@ -1,3 +1,18 @@
+## Patch v0.44.1 — Estabilização e legibilidade de combate
+
+- [x] Restringir disparos de cada módulo ao arco, alcance e alinhamento físico da respectiva montagem.
+- [x] Evitar consumir o cooldown de uma salva quando nenhum armamento tem solução de tiro válida.
+- [x] Exibir ❓ na aproximação de ondas de boss e ❗ diante de projéteis pesados com colisão prevista em curto prazo.
+- [x] Prever ameaça usando velocidade relativa, movimento e knockback do jogador.
+- [x] Adicionar cobertura automatizada para as regras de disparo e previsão de ameaça.
+- [ ] Validar os alertas visualmente em celular e desktop, incluindo ausência de spam.
+- [ ] Validar se as armas laterais/traseiras respeitam a posição do jogador durante o combate real.
+- [ ] Auditar sobrecarga, recuperação/ejeção dos módulos, Ruptura, instabilidade do jogador e entrada cinematográfica.
+- [ ] Corrigir apresentação do boss, escaneamento, HUD e posicionamento do monitor FPS/MS.
+- [ ] Validar desempenho e regressões em gameplay real.
+
+**Estado:** implementação inicial do patch em andamento. Nenhum teste real de navegador/gameplay/FPS foi declarado. Não mesclar em `main` sem aprovação explícita.
+
 ## Candidata v0.44.0 — Primeiro chefe: nave de guerra pesada
 
 - Branch: `feature/v0.44.0-boss-evolution`, baseada na candidata v0.43.0; PR #78 e `main` permanecem sem merge.
