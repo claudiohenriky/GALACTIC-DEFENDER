@@ -3,7 +3,7 @@ import { Enemy } from '../enemies/enemy.js?v=0.44.0-cannon-telegraph';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
-import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.44.0';
+import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { WaveManager } from './wave-manager.js?v=0.44.0';
@@ -1550,10 +1550,13 @@ export class Game {
         if (!enemy.active || enemy.bossDying || shot.hitEnemies.has(enemy)) continue;
         // Cheap axis-aligned rejection avoids the squared-distance test for
         // pairs that cannot overlap; the exact circle test remains authoritative.
-        const combinedRadius = (shot.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
-        if (Math.abs(shot.x - enemy.x) >= combinedRadius ||
-            Math.abs(shot.y - enemy.y) >= combinedRadius) continue;
-        if (circlesOverlap(shot, enemy, shot.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0)) {
+        const bossHull = enemy.type === 'boss';
+        const combinedRadius = (shot.radius ?? 0) + (bossHull ? enemy.radius * 2.18 : enemy.collisionRadius ?? enemy.radius ?? 0);
+        if (Math.abs(shot.x - enemy.x) >= combinedRadius || Math.abs(shot.y - enemy.y) >= combinedRadius) continue;
+        const overlaps = bossHull
+          ? orientedEllipseOverlapsCircle(enemy, shot, enemy.radius * 1.42, enemy.radius * 2.18, enemy.facingRotation + Math.PI / 2)
+          : circlesOverlap(shot, enemy, shot.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0);
+        if (overlaps) {
           shot.hitEnemies.add(enemy);
           if (!shot.piercing) shot.active = false;
           this.damageEnemy(enemy, shot.damage ?? 1, shot.x, shot.y);
@@ -1589,10 +1592,13 @@ export class Game {
       if (!missile.active) continue;
       for (const enemy of this.enemies) {
         if (!enemy.active || enemy.bossDying) continue;
-        const combinedRadius = (missile.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
-        if (Math.abs(missile.x - enemy.x) >= combinedRadius ||
-            Math.abs(missile.y - enemy.y) >= combinedRadius) continue;
-        if (circlesOverlap(missile, enemy, missile.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0)) {
+        const bossHull = enemy.type === 'boss';
+        const combinedRadius = (missile.radius ?? 0) + (bossHull ? enemy.radius * 2.18 : enemy.collisionRadius ?? enemy.radius ?? 0);
+        if (Math.abs(missile.x - enemy.x) >= combinedRadius || Math.abs(missile.y - enemy.y) >= combinedRadius) continue;
+        const overlaps = bossHull
+          ? orientedEllipseOverlapsCircle(enemy, missile, enemy.radius * 1.42, enemy.radius * 2.18, enemy.facingRotation + Math.PI / 2)
+          : circlesOverlap(missile, enemy, missile.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0);
+        if (overlaps) {
           missile.active = false;
           this.explodeGuidedMissile(missile);
           break;
@@ -1604,10 +1610,13 @@ export class Game {
     // without instantly destroying enemies or losing all charge in a few frames.
     for (const enemy of this.enemies) {
       if (!enemy.active || enemy.bossDying) continue;
-      const contactRadius = (this.player.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
-      if (Math.abs(this.player.x - enemy.x) >= contactRadius ||
-          Math.abs(this.player.y - enemy.y) >= contactRadius) continue;
-      if (circlesOverlap(this.player, enemy, this.player.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0) && enemy.contactCooldown <= 0) {
+      const bossHull = enemy.type === 'boss';
+      const contactRadius = (this.player.radius ?? 0) + (bossHull ? enemy.radius * 2.18 : enemy.collisionRadius ?? enemy.radius ?? 0);
+      if (Math.abs(this.player.x - enemy.x) >= contactRadius || Math.abs(this.player.y - enemy.y) >= contactRadius) continue;
+      const touchingHull = bossHull
+        ? orientedEllipseOverlapsCircle(enemy, this.player, enemy.radius * 1.42, enemy.radius * 2.18, enemy.facingRotation + Math.PI / 2)
+        : circlesOverlap(this.player, enemy, this.player.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0);
+      if (touchingHull && enemy.contactCooldown <= 0) {
         const shieldWasActive = this.player.shieldHealth > 0;
         enemy.contactCooldown = 0.75;
         // Ordinary enemies can be destroyed by an unshielded ram; bosses must never die from contact alone.

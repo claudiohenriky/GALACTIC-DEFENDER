@@ -15,9 +15,10 @@ export class Enemy {
     this.guardianCoverShieldMax = this.isElite && type === 'guardian' ? 18 : 0;
     this.guardianCoverShield = this.guardianCoverShieldMax;
     this.eliteSpawnTimer = this.isElite ? 1.65 : 0;
-    this.radius = type === 'boss' ? 82 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
-    // Collision footprint follows the full armored silhouette, not only its visual core radius.
-    this.collisionRadius = type === 'boss' ? this.radius * 1.35 : this.radius;
+    this.radius = type === 'boss' ? 100 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
+    // Keep the general movement/separation radius compact; the elongated boss hull
+    // uses an oriented ellipse for projectile and pilot contact tests in Game.
+    this.collisionRadius = type === 'boss' ? this.radius * 1.45 : this.radius;
     this.maxHealth = type === 'boss' ? 360 + level * 12 : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
     this.bossSystems = type === 'boss' ? new BossSystems() : null;
@@ -227,11 +228,13 @@ export class Enemy {
       this.bossEntranceTimer = Math.max(0, this.bossEntranceTimer - dt);
       const entranceProgress = 1 - this.bossEntranceTimer / Math.max(0.001, this.bossEntranceDuration);
       const entranceEase = entranceProgress * entranceProgress * (3 - 2 * entranceProgress);
-      const horizontalRange = Math.min(width * (this.bossPhase === 3 ? 0.14 : 0.11), this.bossPhase === 3 ? 190 : 150);
+      const horizontalRange = Math.min(width * (this.bossPhase === 3 ? 0.22 : 0.17), this.bossPhase === 3 ? 260 : 210);
       // The battleship repositions around the encounter instead of mirroring every player movement.
       // Its slow drift leaves room for the pilot to circle and attack different shield sectors.
       const patrolX = targetX + Math.sin(this.phase * (this.bossPhase === 3 ? 0.62 : 0.42)) * horizontalRange;
-      const desiredY = Math.max(this.collisionRadius + 24, Math.min(targetY - Math.max(145, height * 0.18), height - this.collisionRadius - 30));
+      // Keep the long bow clear of the pilot after the camera widens to the full arena.
+      const bowClearance = this.radius * 2.18 + 38;
+      const desiredY = Math.max(this.collisionRadius + 24, Math.min(targetY - Math.max(bowClearance, height * 0.28), height - this.collisionRadius - 30));
       const entryStartY = cameraTop - this.radius * 1.9;
       const entryY = entryStartY + (desiredY - entryStartY) * entranceEase;
       const desiredX = targetX + (patrolX - targetX) * entranceEase;
@@ -744,6 +747,31 @@ export class Enemy {
       ctx.fillStyle = '#263d53';
       ctx.fillRect(-this.radius * 1.14, -this.radius * 0.18, this.radius * 0.34, this.radius * 0.86);
       ctx.fillRect(this.radius * 0.80, -this.radius * 0.18, this.radius * 0.34, this.radius * 0.86);
+      // Broad side sponsons give the dreadnought a visible flight deck and heavy broadside.
+      for (const side of [-1, 1]) {
+        ctx.fillStyle = '#1b3044'; ctx.strokeStyle = '#7898b2'; ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.moveTo(side * this.radius * 0.55, -this.radius * 0.42);
+        ctx.lineTo(side * this.radius * 1.18, -this.radius * 0.22);
+        ctx.lineTo(side * this.radius * 1.42, this.radius * 0.28);
+        ctx.lineTo(side * this.radius * 1.32, this.radius * 0.88);
+        ctx.lineTo(side * this.radius * 0.86, this.radius * 1.08);
+        ctx.lineTo(side * this.radius * 0.62, this.radius * 0.62);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#49677e'; ctx.globalAlpha = 0.8;
+        ctx.fillRect(side * this.radius * 1.12 - this.radius * 0.035, -this.radius * 0.05, this.radius * 0.07, this.radius * 0.66);
+        ctx.globalAlpha = 1;
+      }
+      // Twin stern engines reinforce the ship's scale and make propulsion direction readable.
+      for (const side of [-1, 1]) {
+        ctx.fillStyle = '#101e30'; ctx.strokeStyle = '#7799b5'; ctx.lineWidth = 1.4;
+        ctx.fillRect(side * this.radius * 0.48 - this.radius * 0.16, this.radius * 1.28, this.radius * 0.32, this.radius * 0.42);
+        ctx.strokeRect(side * this.radius * 0.48 - this.radius * 0.16, this.radius * 1.28, this.radius * 0.32, this.radius * 0.42);
+        ctx.globalAlpha = 0.72 + Math.sin(this.phase * 13 + side) * 0.16;
+        ctx.fillStyle = this.bossPhase === 3 ? '#ff704e' : '#65dfff';
+        ctx.fillRect(side * this.radius * 0.48 - this.radius * 0.07, this.radius * 1.62, this.radius * 0.14, this.radius * 0.18);
+        ctx.globalAlpha = 1;
+      }
       const coreColor = this.bossPhase === 3 ? '#ff704e' : '#55c9ed';
       // Layered solid rectangles replace Canvas shadow blur, which is costly on mobile GPUs.
       ctx.globalAlpha = 0.14;

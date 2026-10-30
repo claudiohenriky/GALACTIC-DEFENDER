@@ -29,6 +29,8 @@ jobs:
             echo "Checking $file"
             node --input-type=module --check < "$file"
           done < <(find . -path './.git' -prune -o -name '*.js' -type f -print0)
+      - name: Run automated gameplay-system unit tests
+        run: node --experimental-default-type=module --test tests/*.mjs
       - name: Check relative module imports
         run: |
           python - <<'PY'

@@ -32,3 +32,16 @@ export function circleOverlapsSegment(circle, startX, startY, endX, endY, radius
   const closestY = startY + segmentY * projection;
   return distanceSquared(circle.x, circle.y, closestX, closestY) <= radius * radius;
 }
+
+
+/** Circle-versus-oriented-ellipse test for elongated ship hulls. */
+export function orientedEllipseOverlapsCircle(ellipse, circle, radiusX, radiusY, rotation = 0) {
+  const dx = circle.x - ellipse.x, dy = circle.y - ellipse.y;
+  const cos = Math.cos(rotation), sin = Math.sin(rotation);
+  const localX = dx * cos + dy * sin, localY = -dx * sin + dy * cos;
+  const circleRadius = Math.max(0, circle.radius ?? 0);
+  const expandedX = Math.max(0, radiusX) + circleRadius;
+  const expandedY = Math.max(0, radiusY) + circleRadius;
+  if (Math.abs(localX) > expandedX || Math.abs(localY) > expandedY) return false;
+  return (localX * localX) / (expandedX * expandedX) + (localY * localY) / (expandedY * expandedY) <= 1;
+}
