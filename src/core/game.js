@@ -1339,7 +1339,7 @@ export class Game {
     }
     // The 2.4x world is fully visible at its calculated minimum zoom (1 / arenaScale).
     // Keep the tactical overview after the boss is defeated until the next run.
-    const targetCameraZoom = bossPresent ? 1.2 : this.bossEncounterSeen ? 0.94 : 1;
+    const targetCameraZoom = bossPresent ? 1.08 : this.bossEncounterSeen ? 0.94 : 1;
     this.cameraZoom += (targetCameraZoom - this.cameraZoom) * Math.min(1, dt * 1.65);
 
     for (let index = 0; index < this.stars.length; index += 1) {
