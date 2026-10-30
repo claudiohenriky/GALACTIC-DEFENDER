@@ -175,6 +175,16 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Testar se os mísseis podem ser evitados e se a guiagem não produz curvas abruptas.
 
 
+
+### Auditoria integrada de combate — revisão estática (30/10/2026)
+- [x] Confirmar que a sequência de destruição interrompe a IA ofensiva do boss, ignora novos danos durante a finalização e concede recompensas somente uma vez após os 8,4 s.
+- [x] Confirmar que projéteis pesados mantêm resistência de Attack Clash proporcional ao dano (faixas padrão: 1, 2 ou 3), e que a resistência é consumida por impactos sucessivos.
+- [x] Confirmar que projéteis guiados atualizam a direção com limite angular por segundo e preservam a velocidade definida.
+- [x] Confirmar que o dano regional consome primeiro o escudo correspondente, direciona o dano excedente ao módulo mais próximo dentro da área de impacto e só então aplica dano ao casco.
+- [x] Confirmar que loops de colisão ignoram entidades inativas/em destruição e que listas de projéteis são compactadas in-place após a resolução.
+- [ ] Validar em gameplay a interação entre Attack Clash e projéteis de plasma/mísseis, incluindo impactos simultâneos e leitura visual da resistência restante.
+- [ ] Executar testes reais de navegador, gameplay mobile/desktop e perfilamento de FPS; esta revisão foi estática e não comprova desempenho medido.
+
 ## Revisão de desempenho do boss — pontos de atenção
 - A simulação do boss ainda percorre módulos e setores de escudo; o conjunto é fixo (10 módulos/4 escudos), portanto o custo é limitado.
 - O HUD do boss usa a cadência de atualização já limitada por `hudUpdateInterval`, sem trabalho DOM novo por frame.
