@@ -89,7 +89,7 @@ export class Enemy {
     // Sentinels use that cover to keep a firing lane behind the Guardian.
     // This changes positioning only, not health, damage, collision, or firing rules.
     let supportAlly = null;
-    let supportDistance = Infinity;
+    let supportDistanceSquared = Infinity;
     if (this.type === 'guardian' || this.type === 'sentinel') {
       let supportPriority = Infinity;
       for (const ally of allies) {
@@ -98,15 +98,18 @@ export class Enemy {
           ? (ally.isElite || ally.type === 'sentinel')
           : ally.type === 'guardian' && (ally.protectedAllies || []).includes(this);
         if (!isPreferredSupport) continue;
+        const offsetX = ally.x - this.x;
+        const offsetY = ally.y - this.y;
+        const allyDistanceSquared = offsetX * offsetX + offsetY * offsetY;
         const priority = this.type === 'guardian' && ally.isElite ? 0 : 1;
-        const allyDistance = Math.hypot(ally.x - this.x, ally.y - this.y);
-        if (priority < supportPriority || (priority === supportPriority && allyDistance < supportDistance)) {
+        if (priority < supportPriority || (priority === supportPriority && allyDistanceSquared < supportDistanceSquared)) {
           supportPriority = priority;
-          supportDistance = allyDistance;
+          supportDistanceSquared = allyDistanceSquared;
           supportAlly = ally;
         }
       }
     }
+    const supportDistance = supportAlly ? Math.sqrt(supportDistanceSquared) : Infinity;
 
     const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'artillery' ? (this.isElite ? 9 : 3) : this.type === 'guardian' ? 2.5 : this.type === 'interceptor' ? 5 : 9);
     let shot = null;
@@ -114,7 +117,8 @@ export class Enemy {
     // Estimate closest approach over a short horizon using relative velocity.
     // Only Sentinel, Artillery and Boss react in this first pass; each has a different response strength.
     if ((this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') && this.dodgeCooldown <= 0) {
-      let bestThreat = null;
+      let hasBestThreat = false;
+      let bestThreatX = 0;
       let bestClearanceSquared = Infinity;
       for (const projectile of playerProjectiles) {
         if (!projectile.active) continue;
@@ -132,11 +136,12 @@ export class Enemy {
         const dangerRadius = this.radius + (projectile.radius ?? 3) + (this.type === 'boss' ? 5 : 12);
         if (clearanceSquared < dangerRadius * dangerRadius && clearanceSquared < bestClearanceSquared) {
           bestClearanceSquared = clearanceSquared;
-          bestThreat = { x: closestX, y: closestY };
+          bestThreatX = closestX;
+          hasBestThreat = true;
         }
       }
-      if (bestThreat && this.dodgeCooldown <= 0) {
-        this.dodgeDirection = bestThreat.x >= 0 ? -1 : 1;
+      if (hasBestThreat && this.dodgeCooldown <= 0) {
+        this.dodgeDirection = bestThreatX >= 0 ? -1 : 1;
         this.dodgeTimer = this.type === 'boss' ? 0.26 : this.type === 'sentinel' ? (this.isElite ? 0.62 : 0.30) : 0.48;
         this.dodgeCooldown = this.type === 'boss' ? 1.8 : this.type === 'sentinel' ? (this.isElite ? 0.72 : 1.45) : this.type === 'artillery' ? 1.25 : 0.95;
       }
