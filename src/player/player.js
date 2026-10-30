@@ -108,7 +108,7 @@ export class Player {
     dy *= controlRecovery;
     inputStrength *= controlRecovery;
     // Movement velocity ramps up smoothly; the attribute improves acceleration without raising top speed.
-    const movementFactor = (this.overloadSpeedFactor ?? 1) * controlRecovery;
+    const movementFactor = this.overloadSpeedFactor ?? 1;
     const targetVelocityX = dx * this.speed * movementFactor;
     const targetVelocityY = dy * this.speed * movementFactor;
     const acceleration = 1800 * (1 + this.propulsionControlLevel * 0.08);
