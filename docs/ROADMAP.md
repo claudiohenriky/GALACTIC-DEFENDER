@@ -7,7 +7,7 @@
 - Componentes: estados operacional, danificado, inoperante e destruído; dano direcionado por região de impacto.
 - Escudos: quatro setores regionais; o sistema auxiliar condiciona a recarga.
 - Sobrecarga: uma transformação ao atingir 33% do casco; módulos destruídos são substituídos, danificados/inoperantes recebem reparos emergenciais e o casco retorna a 50%.
-- Ataques: pressão contínua de lasers/metralhadoras, mísseis de trajetória lenta, plasma de alto impacto e canhão principal.
+- Ataques: pressão de lasers/metralhadoras, mísseis e plasma de alto impacto. O canhão principal de energia permanece em preparação visual/rastreamento, sem disparo danoso até que carga, alerta, janela de reação e contra-jogo sejam implementados e validados.
 - Interface: barra exclusiva de integridade do casco e indicação de fase, atualizadas junto da telemetria já limitada por intervalo.
 - Otimização inicial: seleção do alvo do laser sem ordenação de arrays, checagem de aproximação com distância ao quadrado, reservas de alvos dos mísseis calculadas uma vez por quadro e remoção de `shadowBlur` no núcleo do chefe; ainda sem medição de FPS.
 - Visual: primeira composição de nave de guerra em Canvas; entrada cinematográfica e zoom de câmera implementados. A destruição agora tem cinco detonações locais escalonadas, chamas nas brechas, fumaça persistente e duas ondas de choque na explosão final; a nave permanece visível durante a sequência, sem atacar ou receber dano, e desaparece após a conclusão. Arte final em pixel art e efeitos avançados de fogo/fumaça/faíscas continuam pendentes.
