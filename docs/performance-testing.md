@@ -58,3 +58,8 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Observar se a fluidez piora progressivamente durante a partida.
 - [ ] Confirmar que os controles continuam responsivos.
 - [ ] Não mesclar à `main` sem validação manual e aprovação explícita.
+
+
+- [x] Seleção do aliado de suporte de Guardião/Sentinela compara distâncias ao quadrado e calcula a raiz apenas uma vez para o aliado escolhido; prioridades e desempate por proximidade permanecem iguais.
+- [x] Previsão de esquiva deixa de criar um objeto temporário para cada melhor ameaça; guarda apenas a coordenada horizontal necessária para decidir o lado da manobra.
+- [x] Converter os callbacks de renderização de estrelas, projéteis, inimigos, mísseis e efeitos de ruptura em loops indexados, mantendo a ordem de desenho e a lógica de cada elemento.
