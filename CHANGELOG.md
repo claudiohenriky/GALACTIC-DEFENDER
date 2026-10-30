@@ -679,3 +679,5 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 
 - Boss: canhões de plasma com carga independente e indicador de energia, projétil pesado de alto dano, ruptura imediata do escudo do jogador e repulsão forte no impacto.
 - Combate: Pulso de Ruptura desestabiliza temporariamente inimigos, suspendendo a perseguição durante o recuo; impactos de plasma também comprometem temporariamente o controle de movimento do jogador.
+
+- Corrige a consistência do arsenal: o canhão principal de energia deixa de causar dano/disparar nas fases 2 e 3 enquanto sua preparação visual e seu contra-jogo ainda não estão implementados; o armamento permanece como elemento visual/rastreamento nesta candidata.
