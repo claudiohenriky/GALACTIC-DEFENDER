@@ -8,9 +8,12 @@ export class Enemy {
     // Artillery keeps its 8-point shield; Guardian Elite has a stronger defensive reserve.
     this.eliteMaxShield = this.isElite ? (type === 'artillery' ? 8 : type === 'guardian' ? 12 : 0) : 0;
     this.eliteShield = this.eliteMaxShield;
+    this.protectedAllies = [];
+    this.guardianCoverShieldMax = this.isElite && type === 'guardian' ? 18 : 0;
+    this.guardianCoverShield = this.guardianCoverShieldMax;
     this.eliteSpawnTimer = this.isElite ? 1.65 : 0;
     this.radius = type === 'boss' ? 23 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
-    this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'guardian' ? 7 + level : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
+    this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
     this.bossPhase = 1;
     this.bossPhaseTransition = 0;
@@ -90,7 +93,7 @@ export class Enemy {
         if (ally === this || !ally.active) continue;
         const isPreferredSupport = this.type === 'guardian'
           ? (ally.isElite || ally.type === 'sentinel')
-          : ally.type === 'guardian';
+          : ally.type === 'guardian' && (ally.protectedAllies || []).includes(this);
         if (!isPreferredSupport) continue;
         const priority = this.type === 'guardian' && ally.isElite ? 0 : 1;
         const allyDistance = Math.hypot(ally.x - this.x, ally.y - this.y);
@@ -273,13 +276,15 @@ export class Enemy {
         }
       }
     } else if (this.type === 'guardian') {
-      // A Guardian normally advances on the pilot. Near a Sentinel, it instead
-      // takes a screening position between that ally and the player.
-      if (supportAlly && supportDistance < 280) {
-        const screenX = supportAlly.x + (targetX - supportAlly.x) * 0.45;
-        const screenY = supportAlly.y + (targetY - supportAlly.y) * 0.45;
-        this.x += (screenX - this.x) * Math.min(1, dt * 0.95) + drift * dt;
-        this.y += (screenY - this.y) * Math.min(1, dt * 0.95);
+      // Each Guardian screens its own assigned formation of at most two allies.
+      const formation = (this.protectedAllies || []).filter((ally) => ally.active);
+      if (formation.length) {
+        const centerX = formation.reduce((sum, ally) => sum + ally.x, 0) / formation.length;
+        const centerY = formation.reduce((sum, ally) => sum + ally.y, 0) / formation.length;
+        const screenX = centerX + (targetX - centerX) * 0.45;
+        const screenY = centerY + (targetY - centerY) * 0.45;
+        this.x += (screenX - this.x) * Math.min(1, dt * (this.isElite ? 1.15 : 0.95)) + drift * dt;
+        this.y += (screenY - this.y) * Math.min(1, dt * (this.isElite ? 1.15 : 0.95));
       } else {
         this.x += (dx / distance) * this.speed * dt + drift * dt;
         this.y += (dy / distance) * this.speed * dt;

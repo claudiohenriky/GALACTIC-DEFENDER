@@ -1,15 +1,15 @@
-import { Player } from '../player/player.js?v=0.42.0';
-import { Enemy } from '../enemies/enemy.js?v=0.42.0';
-import { Projectile } from '../combat/projectile.js?v=0.42.0';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.42.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.42.0';
-import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.42.0';
-import { Progression } from '../progression/progression.js?v=0.42.0';
-import { Mission } from '../missions/missions.js?v=0.42.0';
-import { WaveManager } from './wave-manager.js?v=0.42.0';
-import { updateHud } from '../ui/hud.js?v=0.42.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.42.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.42.0';
+import { Player } from '../player/player.js?v=0.42.1';
+import { Enemy } from '../enemies/enemy.js?v=0.42.1';
+import { Projectile } from '../combat/projectile.js?v=0.42.1';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.42.1';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.42.1';
+import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.42.1';
+import { Progression } from '../progression/progression.js?v=0.42.1';
+import { Mission } from '../missions/missions.js?v=0.42.1';
+import { WaveManager } from './wave-manager.js?v=0.42.1';
+import { updateHud } from '../ui/hud.js?v=0.42.1';
+import { gameAudio } from '../audio/game-audio.js?v=0.42.1';
+import { AchievementTracker } from '../progression/achievements.js?v=0.42.1';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -31,6 +31,7 @@ export class Game {
     this.waveManager = new WaveManager();
     this.enemies = [];
     this.eliteAlertsShown = new Set();
+    this.guardianAssignmentTimer = 0;
     this.projectiles = [];
     this.guidedMissiles = [];
     this.guidedMissileCooldown = 0;
@@ -208,6 +209,7 @@ export class Game {
     this.waveManager.reset();
     this.enemies = [];
     this.eliteAlertsShown = new Set();
+    this.guardianAssignmentTimer = 0;
     this.projectiles = [];
     this.guidedMissiles = [];
     this.guidedMissileCooldown = 0;
@@ -807,6 +809,15 @@ export class Game {
 
   damageEnemy(enemy, amount) {
     if (!enemy.active) return;
+    // A protected ally's incoming damage is absorbed by its assigned Elite Guardian's shared barrier.
+    for (const guardian of this.enemies) {
+      if (!guardian.active || !guardian.isElite || guardian.type !== 'guardian' || guardian.guardianCoverShield <= 0 || !(guardian.protectedAllies || []).includes(enemy)) continue;
+      const absorbed = Math.min(guardian.guardianCoverShield, amount);
+      guardian.guardianCoverShield -= absorbed;
+      amount -= absorbed;
+      if (amount <= 0) return;
+      break;
+    }
     // Elite shields absorb incoming damage first; excess damage carries through to hull integrity.
     if (enemy.isElite && enemy.eliteShield > 0) {
       const absorbed = Math.min(enemy.eliteShield, amount);
@@ -1174,6 +1185,30 @@ export class Game {
     }
     this.guidedMissileEffects.length = effectWriteIndex;
     this.enemyProjectiles.forEach((shot) => shot.update(dt));
+
+    // Reassign formations at a low cadence to avoid sorting the enemy roster every frame.
+    this.guardianAssignmentTimer = Math.max(0, this.guardianAssignmentTimer - dt);
+    if (this.guardianAssignmentTimer <= 0) {
+      this.guardianAssignmentTimer = 0.35;
+      // Assign each active Guardian up to two unique allies. Elite Guardians are assigned first.
+      const guardians = this.enemies
+        .filter((enemy) => enemy.active && enemy.type === 'guardian')
+        .sort((a, b) => Number(b.isElite) - Number(a.isElite));
+      const assignedAllies = new Set();
+      for (const guardian of guardians) {
+        const candidates = this.enemies
+          .filter((ally) => ally.active && ally !== guardian && ally.type !== 'guardian' && ally.type !== 'boss' && !assignedAllies.has(ally))
+          .map((ally) => ({ ally, distance: (ally.x - guardian.x) ** 2 + (ally.y - guardian.y) ** 2 }))
+          .sort((a, b) => (Number(b.ally.type === 'sentinel') - Number(a.ally.type === 'sentinel')) || a.distance - b.distance);
+        guardian.protectedAllies = [];
+        for (let index = 0; index < Math.min(2, candidates.length); index += 1) {
+          const ally = candidates[index].ally;
+          guardian.protectedAllies.push(ally);
+          assignedAllies.add(ally);
+        }
+      }
+    }
+
     this.enemies.forEach((enemy) => {
       const shot = enemy.update(dt, this.player.x, this.player.y, this.width, this.height, this.projectiles, this.enemies);
       if (shot) {
@@ -1358,6 +1393,22 @@ export class Game {
     this.projectiles.forEach((shot) => shot.draw(ctx));
     this.enemyProjectiles.forEach((shot) => shot.draw(ctx));
     this.enemies.forEach((enemy) => enemy.draw(ctx));
+    // Elite Guardian's shared barrier is drawn around each of its assigned allies.
+    for (const guardian of this.enemies) {
+      if (!guardian.active || !guardian.isElite || guardian.type !== 'guardian' || guardian.guardianCoverShield <= 0) continue;
+      const ratio = guardian.guardianCoverShield / Math.max(1, guardian.guardianCoverShieldMax);
+      ctx.save();
+      ctx.strokeStyle = '#83f0c5';
+      ctx.lineWidth = 1.6;
+      ctx.globalAlpha = 0.18 + ratio * 0.38;
+      for (const ally of guardian.protectedAllies || []) {
+        if (!ally.active) continue;
+        ctx.beginPath();
+        ctx.arc(ally.x, ally.y, ally.radius + 11, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
     this.guidedMissileEffects.forEach((effect) => {
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
