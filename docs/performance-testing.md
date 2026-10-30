@@ -227,3 +227,10 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - Alvos de mísseis reservados são limpos junto com a lista de mísseis.
 - Mira de mouse/toque e captura de arrasto são desativadas ao iniciar uma nova partida, evitando herdar direção/pointerId da rodada anterior.
 - [ ] Validar reinício após combate com escudo ativo, mísseis no ar e toque pressionado; confirmar que a nova partida começa sem pulsos, alvos ou direção residual.
+
+
+### Geometria do laser contínuo — auditoria integrada (30/10/2026)
+- Corrigido o teste de interseção do feixe com projéteis inimigos: o raio usado agora soma o raio físico do projétil à meia-largura visual do feixe (7 px).
+- Corrigido o teste de interseção do feixe com inimigos: o raio agora soma o raio de colisão da entidade (incluindo o footprint ampliado do boss) à meia-largura do feixe (13 px).
+- A alteração corrige falsos negativos em interseções visíveis nas bordas; não altera dano, cadência, alcance ou custo de ativação.
+- [ ] Validar visualmente colisões tangenciais do feixe com inimigos pequenos, encouraçado e projéteis inimigos; confirmar que a leitura visual corresponde ao contato.
