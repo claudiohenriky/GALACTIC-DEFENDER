@@ -25,6 +25,7 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Comparações de distância ao quadrado na previsão de esquiva e na separação de mísseis, calculando raiz quadrada somente quando necessária.
 - [x] Remover o desfoque de sombra do núcleo do chefe, substituindo-o por camadas sólidas.
 - [x] Pré-calcular reservas de alvos dos mísseis guiados uma vez por quadro e reutilizar o conjunto, evitando varrer todos os mísseis para cada inimigo candidato.
+- [x] Selecionar os dois aliados de cada Guardião por varredura linear, preservando prioridade de Sentinelas e proximidade sem criar, mapear ou ordenar listas de candidatos.
 - [ ] Auditar o custo de colisões entre projéteis, inimigos e habilidades em ondas avançadas.
 - [ ] Auditar atualizações e desenho de partículas, fumaça, fogo, faíscas, escudos e rastros.
 - [ ] Auditar a IA e a separação espacial quando houver muitos inimigos e projéteis simultâneos.
