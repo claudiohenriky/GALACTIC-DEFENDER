@@ -21,7 +21,13 @@ export class Game {
     const rect = this.canvas.getBoundingClientRect();
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
-    this.player = new Player(this.width, this.height);
+    // The simulation world is larger than the visible canvas; the camera follows the pilot.
+    this.arenaScale = 1.6;
+    this.worldWidth = this.width * this.arenaScale;
+    this.worldHeight = this.height * this.arenaScale;
+    this.cameraX = 0;
+    this.cameraY = 0;
+    this.player = new Player(this.worldWidth, this.worldHeight);
     this.selectedShip = 'vanguard';
     this.player.shipClass = this.selectedShip;
 
@@ -43,8 +49,8 @@ export class Game {
     this.guidedMissileEffects = [];
     this.enemyProjectiles = [];
     this.stars = Array.from({ length: 95 }, () => ({
-      x: Math.random(),
-      y: Math.random(),
+      x: Math.random() * this.worldWidth,
+      y: Math.random() * this.worldHeight,
       size: rand(.5, 1.8),
       speed: rand(.012, .06),
       alpha: rand(.2, .9)
@@ -128,46 +134,49 @@ export class Game {
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
     const isLandscape = this.width > this.height;
+    this.worldWidth = this.width * this.arenaScale;
+    this.worldHeight = this.height * this.arenaScale;
     // The canvas may be measured while its parent menu hides it (1x1 px).
-    // Place the ship at a proper gameplay position once real dimensions are available.
+    // Reposition only when the real viewport appears or its orientation changes.
     if (wasUninitialized || previousLandscape !== isLandscape) {
-      this.player.y = this.height * (isLandscape ? 0.66 : 0.78);
-      this.player.x = this.width / 2;
+      this.player.y = this.worldHeight * (isLandscape ? 0.66 : 0.78);
+      this.player.x = this.worldWidth / 2;
     }
     this.canvas.width = Math.round(this.width * ratio);
     this.canvas.height = Math.round(this.height * ratio);
     this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     this.pixelRatio = ratio;
     this.cacheBackground();
-    this.player.fitToArena(this.width, this.height);
+    this.player.fitToArena(this.worldWidth, this.worldHeight);
+    this.updateCamera(0, true);
     this.renderFrame(0);
   }
 
   cacheBackground() {
     const ratio = this.pixelRatio || 1;
     const canvas = this.backgroundCanvas;
-    canvas.width = this.canvas.width;
-    canvas.height = this.canvas.height;
+    canvas.width = Math.round(this.worldWidth * ratio);
+    canvas.height = Math.round(this.worldHeight * ratio);
     const ctx = canvas.getContext('2d');
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    const bg = ctx.createLinearGradient(0, 0, 0, this.height);
+    const bg = ctx.createLinearGradient(0, 0, 0, this.worldHeight);
     bg.addColorStop(0, '#071126');
     bg.addColorStop(1, '#050813');
     ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, this.width, this.height);
+    ctx.fillRect(0, 0, this.worldWidth, this.worldHeight);
     ctx.strokeStyle = '#1a3450';
     ctx.globalAlpha = 0.45;
     ctx.lineWidth = 1;
-    for (let x = 0; x < this.width; x += 42) {
+    for (let x = 0; x < this.worldWidth; x += 42) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
-      ctx.lineTo(x, this.height);
+      ctx.lineTo(x, this.worldHeight);
       ctx.stroke();
     }
-    for (let y = 0; y < this.height; y += 42) {
+    for (let y = 0; y < this.worldHeight; y += 42) {
       ctx.beginPath();
       ctx.moveTo(0, y);
-      ctx.lineTo(this.width, y);
+      ctx.lineTo(this.worldWidth, y);
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
@@ -205,7 +214,9 @@ export class Game {
     if (this.achievements && this.waveManager) {
       this.achievements.recordRun(this.score, this.waveManager.wave);
     }
-    this.player = new Player(this.width, this.height);
+    this.player = new Player(this.worldWidth, this.worldHeight);
+    this.cameraX = 0;
+    this.cameraY = 0;
     this.player.shipClass = this.selectedShip || 'vanguard';
     this.progression = new Progression();
     this.mission = new Mission();
@@ -978,11 +989,34 @@ export class Game {
     ctx.restore();
   }
 
+  updateCamera(dt, snap = false) {
+    const zoom = Math.max(0.5, this.cameraZoom || 1);
+    const halfViewWidth = this.width / (2 * zoom);
+    const halfViewHeight = this.height / (2 * zoom);
+    const minX = halfViewWidth - this.width / 2;
+    const minY = halfViewHeight - this.height / 2;
+    const maxX = Math.max(minX, this.worldWidth - halfViewWidth - this.width / 2);
+    const maxY = Math.max(minY, this.worldHeight - halfViewHeight - this.height / 2);
+    const targetX = Math.max(minX, Math.min(maxX, this.player.x - this.width / 2));
+    const targetY = Math.max(minY, Math.min(maxY, this.player.y - this.height / 2));
+    if (snap) {
+      this.cameraX = targetX;
+      this.cameraY = targetY;
+      return;
+    }
+    const follow = Math.min(1, Math.max(0, dt) * 5.5);
+    this.cameraX += (targetX - this.cameraX) * follow;
+    this.cameraY += (targetY - this.cameraY) * follow;
+  }
+
   screenToWorld(screenX, screenY) {
     const zoom = Math.max(0.5, this.cameraZoom || 1);
     const centerX = this.width / 2;
     const centerY = this.height / 2;
-    return { x: centerX + (screenX - centerX) / zoom, y: centerY + (screenY - centerY) / zoom };
+    return {
+      x: centerX + this.cameraX + (screenX - centerX) / zoom,
+      y: centerY + this.cameraY + (screenY - centerY) / zoom
+    };
   }
 
   setAimFromPointer(event) {
@@ -993,8 +1027,8 @@ export class Game {
       (event.clientX - rect.left) * this.width / rect.width,
       (event.clientY - rect.top) * this.height / rect.height
     );
-    this.aim.x = Math.max(0, Math.min(this.width, point.x));
-    this.aim.y = Math.max(0, Math.min(this.height, point.y));
+    this.aim.x = Math.max(0, Math.min(this.worldWidth, point.x));
+    this.aim.y = Math.max(0, Math.min(this.worldHeight, point.y));
     this.aim.active = true;
   }
 
@@ -1005,8 +1039,8 @@ export class Game {
       (event.clientX - rect.left) * this.width / rect.width,
       (event.clientY - rect.top) * this.height / rect.height
     );
-    this.touchAim.x = Math.max(0, Math.min(this.width, point.x));
-    this.touchAim.y = Math.max(0, Math.min(this.height, point.y));
+    this.touchAim.x = Math.max(0, Math.min(this.worldWidth, point.x));
+    this.touchAim.y = Math.max(0, Math.min(this.worldHeight, point.y));
     this.touchAim.active = true;
   }
 
@@ -1129,16 +1163,17 @@ export class Game {
 
     for (let index = 0; index < this.stars.length; index += 1) {
       const star = this.stars[index];
-      star.y += star.speed * dt;
-      if (star.y > 1) {
+      star.y += star.speed * dt * this.worldHeight;
+      if (star.y > this.worldHeight) {
         star.y = 0;
-        star.x = Math.random();
+        star.x = Math.random() * this.worldWidth;
       }
     }
 
     const mobileMode = document.documentElement.dataset.platform === 'mobile';
     const aimAngle = this.getAimAngle(mobileMode);
-    this.player.update(dt, this.keys, this.width, this.height, this.joystick, aimAngle, !mobileMode);
+    this.player.update(dt, this.keys, this.worldWidth, this.worldHeight, this.joystick, aimAngle, !mobileMode);
+    this.updateCamera(dt);
     this.levelUpToastTimer = Math.max(0, this.levelUpToastTimer - dt);
     const previousDamageFeedbackTimer = this.damageFeedbackTimer;
     this.damageFeedbackTimer = Math.max(0, this.damageFeedbackTimer - dt);
@@ -1204,8 +1239,14 @@ export class Game {
     // WaveManager decides when an enemy should spawn and when the next wave begins.
     if (this.waveManager.update(dt, this.enemies.length)) {
       const bossWave = this.waveManager.wave >= 10 && this.waveManager.wave % 5 === 0;
-      const margin = Math.min(20, this.width / 2);
-      const spawnX = bossWave ? this.width / 2 : rand(margin, Math.max(margin, this.width - margin));
+      const zoom = Math.max(0.5, this.cameraZoom || 1);
+      const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * zoom);
+      const viewTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
+      const visibleWidth = this.width / zoom;
+      const margin = Math.min(20, visibleWidth / 2);
+      const spawnX = bossWave
+        ? this.width / 2 + this.cameraX
+        : rand(viewLeft + margin, Math.max(viewLeft + margin, viewLeft + visibleWidth - margin));
       const roll = Math.random();
       const type = bossWave ? 'boss'
         : this.waveManager.wave >= 4 && roll < 0.12 ? 'artillery'
@@ -1219,7 +1260,8 @@ export class Game {
         (this.waveManager.wave >= 14 && type === 'sentinel' && Math.random() < 0.30) ||
         (this.waveManager.wave >= 16 && type === 'guardian' && Math.random() < 0.24)
       );
-      this.enemies.push(new Enemy(spawnX, bossWave ? -180 : -20, this.waveManager.wave, type, isElite));
+      const spawnY = bossWave ? viewTop - 180 : viewTop + 20;
+      this.enemies.push(new Enemy(spawnX, spawnY, this.waveManager.wave, type, isElite));
       if (bossWave) {
         this.showRewardBanner('NAVE INIMIGA DE GRANDE PORTE DETECTADA', 'ALERTA · CONTATO HOSTIL DE GRANDE PORTE NA ÁREA', 'boss');
       }
@@ -1275,7 +1317,7 @@ export class Game {
       if (missile.active && missile.target?.active) reservedMissileTargets.add(missile.target);
     }
     for (let index = 0; index < this.guidedMissiles.length; index += 1) {
-      this.guidedMissiles[index].update(dt, this.enemies, this.width, this.height, this.guidedMissiles, reservedMissileTargets);
+      this.guidedMissiles[index].update(dt, this.enemies, this.worldWidth, this.worldHeight, this.guidedMissiles, reservedMissileTargets);
     }
     let effectWriteIndex = 0;
     for (const effect of this.guidedMissileEffects) {
@@ -1337,7 +1379,7 @@ export class Game {
 
     for (let index = 0; index < this.enemies.length; index += 1) {
       const enemy = this.enemies[index];
-      const shot = enemy.update(dt, this.player.x, this.player.y, this.width, this.height, this.projectiles, this.enemies);
+      const shot = enemy.update(dt, this.player.x, this.player.y, this.worldWidth, this.worldHeight, this.projectiles, this.enemies);
       if (shot) {
         const shots = Array.isArray(shot) ? shot : [shot];
         for (const projectileData of shots) {
@@ -1379,10 +1421,10 @@ export class Game {
         first.y -= pushY * firstShare;
         second.x += pushX * secondShare;
         second.y += pushY * secondShare;
-        first.x = Math.max(first.radius, Math.min(this.width - first.radius, first.x));
-        first.y = Math.max(first.radius, Math.min(this.height - first.radius, first.y));
-        second.x = Math.max(second.radius, Math.min(this.width - second.radius, second.x));
-        second.y = Math.max(second.radius, Math.min(this.height - second.radius, second.y));
+        first.x = Math.max(first.radius, Math.min(this.worldWidth - first.radius, first.x));
+        first.y = Math.max(first.radius, Math.min(this.worldHeight - first.radius, first.y));
+        second.x = Math.max(second.radius, Math.min(this.worldWidth - second.radius, second.x));
+        second.y = Math.max(second.radius, Math.min(this.worldHeight - second.radius, second.y));
       }
     }
 
@@ -1476,8 +1518,8 @@ export class Game {
       const shot = this.projectiles[index];
       if (
         shot.active &&
-        shot.x > -20 && shot.x < this.width + 20 &&
-        shot.y > -20 && shot.y < this.height + 20
+        shot.x > -20 && shot.x < this.worldWidth + 20 &&
+        shot.y > -20 && shot.y < this.worldHeight + 20
       ) {
         this.projectiles[projectileWriteIndex++] = shot;
       }
@@ -1496,8 +1538,8 @@ export class Game {
       const shot = this.enemyProjectiles[index];
       if (
         shot.active &&
-        shot.x > -20 && shot.x < this.width + 20 &&
-        shot.y > -20 && shot.y < this.height + 20
+        shot.x > -20 && shot.x < this.worldWidth + 20 &&
+        shot.y > -20 && shot.y < this.worldHeight + 20
       ) {
         this.enemyProjectiles[enemyProjectileWriteIndex++] = shot;
       }
@@ -1525,25 +1567,23 @@ export class Game {
     if (!this.ctx || !this.width || !this.height) return;
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
+    const cameraZoom = Math.max(0.5, Math.min(1, this.cameraZoom || 1));
+    ctx.save();
+    ctx.translate(this.width / 2, this.height / 2);
+    ctx.scale(cameraZoom, cameraZoom);
+    ctx.translate(-this.width / 2 - this.cameraX, -this.height / 2 - this.cameraY);
     if (this.backgroundCanvas.width && this.backgroundCanvas.height) {
-      ctx.drawImage(this.backgroundCanvas, 0, 0, this.width, this.height);
+      ctx.drawImage(this.backgroundCanvas, 0, 0, this.worldWidth, this.worldHeight);
     }
 
     for (let index = 0; index < this.stars.length; index += 1) {
       const star = this.stars[index];
       ctx.globalAlpha = star.alpha;
       ctx.fillStyle = '#a9d7ff';
-      ctx.fillRect(star.x * this.width, star.y * this.height, star.size, star.size);
+      ctx.fillRect(star.x, star.y, star.size, star.size);
     }
 
     ctx.globalAlpha = 1;
-    const cameraZoom = Math.max(0.5, Math.min(1, this.cameraZoom || 1));
-    if (cameraZoom < 0.999) {
-      ctx.save();
-      ctx.translate(this.width / 2, this.height / 2);
-      ctx.scale(cameraZoom, cameraZoom);
-      ctx.translate(-this.width / 2, -this.height / 2);
-    }
     if (this.continuousLaserHeld && this.player.continuousLaserLevel > 0) { const dx=Math.cos(this.player.rotation),dy=Math.sin(this.player.rotation),sx=this.player.x+dx*18,sy=this.player.y+dy*18,ex=sx+dx*460,ey=sy+dy*460; ctx.save();ctx.lineCap='round';ctx.globalAlpha=.2;ctx.strokeStyle='#44dfff';ctx.lineWidth=13;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=.92;ctx.strokeStyle='#6eeeff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#eaffff';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore(); }
     for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
     for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx);
@@ -1670,7 +1710,7 @@ export class Game {
       ctx.globalAlpha = flash * 0.16;
       ctx.strokeStyle = '#ff526f';
       ctx.lineWidth = 3;
-      ctx.strokeRect(4, 4, this.width - 8, this.height - 8);
+      ctx.strokeRect(this.cameraX + 4, this.cameraY + 4, this.width - 8, this.height - 8);
       ctx.restore();
     }
 
@@ -1715,6 +1755,6 @@ export class Game {
       ctx.fill();
       ctx.restore();
     }
-    if (cameraZoom < 0.999) ctx.restore();
+    ctx.restore();
   }
 }
