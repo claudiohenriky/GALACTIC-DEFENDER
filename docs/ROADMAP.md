@@ -1,3 +1,10 @@
+## Candidata v0.40.1 — Refinamento das Tropas de Elite
+
+- Branch: `feature/v0.40.1-elite-polish-performance`, baseada na candidata v0.40.0.
+- Ajustes: paleta roxa predominante com placas pretas e detalhes verdes discretos; escudo segmentado inspirado no jogador, mantendo 8 pontos; efeito de entrada e identificação temporária; evasão lateral moderada inspirada na Sentinela; Guardião prioriza unidades Elite ativas antes das Sentinelas.
+- Desempenho: removido o anel completo pulsante contínuo em favor de dois segmentos simples. A causa exata da queda de FPS reportada ainda precisa ser confirmada em teste real.
+- Estado: aguardando validação estática e teste geral posterior; não mesclado em `main`.
+
 ## Candidata v0.40.0 — Artilheiro de Elite
 
 - Implementação inicial registrada em `feature/v0.40.0-elite-variants`.
