@@ -1,6 +1,7 @@
 ## [0.44.0] — Primeiro chefe: nave de guerra pesada (em desenvolvimento)
 
 - Corrige a geometria de colisão do laser contínuo: o teste agora considera o raio real de projéteis inimigos e entidades (incluindo a hitbox ampliada do boss), somado à largura do feixe. Isso evita falsos negativos em interseções visíveis sem alterar dano, cadência ou alcance.
+- Canhão principal frontal: adiciona ciclo visual de carga, progresso no HUD tático e alerta de energia crítica nas fases II/III. Não há disparo, projétil, dano ou habilidade de Clash nesta etapa; é apenas preparação visual e telemetria.
 
 ## [0.43.0] — Evolução da IA inimiga (candidata)
 
