@@ -373,6 +373,12 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Finalização estendida para 8,4 s: o casco perde estabilidade, deriva e gira gradualmente enquanto as detonações percorrem a estrutura; remoção e recompensa continuam no término da sequência.
 - Pendente: validar visualmente o tempo de leitura, a trajetória do destroço e a sobrecarga em gameplay real mobile/desktop.
 
+## Desestabilização cinética — combate e ruptura (30/10/2026)
+- Pulso de ruptura aplica impulso físico aos inimigos e suspende temporariamente perseguição/tiros enquanto o impulso é amortecido; a IA retoma o combate após a recuperação.
+- O bloqueio temporário de steering evita que o inimigo tente avançar imediatamente contra o recuo, removendo a oscilação de aproximação/afastamento descrita no feedback.
+- Impacto de plasma aplica repulsão e reduz temporariamente a autoridade de movimentação do jogador, com recuperação progressiva e aviso de sistemas desestabilizados.
+- Duração inicial: 0,86 s para inimigos comuns, 0,58 s para boss e 1,45 s para o jogador. Valores são parâmetros iniciais e precisam de balanceamento em gameplay.
+
 
 ## Canhões de plasma do encouraçado — identidade de ataque (30/10/2026)
 - Canhões carregam independentemente por montagem, com indicador radial local e núcleo de energia crescente.
