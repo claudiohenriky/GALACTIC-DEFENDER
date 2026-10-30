@@ -168,63 +168,76 @@ export class Enemy {
       if (this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
         const systems = this.bossSystems;
         const modules = systems?.getOperationalModules() || [];
-        const has = (kind) => modules.some((module) => {
-          if (kind === 'machine-gun') return module.kind.includes('machine-gun');
-          if (kind === 'missile') return module.kind.includes('missile') || module.kind.includes('rocket');
-          if (kind === 'light-laser') return module.kind.includes('laser');
-          if (kind === 'plasma-cannon') return module.kind.includes('plasma');
-          if (kind === 'energy-cannon') return module.kind.includes('energy') || module.kind.includes('overload-cannon');
-          return module.kind === kind;
-        });
-        const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
         const shots = [];
-        const makeShot = (angle, options = {}) => ({
-          x: this.x + Math.cos(angle) * this.radius * 0.22,
-          y: this.y - this.radius * 0.82,
-          targetX: this.x + Math.cos(angle) * 520,
-          targetY: this.y + Math.sin(angle) * 520,
-          damage: options.damage ?? 4,
-          speed: options.speed ?? 190,
-          radius: options.radius ?? 4,
-          color: options.color ?? '#73e7ff',
-          glowColor: options.glowColor ?? '#36aee8'
-        });
+        const shipRotation = this.facingRotation + Math.PI / 2;
+        const getMuzzle = (module, forwardOffset = 0.16) => {
+          const localX = module.x * this.radius;
+          const localY = (module.y - forwardOffset) * this.radius;
+          const cos = Math.cos(shipRotation);
+          const sin = Math.sin(shipRotation);
+          return {
+            x: this.x + localX * cos - localY * sin,
+            y: this.y + localX * sin + localY * cos
+          };
+        };
+        const makeShot = (module, options = {}) => {
+          const muzzle = getMuzzle(module, options.forwardOffset ?? 0.16);
+          const angle = Math.atan2(targetY - muzzle.y, targetX - muzzle.x) + (options.angleOffset ?? 0);
+          const speed = options.speed ?? 190;
+          return {
+            x: muzzle.x,
+            y: muzzle.y,
+            targetX: muzzle.x + Math.cos(angle) * 520,
+            targetY: muzzle.y + Math.sin(angle) * 520,
+            damage: options.damage ?? 4,
+            speed,
+            radius: options.radius ?? 4,
+            color: options.color ?? '#73e7ff',
+            glowColor: options.glowColor ?? '#36aee8'
+          };
+        };
 
-        // Light lasers keep pressure on the pilot but remain individually low-damage.
-        if (has('light-laser')) {
-          const laserSpread = this.bossPhase === 3 ? 0.10 : 0.16;
-          shots.push(makeShot(baseAngle - laserSpread, { damage: 2.2, speed: 245, radius: 3, color: '#8df4ff', glowColor: '#32c9ff' }));
-          shots.push(makeShot(baseAngle + laserSpread, { damage: 2.2, speed: 245, radius: 3, color: '#8df4ff', glowColor: '#32c9ff' }));
-        }
-
-        // Heavy machine guns fire short, readable bursts rather than one unavoidable stream.
-        if (has('machine-gun')) {
-          const burst = this.bossPhase === 1 ? 2 : this.bossPhase === 2 ? 3 : 4;
-          for (let index = 0; index < burst; index += 1) {
-            const offset = index - (burst - 1) / 2;
-            shots.push(makeShot(baseAngle + offset * 0.11, { damage: 3.2, speed: 215, radius: 4, color: '#ffd08a', glowColor: '#ff9b45' }));
+        // Every surviving mount now fires from its own physical position.
+        // Destroying one weapon reduces that weapon family's actual output.
+        for (const module of modules) {
+          if (module.kind.includes('light-laser')) {
+            const spread = this.bossPhase === 3 ? 0.045 : 0.075;
+            shots.push(makeShot(module, {
+              damage: 2.2, speed: 245, radius: 3,
+              angleOffset: module.x < 0 ? -spread : spread,
+              color: '#8df4ff', glowColor: '#32c9ff'
+            }));
+          } else if (module.kind.includes('machine-gun')) {
+            const burst = this.bossPhase === 1 ? 2 : this.bossPhase === 2 ? 3 : 4;
+            for (let index = 0; index < burst; index += 1) {
+              const offset = index - (burst - 1) / 2;
+              shots.push(makeShot(module, {
+                damage: 3.2, speed: 215, radius: 4,
+                angleOffset: offset * 0.075,
+                color: '#ffd08a', glowColor: '#ff9b45'
+              }));
+            }
+          } else if (module.kind.includes('missile') || module.kind.includes('rocket')) {
+            const spread = this.bossPhase === 3 ? 0.12 : 0.19;
+            shots.push(makeShot(module, {
+              damage: 9, speed: 118, radius: 7,
+              angleOffset: module.x < 0 ? -spread : spread,
+              color: '#d7b6ff', glowColor: '#9d6cff'
+            }));
+          } else if (module.kind.includes('plasma')) {
+            shots.push(makeShot(module, {
+              damage: 16, speed: 108, radius: 9,
+              color: '#ff9b62', glowColor: '#ff5d32'
+            }));
+          } else if (module.kind.includes('energy') || module.kind.includes('overload-cannon')) {
+            if (this.bossPhase >= 2) {
+              shots.push(makeShot(module, {
+                damage: this.bossPhase === 3 ? 23 : 18,
+                speed: 145, radius: 12,
+                color: '#ff6b9d', glowColor: '#ff2f70'
+              }));
+            }
           }
-        }
-
-        // Missile pods launch slow, strongly telegraphed aimed projectiles that can be outmaneuvered.
-        if (has('missile')) {
-          const missileSpread = this.bossPhase === 3 ? 0.22 : 0.30;
-          shots.push(makeShot(baseAngle - missileSpread, { damage: 9, speed: 118, radius: 7, color: '#d7b6ff', glowColor: '#9d6cff' }));
-          shots.push(makeShot(baseAngle + missileSpread, { damage: 9, speed: 118, radius: 7, color: '#d7b6ff', glowColor: '#9d6cff' }));
-        }
-
-        // Plasma cannons are slow and heavy; their impact can break the player's shield.
-        if (has('plasma-cannon')) {
-          const plasmaCount = this.bossPhase === 3 ? 2 : 1;
-          for (let index = 0; index < plasmaCount; index += 1) {
-            const angle = baseAngle + (index - (plasmaCount - 1) / 2) * 0.24;
-            shots.push(makeShot(angle, { damage: 16, speed: 108, radius: 9, color: '#ff9b62', glowColor: '#ff5d32' }));
-          }
-        }
-
-        // The central cannon charges into the final phase and fires a heavy, readable energy bolt.
-        if (has('energy-cannon') && this.bossPhase >= 2) {
-          shots.push(makeShot(baseAngle, { damage: this.bossPhase === 3 ? 23 : 18, speed: 145, radius: 12, color: '#ff6b9d', glowColor: '#ff2f70' }));
         }
 
         this.fireCooldown = this.bossPhase === 1 ? 2.35 : this.bossPhase === 2 ? 2.05 : 1.7;
