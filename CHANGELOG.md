@@ -1,3 +1,11 @@
+## [0.44.3] — Enquadramento e armamentos do boss (em validação)
+
+- Zoom durante o confronto ajustado para 1,2×: mantém o chefe em destaque sem aproximar tanto a câmera.
+- Após a derrota, o enquadramento retorna para 0,94×, uma redução pequena em relação à visão inicial, sem afastamento excessivo.
+- Aumentado o impulso dos impactos de plasma para tornar o recuo perceptível; valores distintos permanecem para acerto com e sem escudo.
+- Projéteis dos módulos agora surgem deslocados para fora do casco ao longo do vetor real de disparo, reduzindo disparos que atravessam a própria nave.
+- Padrões de ataque completos, cadência individual por módulo, entrada cinematográfica e varredura do boss continuam pendentes de implementação e validação.
+
 ## [0.44.2] — Ajustes de impacto e legibilidade do boss (em validação)
 
 - Impactos de plasma agora aplicam impulso substancialmente maior e mantêm a desestabilização por 2,1 segundos; o controle de propulsão fica muito mais limitado no início da recuperação.
