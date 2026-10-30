@@ -1,4 +1,4 @@
-import { BossSystems } from './boss-systems.js?v=0.44.0';
+import { BossSystems } from './boss-systems.js?v=0.44.0-cannon-telegraph';
 
 export class Enemy {
   constructor(x, y, level = 1, type = 'chaser', isElite = false) {
@@ -279,6 +279,43 @@ export class Enemy {
             : module.kind.includes('plasma') ? 0.82
               : module.kind.includes('missile') || module.kind.includes('rocket') ? 1.05 : 1.35;
           module.turretAngle = (module.turretAngle ?? 0) + Math.max(-turnSpeed * dt, Math.min(turnSpeed * dt, delta));
+        }
+      }
+
+      // The main cannon is a telegraphed future threat only: this cycle charges and warns,
+      // but deliberately creates no projectile and applies no damage in v0.44.0.
+      const mainCannon = turretSystems?.getModule('main-energy-cannon');
+      if (mainCannon) {
+        const cannonAvailable = mainCannon.state !== 'destroyed' && mainCannon.state !== 'disabled';
+        if (!cannonAvailable) {
+          mainCannon.energyState = 'offline';
+          mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
+          mainCannon.energyWarningTimer = 0;
+          mainCannon.energyCooldownTimer = 0;
+        } else if (this.bossPhase < 2 || this.bossEntranceTimer > 0) {
+          mainCannon.energyState = 'standby';
+          mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
+          mainCannon.energyWarningTimer = 0;
+          mainCannon.energyCooldownTimer = 0;
+        } else if (mainCannon.energyState === 'standby' || mainCannon.energyState === 'offline') {
+          mainCannon.energyState = 'charging';
+          mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
+        } else if (mainCannon.energyState === 'charging') {
+          mainCannon.energyChargeTimer = Math.max(0, mainCannon.energyChargeTimer - dt);
+          if (mainCannon.energyChargeTimer === 0) {
+            mainCannon.energyState = 'warning';
+            mainCannon.energyWarningTimer = mainCannon.energyWarningDuration;
+          }
+        } else if (mainCannon.energyState === 'warning') {
+          mainCannon.energyWarningTimer = Math.max(0, mainCannon.energyWarningTimer - dt);
+          if (mainCannon.energyWarningTimer === 0) {
+            mainCannon.energyState = 'cooldown';
+            mainCannon.energyCooldownTimer = mainCannon.energyCooldownDuration;
+            mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
+          }
+        } else if (mainCannon.energyState === 'cooldown') {
+          mainCannon.energyCooldownTimer = Math.max(0, mainCannon.energyCooldownTimer - dt);
+          if (mainCannon.energyCooldownTimer === 0) mainCannon.energyState = 'charging';
         }
       }
 
@@ -895,6 +932,27 @@ export class Enemy {
               ctx.fill();
               ctx.restore();
             }
+          }
+
+          if (module.id === 'main-energy-cannon' && module.state !== 'destroyed' && module.state !== 'disabled' &&
+              (module.energyState === 'charging' || module.energyState === 'warning')) {
+            const warning = module.energyState === 'warning';
+            const chargeRatio = warning ? 1 : 1 - module.energyChargeTimer / Math.max(0.1, module.energyChargeDuration);
+            const pulse = 0.78 + Math.sin(this.phase * (warning ? 18 : 10)) * 0.16;
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = (warning ? 0.9 : 0.25 + chargeRatio * 0.55) * pulse;
+            ctx.strokeStyle = warning ? '#ff684f' : '#72eaff';
+            ctx.lineWidth = warning ? 2.8 : 1.4 + chargeRatio * 1.8;
+            ctx.beginPath();
+            ctx.arc(mx, my, moduleHalfSize + 5 + chargeRatio * 9, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.08, chargeRatio));
+            ctx.stroke();
+            ctx.fillStyle = warning ? '#ffb08a' : '#c8f8ff';
+            ctx.globalAlpha = (warning ? 0.85 : 0.18 + chargeRatio * 0.58) * pulse;
+            ctx.beginPath();
+            ctx.arc(mx, my, 2 + chargeRatio * 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
           }
           if (module.transitionTimer > 0) {
             const transitionProgress = 1 - module.transitionTimer / (module.transitionType === 'replacement' ? 2.2 : module.transitionType === 'rebuild' ? 1.8 : 1.35);
