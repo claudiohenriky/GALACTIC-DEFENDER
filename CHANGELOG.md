@@ -1,3 +1,10 @@
+## [0.44.1] — Continuação da estabilização do boss
+
+- Módulos destruídos catastroficamente agora geram destroços independentes que se desprendem do casco e se afastam durante a sobrecarga; módulos recuperáveis continuam sendo reconstruídos no encaixe original.
+- O aviso após impacto pesado agora informa que os sistemas estão em estabilização, correspondendo à janela de recuperação de controle.
+- Adicionado teste de regressão para ejeção de módulos catastróficos e reconstrução de módulos recuperáveis.
+- Testes visuais e gameplay em navegador ainda precisam ser realizados.
+
 ## [0.44.1] — Estabilização do combate do encouraçado (em desenvolvimento)
 
 - Armamentos do boss agora só podem disparar quando o alvo está dentro do arco físico da montagem, dentro do alcance efetivo e com a torre suficientemente alinhada; isso impede disparos de setores laterais/traseiros sem linha de tiro válida.
