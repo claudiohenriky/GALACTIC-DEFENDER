@@ -40,6 +40,8 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Corrigir a dissipação de fumaça residual em módulos substituídos: efeitos agora continuam decaindo mesmo depois que o armamento volta ao estado operacional.
 - [x] Implementar entrada inicial do chefe com spawn acima da tela, descida suavizada por smoothstep, anel de detecção e bloqueio dos disparos durante a aproximação.
 - [x] Adicionar zoom de câmera suave durante encontros com o chefe e converter mira de mouse/toque para coordenadas do mundo.
+- [x] Revisar a IA de unidades de longo alcance na arena ampliada: Artilheiro agora mantém sua faixa lateral relativa ao jogador, em vez de convergir para o centro global do mundo.
+- [x] Corrigir a posição vertical desejada do chefe para acompanhar a posição do jogador em toda a extensão da arena, sem ficar preso ao meio global do mapa quando o combate ocorre perto do limite inferior.
 - [ ] Validar visualmente o zoom em celular e desktop, incluindo mira manual, bordas do cenário e transição após a derrota do chefe.
 - [ ] Refinar a arte/variedade dos efeitos e revisar o custo visual com o chefe em combate.
 - [ ] Auditar a IA e a separação espacial quando houver muitos inimigos e projéteis simultâneos.
