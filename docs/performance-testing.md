@@ -101,6 +101,13 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 **Validação pendente:** limites e transformações foram revisados estaticamente; a suíte de sintaxe/imports passou no CI. Ainda é necessário testar gameplay real em celular e desktop. Não há medição de FPS para esta alteração. Verificar principalmente movimentação até as quatro bordas, mira por toque/mouse, entrada do chefe, colisões e limpeza de projéteis.
 
 
+## Revisão da finalização cinematográfica — 30/10/2026
+
+- A sequência de 8,4 s distribui sete detonações determinísticas ao longo do eixo completo do casco, da proa à seção traseira, em vez de concentrar as explosões na região central.
+- O deslocamento visual não aplica mais um segundo offset sobre a posição já integrada no update; isso evita amplificar artificialmente a deriva do destroço.
+- Os efeitos continuam usando desenho Canvas determinístico e coordenadas fixas, sem criar arrays ou partículas por quadro.
+- CI automatizado valida sintaxe/imports/whitespace, mas não confirma aparência, ritmo cinematográfico ou desempenho real.
+
 ## Sequência de destruição do encouraçado — candidata v0.44.0
 
 - Ao chegar a zero de integridade após a transformação de sobrecarga, o chefe entra em estado de destruição e deixa de atacar, receber dano ou servir como alvo de mísseis guiados.
