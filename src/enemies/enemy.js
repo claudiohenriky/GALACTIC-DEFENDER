@@ -174,7 +174,7 @@ export class Enemy {
       const entranceEase = entranceProgress * entranceProgress * (3 - 2 * entranceProgress);
       const horizontalRange = Math.max(0, width * (this.bossPhase === 3 ? 0.25 : 0.20));
       const patrolX = targetX + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange;
-      const desiredY = Math.max(58, Math.min(targetY - Math.max(90, height * 0.18), height * 0.52));
+      const desiredY = Math.max(this.radius + 24, Math.min(targetY - Math.max(90, height * 0.18), height - this.radius - 30));
       const entryStartY = cameraTop - this.radius * 1.9;
       const entryY = entryStartY + (desiredY - entryStartY) * entranceEase;
       const desiredX = targetX + (patrolX - targetX) * entranceEase;
@@ -270,7 +270,7 @@ export class Enemy {
     } else if (this.type === 'artillery') {
       // Artillery keeps a distant firing lane and uses a readable three-shot fan.
       const eliteStrafe = this.isElite ? Math.sin(this.phase * 0.82) * Math.min(width * 0.18, 88) : 0;
-      const desiredX = width / 2 + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150) + eliteStrafe + dodgeStrength;
+      const desiredX = targetX + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150) + eliteStrafe + dodgeStrength;
       const desiredY = Math.max(36, targetY - Math.min(235, height * 0.42));
       this.x += (desiredX - this.x) * Math.min(1, dt * (this.isElite ? 1.05 : 0.8));
       this.y += (desiredY - this.y) * Math.min(1, dt * 1.0);
