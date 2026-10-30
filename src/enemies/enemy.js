@@ -24,6 +24,10 @@ export class Enemy {
     this.bossPhaseTransition = 0;
     this.bossEntranceDuration = type === 'boss' ? 3.2 : 0;
     this.bossEntranceTimer = this.bossEntranceDuration;
+    this.bossDying = false;
+    this.bossDeathTimer = 0;
+    this.bossDeathDuration = 4.5;
+    this.rewardGranted = false;
     this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'boss'
@@ -84,6 +88,12 @@ export class Enemy {
     this.dodgeTimer = Math.max(0, this.dodgeTimer - dt);
     this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? (this.isElite ? 1.25 : 0.9) : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
     this.eliteSpawnTimer = Math.max(0, this.eliteSpawnTimer - dt);
+
+    // A destroyed dreadnought becomes a non-combat visual entity until its finale completes.
+    if (this.type === 'boss' && this.bossDying) {
+      this.bossDeathTimer = Math.min(this.bossDeathDuration, this.bossDeathTimer + dt);
+      return null;
+    }
 
     const dx = targetX - this.x;
     const dy = targetY - this.y;
@@ -441,6 +451,46 @@ export class Enemy {
 
     ctx.save();
     ctx.translate(this.x, this.y);
+    if (boss && this.bossDying) {
+      const deathTime = this.bossDeathTimer;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      // Five timed internal detonations travel across the hull; all positions are deterministic.
+      for (let index = 0; index < 5; index += 1) {
+        const burstAge = deathTime - (0.42 + index * 0.58);
+        if (burstAge < 0 || burstAge > 0.56) continue;
+        const side = index % 2 === 0 ? -1 : 1;
+        const burstX = side * this.radius * (0.22 + (index % 3) * 0.19);
+        const burstY = this.radius * (-0.48 + index * 0.22);
+        const fade = 1 - burstAge / 0.56;
+        ctx.globalAlpha = fade * 0.88;
+        ctx.strokeStyle = index % 2 === 0 ? '#ffb45f' : '#8feaff';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(burstX, burstY, 5 + burstAge * 76, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = '#fff0b5';
+        ctx.beginPath();
+        ctx.arc(burstX, burstY, 3 + fade * 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      const finalAge = deathTime - 3.35;
+      if (finalAge >= 0) {
+        const finalFade = Math.max(0, 1 - finalAge / 1.15);
+        ctx.globalAlpha = finalFade * 0.9;
+        ctx.strokeStyle = '#fff0c2';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, 0, 12 + finalAge * 145, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.globalAlpha = finalFade * 0.22;
+        ctx.fillStyle = '#ff9b54';
+        ctx.beginPath();
+        ctx.arc(0, 0, 9 + finalAge * 54, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
     if (boss && this.bossPhaseTransition > 0) {
       ctx.globalAlpha = 0.55 + Math.sin(this.bossPhaseTransition * 22) * 0.25;
       ctx.strokeStyle = edge;
@@ -673,7 +723,7 @@ export class Enemy {
 
         // Scalar arc bounds avoid allocating four temporary arrays on every boss draw.
         for (const shield of systems.shields) {
-          if (shield.health <= 0) continue;
+          if (shield.health <= 0 || this.bossDying) continue;
           let arcStart = 0;
           let arcEnd = 0;
           if (shield.id === 'front') {
