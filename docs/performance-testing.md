@@ -45,6 +45,8 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Auditar a IA e a separação espacial quando houver muitos inimigos e projéteis simultâneos.
 - [ ] Conferir alocações temporárias e chamadas caras de Canvas no caminho de renderização.
 
+- [x] Corrigir a contenção vertical genérica que prendia o chefe à borda superior durante a entrada: a nave agora pode permanecer fora da área visível até concluir a aproximação, mantendo o limite horizontal e o limite inferior. Esta é uma correção de lógica/entrada, não uma medição de desempenho.
+
 ### Cenários de validação após a auditoria
 
 - [ ] Onda comum com quantidade alta de inimigos e projéteis.
