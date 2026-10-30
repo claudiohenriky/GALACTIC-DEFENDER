@@ -247,7 +247,8 @@ export class Enemy {
         }
       }
 
-      this.fireCooldown -= dt;
+      if (this.bossEntranceTimer <= 0) this.fireCooldown -= dt;
+      else this.fireCooldown = Math.max(this.fireCooldown, 1.8);
       if (this.bossEntranceTimer <= 0 && this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
         const systems = this.bossSystems;
         const modules = systems?.getOperationalModules() || [];
