@@ -53,6 +53,9 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Revisar a separação entre viewport e mundo: referências `this.width/height` restantes em `game.js` pertencem à viewport/câmera/renderização; movimentação, limites e colisões das entidades recebem dimensões do mundo.
 - [x] Conferir a conversão inversa `screenToWorld()` para mira por mouse/toque e os limites de câmera em zoom normal e zoom de chefe.
 
+- [x] Ajustar o encouraçado para deslocamento lento e limitado, com rotação gradual (0,85 rad/s), preservando a fantasia de tanque espacial e a oportunidade de atacar os setores laterais/traseiro.
+- [x] Criar `collisionRadius` próprio para o boss (1,35× o raio visual), usando-o nos limites físicos, separação e colisões de tiros, mísseis e contato; o raio visual continua controlando a arte e os módulos.
+
 ### Cenários de validação após a auditoria
 
 - [ ] Onda comum com quantidade alta de inimigos e projéteis.
@@ -89,7 +92,7 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - A câmera acompanha suavemente a nave do jogador e respeita os limites do mundo, inclusive durante o zoom dinâmico do chefe.
 - Jogador, inimigos, separação espacial, projéteis e mísseis teleguiados usam os limites do mundo expandido; a tela continua sendo apenas a janela de visualização.
 - Mouse e toque são convertidos de coordenadas de tela para coordenadas do mundo considerando posição e zoom da câmera.
-- Inimigos comuns surgem no topo da área atualmente visível; a entrada do chefe usa o topo da câmera e sua patrulha permanece ancorada à posição do jogador.
+- Inimigos comuns surgem no topo da área atualmente visível; a entrada do chefe usa o topo da câmera. O encouraçado mantém reposicionamento e rotação deliberadamente lentos, para não espelhar cada movimento do jogador e permitir flanqueamento.
 - As estrelas usam coordenadas do mundo; o fundo em grade é cacheado no tamanho do viewport e acompanha a câmera sem criar um bitmap do mundo inteiro.
 
 **Validação pendente:** revisão estática dos limites e transformações concluída parcialmente; ainda é necessário executar a suíte de sintaxe/imports e testar gameplay real em celular e desktop. Não há medição de FPS para esta alteração. Verificar principalmente movimentação até as quatro bordas, mira por toque/mouse, entrada do chefe, colisões e limpeza de projéteis.
