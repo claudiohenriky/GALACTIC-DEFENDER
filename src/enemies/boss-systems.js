@@ -134,7 +134,15 @@ export class BossSystems {
       if (module.fire > 0) module.fire = Math.max(0, module.fire - decay * 0.7);
       if (module.sparks > 0) module.sparks = Math.max(0, module.sparks - decay * 1.4);
       if (module.repairGlow > 0) module.repairGlow = Math.max(0, module.repairGlow - dt * 0.48);
-      if (module.transitionTimer > 0) module.transitionTimer = Math.max(0, module.transitionTimer - dt);
+      if (module.transitionTimer > 0) {
+        module.transitionTimer = Math.max(0, module.transitionTimer - dt);
+        if (module.transitionTimer === 0) {
+          // Transition metadata is temporary presentation state; clear it once
+          // the physical repair/rebuild/replacement animation has fully completed.
+          module.transitionType = '';
+          module.transitionFromKind = '';
+        }
+      }
     }
     for (const shield of this.shields) {
       if (shield.repairGlow > 0) shield.repairGlow = Math.max(0, shield.repairGlow - dt * 0.42);
