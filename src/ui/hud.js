@@ -133,10 +133,10 @@ function updateBossHud(boss) {
   if (destroyedModules) moduleDetails.push(`${destroyedModules} DESTR.`);
   setText('#boss-module-summary', `${availableModules}/10 ATIVOS${moduleDetails.length ? ` · ${moduleDetails.join(' · ')}` : ''}`);
 
-  const snapshot = { shields: Object.create(null), modules: Object.create(null) };
+  const snapshot = previous || { shields: Object.create(null), modules: Object.create(null) };
   for (const shield of systems.shields) snapshot.shields[shield.id] = shield.health;
   for (const module of systems.modules) snapshot.modules[module.id] = module.health;
-  bossHudSnapshots.set(boss, snapshot);
+  if (!previous) bossHudSnapshots.set(boss, snapshot);
 }
 
 export function updateHud(game) {
