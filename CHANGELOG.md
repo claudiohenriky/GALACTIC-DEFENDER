@@ -1,3 +1,15 @@
+## [0.44.0] — Primeiro chefe: nave de guerra pesada (em desenvolvimento)
+
+- Amplia a escala física do chefe e introduz uma silhueta de nave de guerra com blindagem, núcleo e módulos visíveis.
+- Adiciona dez módulos independentes de armamento: metralhadoras, lançadores de mísseis, lasers leves, canhões de plasma, canhão principal e sistema auxiliar.
+- Implementa estados de módulo: operacional, danificado, inoperante e destruído; inclui sinais visuais iniciais de fumaça, fogo e faíscas.
+- Adiciona escudos regionais frontais, laterais e traseiro, com recarga condicionada ao sistema auxiliar.
+- Integra padrões de disparo por categoria de armamento, com projéteis leves de pressão, mísseis lentos e canhões de plasma de alto impacto.
+- Ao atingir 33% de casco, o chefe inicia uma única transformação de sobrecarga, reconstrói/substitui módulos e retorna com 50% de integridade.
+- Primeira aparição alterada para a onda 10; recorrência nas ondas 15, 20, 25...
+- Ainda pendentes: expansão real da arena e câmera, entrada cinematográfica completa, arte final em pixel art, telemetria visual de dano, animações de destruição/fuga, interface dedicada, balanceamento, revisão estática e testes de navegador/desempenho.
+- Candidata em desenvolvimento; não mesclada em `main`.
+
 ## [0.43.0] — Evolução da IA inimiga (candidata)
 
 - Rebalanceia a Sentinela normal: esquiva menos frequente e menos intensa, com deslocamento lateral mais contido e reposicionamento menos agressivo.
