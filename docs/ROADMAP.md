@@ -381,6 +381,8 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 
 
 ## Canhões de plasma do encouraçado — identidade de ataque (30/10/2026)
+- [x] Limpar `transitionType` e `transitionFromKind` quando o temporizador de reparo, reconstrução ou substituição termina, evitando metadados visuais obsoletos.
+
 - Canhões carregam independentemente por montagem, com indicador radial local e núcleo de energia crescente.
 - Disparo pesado com projétil alongado, dano alto e impacto de repulsão forte.
 - Ao atingir escudo ativo do jogador, o plasma rompe o escudo imediatamente, dispara o efeito de ruptura existente e aplica forte repulsão; sem escudo, causa dano elevado e repulsão ainda maior.
