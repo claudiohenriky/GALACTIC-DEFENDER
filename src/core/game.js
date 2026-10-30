@@ -1,5 +1,5 @@
 import { Player } from '../player/player.js?v=v0.44.2';
-import { Enemy } from '../enemies/enemy.js?v=v0.44.2';
+import { Enemy } from '../enemies/enemy.js?v=v0.44.3';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
@@ -601,7 +601,7 @@ export class Game {
     }
     const dx = player.x - shot.x, dy = player.y - shot.y;
     const length = Math.hypot(dx, dy) || 1;
-    const impulse = shieldWasActive ? 1420 : 1680;
+    const impulse = shieldWasActive ? 2200 : 2550;
     player.knockbackX += dx / length * impulse;
     player.knockbackY += dy / length * impulse;
     this.triggerSystemDisruption(2.1);
@@ -1339,7 +1339,7 @@ export class Game {
     }
     // The 2.4x world is fully visible at its calculated minimum zoom (1 / arenaScale).
     // Keep the tactical overview after the boss is defeated until the next run.
-    const targetCameraZoom = bossPresent ? 1.1 : this.bossEncounterSeen ? 0.66 : 1;
+    const targetCameraZoom = bossPresent ? 1.2 : this.bossEncounterSeen ? 0.94 : 1;
     this.cameraZoom += (targetCameraZoom - this.cameraZoom) * Math.min(1, dt * 1.65);
 
     for (let index = 0; index < this.stars.length; index += 1) {
