@@ -1447,7 +1447,7 @@ export class Game {
         const combinedRadius = (shot.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
         if (Math.abs(shot.x - enemy.x) >= combinedRadius ||
             Math.abs(shot.y - enemy.y) >= combinedRadius) continue;
-        if (circlesOverlap(shot, enemy)) {
+        if (circlesOverlap(shot, enemy, shot.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0)) {
           shot.hitEnemies.add(enemy);
           if (!shot.piercing) shot.active = false;
           this.damageEnemy(enemy, shot.damage ?? 1, shot.x, shot.y);
@@ -1481,7 +1481,7 @@ export class Game {
         const combinedRadius = (missile.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
         if (Math.abs(missile.x - enemy.x) >= combinedRadius ||
             Math.abs(missile.y - enemy.y) >= combinedRadius) continue;
-        if (circlesOverlap(missile, enemy)) {
+        if (circlesOverlap(missile, enemy, missile.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0)) {
           missile.active = false;
           this.explodeGuidedMissile(missile);
           break;
@@ -1496,7 +1496,7 @@ export class Game {
       const contactRadius = (this.player.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
       if (Math.abs(this.player.x - enemy.x) >= contactRadius ||
           Math.abs(this.player.y - enemy.y) >= contactRadius) continue;
-      if (circlesOverlap(this.player, enemy) && enemy.contactCooldown <= 0) {
+      if (circlesOverlap(this.player, enemy, this.player.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0) && enemy.contactCooldown <= 0) {
         const shieldWasActive = this.player.shieldHealth > 0;
         enemy.contactCooldown = 0.75;
         // Ordinary enemies can be destroyed by an unshielded ram; bosses must never die from contact alone.
