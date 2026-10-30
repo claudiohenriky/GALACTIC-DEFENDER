@@ -168,4 +168,6 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - O HUD do boss usa a cadência de atualização já limitada por `hudUpdateInterval`, sem trabalho DOM novo por frame.
 - O render do encouraçado usa Canvas 2D e formas vetoriais; os novos indicadores de plasma usam apenas arcos/círculos sem `shadowBlur`, filtros ou partículas persistentes.
 - O projétil de plasma reaproveita a lista já existente de projéteis inimigos e o loop de colisão existente; não cria subsistemas de física.
+- Ruptura aplica um estado temporário de desestabilização aos inimigos: a IA suspende perseguição e disparos enquanto o impulso físico é amortecido, evitando o conflito de aproximação/recuo. O estado usa dois escalares de impulso e um temporizador por inimigo, sem listas auxiliares ou tarefas por quadro.
+- Impactos de plasma aplicam desestabilização temporária aos controles do jogador, com recuperação progressiva da autoridade de movimento; a mensagem reutiliza o feedback existente.
 - Ainda é necessária medição real em dispositivos mobile e desktop com o perfil de desempenho ativado; CI não mede FPS.
