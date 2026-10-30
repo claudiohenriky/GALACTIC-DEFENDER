@@ -6,7 +6,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
-**Candidata atual:** `0.42.1` — Guardião de Elite: Égide de Proteção na branch `feature/v0.42.1-guardian-elite-aegis`. Mantém o escudo individual de 12 pontos e adiciona uma barreira externa compartilhada de 18 pontos para até duas tropas; todos os Guardiões passam a receber no máximo duas tropas exclusivas. A barreira é finita e não regenera nesta versão. Aguarda teste manual; `main` permanece inalterada.
+**Candidata em desenvolvimento:** `0.43.0` — Evolução da IA inimiga na branch `feature/v0.43.0-enemy-ai-evolution`. Rebalanceia Sentinela normal e de Elite, reforça a identidade ofensiva/evasiva do Artilheiro de Elite e reduz varreduras desnecessárias de projéteis. Preserva os chefes e as regras de combate. Não mesclada em `main`.
+
+**Candidata anterior:** `0.42.1` — Guardião de Elite: Égide de Proteção na branch `feature/v0.42.1-guardian-elite-aegis`. Mantém o escudo individual de 12 pontos e adiciona uma barreira externa compartilhada de 18 pontos para até duas tropas; todos os Guardiões passam a receber no máximo duas tropas exclusivas. A barreira é finita e não regenera nesta versão. Não mesclada em `main`.
 
 **Candidata anterior testada:** `0.31.0` — adiciona o Artilheiro na branch `feature/v0.31.0-artillery-enemy`; o usuário aprovou manualmente a leitura visual, o leque, o equilíbrio, o desempenho percebido e o funcionamento das classes existentes.
 

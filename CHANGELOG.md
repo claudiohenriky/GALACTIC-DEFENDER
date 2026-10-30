@@ -1,3 +1,12 @@
+## [0.43.0] — Evolução da IA inimiga (candidata)
+
+- Rebalanceia a Sentinela normal: esquiva menos frequente e menos intensa, com deslocamento lateral mais contido e reposicionamento menos agressivo.
+- Promove a Sentinela de Elite: esquiva mais longa e forte, recarga menor, curvas laterais mais amplas e reposicionamento mais responsivo; mantém a salva dupla de plasma.
+- Diferencia o Artilheiro de Elite: esquiva lateral mais forte, leque mais concentrado, disparos mais rápidos e ligeiro aumento de dano/velocidade; preserva o escudo de 8 pontos.
+- Evita varrer projéteis durante a recarga da esquiva, reduzindo trabalho repetido sem alterar a janela de reação.
+- Mantém as fases, movimentação e padrões de ataque dos chefes fora do escopo desta atualização.
+- Candidata em desenvolvimento; requer revisão estática e validação natural de gameplay. Não mesclada em `main`.
+
 ## [0.42.1] — Guardião de Elite: Égide de Proteção (candidata)
 
 - Guardião de Elite mantém o posicionamento frontal e recebe aumento moderado de integridade (+2 pontos sobre o Guardião normal), além do escudo individual de 12 pontos.

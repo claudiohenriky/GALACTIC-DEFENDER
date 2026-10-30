@@ -1,3 +1,15 @@
+## Candidata v0.43.0 — Evolução da IA inimiga
+
+- Branch: `feature/v0.43.0-enemy-ai-evolution`, baseada no commit da candidata v0.42.1; PR #76 e `main` permanecem sem merge.
+- Sentinela normal: reduzir a intensidade e a frequência das esquivas, limitar amplitude lateral e tornar o reposicionamento menos agressivo.
+- Sentinela de Elite: receber esquivas mais fortes e longas, menor intervalo entre reações, curvas mais amplas e reposicionamento mais responsivo; preservar a salva dupla de plasma.
+- Artilheiro de Elite: reforçar a diferença para a unidade normal com evasão superior e leque mais concentrado, rápido e ligeiramente mais danoso; preservar o escudo atual.
+- Otimização: não percorrer projéteis enquanto a unidade está em recarga de esquiva.
+- Chefes: preservar integralmente fases, movimento e padrões de disparo nesta etapa.
+- Escopo: não alterar regras de dano/colisão compartilhadas, frequência de surgimento de elites ou habilidades do jogador.
+- Estado: implementação inicial registrada; revisão de código e verificações automatizadas pendentes. Teste de ondas longas não será exigido isoladamente; observar o comportamento durante a próxima validação natural.
+- Não mesclar em `main` sem aprovação explícita.
+
 ## Candidata v0.42.1 — Guardião de Elite: Égide de Proteção
 
 - Branch: `feature/v0.42.1-guardian-elite-aegis`, baseada na candidata v0.42.0.

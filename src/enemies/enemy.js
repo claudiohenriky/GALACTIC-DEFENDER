@@ -110,7 +110,7 @@ export class Enemy {
 
     // Estimate closest approach over a short horizon using relative velocity.
     // Only Sentinel, Artillery and Boss react in this first pass; each has a different response strength.
-    if (this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') {
+    if ((this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') && this.dodgeCooldown <= 0) {
       let bestThreat = null;
       let bestClearance = Infinity;
       for (const projectile of playerProjectiles) {
@@ -134,12 +134,12 @@ export class Enemy {
       }
       if (bestThreat && this.dodgeCooldown <= 0) {
         this.dodgeDirection = bestThreat.x >= 0 ? -1 : 1;
-        this.dodgeTimer = this.type === 'boss' ? 0.26 : 0.48;
-        this.dodgeCooldown = this.type === 'boss' ? 1.8 : this.type === 'artillery' ? 1.25 : 0.95;
+        this.dodgeTimer = this.type === 'boss' ? 0.26 : this.type === 'sentinel' ? (this.isElite ? 0.62 : 0.30) : 0.48;
+        this.dodgeCooldown = this.type === 'boss' ? 1.8 : this.type === 'sentinel' ? (this.isElite ? 0.72 : 1.45) : this.type === 'artillery' ? 1.25 : 0.95;
       }
     }
     const dodgeStrength = this.dodgeTimer > 0
-      ? (this.type === 'sentinel' ? 132 : this.type === 'artillery' ? (this.isElite ? 72 : 104) : this.type === 'boss' ? 42 : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'boss' ? 0.26 : 0.48))
+      ? (this.type === 'sentinel' ? (this.isElite ? 168 : 68) : this.type === 'artillery' ? (this.isElite ? 122 : 76) : this.type === 'boss' ? 42 : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'boss' ? 0.26 : this.type === 'sentinel' && this.isElite ? 0.62 : this.type === 'sentinel' ? 0.30 : 0.48))
       : 0;
 
     if (this.type === 'boss') {
@@ -202,9 +202,9 @@ export class Enemy {
       this.y += (desiredY - this.y) * Math.min(1, dt * 1.0);
       this.fireCooldown -= dt;
       if (this.fireCooldown <= 0 && this.y > 18) {
-        this.fireCooldown = 3.4;
+        this.fireCooldown = this.isElite ? 2.95 : 3.4;
         const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
-        const spread = 0.22;
+        const spread = this.isElite ? 0.19 : 0.22;
         shot = [-1, 0, 1].map((offset) => {
           const angle = baseAngle + offset * spread;
           return {
@@ -212,19 +212,19 @@ export class Enemy {
             y: this.y + this.radius,
             targetX: this.x + Math.cos(angle) * 420,
             targetY: this.y + Math.sin(angle) * 420,
-            damage: 5,
-            speed: 150,
-            radius: 3.5,
-            color: '#d6a0ff',
-            glowColor: '#a95cff'
+            damage: this.isElite ? 5.8 : 5,
+            speed: this.isElite ? 172 : 150,
+            radius: this.isElite ? 4 : 3.5,
+            color: this.isElite ? '#8ff0b0' : '#d6a0ff',
+            glowColor: this.isElite ? '#42c978' : '#a95cff'
           };
         });
       }
     } else if (this.type === 'sentinel') {
       // Sentinels strafe around a moving firing lane instead of sliding directly toward the player.
-      const laneOffset = Math.sin(this.phase * 0.8) * Math.min(105, width * 0.23);
+      const laneOffset = Math.sin(this.phase * (this.isElite ? 1.05 : 0.72)) * Math.min(this.isElite ? 125 : 70, width * (this.isElite ? 0.27 : 0.16));
       let desiredX = Math.max(this.radius, Math.min(width - this.radius, targetX + laneOffset + dodgeStrength));
-      let desiredY = Math.max(42, targetY - Math.min(175, height * 0.3));
+      let desiredY = Math.max(42, targetY - Math.min(this.isElite ? 195 : 160, height * (this.isElite ? 0.34 : 0.28)));
 
       if (supportAlly && supportDistance < 230) {
         const awayX = supportAlly.x - targetX;
@@ -237,14 +237,14 @@ export class Enemy {
         desiredY += (coverY - desiredY) * coverWeight;
       }
 
-      this.x += (desiredX - this.x) * Math.min(1, dt * 1.15);
-      this.y += (desiredY - this.y) * Math.min(1, dt * 1.5);
+      this.x += (desiredX - this.x) * Math.min(1, dt * (this.isElite ? 1.35 : 0.82));
+      this.y += (desiredY - this.y) * Math.min(1, dt * (this.isElite ? 1.65 : 1.2));
       this.fireCooldown -= dt;
 
       if (this.fireCooldown <= 0 && this.y > 18) {
         if (this.isElite) {
           // A compact two-shot plasma burst gives this variant a distinct attack without a shield.
-          this.fireCooldown = 3.0;
+          this.fireCooldown = 2.65;
           const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
           shot = [-1, 1].map((offset) => {
             const angle = baseAngle + offset * 0.055;
