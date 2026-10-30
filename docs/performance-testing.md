@@ -45,11 +45,13 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Validar visualmente o zoom em celular e desktop, incluindo mira manual, bordas do cenário e transição após a derrota do chefe.
 - [ ] Refinar a arte/variedade dos efeitos e revisar o custo visual com o chefe em combate.
 - [ ] Auditar a IA e a separação espacial quando houver muitos inimigos e projéteis simultâneos.
-- [ ] Conferir alocações temporárias e chamadas caras de Canvas no caminho de renderização.
+- [x] Conferir alocações temporárias e chamadas caras de Canvas no caminho de renderização: gradiente fica restrito ao cache de resize; não há `shadowBlur` no caminho atual; arrays de rajadas/módulos são montados apenas em eventos de disparo, não em cada quadro.
 
 - [x] Corrigir a contenção vertical genérica que prendia o chefe à borda superior durante a entrada: a nave agora pode permanecer fora da área visível até concluir a aproximação, mantendo o limite horizontal e o limite inferior. Esta é uma correção de lógica/entrada, não uma medição de desempenho.
 
 - [x] Corrigir a ordem de inicialização de `bossWave` no spawn: a classificação da onda agora é calculada antes de determinar a posição inicial, evitando referência à variável antes da declaração no ciclo de criação de inimigos.
+- [x] Revisar a separação entre viewport e mundo: referências `this.width/height` restantes em `game.js` pertencem à viewport/câmera/renderização; movimentação, limites e colisões das entidades recebem dimensões do mundo.
+- [x] Conferir a conversão inversa `screenToWorld()` para mira por mouse/toque e os limites de câmera em zoom normal e zoom de chefe.
 
 ### Cenários de validação após a auditoria
 
