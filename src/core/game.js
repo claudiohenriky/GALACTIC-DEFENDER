@@ -1,11 +1,11 @@
-import { Player } from '../player/player.js?v=0.44.0';
-import { Enemy } from '../enemies/enemy.js?v=0.44.1-sector-targeting';
+import { Player } from '../player/player.js?v=v0.44.2';
+import { Enemy } from '../enemies/enemy.js?v=v0.44.2';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, orientedEllipseOverlapsSegment } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
 import { resolveAttackClash, resolveContinuousLaserProjectile } from '../combat/attack-clash.js?v=0.44.0-attack-clash-resistance';
-import { predictProjectileThreat } from '../combat/threat-detection.js?v=0.44.1-threat-alerts';
+import { predictProjectileThreat } from '../combat/threat-detection.js?v=v0.44.2';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { WaveManager } from './wave-manager.js?v=0.44.0';
