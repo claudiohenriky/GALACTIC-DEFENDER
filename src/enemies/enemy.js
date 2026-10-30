@@ -397,9 +397,16 @@ export class Enemy {
     // Apply lateral dodge after normal steering so it produces a meaningful curved displacement.
     if (dodgeStrength !== 0) this.x += dodgeStrength * dt;
 
-    // Keep enemies in the arena so reaching an edge never deals automatic damage.
+    // Keep enemies inside the arena, except while the battleship is completing
+    // its deliberate off-screen entrance. Clamping its Y coordinate here would
+    // snap it to the top edge and cancel the planned smooth descent.
     this.x = Math.max(this.radius, Math.min(width - this.radius, this.x));
-    this.y = Math.max(this.radius, Math.min(height - this.radius, this.y));
+    if (this.type !== 'boss' || this.bossEntranceTimer <= 0) {
+      this.y = Math.max(this.radius, Math.min(height - this.radius, this.y));
+    } else {
+      // The boss may remain above the visible playfield, but cannot drift below it.
+      this.y = Math.min(height - this.radius, this.y);
+    }
     this.updateMotionFeedback(dt, previousX, previousY);
 
     // Ranged classes keep their weapons oriented toward the pilot while repositioning.
