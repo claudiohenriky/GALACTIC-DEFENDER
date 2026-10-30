@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { circlesOverlap, orientedEllipseOverlapsCircle, orientedEllipseOverlapsSegment } from '../src/combat/collision.js';
-import { BossSystems } from '../src/enemies/boss-systems.js';
+import { BossSystems, canWeaponFireAtTarget } from '../src/enemies/boss-systems.js';
 import { Enemy } from '../src/enemies/enemy.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
@@ -88,4 +88,13 @@ test('replacement plasma charging does not advance while the weapon is being ins
  boss.bossEntranceTimer=0;boss.bossPhase=3;boss.bossPhaseTransition=1;boss.fireCooldown=5;
  boss.update(0.5,500,900,1000,1200,[],[],0);
  assert.equal(replacement.plasmaChargeTimer,initialCharge);
+});
+
+
+test('boss weapon fire is gated by mount arc, range and completed turret alignment',()=>{
+ const base={angle:0,distanceSquared:10000,minArc:-0.25,maxArc:0.25,maxRange:200,alignmentError:0.04};
+ assert.equal(canWeaponFireAtTarget(base),true);
+ assert.equal(canWeaponFireAtTarget({...base,angle:0.5}),false);
+ assert.equal(canWeaponFireAtTarget({...base,distanceSquared:50000}),false);
+ assert.equal(canWeaponFireAtTarget({...base,alignmentError:0.35}),false);
 });
