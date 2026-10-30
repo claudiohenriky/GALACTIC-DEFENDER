@@ -651,3 +651,6 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; a v0.15.1 foi aprovada em computador e celular. A v0.16.2 passou nos seis testes manuais de desempenho e regressão no celular informados pelo usuário. A v0.17.0 foi publicada como candidata em `main`. A v0.17.1 adiciona mira por arraste e disparo automático mobile; aguarda validação manual no celular.
 
 - Refinamento do HUD do encouraçado: os dez indicadores de armamento agora exibem abreviações identificáveis em uma grade 5×2, mantendo cores e estados distintos; os nomes completos permanecem disponíveis nos rótulos acessíveis e dicas.
+
+- Corrige a resolução de dano do encouraçado para que habilidades especiais, laser contínuo e ataques de área sem coordenada de impacto explícita atinjam o setor de escudo voltado para o jogador, em vez de ignorarem a defesa regional.
+- Reutiliza o snapshot de integridade do HUD por instância de chefe, evitando recriar objetos de comparação em cada atualização da interface.
