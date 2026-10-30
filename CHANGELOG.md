@@ -12,6 +12,7 @@
 - Expande o mundo físico para 1,6× a largura e a altura do viewport, com câmera de acompanhamento, limites próprios e conversão de mira por mouse/toque.
 - Ajusta o spawn de inimigos e a entrada/patrulha do chefe à região visível da câmera; projéteis, mísseis e separação usam os limites do mundo.
 - Corrige a faixa lateral do Artilheiro para acompanhar a posição do jogador e o posicionamento vertical do chefe para continuar visível quando o combate ocorre perto do limite inferior da arena.
+- Reforça a identidade de encouraçado: reposicionamento lento e limitado, rotação gradual de 0,85 rad/s e hitbox de colisão ampliada para acompanhar a silhueta blindada, permitindo ao jogador flanquear e atacar os setores regionais.
 - Amplia os gatilhos da validação automatizada para executar também na branch candidata e em PRs direcionadas à base de desenvolvimento; a validação inclui sintaxe JS, resolução de imports relativos e whitespace do diff.
 - Validação automatizada aprovada no HEAD atual: sintaxe de todos os módulos JavaScript, resolução dos imports relativos e verificação de whitespace do diff.
 - Mantém o cache do fundo limitado ao tamanho do viewport para evitar multiplicar o consumo de memória pela expansão do mundo.
