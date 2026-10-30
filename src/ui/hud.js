@@ -95,6 +95,7 @@ function updateBossHud(boss) {
     setState(pip, state);
     const accessibleLabel = `${module.id}: ${STATE_LABELS[state]}`;
     if (pip.getAttribute('aria-label') !== accessibleLabel) pip.setAttribute('aria-label', accessibleLabel);
+    if (pip.title !== accessibleLabel) pip.title = accessibleLabel;
   }
   const moduleDetails = [];
   if (damagedModules) moduleDetails.push(`${damagedModules} DAN.`);
