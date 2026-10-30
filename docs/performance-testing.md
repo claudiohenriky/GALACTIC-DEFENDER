@@ -97,3 +97,16 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - As estrelas usam coordenadas do mundo; o fundo em grade é cacheado no tamanho do viewport e acompanha a câmera sem criar um bitmap do mundo inteiro.
 
 **Validação pendente:** revisão estática dos limites e transformações concluída parcialmente; ainda é necessário executar a suíte de sintaxe/imports e testar gameplay real em celular e desktop. Não há medição de FPS para esta alteração. Verificar principalmente movimentação até as quatro bordas, mira por toque/mouse, entrada do chefe, colisões e limpeza de projéteis.
+
+
+## Sequência de destruição do encouraçado — candidata v0.44.0
+
+- Ao chegar a zero de integridade após a transformação de sobrecarga, o chefe entra em estado de destruição e deixa de se mover, disparar, receber dano ou servir como alvo de mísseis guiados.
+- A sequência visual dura 4,5 segundos: cinco detonações locais temporizadas percorrem o casco e são seguidas por uma explosão final. Os efeitos são desenhados por tempo decorrido e posições determinísticas; não são criadas partículas nem arrays por quadro.
+- A entidade permanece ativa durante a animação para manter a câmera enquadrada. Ao terminar, é removida e a recompensa é processada uma única vez: pontuação, XP, contador de eliminações, conquistas e progresso de missão.
+- Inimigos comuns preservam a remoção e a concessão imediata de recompensas.
+- [ ] Testar se o chefe permanece visível e imóvel durante toda a sequência.
+- [ ] Confirmar que projéteis, laser contínuo, contato e mísseis não causam dano adicional durante a destruição.
+- [ ] Confirmar uma única concessão de pontuação/XP/conquista/progresso de missão.
+- [ ] Verificar se a câmera retorna suavemente ao zoom normal após a remoção.
+- [ ] Perfil de desempenho no celular e desktop; não há FPS medido nesta revisão.
