@@ -119,3 +119,15 @@ test('overload ejects catastrophic weapon wreckage while recoverable modules are
  assert.ok(boss.ejectedModules[0].x!==initialX||boss.ejectedModules[0].y!==initialY);
  assert.ok(boss.ejectedModules[0].life<2.2);
 });
+
+
+test('Ruptura disruption physically pushes an enemy and temporarily suspends its attack AI',()=>{
+ const enemy=new Enemy(300,300,10,'sentinel');
+ enemy.fireCooldown=0;
+ enemy.applyDisruption(140,0,0.86);
+ const initialX=enemy.x;
+ const shots=enemy.update(0.1,900,300,1000,1200,[],[],0);
+ assert.equal(shots,null);
+ assert.ok(enemy.x>initialX,'disruption impulse should move the enemy away');
+ assert.ok(enemy.disruptionTimer<0.86,'the disruption recovery timer should advance');
+});
