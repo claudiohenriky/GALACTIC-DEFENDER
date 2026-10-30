@@ -527,14 +527,14 @@ export class Game {
     const pulse = 1 + Math.sin((alert.maxTimer - alert.timer) * 13) * 0.045;
     const danger = alert.icon === '!';
     ctx.save();
-    ctx.translate(this.player.x + 26 / zoom, this.player.y - 28 / zoom);
+    ctx.translate(this.player.x + 19 / zoom, this.player.y - 23 / zoom);
     ctx.scale(pulse / zoom, pulse / zoom);
     ctx.globalAlpha = fade;
     ctx.fillStyle = danger ? '#5b1d2c' : '#18314b';
     ctx.strokeStyle = danger ? '#ff8b78' : '#8bdcff';
-    ctx.lineWidth = 1.8;
+    ctx.lineWidth = 1.35;
     ctx.beginPath();
-    ctx.arc(0, 0, 14, 0, Math.PI * 2);
+    ctx.arc(0, 0, 9, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = '#ffffff';
@@ -604,10 +604,10 @@ export class Game {
     }
     const dx = player.x - shot.x, dy = player.y - shot.y;
     const length = Math.hypot(dx, dy) || 1;
-    const impulse = shieldWasActive ? 560 : 680;
+    const impulse = shieldWasActive ? 1420 : 1680;
     player.knockbackX += dx / length * impulse;
     player.knockbackY += dy / length * impulse;
-    this.triggerSystemDisruption(1.45);
+    this.triggerSystemDisruption(2.1);
   }
 
   resolveIncomingDamage(amount, sourceX = this.player.x, sourceY = this.player.y, heavyImpact = false) {
