@@ -4,7 +4,7 @@ import { WaveManager } from '../src/core/wave-manager.js';
 import { GuidedMissile } from '../src/combat/guided-missile.js';
 import { EnemyProjectile } from '../src/combat/enemy-projectile.js';
 import { Player } from '../src/player/player.js';
-import { resolveAttackClash } from '../src/combat/attack-clash.js';
+import { resolveAttackClash, resolveContinuousLaserProjectile } from '../src/combat/attack-clash.js';
 
 test('boss waves begin at wave 10 and recur every five waves',()=>{
  const waves=new WaveManager();
@@ -66,4 +66,16 @@ test('system disruption reduces propulsion authority and recovers',()=>{
  assert.ok(disrupted.y>normal.y,'disrupted ship should travel a shorter distance');
  disrupted.update(2,new Set(),360,780);
  assert.equal(disrupted.systemDisruptionTimer,0);
+});
+
+test('continuous-laser escape preserves the enemy projectile trajectory',()=>{
+ const projectile={active:true};
+ assert.equal(resolveContinuousLaserProjectile(projectile,'escape'),false);
+ assert.equal(projectile.active,true);
+});
+test('continuous-laser victory and draw neutralize the contested projectile',()=>{
+ const victory={active:true},draw={active:true};
+ assert.equal(resolveContinuousLaserProjectile(victory,'victory'),true);
+ assert.equal(resolveContinuousLaserProjectile(draw,'draw'),true);
+ assert.equal(victory.active,false);assert.equal(draw.active,false);
 });

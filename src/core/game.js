@@ -5,6 +5,7 @@ import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, orientedEllipseOverlapsSegment } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
 import { resolveAttackClash } from '../combat/attack-clash.js?v=0.44.0-attack-clash-resistance';
+import { resolveContinuousLaserProjectile } from '../combat/attack-clash.js?v=0.44.0-attack-clash-resistance';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { WaveManager } from './wave-manager.js?v=0.44.0';
@@ -697,7 +698,9 @@ export class Game {
   }
   resolveContinuousLaserClash(outcome) {
     if (!this.continuousLaserClash) return;
+    const clash = this.continuousLaserClash;
     document.querySelector('#laser-clash-overlay')?.classList.add('hidden'); this.continuousLaserClash = null; this.continuousLaserHeld = false;
+    resolveContinuousLaserProjectile(clash.projectile, outcome);
     if (outcome === 'victory') {
       // Find the nearest live target in one pass without allocating, filtering or sorting arrays.
       let target = null;
@@ -727,7 +730,7 @@ export class Game {
       // The segment helper expects the full combined radius, not only the beam width.
       const clashRadius = (shot.radius ?? 0) + 7;
       if (!shot.active || !circleOverlapsSegment(shot, sx, sy, ex, ey, clashRadius)) continue;
-      shot.active = false; this.continuousLaserClash = { x: shot.x, y: shot.y }; this.continuousLaserHeld = false; this.status = 'paused';
+      this.continuousLaserClash = { x: shot.x, y: shot.y, projectile: shot }; this.continuousLaserHeld = false; this.status = 'paused';
       document.querySelector('#laser-clash-overlay')?.classList.remove('hidden'); this.updateContinuousLaserButton(); return;
     }
     if (this.continuousLaserDamageClock <= 0) {

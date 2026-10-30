@@ -14,3 +14,18 @@ export function resolveAttackClash(playerShot, enemyShot) {
   else enemyShot.clashResistance = resistance - playerPower;
   return true;
 }
+
+
+/**
+ * Resolve the projectile side of the continuous-laser decision.
+ * Victory and draw neutralize the contested round; escape leaves it active
+ * so it resumes its trajectory when the game returns from the clash pause.
+ */
+export function resolveContinuousLaserProjectile(projectile, outcome) {
+  if (!projectile?.active) return false;
+  if (outcome === 'victory' || outcome === 'draw') {
+    projectile.active = false;
+    return true;
+  }
+  return false;
+}
