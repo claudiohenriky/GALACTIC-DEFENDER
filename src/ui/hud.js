@@ -63,7 +63,7 @@ function updateBossHud(boss) {
     if (!cell) continue;
     const percent = Math.max(0, Math.min(100, shield.health / Math.max(1, shield.maxHealth) * 100));
     const state = shield.health <= 0 || shield.disabled ? 'disabled' : percent <= 35 ? 'damaged' : 'operational';
-    if (state === 'operational') activeShields++;
+    if (shield.health > 0 && !shield.disabled) activeShields++;
     setState(cell, state);
     const fill = cell.querySelector('.boss-shield-track > div');
     const value = cell.querySelector('small');
