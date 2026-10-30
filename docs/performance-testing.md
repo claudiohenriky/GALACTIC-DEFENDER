@@ -29,7 +29,9 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Remover também o `filter()`/`sort()` temporário do roster de Guardiões; duas passagens estáveis mantêm Guardiões de Elite primeiro, sem alterar a ordem relativa dentro de cada grupo.
 - [x] Remover o `filter()` e os dois `reduce()` da formação de cada Guardião durante a atualização; o centro da formação agora é calculado em uma única passagem, sem array temporário.
 - [x] Auditar os pontos de colisão e adicionar rejeição AABB barata antes do teste circular exato em projétil/inimigo, projétil/projétil e míssil/inimigo. A regra final de sobreposição circular e a ordem de resolução foram preservadas.
-- [ ] Auditar atualizações e desenho de partículas, fumaça, fogo, faíscas, escudos e rastros.
+- [x] Auditar a atualização das partículas de dano, partículas de nível e efeitos de quebra de escudo: as listas já são compactadas in-place, sem arrays novos por quadro.
+- [x] Remover callbacks `forEach()` do desenho das faíscas/fumaça e partículas de nível; a renderização usa loops indexados no caminho por quadro.
+- [ ] Auditar fumaça, fogo, faíscas e escudos específicos do chefe, incluindo custo de Canvas e quantidade de efeitos.
 - [ ] Auditar a IA e a separação espacial quando houver muitos inimigos e projéteis simultâneos.
 - [ ] Conferir alocações temporárias e chamadas caras de Canvas no caminho de renderização.
 
