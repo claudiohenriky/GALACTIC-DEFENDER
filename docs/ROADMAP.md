@@ -1,3 +1,12 @@
+## Candidata v0.42.1 — Guardião de Elite: Égide de Proteção
+
+- Branch: `feature/v0.42.1-guardian-elite-aegis`, baseada na candidata v0.42.0.
+- Guardião de Elite: +2 pontos de integridade sobre o Guardião normal, mantendo escudo pessoal de 12 pontos.
+- Habilidade Égide: barreira externa compartilhada de 18 pontos ao redor de até duas tropas designadas; absorve dano até acabar e não regenera nesta versão.
+- Distribuição: cada Guardião, normal ou Elite, protege no máximo duas tropas exclusivas; nenhuma tropa pode ser atribuída a mais de um Guardião simultaneamente.
+- Guardiões de Elite recebem prioridade de alocação; a cooperação das Sentinelas respeita a atribuição efetiva.
+- Estado: candidata; requer teste manual de formação, interceptação de dano e balanceamento. Não mesclada em `main`.
+
 ## Candidata v0.42.0 — Identidade Elite e Guardião de Elite
 
 - Branch: `feature/v0.42.0-elite-identity-guardian`, baseada na candidata v0.41.0.
