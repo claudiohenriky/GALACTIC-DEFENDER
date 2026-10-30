@@ -681,3 +681,10 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Combate: Pulso de Ruptura desestabiliza temporariamente inimigos, suspendendo a perseguição durante o recuo; impactos de plasma também comprometem temporariamente o controle de movimento do jogador.
 
 - Corrige a consistência do arsenal: o canhão principal de energia deixa de causar dano/disparar nas fases 2 e 3 enquanto sua preparação visual e seu contra-jogo ainda não estão implementados; o armamento permanece como elemento visual/rastreamento nesta candidata.
+
+
+### Escudos reativos — atualização visual inicial
+- Jogador: setores preditivos agora apontam para a posição prevista de aproximação do projétil e formam uma barreira localizada com expansão e dissipação; o impacto absorvido reforça o setor correspondente.
+- Encouraçado: os quatro setores regionais exibem pulsos localizados ao absorver dano, mantendo baixa presença visual em repouso.
+- Tropas de elite: segmentos de escudo reagem com flash e expansão curta quando absorvem dano.
+- Mantidas as regras atuais de proteção 360°, integridade, absorção, recarga e colisões; os efeitos são apenas visuais e não usam esfera permanente nem partículas por quadro.
