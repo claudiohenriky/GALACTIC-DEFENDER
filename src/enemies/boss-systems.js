@@ -159,6 +159,8 @@ export class BossSystems {
         module.transitionType = 'replacement';
         module.transitionTimer = 2.2;
         module.kind = module.replacement;
+        // Newly installed plasma mounts must complete a visible charge cycle before firing.
+        module.plasmaChargeTimer = module.kind.includes('plasma') ? module.plasmaChargeDuration : 0;
         module.repairGlow = 1;
         module.state = 'damaged';
         module.health = module.maxHealth * 0.58;
@@ -172,6 +174,8 @@ export class BossSystems {
         module.transitionTimer = 1.8;
         module.repairGlow = 1;
         module.kind = module.originalKind;
+        // Rebuilt plasma mounts restart their charge cycle instead of firing immediately.
+        module.plasmaChargeTimer = module.kind.includes('plasma') ? module.plasmaChargeDuration : 0;
         module.state = 'damaged';
         module.health = module.maxHealth * 0.5;
         module.smoke = 0.45;
