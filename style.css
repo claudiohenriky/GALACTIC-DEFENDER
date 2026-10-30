@@ -615,3 +615,16 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 @media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.boss-hud{width:min(40%,320px);padding:4px 6px}.boss-section-heading{margin:4px 0 2px}.boss-shield-cell{padding:2px}.boss-module-pip{min-height:11px}.boss-module-pip b{font-size:5px}}
 @media(max-width:380px){.boss-hud{width:min(56%,250px)}.boss-shield-cell>span{letter-spacing:0}}
 @media(prefers-reduced-motion:reduce){#boss-health-fill,.boss-shield-track>div{transition:none}}
+
+/* v0.44.0 — combat feedback for regional shields and weapon modules. */
+.boss-shield-cell[data-feedback="hit"],.boss-module-pip[data-feedback="hit"]{animation:boss-system-hit .34s ease-out}
+.boss-shield-cell[data-feedback="restoring"],.boss-module-pip[data-feedback="restoring"]{animation:boss-system-restore .52s ease-out}
+.boss-rebuild-track{height:5px;margin:4px 0 2px;overflow:hidden;border:1px solid #d18a49;background:#24180f}
+.boss-rebuild-track>div{width:0;height:100%;background:repeating-linear-gradient(90deg,#ffd08a 0 8px,#d8893e 8px 10px);transition:width .1s linear}
+.boss-rebuild-value{display:block;min-height:0;color:#ffd08a;font-size:6px;font-weight:900;letter-spacing:.1em;text-align:right}
+.boss-rebuild-value:empty{display:none}
+.boss-hud.is-rebuilding .boss-rebuild-track{border-color:#ffd08a;box-shadow:0 0 7px #ffb45e66}
+@keyframes boss-system-hit{0%{filter:brightness(2.2);box-shadow:0 0 0 2px #ff6978}100%{filter:brightness(1);box-shadow:none}}
+@keyframes boss-system-restore{0%{filter:brightness(2);box-shadow:0 0 0 2px #70f0c0}100%{filter:brightness(1);box-shadow:none}}
+@media(max-width:700px){.boss-rebuild-track{height:4px;margin:3px 0 1px}.boss-rebuild-value{font-size:5px}}
+@media(prefers-reduced-motion:reduce){.boss-shield-cell[data-feedback],.boss-module-pip[data-feedback]{animation:none!important}.boss-rebuild-track>div{transition:none}}
