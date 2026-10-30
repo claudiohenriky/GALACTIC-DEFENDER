@@ -725,13 +725,21 @@ export class Enemy {
         for (const module of systems.modules) {
           const mx = module.x * radius;
           const my = module.y * radius;
+          const transitionDuration = module.transitionType === 'replacement' ? 2.2
+            : module.transitionType === 'rebuild' ? 1.8
+              : module.transitionType === 'repair' ? 1.35 : 0;
+          const transitionProgress = transitionDuration > 0 && module.transitionTimer > 0
+            ? Math.max(0, Math.min(1, 1 - module.transitionTimer / transitionDuration)) : 1;
+          const renderKind = module.transitionType === 'replacement' &&
+            module.transitionTimer > 0 && transitionProgress < 0.46
+            ? (module.transitionFromKind || module.kind) : module.kind;
           const moduleColor = module.state === 'destroyed' ? '#343b45'
             : module.state === 'disabled' ? '#713d32'
               : module.state === 'damaged' ? '#b86a37'
-                : module.kind.includes('laser') ? '#64e5ff'
-                  : module.kind.includes('missile') || module.kind.includes('rocket') ? '#c7a6ff'
-                    : module.kind.includes('plasma') ? '#ffb56b'
-                      : module.kind.includes('energy') || module.kind.includes('cannon') ? '#ff8cae' : '#9ab7ca';
+                : renderKind.includes('laser') ? '#64e5ff'
+                  : renderKind.includes('missile') || renderKind.includes('rocket') ? '#c7a6ff'
+                    : renderKind.includes('plasma') ? '#ffb56b'
+                      : renderKind.includes('energy') || renderKind.includes('cannon') ? '#ff8cae' : '#9ab7ca';
           const mountSize = radius * 0.105;
           const moduleSize = mountSize * 2;
           const moduleHalfSize = moduleSize / 2;
@@ -753,11 +761,6 @@ export class Enemy {
           if (!module.catastrophic) {
             // Replacement animation physically withdraws the old mount, then seats
             // the new weapon into the same hardpoint. Repair/rebuild uses a shorter lift.
-            const transitionDuration = module.transitionType === 'replacement' ? 2.2
-              : module.transitionType === 'rebuild' ? 1.8
-                : module.transitionType === 'repair' ? 1.35 : 0;
-            const transitionProgress = transitionDuration > 0 && module.transitionTimer > 0
-              ? Math.max(0, Math.min(1, 1 - module.transitionTimer / transitionDuration)) : 1;
             let weaponOffsetY = 0;
             let weaponAlpha = 1;
             if (module.transitionTimer > 0 && transitionDuration > 0) {
@@ -779,11 +782,11 @@ export class Enemy {
             ctx.fillStyle = moduleColor;
             ctx.strokeStyle = '#e3f0f7';
             ctx.lineWidth = 1.2;
-            if (module.kind.includes('machine-gun')) {
+            if (renderKind.includes('machine-gun')) {
               ctx.fillRect(-mountSize * 0.72, -mountSize * 0.55, mountSize * 1.44, mountSize * 1.1);
               ctx.fillRect(-mountSize * 0.42, -mountSize * 1.75, mountSize * 0.25, mountSize * 1.55);
               ctx.fillRect(mountSize * 0.17, -mountSize * 1.75, mountSize * 0.25, mountSize * 1.55);
-            } else if (module.kind.includes('missile') || module.kind.includes('rocket')) {
+            } else if (renderKind.includes('missile') || renderKind.includes('rocket')) {
               ctx.fillRect(-mountSize * 0.82, -mountSize * 0.7, mountSize * 1.64, mountSize * 1.35);
               for (let tube = -1; tube <= 1; tube += 1) {
                 ctx.beginPath();
@@ -792,16 +795,16 @@ export class Enemy {
                 ctx.fill();
                 ctx.stroke();
               }
-            } else if (module.kind.includes('laser')) {
+            } else if (renderKind.includes('laser')) {
               ctx.fillRect(-mountSize * 0.55, -mountSize * 0.65, mountSize * 1.1, mountSize * 1.2);
               ctx.fillStyle = '#d8fbff';
               ctx.fillRect(-mountSize * 0.16, -mountSize * 2.05, mountSize * 0.32, mountSize * 1.75);
-            } else if (module.kind.includes('plasma')) {
+            } else if (renderKind.includes('plasma')) {
               ctx.beginPath();
               ctx.arc(0, 0, mountSize * 0.72, 0, Math.PI * 2);
               ctx.fill();
               ctx.fillRect(-mountSize * 0.24, -mountSize * 1.85, mountSize * 0.48, mountSize * 1.55);
-            } else if (module.kind.includes('energy') || module.kind.includes('cannon')) {
+            } else if (renderKind.includes('energy') || renderKind.includes('cannon')) {
               ctx.fillRect(-mountSize * 0.72, -mountSize * 0.7, mountSize * 1.44, mountSize * 1.35);
               ctx.fillStyle = '#ffe0ed';
               ctx.fillRect(-mountSize * 0.32, -mountSize * 2.5, mountSize * 0.64, mountSize * 2.35);
@@ -874,7 +877,7 @@ export class Enemy {
             ctx.strokeRect(mx - moduleHalfSize - 3, my - moduleHalfSize - 3, moduleSize + 6, moduleSize + 6);
             ctx.globalAlpha = 1;
           }
-          if (module.kind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled') {
+          if (renderKind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled') {
             const chargeRatio = 1 - Math.max(0, module.plasmaChargeTimer ?? 0) / Math.max(0.1, module.plasmaChargeDuration ?? 2.6);
             if (chargeRatio > 0.02) {
               const pulse = 0.72 + Math.sin(this.phase * (7 + chargeRatio * 12) + mx) * 0.2;
