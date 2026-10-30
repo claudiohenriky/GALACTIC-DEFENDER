@@ -132,3 +132,11 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Barra de reconstrução utiliza a duração de 4,5 s definida por `BossSystems.beginOverloadRebuild()`.
 - [x] Animações são desativadas com `prefers-reduced-motion`.
 - [ ] Validar atualização visual, acessibilidade e custo de renderização em dispositivos reais; não há medição de FPS nesta revisão.
+
+
+### Resolução de dano regional — candidata v0.44.0
+
+- [x] Ataques com coordenadas explícitas preservam o ponto real de impacto.
+- [x] Ataques especiais/área sem coordenadas usam a posição do jogador como vetor de origem para selecionar o setor regional, evitando bypass de escudos.
+- [x] Snapshot de comparação do HUD é reutilizado por instância de chefe, sem recriar objetos a cada atualização da interface.
+- [ ] Testar cada tipo de ataque contra os quatro setores e verificar absorção, dano residual e integridade de módulos em gameplay real.
