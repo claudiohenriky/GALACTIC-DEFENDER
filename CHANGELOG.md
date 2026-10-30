@@ -1,3 +1,8 @@
+## [0.44.4] — Ajuste fino do zoom do boss
+
+- Reduz a ampliação durante o confronto para 1,08×, mantendo o chefe em destaque sem ocupar tanto espaço na tela.
+- Preserva o enquadramento pós-boss em 0,94× e o zoom normal em 1×.
+
 ## [0.44.3] — Enquadramento e armamentos do boss (em validação)
 
 - Zoom durante o confronto ajustado para 1,2×: mantém o chefe em destaque sem aproximar tanto a câmera.
