@@ -37,7 +37,7 @@ test('Attack Clash requires repeated hits to neutralize heavy projectiles',()=>{
  const heavy={x:5,y:0,radius:5,clashResistance:3,active:true};
  assert.equal(resolveAttackClash({...lightShot},heavy),true);
  assert.equal(heavy.active,true);assert.equal(heavy.clashResistance,2);
- const second={x:0,y:0,radius:3,damage:8,active:true};
+ const second={x:0,y:0,radius:3,damage:4,active:true};
  assert.equal(resolveAttackClash(second,heavy),true);
  assert.equal(heavy.active,true);assert.equal(heavy.clashResistance,1);
  const third={x:0,y:0,radius:3,damage:4,active:true};
