@@ -123,3 +123,12 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 
 - [x] Indicadores dos dez módulos usam abreviações visíveis (MG, MIS, LAS, PLS, CAN, AUX) em grade 5×2; nomes completos ficam disponíveis em título/rótulo acessível.
 - [ ] Verificar que abreviações e estados por cor continuam legíveis em telas de baixa largura e brilho.
+
+
+### Feedback de combate da HUD tática — candidata v0.44.0
+
+- [x] Comparar os valores atuais com um snapshot anterior por instância de chefe, sem alocar arrays por quadro.
+- [x] Aplicar feedback curto somente quando a integridade de um escudo ou módulo muda; dano e recuperação usam sinais visuais distintos.
+- [x] Barra de reconstrução utiliza a duração de 4,5 s definida por `BossSystems.beginOverloadRebuild()`.
+- [x] Animações são desativadas com `prefers-reduced-motion`.
+- [ ] Validar atualização visual, acessibilidade e custo de renderização em dispositivos reais; não há medição de FPS nesta revisão.
