@@ -678,7 +678,7 @@ export class Game {
     }
     if (this.continuousLaserDamageClock <= 0) {
       const weakened = this.overload >= 70;
-      for (const enemy of this.enemies) if (enemy.active && circleOverlapsSegment(enemy, sx, sy, ex, ey, 13)) {
+      for (const enemy of this.enemies) if (enemy.active && !enemy.bossDying && circleOverlapsSegment(enemy, sx, sy, ex, ey, 13)) {
         const boss = enemy.type === 'boss' || enemy.type === 'megaboss';
         this.damageEnemy(enemy, (boss ? 8 : 13) * (1 + this.player.continuousLaserLevel * .22) * (weakened ? .72 : 1));
       }
@@ -837,7 +837,7 @@ export class Game {
   }
 
   damageEnemy(enemy, amount, impactX = null, impactY = null) {
-    if (!enemy.active || amount <= 0) return;
+    if (!enemy.active || enemy.bossDying || amount <= 0) return;
 
     // The dreadnought resolves regional shields and independent weapon modules before hull damage.
     if (enemy.type === 'boss' && enemy.bossSystems) {
@@ -903,7 +903,21 @@ export class Game {
       return;
     }
     if (enemy.health > 0) return;
+    if (enemy.type === 'boss') {
+      // Keep the dreadnought in the world for its one-shot destruction sequence.
+      enemy.bossDying = true;
+      enemy.bossDeathTimer = 0;
+      enemy.fireCooldown = Infinity;
+      enemy.dodgeTimer = 0;
+      return;
+    }
     enemy.active = false;
+    this.awardEnemyKill(enemy);
+  }
+
+  awardEnemyKill(enemy) {
+    if (enemy.rewardGranted) return;
+    enemy.rewardGranted = true;
     this.score += enemy.type === 'boss' ? 1000 : enemy.isElite ? 150 : enemy.type === 'artillery' ? 150 : 100;
     this.destroyed += 1;
     const newlyUnlocked = this.achievements.record('kills');
@@ -1385,6 +1399,13 @@ export class Game {
       const zoom = Math.max(0.5, this.cameraZoom || 1);
       const cameraTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
       const shot = enemy.update(dt, this.player.x, this.player.y, this.worldWidth, this.worldHeight, this.projectiles, this.enemies, cameraTop);
+      if (enemy.type === 'boss' && enemy.bossDying) {
+        if (enemy.bossDeathTimer >= enemy.bossDeathDuration) {
+          enemy.active = false;
+          this.awardEnemyKill(enemy);
+        }
+        continue;
+      }
       if (shot) {
         const shots = Array.isArray(shot) ? shot : [shot];
         for (const projectileData of shots) {
@@ -1441,7 +1462,7 @@ export class Game {
     for (const shot of this.projectiles) {
       if (!shot.active) continue;
       for (const enemy of this.enemies) {
-        if (!enemy.active || shot.hitEnemies.has(enemy)) continue;
+        if (!enemy.active || enemy.bossDying || shot.hitEnemies.has(enemy)) continue;
         // Cheap axis-aligned rejection avoids the squared-distance test for
         // pairs that cannot overlap; the exact circle test remains authoritative.
         const combinedRadius = (shot.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
@@ -1477,7 +1498,7 @@ export class Game {
     for (const missile of this.guidedMissiles) {
       if (!missile.active) continue;
       for (const enemy of this.enemies) {
-        if (!enemy.active) continue;
+        if (!enemy.active || enemy.bossDying) continue;
         const combinedRadius = (missile.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
         if (Math.abs(missile.x - enemy.x) >= combinedRadius ||
             Math.abs(missile.y - enemy.y) >= combinedRadius) continue;
@@ -1492,7 +1513,7 @@ export class Game {
     // Contact damage is throttled per enemy. A charged shield absorbs contact
     // without instantly destroying enemies or losing all charge in a few frames.
     for (const enemy of this.enemies) {
-      if (!enemy.active) continue;
+      if (!enemy.active || enemy.bossDying) continue;
       const contactRadius = (this.player.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
       if (Math.abs(this.player.x - enemy.x) >= contactRadius ||
           Math.abs(this.player.y - enemy.y) >= contactRadius) continue;
