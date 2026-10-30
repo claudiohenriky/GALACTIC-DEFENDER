@@ -15,6 +15,8 @@ export class Enemy {
     this.guardianCoverShield = this.guardianCoverShieldMax;
     this.eliteSpawnTimer = this.isElite ? 1.65 : 0;
     this.radius = type === 'boss' ? 82 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
+    // Collision footprint follows the full armored silhouette, not only its visual core radius.
+    this.collisionRadius = type === 'boss' ? this.radius * 1.35 : this.radius;
     this.maxHealth = type === 'boss' ? 360 + level * 12 : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
     this.bossSystems = type === 'boss' ? new BossSystems() : null;
@@ -172,15 +174,17 @@ export class Enemy {
       this.bossEntranceTimer = Math.max(0, this.bossEntranceTimer - dt);
       const entranceProgress = 1 - this.bossEntranceTimer / Math.max(0.001, this.bossEntranceDuration);
       const entranceEase = entranceProgress * entranceProgress * (3 - 2 * entranceProgress);
-      const horizontalRange = Math.max(0, width * (this.bossPhase === 3 ? 0.25 : 0.20));
-      const patrolX = targetX + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange;
-      const desiredY = Math.max(this.radius + 24, Math.min(targetY - Math.max(90, height * 0.18), height - this.radius - 30));
+      const horizontalRange = Math.min(width * (this.bossPhase === 3 ? 0.14 : 0.11), this.bossPhase === 3 ? 120 : 92);
+      // The battleship repositions around the encounter instead of mirroring every player movement.
+      // Its slow drift leaves room for the pilot to circle and attack different shield sectors.
+      const patrolX = targetX + Math.sin(this.phase * (this.bossPhase === 3 ? 0.62 : 0.42)) * horizontalRange;
+      const desiredY = Math.max(this.collisionRadius + 24, Math.min(targetY - Math.max(145, height * 0.18), height - this.collisionRadius - 30));
       const entryStartY = cameraTop - this.radius * 1.9;
       const entryY = entryStartY + (desiredY - entryStartY) * entranceEase;
       const desiredX = targetX + (patrolX - targetX) * entranceEase;
-      this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 0.48 : 0.36));
-      this.y += (entryY - this.y) * Math.min(1, dt * (this.bossEntranceTimer > 0 ? 1.8 : 0.34));
-      this.x = Math.max(this.radius + 4, Math.min(width - this.radius - 4, this.x));
+      this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 0.18 : 0.14));
+      this.y += (entryY - this.y) * Math.min(1, dt * (this.bossEntranceTimer > 0 ? 1.8 : this.bossPhase === 3 ? 0.16 : 0.12));
+      this.x = Math.max(this.collisionRadius + 4, Math.min(width - this.collisionRadius - 4, this.x));
       this.fireCooldown -= dt;
       if (this.bossEntranceTimer <= 0 && this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
         const systems = this.bossSystems;
@@ -401,12 +405,13 @@ export class Enemy {
     // Keep enemies inside the arena, except while the battleship is completing
     // its deliberate off-screen entrance. Clamping its Y coordinate here would
     // snap it to the top edge and cancel the planned smooth descent.
-    this.x = Math.max(this.radius, Math.min(width - this.radius, this.x));
+    const movementRadius = this.collisionRadius ?? this.radius;
+    this.x = Math.max(movementRadius, Math.min(width - movementRadius, this.x));
     if (this.type !== 'boss' || this.bossEntranceTimer <= 0) {
-      this.y = Math.max(this.radius, Math.min(height - this.radius, this.y));
+      this.y = Math.max(movementRadius, Math.min(height - movementRadius, this.y));
     } else {
       // The boss may remain above the visible playfield, but cannot drift below it.
-      this.y = Math.min(height - this.radius, this.y);
+      this.y = Math.min(height - movementRadius, this.y);
     }
     this.updateMotionFeedback(dt, previousX, previousY);
 
@@ -418,7 +423,7 @@ export class Enemy {
         Math.sin(desiredFacing - this.facingRotation),
         Math.cos(desiredFacing - this.facingRotation)
       );
-      this.facingRotation += facingDelta * Math.min(1, dt * (this.type === 'boss' ? 3.2 : 4.5));
+      this.facingRotation += facingDelta * Math.min(1, dt * (this.type === 'boss' ? 0.85 : 4.5));
     } else {
       this.facingRotation = this.rotation;
     }
