@@ -234,3 +234,12 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - Corrigido o teste de interseção do feixe com inimigos: o raio agora soma o raio de colisão da entidade (incluindo o footprint ampliado do boss) à meia-largura do feixe (13 px).
 - A alteração corrige falsos negativos em interseções visíveis nas bordas; não altera dano, cadência, alcance ou custo de ativação.
 - [ ] Validar visualmente colisões tangenciais do feixe com inimigos pequenos, encouraçado e projéteis inimigos; confirmar que a leitura visual corresponde ao contato.
+
+
+## Canhão principal — validação manual pendente
+- [ ] Na fase I, confirmar que o canhão permanece em espera e não mostra telemetria de carga.
+- [ ] Na fase II/III, confirmar o progresso visual de carga no módulo frontal e no HUD tático.
+- [ ] Confirmar que o estado muda para alerta de energia crítica ao fim da carga e depois entra em recuperação.
+- [ ] Destruir/inoperar o módulo e confirmar que a telemetria é interrompida; verificar retomada após reconstrução.
+- [ ] Confirmar que o canhão não cria projéteis, feixes ofensivos, dano ao jogador ou eventos de Attack Clash.
+- [ ] Verificar legibilidade em celular e desktop com zoom tático ativo e a preferência de movimento reduzido.
