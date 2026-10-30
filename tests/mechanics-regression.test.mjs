@@ -5,6 +5,7 @@ import { GuidedMissile } from '../src/combat/guided-missile.js';
 import { EnemyProjectile } from '../src/combat/enemy-projectile.js';
 import { Player } from '../src/player/player.js';
 import { resolveAttackClash, resolveContinuousLaserProjectile } from '../src/combat/attack-clash.js';
+import { predictProjectileThreat } from '../src/combat/threat-detection.js';
 
 test('boss waves begin at wave 10 and recur every five waves',()=>{
  const waves=new WaveManager();
@@ -89,4 +90,15 @@ test('boss test scenario starts at wave 10 without changing normal wave defaults
  assert.equal(testWave.spawnedCount,0);assert.equal(testWave.state,'spawning');
  assert.equal(testWave.update(0.81,0),true);
  assert.equal(testWave.spawnedCount,1);
+});
+
+
+test('heavy projectile warning predicts only a real near-term collision course',()=>{
+ const player={x:0,y:0,radius:10,velocityX:0,velocityY:0,knockbackX:0,knockbackY:0};
+ const incoming={x:0,y:60,vx:0,vy:-100,radius:5,active:true,heavyImpact:true};
+ const miss={x:48,y:60,vx:0,vy:-100,radius:5,active:true,heavyImpact:true};
+ const distant={x:0,y:180,vx:0,vy:-100,radius:5,active:true,heavyImpact:true};
+ assert.ok(predictProjectileThreat(incoming,player));
+ assert.equal(predictProjectileThreat(miss,player),null);
+ assert.equal(predictProjectileThreat(distant,player),null);
 });
