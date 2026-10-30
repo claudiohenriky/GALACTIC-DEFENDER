@@ -7,7 +7,9 @@
 - Integra padrões de disparo por categoria de armamento, com projéteis leves de pressão, mísseis lentos e canhões de plasma de alto impacto.
 - Ao atingir 33% de casco, o chefe inicia uma única transformação de sobrecarga, reconstrói/substitui módulos e retorna com 50% de integridade.
 - Primeira aparição alterada para a onda 10; recorrência nas ondas 15, 20, 25...
-- Ainda pendentes: expansão real da arena e câmera, entrada cinematográfica completa, arte final em pixel art, telemetria visual de dano, animações de destruição/fuga, interface dedicada, balanceamento, revisão estática e testes de navegador/desempenho.
+- Implementa entrada cinematográfica com aproximação suavizada, anel de detecção, bloqueio temporário dos disparos e zoom dinâmico de câmera com compensação da mira por mouse/toque.
+- Corrige a contenção vertical da nave durante a entrada e a inicialização da classificação de ondas de chefe no spawn.
+- Ainda pendentes: expansão física da arena, arte final em pixel art, efeitos avançados, sequência de destruição, refinamentos de HUD, balanceamento, auditoria estática completa e testes de navegador/desempenho.
 - Candidata em desenvolvimento; não mesclada em `main`.
 
 ## [0.43.0] — Evolução da IA inimiga (candidata)
