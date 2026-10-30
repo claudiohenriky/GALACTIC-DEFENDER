@@ -365,3 +365,10 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Lançadores de mísseis do boss criam projéteis teleguiados com velocidade angular limitada.
 - [x] Attack Clash aplica resistência graduada: projéteis leves são neutralizados por um impacto forte o suficiente; projéteis pesados exigem mais de um impacto ou disparos mais potentes.
 - [ ] Testar arcos e rotação das torres em todas as posições relativas do jogador; validar homing e resistência dos projéteis em gameplay.
+
+
+## Boss v0.44.0 — apresentação, sobrecarga e derrota (30/10/2026)
+- Entrada ampliada para 5,2 s, com bloqueio de disparos durante a apresentação, alerta persistente no banner e identificação visual sobre o encouraçado.
+- Sobrecarga sinaliza reparo, reconstrução e substituição de módulos com pulsos mecânicos locais, sem alterar a regra de preservação dos armamentos intactos.
+- Finalização estendida para 8,4 s: o casco perde estabilidade, deriva e gira gradualmente enquanto as detonações percorrem a estrutura; remoção e recompensa continuam no término da sequência.
+- Pendente: validar visualmente o tempo de leitura, a trajetória do destroço e a sobrecarga em gameplay real mobile/desktop.

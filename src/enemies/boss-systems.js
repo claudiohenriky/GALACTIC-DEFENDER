@@ -35,6 +35,8 @@ export class BossSystems {
       sparks: 0,
       repairGlow: 0,
       replacementInstalled: false,
+      transitionTimer: 0,
+      transitionType: '',
       catastrophic: false,
       originalKind: module.kind,
       turretAngle: 0
@@ -130,6 +132,7 @@ export class BossSystems {
       if (module.fire > 0) module.fire = Math.max(0, module.fire - decay * 0.7);
       if (module.sparks > 0) module.sparks = Math.max(0, module.sparks - decay * 1.4);
       if (module.repairGlow > 0) module.repairGlow = Math.max(0, module.repairGlow - dt * 0.48);
+      if (module.transitionTimer > 0) module.transitionTimer = Math.max(0, module.transitionTimer - dt);
     }
     for (const shield of this.shields) {
       if (shield.repairGlow > 0) shield.repairGlow = Math.max(0, shield.repairGlow - dt * 0.42);
@@ -151,6 +154,8 @@ export class BossSystems {
       if (module.state === 'destroyed' && module.catastrophic) {
         // Irrecoverable mounts are withdrawn and replaced by a different weapon family.
         module.replacementInstalled = true;
+        module.transitionType = 'replacement';
+        module.transitionTimer = 2.2;
         module.kind = module.replacement;
         module.repairGlow = 1;
         module.state = 'damaged';
@@ -161,6 +166,8 @@ export class BossSystems {
         module.catastrophic = false;
       } else if (module.state === 'destroyed') {
         // Recoverable wreckage keeps its original weapon identity and is rebuilt in place.
+        module.transitionType = 'rebuild';
+        module.transitionTimer = 1.8;
         module.repairGlow = 1;
         module.kind = module.originalKind;
         module.state = 'damaged';
@@ -169,6 +176,8 @@ export class BossSystems {
         module.fire = 0;
         module.sparks = 0.5;
       } else if (module.state === 'disabled' || module.state === 'damaged') {
+        module.transitionType = 'repair';
+        module.transitionTimer = 1.35;
         module.repairGlow = 1;
         module.health = clamp(module.maxHealth * 0.55, 1, module.maxHealth);
         module.state = 'damaged';

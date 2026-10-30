@@ -1288,7 +1288,7 @@ export class Game {
       const spawnY = bossWave ? viewTop - 180 : viewTop + 20;
       this.enemies.push(new Enemy(spawnX, spawnY, this.waveManager.wave, type, isElite));
       if (bossWave) {
-        this.showRewardBanner('NAVE INIMIGA DE GRANDE PORTE DETECTADA', 'ALERTA · CONTATO HOSTIL DE GRANDE PORTE NA ÁREA', 'boss');
+        this.showRewardBanner('ALERTA MÁXIMA · ENCOURAÇADO DETECTADO', 'CONTATO HOSTIL DE GRANDE PORTE · AGUARDANDO ATIVAÇÃO DOS SISTEMAS', 'boss');
       }
       if (isElite && !this.eliteAlertsShown.has(type)) {
         this.eliteAlertsShown.add(type);

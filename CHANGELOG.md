@@ -667,3 +667,9 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Torres do encouraçado agora acompanham o jogador de forma independente, respeitando arcos e velocidades de rotação próprios.
 - Lançadores do boss passam a disparar projéteis teleguiados.
 - Attack Clash agora considera resistência dos projéteis inimigos, evitando que ataques pesados sejam neutralizados por um único disparo leve.
+
+
+## [Unreleased] — Boss cinematográfico
+- Entrada do encouraçado mais longa, com armas bloqueadas durante o alerta e identificação visual integrada à nave.
+- Sobrecarga com sinais visuais distintos para reparo, reconstrução e substituição de módulos.
+- Derrota prolongada com perda de estabilidade, rotação e deriva do casco antes da remoção.

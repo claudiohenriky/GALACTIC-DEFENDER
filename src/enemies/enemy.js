@@ -22,11 +22,14 @@ export class Enemy {
     this.bossSystems = type === 'boss' ? new BossSystems() : null;
     this.bossPhase = 1;
     this.bossPhaseTransition = 0;
-    this.bossEntranceDuration = type === 'boss' ? 3.2 : 0;
+    this.bossEntranceDuration = type === 'boss' ? 5.2 : 0;
     this.bossEntranceTimer = this.bossEntranceDuration;
     this.bossDying = false;
     this.bossDeathTimer = 0;
-    this.bossDeathDuration = 7.2;
+    this.bossDeathDuration = 8.4;
+    this.bossDeathDriftX = 0;
+    this.bossDeathDriftY = 0;
+    this.bossDeathSpin = 0;
     this.rewardGranted = false;
     this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.phase = Math.random() * Math.PI * 2;
@@ -92,6 +95,14 @@ export class Enemy {
     // A destroyed dreadnought becomes a non-combat visual entity until its finale completes.
     if (this.type === 'boss' && this.bossDying) {
       this.bossDeathTimer = Math.min(this.bossDeathDuration, this.bossDeathTimer + dt);
+      const collapseProgress = Math.min(1, this.bossDeathTimer / this.bossDeathDuration);
+      // The wreck loses thrust, tumbles and drifts instead of vanishing in place.
+      this.bossDeathDriftX += Math.sin(this.bossDeathTimer * 1.7) * dt * 2.2;
+      this.bossDeathDriftY += dt * (5 + collapseProgress * 18);
+      this.bossDeathSpin += dt * (0.035 + collapseProgress * 0.12);
+      this.x += this.bossDeathDriftX * dt;
+      this.y += this.bossDeathDriftY * dt;
+      this.facingRotation += this.bossDeathSpin * dt;
       return null;
     }
 
@@ -493,7 +504,12 @@ export class Enemy {
     const edge = this.isElite ? (artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
-    ctx.translate(this.x, this.y);
+    ctx.translate(this.x + (boss && this.bossDying ? this.bossDeathDriftX * 0.18 : 0), this.y + (boss && this.bossDying ? this.bossDeathDriftY * 0.18 : 0));
+    if (boss && this.bossDying) {
+      const collapse = Math.min(1, this.bossDeathTimer / this.bossDeathDuration);
+      ctx.rotate(Math.sin(this.bossDeathTimer * 1.35) * collapse * 0.075);
+      ctx.globalAlpha = Math.max(0.18, 1 - Math.max(0, collapse - 0.48) * 1.45);
+    }
     if (boss && this.bossPhaseTransition > 0) {
       ctx.globalAlpha = 0.55 + Math.sin(this.bossPhaseTransition * 22) * 0.25;
       ctx.strokeStyle = edge;
@@ -514,6 +530,15 @@ export class Enemy {
       ctx.ellipse(0, 0, this.radius * (1.55 + progress * 0.18), this.radius * (0.48 + progress * 0.08), 0, 0, Math.PI * 2);
       ctx.stroke();
       ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+      ctx.save();
+      ctx.rotate(-(this.facingRotation + Math.PI / 2));
+      ctx.globalAlpha = 0.78 + Math.sin(this.phase * 8) * 0.12;
+      ctx.fillStyle = '#8feaff';
+      ctx.font = 'bold 10px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(progress < 0.48 ? 'ALERTA · NAVE DE GUERRA DETECTADA' : 'SISTEMAS HOSTIS ATIVANDO', 0, -this.radius * 1.18);
+      ctx.restore();
       ctx.globalAlpha = 1;
     }
     ctx.rotate(this.facingRotation + Math.PI / 2);
@@ -783,6 +808,18 @@ export class Enemy {
             ctx.strokeRect(mx - moduleHalfSize - 3, my - moduleHalfSize - 3, moduleSize + 6, moduleSize + 6);
             ctx.globalAlpha = 1;
           }
+          if (module.transitionTimer > 0) {
+            const transitionProgress = 1 - module.transitionTimer / (module.transitionType === 'replacement' ? 2.2 : module.transitionType === 'rebuild' ? 1.8 : 1.35);
+            const transitionPulse = 0.55 + Math.sin(this.phase * 16 + mx) * 0.2;
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, 1 - transitionProgress * 0.72) * transitionPulse;
+            ctx.strokeStyle = module.transitionType === 'replacement' ? '#ffb56b' : '#78f4ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(mx, my, moduleHalfSize + 4 + transitionProgress * 12, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+          }
         }
 
         // Scalar arc bounds avoid allocating four temporary arrays on every boss draw.
@@ -1024,9 +1061,9 @@ export class Enemy {
         }
       }
 
-      const finalAge = deathTime - 3.35;
+      const finalAge = deathTime - 4.15;
       if (finalAge >= 0) {
-        const finalFade = Math.max(0, 1 - finalAge / 1.15);
+        const finalFade = Math.max(0, 1 - finalAge / 1.45);
         const shockRadius = 12 + finalAge * 145;
 
         // Two expanding shockwave rings create a stronger final detonation silhouette.
