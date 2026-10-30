@@ -115,7 +115,7 @@ export class Enemy {
     // Only Sentinel, Artillery and Boss react in this first pass; each has a different response strength.
     if ((this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') && this.dodgeCooldown <= 0) {
       let bestThreat = null;
-      let bestClearance = Infinity;
+      let bestClearanceSquared = Infinity;
       for (const projectile of playerProjectiles) {
         if (!projectile.active) continue;
         const rvx = (projectile.vx ?? 0) - this.velocityX;
@@ -128,10 +128,10 @@ export class Enemy {
         if (impactTime < 0.07) continue;
         const closestX = rx + rvx * impactTime;
         const closestY = ry + rvy * impactTime;
-        const clearance = Math.hypot(closestX, closestY);
+        const clearanceSquared = closestX * closestX + closestY * closestY;
         const dangerRadius = this.radius + (projectile.radius ?? 3) + (this.type === 'boss' ? 5 : 12);
-        if (clearance < dangerRadius && clearance < bestClearance) {
-          bestClearance = clearance;
+        if (clearanceSquared < dangerRadius * dangerRadius && clearanceSquared < bestClearanceSquared) {
+          bestClearanceSquared = clearanceSquared;
           bestThreat = { x: closestX, y: closestY };
         }
       }
@@ -539,11 +539,15 @@ export class Enemy {
       ctx.fillStyle = '#263d53';
       ctx.fillRect(-this.radius * 1.14, -this.radius * 0.18, this.radius * 0.34, this.radius * 0.86);
       ctx.fillRect(this.radius * 0.80, -this.radius * 0.18, this.radius * 0.34, this.radius * 0.86);
-      ctx.fillStyle = this.bossPhase === 3 ? '#ff704e' : '#55c9ed';
-      ctx.shadowBlur = 18;
-      ctx.shadowColor = ctx.fillStyle;
+      const coreColor = this.bossPhase === 3 ? '#ff704e' : '#55c9ed';
+      // Layered solid rectangles replace Canvas shadow blur, which is costly on mobile GPUs.
+      ctx.globalAlpha = 0.14;
+      ctx.fillStyle = coreColor;
+      ctx.fillRect(-this.radius * 0.29, -this.radius * 0.21, this.radius * 0.58, this.radius * 0.74);
+      ctx.globalAlpha = 0.28;
+      ctx.fillRect(-this.radius * 0.24, -this.radius * 0.16, this.radius * 0.48, this.radius * 0.66);
+      ctx.globalAlpha = 1;
       ctx.fillRect(-this.radius * 0.20, -this.radius * 0.12, this.radius * 0.40, this.radius * 0.56);
-      ctx.shadowBlur = 0;
 
       // Ten independently damageable weapon modules are represented by visible sockets.
       if (systems) {
