@@ -33,13 +33,15 @@ export class BossSystems {
       smoke: 0,
       fire: 0,
       sparks: 0,
+      repairGlow: 0,
       replacementInstalled: false
     }));
     this.shields = SHIELD_TEMPLATES.map((shield) => ({
       ...shield,
       health: shield.maxHealth,
       rechargeTimer: 0,
-      disabled: false
+      disabled: false,
+      repairGlow: 0
     }));
     // The auxiliary generator is stable for this boss lifetime; cache its reference
     // instead of searching the module array on every simulation frame.
@@ -60,6 +62,7 @@ export class BossSystems {
     if (!module || module.state === 'destroyed' || amount <= 0) return null;
 
     module.health = Math.max(0, module.health - amount);
+    module.repairGlow = 0;
     const ratio = module.health / module.maxHealth;
 
     if (module.health <= 0) {
@@ -113,12 +116,16 @@ export class BossSystems {
       }
     }
 
+    // Residual damage and repair visuals must fade even after a replacement returns online.
     for (const module of this.modules) {
-      if (module.state === 'operational') continue;
       const decay = dt * 0.12;
-      module.smoke = Math.max(0, module.smoke - decay);
-      module.fire = Math.max(0, module.fire - decay * 0.7);
-      module.sparks = Math.max(0, module.sparks - decay * 1.4);
+      if (module.smoke > 0) module.smoke = Math.max(0, module.smoke - decay);
+      if (module.fire > 0) module.fire = Math.max(0, module.fire - decay * 0.7);
+      if (module.sparks > 0) module.sparks = Math.max(0, module.sparks - decay * 1.4);
+      if (module.repairGlow > 0) module.repairGlow = Math.max(0, module.repairGlow - dt * 0.48);
+    }
+    for (const shield of this.shields) {
+      if (shield.repairGlow > 0) shield.repairGlow = Math.max(0, shield.repairGlow - dt * 0.42);
     }
 
     if (this.rebuildTimer > 0) {
@@ -143,6 +150,7 @@ export class BossSystems {
         module.fire = 0;
         module.sparks = 0.45;
       } else if (module.state === 'disabled' || module.state === 'damaged') {
+        module.repairGlow = 1;
         module.health = clamp(module.maxHealth * 0.48, 1, module.maxHealth);
         module.state = 'damaged';
         module.smoke = Math.max(module.smoke, 0.4);
@@ -152,6 +160,7 @@ export class BossSystems {
     }
 
     for (const shield of this.shields) {
+      shield.repairGlow = 1;
       shield.health = Math.min(shield.maxHealth * 0.4, Math.max(shield.health, shield.maxHealth * 0.2));
       shield.disabled = shield.health <= 0;
       shield.rechargeTimer = shield.disabled ? 5 : 0;
