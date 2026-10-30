@@ -249,10 +249,10 @@ export class Enemy {
         const cosHull = Math.cos(hullRotation);
         const sinHull = Math.sin(hullRotation);
         for (const module of turretSystems.modules) {
-          if (module.kind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled') {
+          if (module.kind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled' && module.transitionTimer <= 0) {
             module.plasmaChargeTimer = Math.max(0, (module.plasmaChargeTimer ?? module.plasmaChargeDuration) - dt);
           }
-          if (module.kind.includes('support') || module.state === 'destroyed' || module.state === 'disabled') continue;
+          if (module.kind.includes('support') || module.state === 'destroyed' || module.state === 'disabled' || module.transitionTimer > 0) continue;
           const localX = module.x * this.radius;
           const localY = (module.y - 0.16) * this.radius;
           const muzzleX = this.x + localX * cosHull - localY * sinHull;
@@ -942,7 +942,7 @@ export class Enemy {
             ctx.strokeRect(mx - moduleHalfSize - 3, my - moduleHalfSize - 3, moduleSize + 6, moduleSize + 6);
             ctx.globalAlpha = 1;
           }
-          if (renderKind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled') {
+          if (renderKind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled' && module.transitionTimer <= 0) {
             const chargeRatio = 1 - Math.max(0, module.plasmaChargeTimer ?? 0) / Math.max(0.1, module.plasmaChargeDuration ?? 2.6);
             if (chargeRatio > 0.02) {
               const pulse = 0.72 + Math.sin(this.phase * (7 + chargeRatio * 12) + mx) * 0.2;

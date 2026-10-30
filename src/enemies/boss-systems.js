@@ -223,6 +223,8 @@ export class BossSystems {
   }
 
   getOperationalModules() {
-    return this.modules.filter((module) => module.state === 'operational' || module.state === 'damaged');
+    return this.modules.filter((module) =>
+      (module.state === 'operational' || module.state === 'damaged') && module.transitionTimer <= 0
+    );
   }
 }

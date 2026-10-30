@@ -65,3 +65,27 @@ test('continuous laser segment intersects the elongated boss hull at bow and ste
  assert.equal(orientedEllipseOverlapsSegment(hull,150,-8,150,8,142,218,0,5),false);
  assert.equal(orientedEllipseOverlapsSegment(hull,205,-8,205,8,142,218,Math.PI/2,5),true);
 });
+
+test('modules cannot track, charge or fire until their installation transition finishes',()=>{
+ const systems=new BossSystems();
+ const module=systems.getModule('machine-gun-left');
+ systems.damageModule(module.id,100);
+ systems.beginOverloadRebuild();
+ assert.ok(module.transitionTimer>0);
+ assert.equal(systems.getOperationalModules().includes(module),false);
+ systems.update(2.3);
+ assert.equal(module.transitionTimer,0);
+ assert.equal(systems.getOperationalModules().includes(module),true);
+});
+test('replacement plasma charging does not advance while the weapon is being installed',()=>{
+ const boss=new Enemy(500,300,10,'boss');
+ const plasma=boss.bossSystems.getModule('machine-gun-left');
+ boss.bossSystems.damageModule(plasma.id,100);
+ boss.bossSystems.beginOverloadRebuild();
+ const replacement=boss.bossSystems.getModule('machine-gun-left');
+ assert.equal(replacement.kind,'plasma-turret');
+ const initialCharge=replacement.plasmaChargeTimer;
+ boss.bossEntranceTimer=0;boss.bossPhase=3;boss.bossPhaseTransition=1;boss.fireCooldown=5;
+ boss.update(0.5,500,900,1000,1200,[],[],0);
+ assert.equal(replacement.plasmaChargeTimer,initialCharge);
+});
