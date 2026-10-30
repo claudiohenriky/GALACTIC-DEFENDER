@@ -98,3 +98,24 @@ test('boss weapon fire is gated by mount arc, range and completed turret alignme
  assert.equal(canWeaponFireAtTarget({...base,distanceSquared:50000}),false);
  assert.equal(canWeaponFireAtTarget({...base,alignmentError:0.35}),false);
 });
+
+
+test('overload ejects catastrophic weapon wreckage while recoverable modules are rebuilt in place',()=>{
+ const boss=new Enemy(500,300,10,'boss');
+ const catastrophic=boss.bossSystems.getModule('machine-gun-left');
+ const recoverable=boss.bossSystems.getModule('machine-gun-right');
+ boss.bossSystems.damageModule(catastrophic.id,100);
+ boss.bossSystems.damageModule(recoverable.id,34);
+ assert.equal(boss.ejectDestroyedModules(),1);
+ assert.equal(boss.ejectedModules.length,1);
+ assert.equal(boss.ejectedModules[0].kind,'machine-gun');
+ assert.equal(boss.ejectDestroyedModules(),0);
+ boss.bossSystems.beginOverloadRebuild();
+ assert.equal(catastrophic.kind,'plasma-turret');
+ assert.equal(recoverable.kind,'machine-gun');
+ assert.equal(recoverable.transitionType,'rebuild');
+ const initialX=boss.ejectedModules[0].x,initialY=boss.ejectedModules[0].y;
+ boss.updateEjectedModules(0.5);
+ assert.ok(boss.ejectedModules[0].x!==initialX||boss.ejectedModules[0].y!==initialY);
+ assert.ok(boss.ejectedModules[0].life<2.2);
+});
