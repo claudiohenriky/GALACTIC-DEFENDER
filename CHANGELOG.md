@@ -1,33 +1,6 @@
 ## [0.44.0] — Primeiro chefe: nave de guerra pesada (em desenvolvimento)
 
-- Refina o HUD tático com realce curto e distinto quando escudos/setores e módulos recebem dano ou recuperam integridade.
-- Adiciona barra de progresso da reconstrução por sobrecarga, calculada a partir do temporizador de 4,5 s do sistema, com suporte a movimento reduzido.
-
-- Amplia a escala física do chefe e introduz uma silhueta de nave de guerra com blindagem, núcleo e módulos visíveis.
-- Adiciona dez módulos independentes de armamento: metralhadoras, lançadores de mísseis, lasers leves, canhões de plasma, canhão principal e sistema auxiliar.
-- Implementa estados de módulo: operacional, danificado, inoperante e destruído; inclui sinais visuais iniciais de fumaça, fogo e faíscas.
-- Adiciona escudos regionais frontais, laterais e traseiro, com recarga condicionada ao sistema auxiliar.
-- Integra padrões de disparo por categoria de armamento, com projéteis leves de pressão, mísseis lentos e canhões de plasma de alto impacto.
-- Ao atingir 33% de casco, o chefe inicia uma única transformação de sobrecarga, reconstrói/substitui módulos e retorna com 50% de integridade.
-- Primeira aparição alterada para a onda 10; recorrência nas ondas 15, 20, 25...
-- Implementa entrada cinematográfica com aproximação suavizada, anel de detecção, bloqueio temporário dos disparos e zoom dinâmico de câmera com compensação da mira por mouse/toque.
-- Corrige a contenção vertical da nave durante a entrada e a inicialização da classificação de ondas de chefe no spawn.
-- Expande o mundo físico para 1,6× a largura e a altura do viewport, com câmera de acompanhamento, limites próprios e conversão de mira por mouse/toque.
-- Ajusta o spawn de inimigos e a entrada/patrulha do chefe à região visível da câmera; projéteis, mísseis e separação usam os limites do mundo.
-- Corrige a faixa lateral do Artilheiro para acompanhar a posição do jogador e o posicionamento vertical do chefe para continuar visível quando o combate ocorre perto do limite inferior da arena.
-- Reforça a identidade de encouraçado: reposicionamento lento e limitado, rotação gradual de 0,85 rad/s e hitbox de colisão ampliada para acompanhar a silhueta blindada, permitindo ao jogador flanquear e atacar os setores regionais.
-- Aplica a hitbox ampliada também aos testes circulares exatos de impacto, garantindo consistência entre a rejeição rápida e a colisão efetiva.
-- Adiciona uma destruição em etapas para o encouraçado: cinco detonações locais e uma explosão final temporizada; o chefe interrompe ataques, movimento e colisões durante a sequência, e só então concede pontuação, XP, progresso de missão e conquista uma única vez.
-- Refina a destruição com chamas localizadas, fumaça persistente e duas ondas de choque na explosão final; os efeitos usam cinco posições determinísticas e não instanciam partículas por quadro.
-- Mísseis guiados deixam de selecionar ou perseguir o chefe após o início da destruição; os efeitos são desenhados deterministicamente, sem criar partículas por quadro.
-- Amplia os gatilhos da validação automatizada para executar também na branch candidata e em PRs direcionadas à base de desenvolvimento; a validação inclui sintaxe JS, resolução de imports relativos e whitespace do diff.
-- Validação automatizada aprovada no HEAD atual: sintaxe de todos os módulos JavaScript, resolução dos imports relativos e verificação de whitespace do diff.
-- Mantém o cache do fundo limitado ao tamanho do viewport para evitar multiplicar o consumo de memória pela expansão do mundo.
-- Amplia o HUD do chefe: separa integridade do casco, quatro setores de escudo com estado e percentual próprios e dez indicadores de módulos com estados operacional/danificado/inoperante/destruído; a fase identifica a reconstrução da sobrecarga e a sequência de destruição.
-- Mantém a atualização do painel na cadência limitada da HUD, sem adicionar trabalho de DOM por quadro; layout compacto com grade responsiva para celular e desktop.
-- Ainda pendentes: validação visual em navegador/celular/desktop, arte final em pixel art, efeitos avançados fora da sequência de destruição, balanceamento, auditoria estática completa e testes de desempenho.
-- Candidata em desenvolvimento; não mesclada em `main`.
-
+- Corrige a geometria de colisão do laser contínuo: o teste agora considera o raio real de projéteis inimigos e entidades (incluindo a hitbox ampliada do boss), somado à largura do feixe. Isso evita falsos negativos em interseções visíveis sem alterar dano, cadência ou alcance.
 ## [0.43.0] — Evolução da IA inimiga (candidata)
 
 - Rebalanceia a Sentinela normal: esquiva menos frequente e menos intensa, com deslocamento lateral mais contido e reposicionamento menos agressivo.
