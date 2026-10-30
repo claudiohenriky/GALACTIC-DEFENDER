@@ -163,6 +163,9 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 
 
 ## Torres independentes e colisão Attack Clash
+- [x] Metadados temporários de transição dos módulos são limpos ao fim do temporizador; a limpeza ocorre no loop fixo de dez módulos já existente, sem alocação adicional.
+- [ ] Confirmar em gameplay que reparo, reconstrução e substituição encerram a animação sem salto visual ou alteração inesperada do tipo de arma.
+
 
 - [x] Adicionar ângulo individual de torre e limites de arco conforme a família e o lado do casco.
 - [x] Limitar a velocidade de rotação de metralhadoras, plasma, mísseis e canhão principal.
