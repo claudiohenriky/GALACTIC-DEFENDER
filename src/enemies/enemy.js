@@ -20,6 +20,8 @@ export class Enemy {
     this.bossSystems = type === 'boss' ? new BossSystems() : null;
     this.bossPhase = 1;
     this.bossPhaseTransition = 0;
+    this.bossEntranceDuration = type === 'boss' ? 3.2 : 0;
+    this.bossEntranceTimer = this.bossEntranceDuration;
     this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'boss'
@@ -165,16 +167,21 @@ export class Enemy {
         this.fireCooldown = Math.max(this.fireCooldown, 1.05);
       }
       this.bossPhaseTransition = Math.max(0, this.bossPhaseTransition - dt);
-      // Bosses advance into the arena, then sweep across a broad horizontal lane.
-      // Steering toward a sinusoidal destination avoids the old edge-to-edge velocity oscillation.
+      // A short, readable arrival sequence gives the heavy ship a clear entrance before combat.
+      // Smoothstep keeps the descent controlled and avoids a sudden position snap.
+      this.bossEntranceTimer = Math.max(0, this.bossEntranceTimer - dt);
+      const entranceProgress = 1 - this.bossEntranceTimer / Math.max(0.001, this.bossEntranceDuration);
+      const entranceEase = entranceProgress * entranceProgress * (3 - 2 * entranceProgress);
       const horizontalRange = Math.max(0, width * (this.bossPhase === 3 ? 0.25 : 0.20));
-      const desiredX = width / 2 + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange;
+      const patrolX = width / 2 + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange;
       const desiredY = Math.max(58, Math.min(targetY - Math.max(90, height * 0.18), height * 0.52));
+      const entryY = -this.radius * 1.9 + (desiredY + this.radius * 1.9) * entranceEase;
+      const desiredX = width / 2 + (patrolX - width / 2) * entranceEase;
       this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 0.48 : 0.36));
-      this.y += (desiredY - this.y) * Math.min(1, dt * 0.34);
+      this.y += (entryY - this.y) * Math.min(1, dt * (this.bossEntranceTimer > 0 ? 1.8 : 0.34));
       this.x = Math.max(this.radius + 4, Math.min(width - this.radius - 4, this.x));
       this.fireCooldown -= dt;
-      if (this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
+      if (this.bossEntranceTimer <= 0 && this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
         const systems = this.bossSystems;
         const modules = systems?.getOperationalModules() || [];
         const shots = [];
@@ -428,6 +435,19 @@ export class Enemy {
       ctx.beginPath();
       ctx.arc(0, 0, this.radius + 8, 0, Math.PI * 2);
       ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    if (boss && this.bossEntranceTimer > 0) {
+      const progress = 1 - this.bossEntranceTimer / Math.max(0.001, this.bossEntranceDuration);
+      const pulse = 0.5 + Math.sin(this.phase * 7) * 0.18;
+      ctx.globalAlpha = (1 - progress * 0.45) * pulse;
+      ctx.strokeStyle = '#8feaff';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 7]);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, this.radius * (1.55 + progress * 0.18), this.radius * (0.48 + progress * 0.08), 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
       ctx.globalAlpha = 1;
     }
     ctx.rotate(this.facingRotation + Math.PI / 2);
