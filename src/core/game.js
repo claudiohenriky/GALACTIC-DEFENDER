@@ -1330,8 +1330,8 @@ export class Game {
         const second = this.enemies[j];
         if (!second.active) continue;
         const minimumDistance = first.radius + second.radius + 4;
-        const dx = second.x - first.x;
-        const dy = second.y - first.y;
+        let dx = second.x - first.x;
+        let dy = second.y - first.y;
         // Reject distant pairs on the cheap axis checks before multiplying.
         if (Math.abs(dx) >= minimumDistance || Math.abs(dy) >= minimumDistance) continue;
         let distanceSquared = dx * dx + dy * dy;
