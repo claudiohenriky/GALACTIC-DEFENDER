@@ -220,3 +220,10 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Corrigido o pulso visual dos escudos de elite: `eliteShieldFlash` agora decai com `dt` durante a atualização da entidade, em vez de permanecer no estado de impacto até o escudo ser esgotado.
 - [ ] Validar em gameplay a duração perceptível do pulso de elite e a recuperação do controle após impacto de plasma.
 - [ ] Confirmar que não há regressão de movimento com teclado, joystick e toque; CI não substitui esses testes.
+
+
+### Limpeza de estado entre partidas — 30/10/2026
+- Reinício agora zera os oito setores visuais de ameaça do escudo e o temporizador do scanner sem recriar a coleção.
+- Alvos de mísseis reservados são limpos junto com a lista de mísseis.
+- Mira de mouse/toque e captura de arrasto são desativadas ao iniciar uma nova partida, evitando herdar direção/pointerId da rodada anterior.
+- [ ] Validar reinício após combate com escudo ativo, mísseis no ar e toque pressionado; confirmar que a nova partida começa sem pulsos, alvos ou direção residual.
