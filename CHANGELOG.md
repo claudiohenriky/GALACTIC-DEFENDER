@@ -1,3 +1,13 @@
+## [0.44.2] — Ajustes de impacto e legibilidade do boss (em validação)
+
+- Impactos de plasma agora aplicam impulso substancialmente maior e mantêm a desestabilização por 2,1 segundos; o controle de propulsão fica muito mais limitado no início da recuperação.
+- Alertas ? e ! foram reduzidos para indicadores compactos, sem texto adicional junto ao jogador.
+- Rotação de acompanhamento do encouraçado foi desacelerada novamente.
+- Blindagem regional redesenhada como setores elípticos dimensionados para acompanhar o casco alongado.
+- Paleta do boss migra para metal grafite e azul-ciano; carga dos canhões de plasma usa três anéis de energia.
+- Zoom de combate ajustado para 1,1× e enquadramento pós-boss para 0,66×, mantendo a arena inicial em 1×.
+- A entrada cinematográfica completa, a sequência de varredura, a validação de colisão em gameplay e os efeitos de propulsão ainda permanecem pendentes.
+
 ## [0.44.1] — Continuação da estabilização do boss
 
 - Módulos destruídos catastroficamente agora geram destroços independentes que se desprendem do casco e se afastam durante a sobrecarga; módulos recuperáveis continuam sendo reconstruídos no encaixe original.
