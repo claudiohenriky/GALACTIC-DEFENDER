@@ -673,3 +673,6 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Entrada do encouraçado mais longa, com armas bloqueadas durante o alerta e identificação visual integrada à nave.
 - Sobrecarga com sinais visuais distintos para reparo, reconstrução e substituição de módulos.
 - Derrota prolongada com perda de estabilidade, rotação e deriva do casco antes da remoção.
+
+
+- Boss: canhões de plasma com carga independente e indicador de energia, projétil pesado de alto dano, ruptura imediata do escudo do jogador e repulsão forte no impacto.

@@ -372,3 +372,10 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Sobrecarga sinaliza reparo, reconstrução e substituição de módulos com pulsos mecânicos locais, sem alterar a regra de preservação dos armamentos intactos.
 - Finalização estendida para 8,4 s: o casco perde estabilidade, deriva e gira gradualmente enquanto as detonações percorrem a estrutura; remoção e recompensa continuam no término da sequência.
 - Pendente: validar visualmente o tempo de leitura, a trajetória do destroço e a sobrecarga em gameplay real mobile/desktop.
+
+
+## Canhões de plasma do encouraçado — identidade de ataque (30/10/2026)
+- Canhões carregam independentemente por montagem, com indicador radial local e núcleo de energia crescente.
+- Disparo pesado com projétil alongado, dano alto e impacto de repulsão forte.
+- Ao atingir escudo ativo do jogador, o plasma rompe o escudo imediatamente, dispara o efeito de ruptura existente e aplica forte repulsão; sem escudo, causa dano elevado e repulsão ainda maior.
+- O ciclo de carga é local por canhão, sem aumentar a frequência dos demais armamentos. Valores iniciais são de balanceamento e exigem teste de gameplay.

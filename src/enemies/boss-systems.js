@@ -39,7 +39,9 @@ export class BossSystems {
       transitionType: '',
       catastrophic: false,
       originalKind: module.kind,
-      turretAngle: 0
+      turretAngle: 0,
+      plasmaChargeDuration: 2.6,
+      plasmaChargeTimer: module.kind.includes('plasma') ? 2.6 : 0
     }));
     this.shields = SHIELD_TEMPLATES.map((shield) => ({
       ...shield,

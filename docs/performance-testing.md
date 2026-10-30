@@ -161,3 +161,11 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Introduzir resistência de colisão dos projéteis inimigos baseada na classe de dano; o disparo do jogador consome resistência e pode neutralizar o projétil em colisões subsequentes.
 - [ ] Validar visualmente os arcos, direção dos canos e equilíbrio do Attack Clash em celular/desktop.
 - [ ] Testar se os mísseis podem ser evitados e se a guiagem não produz curvas abruptas.
+
+
+## Revisão de desempenho do boss — pontos de atenção
+- A simulação do boss ainda percorre módulos e setores de escudo; o conjunto é fixo (10 módulos/4 escudos), portanto o custo é limitado.
+- O HUD do boss usa a cadência de atualização já limitada por `hudUpdateInterval`, sem trabalho DOM novo por frame.
+- O render do encouraçado usa Canvas 2D e formas vetoriais; os novos indicadores de plasma usam apenas arcos/círculos sem `shadowBlur`, filtros ou partículas persistentes.
+- O projétil de plasma reaproveita a lista já existente de projéteis inimigos e o loop de colisão existente; não cria subsistemas de física.
+- Ainda é necessária medição real em dispositivos mobile e desktop com o perfil de desempenho ativado; CI não mede FPS.

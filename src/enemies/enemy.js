@@ -214,6 +214,9 @@ export class Enemy {
         const cosHull = Math.cos(hullRotation);
         const sinHull = Math.sin(hullRotation);
         for (const module of turretSystems.modules) {
+          if (module.kind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled') {
+            module.plasmaChargeTimer = Math.max(0, (module.plasmaChargeTimer ?? module.plasmaChargeDuration) - dt);
+          }
           if (module.kind.includes('support') || module.state === 'destroyed' || module.state === 'disabled') continue;
           const localX = module.x * this.radius;
           const localY = (module.y - 0.16) * this.radius;
@@ -311,10 +314,14 @@ export class Enemy {
               color: '#d7b6ff', glowColor: '#9d6cff'
             }));
           } else if (module.kind.includes('plasma')) {
-            shots.push(makeShot(module, {
-              damage: 16, speed: 108, radius: 9,
-              color: '#ff9b62', glowColor: '#ff5d32'
-            }));
+            if ((module.plasmaChargeTimer ?? 0) <= 0) {
+              shots.push(makeShot(module, {
+                damage: 34, speed: 142, radius: 13,
+                heavyImpact: true, plasmaImpact: true,
+                color: '#ffb66e', glowColor: '#ff542e'
+              }));
+              module.plasmaChargeTimer = module.plasmaChargeDuration ?? 4.8;
+            }
           } else if (module.kind.includes('energy') || module.kind.includes('overload-cannon')) {
             if (this.bossPhase >= 2) {
               shots.push(makeShot(module, {
@@ -808,6 +815,25 @@ export class Enemy {
             ctx.lineWidth = 2;
             ctx.strokeRect(mx - moduleHalfSize - 3, my - moduleHalfSize - 3, moduleSize + 6, moduleSize + 6);
             ctx.globalAlpha = 1;
+          }
+          if (module.kind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled') {
+            const chargeRatio = 1 - Math.max(0, module.plasmaChargeTimer ?? 0) / Math.max(0.1, module.plasmaChargeDuration ?? 2.6);
+            if (chargeRatio > 0.02) {
+              const pulse = 0.72 + Math.sin(this.phase * (7 + chargeRatio * 12) + mx) * 0.2;
+              ctx.save();
+              ctx.globalAlpha = Math.min(0.9, chargeRatio * pulse);
+              ctx.strokeStyle = '#ff9d5c';
+              ctx.lineWidth = 1.5 + chargeRatio * 2;
+              ctx.beginPath();
+              ctx.arc(mx, my, moduleHalfSize + 4 + chargeRatio * 8, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * chargeRatio);
+              ctx.stroke();
+              ctx.fillStyle = '#ffd6a1';
+              ctx.globalAlpha = chargeRatio * pulse * 0.75;
+              ctx.beginPath();
+              ctx.arc(mx, my, 2 + chargeRatio * 4, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            }
           }
           if (module.transitionTimer > 0) {
             const transitionProgress = 1 - module.transitionTimer / (module.transitionType === 'replacement' ? 2.2 : module.transitionType === 'rebuild' ? 1.8 : 1.35);

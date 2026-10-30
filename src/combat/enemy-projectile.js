@@ -5,6 +5,8 @@ export class EnemyProjectile {
     this.radius = options.radius ?? 4;
     this.speed = options.speed ?? 190;
     this.damage = options.damage ?? 10;
+    this.plasmaImpact = Boolean(options.plasmaImpact);
+    this.heavyImpact = Boolean(options.heavyImpact);
     this.color = options.color ?? '#ffe0a8';
     this.glowColor = options.glowColor ?? '#ffad55';
     this.homing = Boolean(options.homing && options.target);
@@ -35,16 +37,26 @@ export class EnemyProjectile {
 
   draw(ctx) {
     ctx.save();
-    ctx.globalAlpha = 0.2;
+    ctx.globalAlpha = this.plasmaImpact ? 0.32 : 0.2;
     ctx.fillStyle = this.glowColor;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * 1.9, 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, this.radius * (this.plasmaImpact ? 2.5 : 1.9), 0, Math.PI * 2);
     ctx.fill();
     ctx.globalAlpha = 1;
     ctx.fillStyle = this.color;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fill();
+    if (this.plasmaImpact) {
+      const angle = Math.atan2(this.vy, this.vx);
+      ctx.ellipse(this.x, this.y, this.radius * 1.55, this.radius * 0.78, angle, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fff1d4';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius * 0.48, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.restore();
   }
 }

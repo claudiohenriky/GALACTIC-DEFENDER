@@ -501,6 +501,26 @@ export class Game {
     this.restartFeedbackAnimation(feedback, 'damage-active');
   }
 
+  resolvePlasmaImpact(shot) {
+    const player = this.player;
+    const shieldWasActive = player.shieldHealth > 0;
+    if (shieldWasActive) {
+      player.shieldHealth = 0;
+      player.shieldRechargeTimer = player.shieldRechargeDuration;
+      this.triggerShieldBreak();
+    } else if (player.invulnerabilityTimer <= 0 && player.health > 0) {
+      player.health = Math.max(0, player.health - shot.damage);
+      player.invulnerabilityTimer = player.invulnerabilityDuration;
+      this.triggerDamageFeedback(shot.damage);
+      gameAudio.playDamage();
+    }
+    const dx = player.x - shot.x, dy = player.y - shot.y;
+    const length = Math.hypot(dx, dy) || 1;
+    const impulse = shieldWasActive ? 560 : 680;
+    player.knockbackX += dx / length * impulse;
+    player.knockbackY += dy / length * impulse;
+  }
+
   resolveIncomingDamage(amount, sourceX = this.player.x, sourceY = this.player.y, heavyImpact = false) {
     const shieldBefore = this.player.shieldHealth;
     const tookDamage = this.player.takeDamage(amount);
@@ -1550,7 +1570,8 @@ export class Game {
           Math.abs(this.player.y - shot.y) >= impactRadius) continue;
       if (circlesOverlap(this.player, shot)) {
         shot.active = false;
-        this.resolveIncomingDamage(shot.damage, shot.x, shot.y, shot.damage >= 10);
+        if (shot.plasmaImpact) this.resolvePlasmaImpact(shot);
+        else this.resolveIncomingDamage(shot.damage, shot.x, shot.y, shot.heavyImpact || shot.damage >= 10);
       }
     }
 
