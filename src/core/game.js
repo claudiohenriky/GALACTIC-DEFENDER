@@ -30,6 +30,8 @@ export class Game {
     this.mission = new Mission();
     this.waveManager = new WaveManager();
     this.enemies = [];
+    // Boss encounters widen the visible playfield without changing world-space physics.
+    this.cameraZoom = 1;
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
     this.projectiles = [];
@@ -976,20 +978,35 @@ export class Game {
     ctx.restore();
   }
 
+  screenToWorld(screenX, screenY) {
+    const zoom = Math.max(0.5, this.cameraZoom || 1);
+    const centerX = this.width / 2;
+    const centerY = this.height / 2;
+    return { x: centerX + (screenX - centerX) / zoom, y: centerY + (screenY - centerY) / zoom };
+  }
+
   setAimFromPointer(event) {
     if (event.pointerType !== 'mouse') return;
     const rect = this.canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    this.aim.x = Math.max(0, Math.min(this.width, event.clientX - rect.left));
-    this.aim.y = Math.max(0, Math.min(this.height, event.clientY - rect.top));
+    const point = this.screenToWorld(
+      (event.clientX - rect.left) * this.width / rect.width,
+      (event.clientY - rect.top) * this.height / rect.height
+    );
+    this.aim.x = Math.max(0, Math.min(this.width, point.x));
+    this.aim.y = Math.max(0, Math.min(this.height, point.y));
     this.aim.active = true;
   }
 
   setAimFromTouch(event) {
     const rect = this.canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    this.touchAim.x = Math.max(0, Math.min(this.width, (event.clientX - rect.left) * this.width / rect.width));
-    this.touchAim.y = Math.max(0, Math.min(this.height, (event.clientY - rect.top) * this.height / rect.height));
+    const point = this.screenToWorld(
+      (event.clientX - rect.left) * this.width / rect.width,
+      (event.clientY - rect.top) * this.height / rect.height
+    );
+    this.touchAim.x = Math.max(0, Math.min(this.width, point.x));
+    this.touchAim.y = Math.max(0, Math.min(this.height, point.y));
     this.touchAim.active = true;
   }
 
@@ -1102,6 +1119,14 @@ export class Game {
   }
 
   update(dt) {
+    let bossPresent = false;
+    for (let index = 0; index < this.enemies.length; index += 1) {
+      const enemy = this.enemies[index];
+      if (enemy.active && enemy.type === 'boss') { bossPresent = true; break; }
+    }
+    const targetCameraZoom = bossPresent ? 0.84 : 1;
+    this.cameraZoom += (targetCameraZoom - this.cameraZoom) * Math.min(1, dt * 1.65);
+
     for (let index = 0; index < this.stars.length; index += 1) {
       const star = this.stars[index];
       star.y += star.speed * dt;
@@ -1179,7 +1204,7 @@ export class Game {
     // WaveManager decides when an enemy should spawn and when the next wave begins.
     if (this.waveManager.update(dt, this.enemies.length)) {
       const margin = Math.min(20, this.width / 2);
-      const spawnX = rand(margin, Math.max(margin, this.width - margin));
+      const spawnX = bossWave ? this.width / 2 : rand(margin, Math.max(margin, this.width - margin));
       const roll = Math.random();
       const bossWave = this.waveManager.wave >= 10 && this.waveManager.wave % 5 === 0;
       const type = bossWave ? 'boss'
@@ -1512,6 +1537,13 @@ export class Game {
     }
 
     ctx.globalAlpha = 1;
+    const cameraZoom = Math.max(0.5, Math.min(1, this.cameraZoom || 1));
+    if (cameraZoom < 0.999) {
+      ctx.save();
+      ctx.translate(this.width / 2, this.height / 2);
+      ctx.scale(cameraZoom, cameraZoom);
+      ctx.translate(-this.width / 2, -this.height / 2);
+    }
     if (this.continuousLaserHeld && this.player.continuousLaserLevel > 0) { const dx=Math.cos(this.player.rotation),dy=Math.sin(this.player.rotation),sx=this.player.x+dx*18,sy=this.player.y+dy*18,ex=sx+dx*460,ey=sy+dy*460; ctx.save();ctx.lineCap='round';ctx.globalAlpha=.2;ctx.strokeStyle='#44dfff';ctx.lineWidth=13;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=.92;ctx.strokeStyle='#6eeeff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#eaffff';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore(); }
     for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
     for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx);
@@ -1683,5 +1715,6 @@ export class Game {
       ctx.fill();
       ctx.restore();
     }
+    if (cameraZoom < 0.999) ctx.restore();
   }
 }
