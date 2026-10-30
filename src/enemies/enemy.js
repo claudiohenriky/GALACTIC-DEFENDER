@@ -1,3 +1,5 @@
+import { BossSystems } from './boss-systems.js?v=0.44.0';
+
 export class Enemy {
   constructor(x, y, level = 1, type = 'chaser', isElite = false) {
     this.x = x;
@@ -12,12 +14,13 @@ export class Enemy {
     this.guardianCoverShieldMax = this.isElite && type === 'guardian' ? 18 : 0;
     this.guardianCoverShield = this.guardianCoverShieldMax;
     this.eliteSpawnTimer = this.isElite ? 1.65 : 0;
-    this.radius = type === 'boss' ? 23 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
-    this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
+    this.radius = type === 'boss' ? 68 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
+    this.maxHealth = type === 'boss' ? 360 + level * 12 : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
+    this.bossSystems = type === 'boss' ? new BossSystems() : null;
     this.bossPhase = 1;
     this.bossPhaseTransition = 0;
-    this.speed = (type === 'boss' ? 34 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
+    this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'boss'
       ? 1.8
@@ -143,6 +146,7 @@ export class Enemy {
       : 0;
 
     if (this.type === 'boss') {
+      this.bossSystems?.update(dt);
       // Boss phases unlock at 66% and 33% health. A short transition pause signals each change.
       const healthRatio = this.health / Math.max(1, this.maxHealth);
       const nextBossPhase = healthRatio <= 0.33 ? 3 : healthRatio <= 0.66 ? 2 : 1;
@@ -154,11 +158,11 @@ export class Enemy {
       this.bossPhaseTransition = Math.max(0, this.bossPhaseTransition - dt);
       // Bosses advance into the arena, then sweep across a broad horizontal lane.
       // Steering toward a sinusoidal destination avoids the old edge-to-edge velocity oscillation.
-      const horizontalRange = Math.max(0, width * (this.bossPhase === 3 ? 0.36 : 0.32));
+      const horizontalRange = Math.max(0, width * (this.bossPhase === 3 ? 0.25 : 0.20));
       const desiredX = width / 2 + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange;
       const desiredY = Math.max(58, Math.min(targetY - Math.max(90, height * 0.18), height * 0.52));
-      this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 1.65 : 1.35));
-      this.y += (desiredY - this.y) * Math.min(1, dt * 1.1);
+      this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 0.48 : 0.36));
+      this.y += (desiredY - this.y) * Math.min(1, dt * 0.34);
       this.x = Math.max(this.radius + 4, Math.min(width - this.radius - 4, this.x));
       this.fireCooldown -= dt;
       if (this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
@@ -408,16 +412,23 @@ export class Enemy {
     ctx.lineWidth = boss || guardian ? 2 : 1.2;
     ctx.beginPath();
     if (boss) {
-      ctx.moveTo(0, -this.radius * 1.35);
-      ctx.lineTo(this.radius * 0.52, -this.radius * 0.72);
-      ctx.lineTo(this.radius * 1.35, -this.radius * 0.15);
-      ctx.lineTo(this.radius * 0.88, this.radius * 0.72);
-      ctx.lineTo(this.radius * 0.36, this.radius * 0.88);
-      ctx.lineTo(0, this.radius * 1.22);
-      ctx.lineTo(-this.radius * 0.36, this.radius * 0.88);
-      ctx.lineTo(-this.radius * 0.88, this.radius * 0.72);
-      ctx.lineTo(-this.radius * 1.35, -this.radius * 0.15);
-      ctx.lineTo(-this.radius * 0.52, -this.radius * 0.72);
+      // Broad armored dreadnought silhouette: the long axis is the ship's forward direction.
+      ctx.moveTo(0, -this.radius * 1.42);
+      ctx.lineTo(this.radius * 0.38, -this.radius * 1.18);
+      ctx.lineTo(this.radius * 0.62, -this.radius * 0.82);
+      ctx.lineTo(this.radius * 1.18, -this.radius * 0.62);
+      ctx.lineTo(this.radius * 1.34, -this.radius * 0.18);
+      ctx.lineTo(this.radius * 1.08, this.radius * 0.72);
+      ctx.lineTo(this.radius * 0.72, this.radius * 1.08);
+      ctx.lineTo(this.radius * 0.32, this.radius * 1.22);
+      ctx.lineTo(0, this.radius * 1.30);
+      ctx.lineTo(-this.radius * 0.32, this.radius * 1.22);
+      ctx.lineTo(-this.radius * 0.72, this.radius * 1.08);
+      ctx.lineTo(-this.radius * 1.08, this.radius * 0.72);
+      ctx.lineTo(-this.radius * 1.34, -this.radius * 0.18);
+      ctx.lineTo(-this.radius * 1.18, -this.radius * 0.62);
+      ctx.lineTo(-this.radius * 0.62, -this.radius * 0.82);
+      ctx.lineTo(-this.radius * 0.38, -this.radius * 1.18);
     } else if (guardian) {
       ctx.moveTo(-this.radius * 0.48, -this.radius * 1.15);
       ctx.lineTo(this.radius * 0.48, -this.radius * 1.15);
@@ -463,6 +474,84 @@ export class Enemy {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+
+    if (boss) {
+      const systems = this.bossSystems;
+      // Layered armor plates and engine housings keep the large silhouette readable.
+      ctx.fillStyle = '#182638';
+      ctx.strokeStyle = '#91b9d6';
+      ctx.lineWidth = 2;
+      ctx.fillRect(-this.radius * 0.82, -this.radius * 0.34, this.radius * 1.64, this.radius * 1.18);
+      ctx.strokeRect(-this.radius * 0.82, -this.radius * 0.34, this.radius * 1.64, this.radius * 1.18);
+      ctx.fillStyle = '#263d53';
+      ctx.fillRect(-this.radius * 1.14, -this.radius * 0.18, this.radius * 0.34, this.radius * 0.86);
+      ctx.fillRect(this.radius * 0.80, -this.radius * 0.18, this.radius * 0.34, this.radius * 0.86);
+      ctx.fillStyle = this.bossPhase === 3 ? '#ff704e' : '#55c9ed';
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = ctx.fillStyle;
+      ctx.fillRect(-this.radius * 0.20, -this.radius * 0.12, this.radius * 0.40, this.radius * 0.56);
+      ctx.shadowBlur = 0;
+
+      // Ten independently damageable weapon modules are represented by visible sockets.
+      if (systems) {
+        for (const module of systems.modules) {
+          const mx = module.x * this.radius;
+          const my = module.y * this.radius;
+          const moduleColor = module.state === 'destroyed' ? '#343b45'
+            : module.state === 'disabled' ? '#713d32'
+              : module.state === 'damaged' ? '#b86a37'
+                : module.kind.includes('laser') ? '#64e5ff'
+                  : module.kind.includes('missile') ? '#c7a6ff'
+                    : module.kind.includes('plasma') ? '#ffb56b' : '#9ab7ca';
+          ctx.fillStyle = moduleColor;
+          ctx.strokeStyle = '#d5e7f2';
+          ctx.lineWidth = 1.5;
+          ctx.fillRect(mx - this.radius * 0.105, my - this.radius * 0.105, this.radius * 0.21, this.radius * 0.21);
+          ctx.strokeRect(mx - this.radius * 0.105, my - this.radius * 0.105, this.radius * 0.21, this.radius * 0.21);
+          if (module.state === 'damaged' || module.state === 'disabled' || module.state === 'destroyed') {
+            ctx.globalAlpha = 0.45 + Math.sin(this.phase * 8 + mx) * 0.18;
+            ctx.strokeStyle = '#ff9a55';
+            ctx.beginPath();
+            ctx.moveTo(mx - 7, my - 7);
+            ctx.lineTo(mx + 7, my + 7);
+            ctx.moveTo(mx + 7, my - 7);
+            ctx.lineTo(mx - 7, my + 7);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+          if (module.smoke > 0.08) {
+            ctx.globalAlpha = Math.min(0.55, module.smoke * 0.45);
+            ctx.fillStyle = '#aab4bd';
+            ctx.beginPath();
+            ctx.arc(mx + Math.sin(this.phase * 2 + mx) * 7, my - 12 - module.smoke * 10, 5 + module.smoke * 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+          if (module.fire > 0.08) {
+            ctx.globalAlpha = Math.min(0.85, module.fire);
+            ctx.fillStyle = '#ff7a32';
+            ctx.beginPath();
+            ctx.arc(mx, my, 4 + module.fire * 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+        }
+
+        for (const shield of systems.shields) {
+          if (shield.health <= 0) continue;
+          const arc = shield.id === 'front' ? [-2.72, -0.42]
+            : shield.id === 'left' ? [2.45, 3.8]
+              : shield.id === 'right' ? [-0.68, 0.68] : [0.42, 2.72];
+          ctx.globalAlpha = 0.12 + 0.26 * (shield.health / shield.maxHealth);
+          ctx.strokeStyle = '#67dcff';
+          ctx.lineWidth = 7;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.radius * 1.38, arc[0], arc[1]);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      }
+    }
 
     if (artillery) {
       ctx.fillStyle = '#6d3b9d';
