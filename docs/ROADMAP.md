@@ -11,8 +11,9 @@
 - Interface: barra exclusiva de integridade do casco e indicação de fase, atualizadas junto da telemetria já limitada por intervalo.
 - Otimização inicial: seleção do alvo do laser sem ordenação de arrays, checagem de aproximação com distância ao quadrado, reservas de alvos dos mísseis calculadas uma vez por quadro e remoção de `shadowBlur` no núcleo do chefe; ainda sem medição de FPS.
 - Visual: primeira composição de nave de guerra em Canvas; pixel art final, fumaça/partículas avançadas e destruição completa ainda pendentes; entrada cinematográfica e zoom de câmera implementados, aguardando validação visual.
-- Arena: expansão real do espaço jogável e ajuste da câmera permanecem pendentes; não confundir zoom visual com aumento dos limites do mundo.
-- Validação: revisar colisões, ordem de absorção de escudos/dano de módulos/casco, frequência dos ataques, acessibilidade mobile e custo de renderização. Próxima etapa: auditoria de desempenho geral (projéteis, colisões, partículas, IA e renderização), seguida de verificações estáticas e testes em navegador. Nenhum teste de navegador ou FPS foi executado até aqui.
+- Arena: primeira implementação da expansão física concluída na branch — mundo com 1,6× a largura e a altura do viewport, câmera de acompanhamento, limites ampliados e mira convertida para coordenadas do mundo. Spawn comum e entrada/patrulha do chefe foram ajustados à área visível; o cache do fundo permanece limitado ao viewport. A implementação ainda requer teste real em celular e desktop.
+- Próxima sequência: validar movimentação nos quatro limites, colisões, mira por toque/mouse, câmera e entrada do chefe; depois implementar a sequência de destruição, refinar fogo/fumaça/faíscas/reconstrução e aprimorar o HUD do chefe.
+- Validação geral: concluir auditoria estática de projéteis, colisões, partículas, IA e renderização; executar verificações automatizadas e testes de navegador. Nenhum teste de navegador ou medição real de FPS foi executado para a expansão atual.
 - Não mesclar em `main` sem aprovação explícita.
 
 ## Candidata v0.43.0 — Evolução da IA inimiga
