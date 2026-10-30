@@ -533,7 +533,7 @@ export class Game {
     for (const enemy of this.enemies) {
       const dx = enemy.x - x;
       const dy = enemy.y - y;
-      if (enemy.active && dx * dx + dy * dy <= radiusSquared) {
+      if (enemy.active && !enemy.bossDying && dx * dx + dy * dy <= radiusSquared) {
         // Make the shockwave's impact visible on durable bosses as well as small enemies.
         this.damageEnemy(enemy, enemy.type === 'boss' ? 12 : 2);
       }
@@ -582,7 +582,7 @@ export class Game {
 
     // Test only the newly swept semicircular band; use squared distance and dot products.
     for (const enemy of this.enemies) {
-      if (!enemy.active || wave.hitEnemies.has(enemy)) continue;
+      if (!enemy.active || enemy.bossDying || wave.hitEnemies.has(enemy)) continue;
       const dx = enemy.x - wave.originX, dy = enemy.y - wave.originY;
       const distanceSquared = dx * dx + dy * dy;
       if (distanceSquared < minRadiusSquared || distanceSquared > maxRadiusSquared) continue;
