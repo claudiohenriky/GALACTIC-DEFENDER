@@ -395,3 +395,10 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Tropas de elite: os segmentos de escudo recebem uma expansão/flash curto quando absorvem dano.
 - A camada visual não participa da decisão de colisão ou dano; não foi criada esfera contínua, sistema de partículas por quadro ou alteração de integridade/recarga.
 - Pendente: validação manual de múltiplas ameaças, orientação, zoom e fluidez em dispositivos reais; depois ajustar tempos e intensidade visual com feedback de gameplay.
+
+
+## Geometria de colisão do laser contínuo — 30/10/2026
+- [x] O feixe considera a soma entre a meia-largura visual e o raio físico do alvo em colisões com projéteis inimigos.
+- [x] O feixe considera o raio de colisão da entidade, incluindo o footprint do encouraçado, evitando falsos negativos nas bordas.
+- [ ] Validar em gameplay os contatos tangenciais contra projéteis, inimigos comuns e boss; confirmar que a colisão acompanha a leitura visual.
+- A alteração não modifica valores de dano, cadência, alcance ou duração.
