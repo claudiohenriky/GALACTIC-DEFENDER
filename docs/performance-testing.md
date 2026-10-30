@@ -47,6 +47,8 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 
 - [x] Corrigir a contenção vertical genérica que prendia o chefe à borda superior durante a entrada: a nave agora pode permanecer fora da área visível até concluir a aproximação, mantendo o limite horizontal e o limite inferior. Esta é uma correção de lógica/entrada, não uma medição de desempenho.
 
+- [x] Corrigir a ordem de inicialização de `bossWave` no spawn: a classificação da onda agora é calculada antes de determinar a posição inicial, evitando referência à variável antes da declaração no ciclo de criação de inimigos.
+
 ### Cenários de validação após a auditoria
 
 - [ ] Onda comum com quantidade alta de inimigos e projéteis.
