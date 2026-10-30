@@ -328,3 +328,12 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Adaptar grade e tipografia para telas estreitas e orientação horizontal.
 - [ ] Validar a legibilidade e a ausência de sobreposição em navegador móvel e desktop.
 - [ ] Confirmar durante gameplay a atualização dos indicadores após dano regional, desativação do gerador auxiliar e reconstrução da sobrecarga.
+
+
+## Feedback de combate do encouraçado — candidata v0.44.0
+
+- [x] Destacar brevemente a perda de integridade de cada setor de escudo e módulo atingido.
+- [x] Diferenciar visualmente a recuperação de integridade com feedback verde.
+- [x] Exibir uma barra de progresso durante a reconstrução da sobrecarga, usando a duração real configurada de 4,5 s.
+- [x] Respeitar a preferência de movimento reduzido e manter a atualização na cadência limitada da HUD.
+- [ ] Validar em gameplay as animações, a leitura da barra de reconstrução e o comportamento em telas pequenas.
