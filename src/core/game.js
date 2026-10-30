@@ -630,7 +630,19 @@ export class Game {
     if (!this.continuousLaserClash) return;
     document.querySelector('#laser-clash-overlay')?.classList.add('hidden'); this.continuousLaserClash = null; this.continuousLaserHeld = false;
     if (outcome === 'victory') {
-      const target = this.enemies.filter(e => e.active).sort((a,b) => Math.hypot(a.x-this.player.x,a.y-this.player.y)-Math.hypot(b.x-this.player.x,b.y-this.player.y))[0];
+      // Find the nearest live target in one pass without allocating, filtering or sorting arrays.
+      let target = null;
+      let nearestDistanceSquared = Infinity;
+      for (const enemy of this.enemies) {
+        if (!enemy.active) continue;
+        const dx = enemy.x - this.player.x;
+        const dy = enemy.y - this.player.y;
+        const distanceSquared = dx * dx + dy * dy;
+        if (distanceSquared < nearestDistanceSquared) {
+          nearestDistanceSquared = distanceSquared;
+          target = enemy;
+        }
+      }
       if (target) this.damageEnemy(target, (target.type === 'boss' || target.type === 'megaboss' ? 16 : 5) + this.player.continuousLaserLevel * 3);
       this.addOverload(18); this.continuousLaserCooldown = 2.5;
     } else if (outcome === 'draw') { this.addOverload(8); this.continuousLaserCooldown = 1.2; } else this.continuousLaserCooldown = 4;
