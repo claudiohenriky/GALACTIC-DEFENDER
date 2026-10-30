@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { circlesOverlap, orientedEllipseOverlapsCircle } from '../src/combat/collision.js';
+import { circlesOverlap, orientedEllipseOverlapsCircle, orientedEllipseOverlapsSegment } from '../src/combat/collision.js';
 import { BossSystems } from '../src/enemies/boss-systems.js';
 import { Enemy } from '../src/enemies/enemy.js';
 
@@ -57,4 +57,11 @@ test('heavy boss enters, retains its expanded footprint and fires from surviving
  for(let frame=0;frame<900&&!volley;frame++){const shots=boss.update(1/60,500,900,1000,1200,[],[],0);if(Array.isArray(shots)&&shots.length)volley=shots;}
  assert.ok(volley,'boss should fire after entrance and initial cooldown');
  assert.ok(volley.every(s=>Number.isFinite(s.x)&&Number.isFinite(s.y)));
+});
+
+test('continuous laser segment intersects the elongated boss hull at bow and stern',()=>{
+ const hull={x:0,y:0};
+ assert.equal(orientedEllipseOverlapsSegment(hull,-8,205,8,205,142,218,0,5),true);
+ assert.equal(orientedEllipseOverlapsSegment(hull,150,-8,150,8,142,218,0,5),false);
+ assert.equal(orientedEllipseOverlapsSegment(hull,205,-8,205,8,142,218,Math.PI/2,5),true);
 });

@@ -45,3 +45,25 @@ export function orientedEllipseOverlapsCircle(ellipse, circle, radiusX, radiusY,
   if (Math.abs(localX) > expandedX || Math.abs(localY) > expandedY) return false;
   return (localX * localX) / (expandedX * expandedX) + (localY * localY) / (expandedY * expandedY) <= 1;
 }
+
+
+/** Test a thick line segment against an oriented ellipse without allocating point objects. */
+export function orientedEllipseOverlapsSegment(ellipse, startX, startY, endX, endY, radiusX, radiusY, rotation = 0, thickness = 0) {
+  const expandedX = Math.max(1, radiusX + thickness);
+  const expandedY = Math.max(1, radiusY + thickness);
+  const cos = Math.cos(rotation), sin = Math.sin(rotation);
+  const startDx = startX - ellipse.x, startDy = startY - ellipse.y;
+  const endDx = endX - ellipse.x, endDy = endY - ellipse.y;
+  const sx = (startDx * cos + startDy * sin) / expandedX;
+  const sy = (-startDx * sin + startDy * cos) / expandedY;
+  const ex = (endDx * cos + endDy * sin) / expandedX;
+  const ey = (-endDx * sin + endDy * cos) / expandedY;
+  const segmentX = ex - sx, segmentY = ey - sy;
+  const lengthSquared = segmentX * segmentX + segmentY * segmentY;
+  const projection = lengthSquared > 0
+    ? Math.max(0, Math.min(1, -(sx * segmentX + sy * segmentY) / lengthSquared))
+    : 0;
+  const closestX = sx + segmentX * projection;
+  const closestY = sy + segmentY * projection;
+  return closestX * closestX + closestY * closestY <= 1;
+}

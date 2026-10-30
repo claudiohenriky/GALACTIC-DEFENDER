@@ -449,3 +449,5 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - CI aprovado: [run 41075516210](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41075516210).
 - Os checks incluem sintaxe, testes unitários, imports e whitespace; não comprovam aparência, gameplay ou FPS.
 - PR #78 continua Draft e a prévia permanece fechada.
+
+- [x] Integrar o Laser Contínuo à colisão elíptica orientada do encouraçado, incluindo proa, popa e rotação.

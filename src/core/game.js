@@ -3,7 +3,7 @@ import { Enemy } from '../enemies/enemy.js?v=0.44.0-boss-hull-ellipse';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
-import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
+import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, orientedEllipseOverlapsSegment } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { WaveManager } from './wave-manager.js?v=0.44.0';
@@ -735,8 +735,12 @@ export class Game {
         if (!enemy.active || enemy.bossDying) continue;
         // Include both the target hit radius and the beam's half-width so visible
         // edge intersections are not missed for large bosses or smaller enemies.
+        const bossHull = enemy.type === 'boss';
         const hitRadius = (enemy.collisionRadius ?? enemy.radius ?? 0) + 13;
-        if (!circleOverlapsSegment(enemy, sx, sy, ex, ey, hitRadius)) continue;
+        const intersects = bossHull
+          ? orientedEllipseOverlapsSegment(enemy, sx, sy, ex, ey, enemy.radius * 1.42, enemy.radius * 2.18, enemy.facingRotation + Math.PI / 2, 13)
+          : circleOverlapsSegment(enemy, sx, sy, ex, ey, hitRadius);
+        if (!intersects) continue;
         const boss = enemy.type === 'boss' || enemy.type === 'megaboss';
         this.damageEnemy(enemy, (boss ? 8 : 13) * (1 + this.player.continuousLaserLevel * .22) * (weakened ? .72 : 1));
       }

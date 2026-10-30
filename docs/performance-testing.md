@@ -276,3 +276,5 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
   - [ ] Verificar HUD em telas estreitas, celulares em paisagem e desktop.
   - [ ] Medir FPS, memória e estabilidade em ondas cheias e durante a destruição do boss.
 - A aprovação do CI não substitui nenhuma dessas verificações em navegador real.
+
+- Cobertura geométrica adicional: segmento espesso do Laser Contínuo contra elipse orientada, incluindo teste de rotação e regiões de proa/popa.
