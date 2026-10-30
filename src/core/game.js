@@ -538,13 +538,10 @@ export class Game {
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = '#ffffff';
-    ctx.font = '900 21px system-ui, sans-serif';
+    ctx.font = '900 15px system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(alert.icon, 0, 0.5);
-    ctx.font = '800 8px system-ui, sans-serif';
-    ctx.fillStyle = danger ? '#ffd5d2' : '#d4f3ff';
-    ctx.fillText(alert.label, 0, 25);
     ctx.restore();
   }
 
