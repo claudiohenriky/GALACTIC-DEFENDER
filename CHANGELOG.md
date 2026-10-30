@@ -654,3 +654,11 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 
 - Corrige a resolução de dano do encouraçado para que habilidades especiais, laser contínuo e ataques de área sem coordenada de impacto explícita atinjam o setor de escudo voltado para o jogador, em vez de ignorarem a defesa regional.
 - Reutiliza o snapshot de integridade do HUD por instância de chefe, evitando recriar objetos de comparação em cada atualização da interface.
+
+
+## v0.44.0 — rodada de reformulação do encouraçado
+
+- Alongada a silhueta do encouraçado e adicionadas geometrias visuais distintas para as famílias de armamentos.
+- Sobrecarga adaptativa preserva módulos intactos, repara os danificados, reconstrói armamentos destruídos recuperáveis e substitui somente montagens classificadas como catastróficas.
+- Arena ampliada para 2× o viewport; zoom de 0,5 enquadra o mapa completo após o surgimento do chefe e permanece até o reinício da partida.
+- Rotação visual do casco reduzida para reforçar a sensação de massa. Mira independente das torres, IA de mísseis, entrada com alerta e finalização estendida permanecem em desenvolvimento.

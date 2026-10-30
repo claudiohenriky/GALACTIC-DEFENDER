@@ -34,7 +34,9 @@ export class BossSystems {
       fire: 0,
       sparks: 0,
       repairGlow: 0,
-      replacementInstalled: false
+      replacementInstalled: false,
+      catastrophic: false,
+      originalKind: module.kind
     }));
     this.shields = SHIELD_TEMPLATES.map((shield) => ({
       ...shield,
@@ -61,11 +63,14 @@ export class BossSystems {
     const module = this.getModule(moduleId);
     if (!module || module.state === 'destroyed' || amount <= 0) return null;
 
+    const previousHealth = module.health;
     module.health = Math.max(0, module.health - amount);
     module.repairGlow = 0;
     const ratio = module.health / module.maxHealth;
 
     if (module.health <= 0) {
+      const overkill = Math.max(0, amount - previousHealth);
+      module.catastrophic = overkill >= module.maxHealth * 0.45;
       module.state = 'destroyed';
       module.smoke = Math.max(module.smoke, 1);
       module.fire = Math.max(module.fire, 1);
@@ -142,22 +147,33 @@ export class BossSystems {
     this.rebuildComplete = false;
 
     for (const module of this.modules) {
-      if (module.state === 'destroyed') {
+      if (module.state === 'destroyed' && module.catastrophic) {
+        // Irrecoverable mounts are withdrawn and replaced by a different weapon family.
         module.replacementInstalled = true;
-        module.repairGlow = 1;
         module.kind = module.replacement;
-        module.state = 'operational';
-        module.health = module.maxHealth * 0.72;
-        module.smoke = 0.35;
+        module.repairGlow = 1;
+        module.state = 'damaged';
+        module.health = module.maxHealth * 0.58;
+        module.smoke = 0.5;
         module.fire = 0;
-        module.sparks = 0.45;
+        module.sparks = 0.55;
+        module.catastrophic = false;
+      } else if (module.state === 'destroyed') {
+        // Recoverable wreckage keeps its original weapon identity and is rebuilt in place.
+        module.repairGlow = 1;
+        module.kind = module.originalKind;
+        module.state = 'damaged';
+        module.health = module.maxHealth * 0.5;
+        module.smoke = 0.45;
+        module.fire = 0;
+        module.sparks = 0.5;
       } else if (module.state === 'disabled' || module.state === 'damaged') {
         module.repairGlow = 1;
-        module.health = clamp(module.maxHealth * 0.48, 1, module.maxHealth);
+        module.health = clamp(module.maxHealth * 0.55, 1, module.maxHealth);
         module.state = 'damaged';
-        module.smoke = Math.max(module.smoke, 0.4);
-        module.fire = Math.min(module.fire, 0.18);
-        module.sparks = Math.max(module.sparks, 0.35);
+        module.smoke = Math.max(module.smoke, 0.35);
+        module.fire = Math.min(module.fire, 0.15);
+        module.sparks = Math.max(module.sparks, 0.3);
       }
     }
 

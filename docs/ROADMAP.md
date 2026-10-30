@@ -344,3 +344,15 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Aplicar defesa regional também a habilidades especiais, laser contínuo e ataques de área sem ponto de impacto explícito, usando a posição do jogador como referência direcional.
 - [x] Manter a posição real do projétil para impactos com coordenadas conhecidas.
 - [ ] Validar em gameplay se cada ângulo de aproximação consome o setor esperado e se o dano residual chega ao casco/módulo corretamente.
+
+
+## Reformulação integrada do encouraçado — rodada de desenvolvimento
+
+- [x] Alongar a silhueta do casco e reduzir a rotação visual do corpo para reforçar massa/inércia.
+- [x] Substituir sockets quadrados por representações distintas de metralhadoras, lançadores, lasers, plasma e canhão de energia.
+- [x] Classificar destruição catastrófica por dano excedente; sobrecarga mantém e repara módulos recuperáveis, preserva os intactos e substitui apenas montagens irrecuperáveis.
+- [x] Aumentar o mundo para 2× o viewport e manter zoom de 0,5 após a aparição do boss, enquadrando o mapa inteiro até o reinício.
+- [ ] Implementar mira independente de torres, arcos de disparo por hardpoint e lançamento de mísseis guiados do boss.
+- [ ] Implementar alerta de ameaça e entrada cinematográfica validada em tela real.
+- [ ] Implementar sequência de falha estrutural, explosões distribuídas e deriva final do casco.
+- [ ] Testar o novo enquadramento e a legibilidade do boss em celular/desktop; não há validação visual real nesta etapa.

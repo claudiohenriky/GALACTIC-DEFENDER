@@ -140,3 +140,14 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Ataques especiais/área sem coordenadas usam a posição do jogador como vetor de origem para selecionar o setor regional, evitando bypass de escudos.
 - [x] Snapshot de comparação do HUD é reutilizado por instância de chefe, sem recriar objetos a cada atualização da interface.
 - [ ] Testar cada tipo de ataque contra os quatro setores e verificar absorção, dano residual e integridade de módulos em gameplay real.
+
+
+## Reformulação do encouraçado — alterações estáticas
+
+- [x] Mundo ampliado para 2× a largura e altura do viewport; zoom 0,5 enquadra o mundo completo e permanece ativo após o encontro com o boss até reiniciar a partida.
+- [x] Revisar separadamente escala física do mundo e escala de câmera; o zoom completo é calculado a partir da proporção fixa de 2×.
+- [x] Representar famílias de armamentos por geometrias distintas de hardpoints, torres, tubos e canos.
+- [x] Sobrecarregar módulos de forma adaptativa: intactos permanecem; danificados/inoperantes recebem reparos; destruídos recuperáveis mantêm o tipo original; destruição com dano excedente crítico troca a família da arma.
+- [ ] Testar navegação, mira e legibilidade com o mapa completo em celular e desktop.
+- [ ] Validar visualmente a classificação de módulos recuperáveis versus irrecuperáveis e o comportamento de disparo após a reconstrução.
+- [ ] Medir FPS/tempo de quadro em dispositivos reais; alterações estáticas não constituem medição de desempenho.

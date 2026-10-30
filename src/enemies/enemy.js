@@ -26,7 +26,7 @@ export class Enemy {
     this.bossEntranceTimer = this.bossEntranceDuration;
     this.bossDying = false;
     this.bossDeathTimer = 0;
-    this.bossDeathDuration = 4.5;
+    this.bossDeathDuration = 7.2;
     this.rewardGranted = false;
     this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.phase = Math.random() * Math.PI * 2;
@@ -433,7 +433,7 @@ export class Enemy {
         Math.sin(desiredFacing - this.facingRotation),
         Math.cos(desiredFacing - this.facingRotation)
       );
-      this.facingRotation += facingDelta * Math.min(1, dt * (this.type === 'boss' ? 0.85 : 4.5));
+      this.facingRotation += facingDelta * Math.min(1, dt * (this.type === 'boss' ? 0.34 : 4.5));
     } else {
       this.facingRotation = this.rotation;
     }
@@ -527,22 +527,23 @@ export class Enemy {
     ctx.beginPath();
     if (boss) {
       // Broad armored dreadnought silhouette: the long axis is the ship's forward direction.
-      ctx.moveTo(0, -this.radius * 1.42);
-      ctx.lineTo(this.radius * 0.38, -this.radius * 1.18);
-      ctx.lineTo(this.radius * 0.62, -this.radius * 0.82);
-      ctx.lineTo(this.radius * 1.18, -this.radius * 0.62);
-      ctx.lineTo(this.radius * 1.34, -this.radius * 0.18);
-      ctx.lineTo(this.radius * 1.08, this.radius * 0.72);
-      ctx.lineTo(this.radius * 0.72, this.radius * 1.08);
-      ctx.lineTo(this.radius * 0.32, this.radius * 1.22);
-      ctx.lineTo(0, this.radius * 1.30);
-      ctx.lineTo(-this.radius * 0.32, this.radius * 1.22);
-      ctx.lineTo(-this.radius * 0.72, this.radius * 1.08);
-      ctx.lineTo(-this.radius * 1.08, this.radius * 0.72);
-      ctx.lineTo(-this.radius * 1.34, -this.radius * 0.18);
-      ctx.lineTo(-this.radius * 1.18, -this.radius * 0.62);
-      ctx.lineTo(-this.radius * 0.62, -this.radius * 0.82);
-      ctx.lineTo(-this.radius * 0.38, -this.radius * 1.18);
+      // Long, narrow armored keel: the silhouette reads as a battleship rather than a compact fighter.
+      ctx.moveTo(0, -this.radius * 2.18);
+      ctx.lineTo(this.radius * 0.22, -this.radius * 1.92);
+      ctx.lineTo(this.radius * 0.34, -this.radius * 1.38);
+      ctx.lineTo(this.radius * 0.58, -this.radius * 0.98);
+      ctx.lineTo(this.radius * 0.72, -this.radius * 0.35);
+      ctx.lineTo(this.radius * 0.78, this.radius * 0.62);
+      ctx.lineTo(this.radius * 0.62, this.radius * 1.28);
+      ctx.lineTo(this.radius * 0.38, this.radius * 1.68);
+      ctx.lineTo(0, this.radius * 1.86);
+      ctx.lineTo(-this.radius * 0.38, this.radius * 1.68);
+      ctx.lineTo(-this.radius * 0.62, this.radius * 1.28);
+      ctx.lineTo(-this.radius * 0.78, this.radius * 0.62);
+      ctx.lineTo(-this.radius * 0.72, -this.radius * 0.35);
+      ctx.lineTo(-this.radius * 0.58, -this.radius * 0.98);
+      ctx.lineTo(-this.radius * 0.34, -this.radius * 1.38);
+      ctx.lineTo(-this.radius * 0.22, -this.radius * 1.92);
     } else if (guardian) {
       ctx.moveTo(-this.radius * 0.48, -this.radius * 1.15);
       ctx.lineTo(this.radius * 0.48, -this.radius * 1.15);
@@ -613,8 +614,6 @@ export class Enemy {
       // Ten independently damageable weapon modules are represented by visible sockets.
       if (systems) {
         const radius = this.radius;
-        const moduleHalfSize = radius * 0.105;
-        const moduleSize = moduleHalfSize * 2;
         const damagePulse = Math.sin(this.phase * 8);
         const smokeDrift = this.phase * 2;
         for (const module of systems.modules) {
@@ -624,13 +623,74 @@ export class Enemy {
             : module.state === 'disabled' ? '#713d32'
               : module.state === 'damaged' ? '#b86a37'
                 : module.kind.includes('laser') ? '#64e5ff'
-                  : module.kind.includes('missile') ? '#c7a6ff'
-                    : module.kind.includes('plasma') ? '#ffb56b' : '#9ab7ca';
-          ctx.fillStyle = moduleColor;
-          ctx.strokeStyle = '#d5e7f2';
-          ctx.lineWidth = 1.5;
-          ctx.fillRect(mx - moduleHalfSize, my - moduleHalfSize, moduleSize, moduleSize);
-          ctx.strokeRect(mx - moduleHalfSize, my - moduleHalfSize, moduleSize, moduleSize);
+                  : module.kind.includes('missile') || module.kind.includes('rocket') ? '#c7a6ff'
+                    : module.kind.includes('plasma') ? '#ffb56b'
+                      : module.kind.includes('energy') || module.kind.includes('cannon') ? '#ff8cae' : '#9ab7ca';
+          const mountSize = radius * 0.105;
+          ctx.save();
+          ctx.translate(mx, my);
+          // Each module gets a visible armored hardpoint and a recognizable weapon silhouette.
+          ctx.fillStyle = '#101d2a';
+          ctx.strokeStyle = '#9ebbd0';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(-mountSize * 1.15, -mountSize * 0.75);
+          ctx.lineTo(mountSize * 0.75, -mountSize * 1.15);
+          ctx.lineTo(mountSize * 1.15, mountSize * 0.75);
+          ctx.lineTo(-mountSize * 0.75, mountSize * 1.15);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          if (!module.catastrophic) {
+            ctx.fillStyle = moduleColor;
+            ctx.strokeStyle = '#e3f0f7';
+            ctx.lineWidth = 1.2;
+            if (module.kind.includes('machine-gun')) {
+              ctx.fillRect(-mountSize * 0.72, -mountSize * 0.55, mountSize * 1.44, mountSize * 1.1);
+              ctx.fillRect(-mountSize * 0.42, -mountSize * 1.75, mountSize * 0.25, mountSize * 1.55);
+              ctx.fillRect(mountSize * 0.17, -mountSize * 1.75, mountSize * 0.25, mountSize * 1.55);
+            } else if (module.kind.includes('missile') || module.kind.includes('rocket')) {
+              ctx.fillRect(-mountSize * 0.82, -mountSize * 0.7, mountSize * 1.64, mountSize * 1.35);
+              for (let tube = -1; tube <= 1; tube += 1) {
+                ctx.beginPath();
+                ctx.arc(tube * mountSize * 0.48, -mountSize * 0.08, mountSize * 0.19, 0, Math.PI * 2);
+                ctx.fillStyle = '#172332';
+                ctx.fill();
+                ctx.stroke();
+              }
+            } else if (module.kind.includes('laser')) {
+              ctx.fillRect(-mountSize * 0.55, -mountSize * 0.65, mountSize * 1.1, mountSize * 1.2);
+              ctx.fillStyle = '#d8fbff';
+              ctx.fillRect(-mountSize * 0.16, -mountSize * 2.05, mountSize * 0.32, mountSize * 1.75);
+            } else if (module.kind.includes('plasma')) {
+              ctx.beginPath();
+              ctx.arc(0, 0, mountSize * 0.72, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.fillRect(-mountSize * 0.24, -mountSize * 1.85, mountSize * 0.48, mountSize * 1.55);
+            } else if (module.kind.includes('energy') || module.kind.includes('cannon')) {
+              ctx.fillRect(-mountSize * 0.72, -mountSize * 0.7, mountSize * 1.44, mountSize * 1.35);
+              ctx.fillStyle = '#ffe0ed';
+              ctx.fillRect(-mountSize * 0.32, -mountSize * 2.5, mountSize * 0.64, mountSize * 2.35);
+              ctx.fillStyle = '#ff83b0';
+              ctx.fillRect(-mountSize * 0.12, -mountSize * 2.35, mountSize * 0.24, mountSize * 2.1);
+            } else {
+              ctx.beginPath();
+              ctx.arc(0, 0, mountSize * 0.78, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.strokeRect(-mountSize * 0.72, -mountSize * 0.55, mountSize * 1.44, mountSize * 1.1);
+          } else {
+            ctx.globalAlpha = 0.85;
+            ctx.strokeStyle = '#ff704e';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-mountSize, -mountSize);
+            ctx.lineTo(mountSize, mountSize);
+            ctx.moveTo(mountSize, -mountSize);
+            ctx.lineTo(-mountSize, mountSize);
+            ctx.stroke();
+          }
+          ctx.restore();
           if (module.state !== 'operational') {
             ctx.globalAlpha = 0.45 + damagePulse * 0.18;
             ctx.strokeStyle = '#ff9a55';

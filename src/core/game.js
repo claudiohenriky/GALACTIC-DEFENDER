@@ -22,7 +22,7 @@ export class Game {
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
     // The simulation world is larger than the visible canvas; the camera follows the pilot.
-    this.arenaScale = 1.6;
+    this.arenaScale = 2.0;
     this.worldWidth = this.width * this.arenaScale;
     this.worldHeight = this.height * this.arenaScale;
     this.cameraX = 0;
@@ -38,6 +38,7 @@ export class Game {
     this.enemies = [];
     // The visible viewport moves through a larger world; boss zoom remains a separate camera effect.
     this.cameraZoom = 1;
+    this.bossEncounterSeen = false;
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
     this.projectiles = [];
@@ -217,6 +218,7 @@ export class Game {
     }
     this.player = new Player(this.worldWidth, this.worldHeight);
     this.cameraZoom = 1;
+    this.bossEncounterSeen = false;
     this.cameraX = 0;
     this.cameraY = 0;
     this.updateCamera(0, true);
@@ -1178,7 +1180,10 @@ export class Game {
       const enemy = this.enemies[index];
       if (enemy.active && enemy.type === 'boss') { bossPresent = true; break; }
     }
-    const targetCameraZoom = bossPresent ? 0.84 : 1;
+    if (bossPresent) this.bossEncounterSeen = true;
+    // At 2x world dimensions, 0.5 zoom fits the complete arena in the viewport.
+    // Keep this tactical overview after the boss is defeated until the next run.
+    const targetCameraZoom = this.bossEncounterSeen ? 0.5 : 1;
     this.cameraZoom += (targetCameraZoom - this.cameraZoom) * Math.min(1, dt * 1.65);
 
     for (let index = 0; index < this.stars.length; index += 1) {
