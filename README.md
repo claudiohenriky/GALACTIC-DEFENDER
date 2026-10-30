@@ -108,6 +108,10 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 - Em telas móveis estreitas, a arena usa proporção `9:20` para oferecer mais espaço vertical de combate sem alterar a escala lógica do jogo.
 - O fundo em cache, a densidade de pixels limitada e os efeitos reduzidos continuam sendo medidas de otimização; o desempenho deve ser validado em dispositivos reais.
 
+## Chefe v0.44.0
+
+O HUD tático diferencia dano e recuperação nos quatro escudos e dez módulos do encouraçado, além de exibir o progresso da reconstrução por sobrecarga. Esses sinais ainda aguardam validação visual em gameplay real.
+
 ## Organização
 
 - `src/core/`: ciclo principal, estado do jogo e gerenciador de ondas.
