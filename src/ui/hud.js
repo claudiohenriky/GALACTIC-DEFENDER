@@ -24,6 +24,14 @@ const setState = (element, state) => {
   if (element && element.dataset.state !== state) element.dataset.state = state;
 };
 
+const bossHudSnapshots = new WeakMap();
+
+const applyFeedback = (element, feedback) => {
+  if (!element) return;
+  if (feedback) element.dataset.feedback = feedback;
+  else if (element.dataset.feedback) delete element.dataset.feedback;
+};
+
 const STATE_LABELS = {
   operational: 'OPERACIONAL',
   damaged: 'DANIFICADO',
@@ -47,6 +55,20 @@ function updateBossHud(boss) {
   setText('#boss-health-value', `${Math.ceil(healthPercent)}%`);
 
   const systems = boss.bossSystems;
+  const previous = bossHudSnapshots.get(boss);
+  const rebuildDuration = 4.5;
+  const rebuildTrack = bossHud.querySelector('#boss-rebuild-track');
+  const rebuildFill = bossHud.querySelector('#boss-rebuild-fill');
+  const rebuildValue = bossHud.querySelector('#boss-rebuild-value');
+  const rebuilding = Boolean(systems?.rebuildTimer > 0);
+  bossHud.classList.toggle('is-rebuilding', rebuilding);
+  if (rebuildTrack) rebuildTrack.classList.toggle('hidden', !rebuilding);
+  if (rebuildValue) rebuildValue.textContent = rebuilding ? 'RECONSTRUINDO SISTEMAS' : '';
+  if (rebuildFill) {
+    const progress = Math.max(0, Math.min(100, (1 - systems.rebuildTimer / rebuildDuration) * 100));
+    const width = rebuilding ? `${progress}%` : '0%';
+    if (rebuildFill.style.width !== width) rebuildFill.style.width = width;
+  }
   const phaseLabel = boss.bossDying
     ? 'DESTRUINDO'
     : boss.bossPhase === 3
@@ -65,6 +87,9 @@ function updateBossHud(boss) {
     const state = shield.health <= 0 || shield.disabled ? 'disabled' : percent <= 35 ? 'damaged' : 'operational';
     if (shield.health > 0 && !shield.disabled) activeShields++;
     setState(cell, state);
+    const oldShield = previous?.shields[shield.id];
+    const feedback = oldShield === undefined ? '' : shield.health < oldShield ? 'hit' : shield.health > oldShield ? 'restoring' : '';
+    applyFeedback(cell, feedback);
     const fill = cell.querySelector('.boss-shield-track > div');
     const value = cell.querySelector('small');
     if (fill) {
@@ -93,6 +118,9 @@ function updateBossHud(boss) {
     if (state === 'destroyed') destroyedModules++;
     if (!pip) continue;
     setState(pip, state);
+    const oldModule = previous?.modules[module.id];
+    const feedback = oldModule === undefined ? '' : module.health < oldModule ? 'hit' : module.health > oldModule ? 'restoring' : '';
+    applyFeedback(pip, feedback);
     const accessibleLabel = `${module.id}: ${STATE_LABELS[state]}`;
     if (pip.getAttribute('aria-label') !== accessibleLabel) pip.setAttribute('aria-label', accessibleLabel);
     if (pip.title !== accessibleLabel) pip.title = accessibleLabel;
@@ -102,6 +130,11 @@ function updateBossHud(boss) {
   if (disabledModules) moduleDetails.push(`${disabledModules} INOP.`);
   if (destroyedModules) moduleDetails.push(`${destroyedModules} DESTR.`);
   setText('#boss-module-summary', `${availableModules}/10 ATIVOS${moduleDetails.length ? ` · ${moduleDetails.join(' · ')}` : ''}`);
+
+  const snapshot = { shields: Object.create(null), modules: Object.create(null) };
+  for (const shield of systems.shields) snapshot.shields[shield.id] = shield.health;
+  for (const module of systems.modules) snapshot.modules[module.id] = module.health;
+  bossHudSnapshots.set(boss, snapshot);
 }
 
 export function updateHud(game) {
