@@ -201,3 +201,14 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Projetar e validar separadamente a telemetria de carga, alerta de perigo, janela de reação e contra-jogo do canhão principal antes de habilitar qualquer ataque.
 - [ ] Balancear dano acumulado por salva, pressão de mísseis guiados, dois canhões de plasma e sobrevivência dos módulos somente após teste real de gameplay.
 - Observação: os valores atuais de dano/cadência permanecem parâmetros provisórios; a auditoria estática não substitui observação de tempo para reagir nem medição de dificuldade.
+
+
+## Escudos reativos — primeira implementação visual (30/10/2026)
+- [x] Manter a proteção lógica 360° do jogador independente da direção do efeito visual.
+- [x] Direcionar a previsão para o ponto de aproximação mais próximo do projétil, em vez de usar apenas sua posição atual.
+- [x] Animar o setor local com expansão, bordas e traços radiais curtos; o efeito não cria esfera permanente nem partículas por quadro.
+- [x] Reforçar visualmente o setor no instante em que absorve um impacto real.
+- [x] Dar resposta de impacto aos quatro setores do encouraçado, com pulso local de curta duração e baixa presença em repouso.
+- [x] Dar resposta de absorção aos escudos das tropas de elite sem alterar seus valores de proteção.
+- [ ] Validar leitura visual, múltiplos projéteis simultâneos, orientação relativa, escala do zoom e custo em celular/desktop.
+- Nota: esta etapa altera somente apresentação; valores de integridade, absorção, recarga e colisão permanecem inalterados. Checks automatizados não substituem teste real de gameplay ou FPS.
