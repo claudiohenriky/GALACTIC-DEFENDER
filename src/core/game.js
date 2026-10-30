@@ -1355,7 +1355,13 @@ export class Game {
     for (const shot of this.projectiles) {
       if (!shot.active) continue;
       for (const enemy of this.enemies) {
-        if (enemy.active && !shot.hitEnemies.has(enemy) && circlesOverlap(shot, enemy)) {
+        if (!enemy.active || shot.hitEnemies.has(enemy)) continue;
+        // Cheap axis-aligned rejection avoids the squared-distance test for
+        // pairs that cannot overlap; the exact circle test remains authoritative.
+        const combinedRadius = (shot.radius ?? 0) + (enemy.radius ?? 0);
+        if (Math.abs(shot.x - enemy.x) >= combinedRadius ||
+            Math.abs(shot.y - enemy.y) >= combinedRadius) continue;
+        if (circlesOverlap(shot, enemy)) {
           shot.hitEnemies.add(enemy);
           if (!shot.piercing) shot.active = false;
           this.damageEnemy(enemy, shot.damage ?? 1, shot.x, shot.y);
@@ -1370,6 +1376,9 @@ export class Game {
       if (!playerShot.active) continue;
       for (const enemyShot of this.enemyProjectiles) {
         if (!enemyShot.active) continue;
+        const combinedRadius = (playerShot.radius ?? 0) + (enemyShot.radius ?? 0);
+        if (Math.abs(playerShot.x - enemyShot.x) >= combinedRadius ||
+            Math.abs(playerShot.y - enemyShot.y) >= combinedRadius) continue;
         if (circlesOverlap(playerShot, enemyShot)) {
           playerShot.active = false;
           enemyShot.active = false;
@@ -1383,6 +1392,9 @@ export class Game {
       if (!missile.active) continue;
       for (const enemy of this.enemies) {
         if (!enemy.active) continue;
+        const combinedRadius = (missile.radius ?? 0) + (enemy.radius ?? 0);
+        if (Math.abs(missile.x - enemy.x) >= combinedRadius ||
+            Math.abs(missile.y - enemy.y) >= combinedRadius) continue;
         if (circlesOverlap(missile, enemy)) {
           missile.active = false;
           this.explodeGuidedMissile(missile);
