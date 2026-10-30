@@ -14,7 +14,7 @@ export class Enemy {
     this.guardianCoverShieldMax = this.isElite && type === 'guardian' ? 18 : 0;
     this.guardianCoverShield = this.guardianCoverShieldMax;
     this.eliteSpawnTimer = this.isElite ? 1.65 : 0;
-    this.radius = type === 'boss' ? 68 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
+    this.radius = type === 'boss' ? 82 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
     this.maxHealth = type === 'boss' ? 360 + level * 12 : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
     this.bossSystems = type === 'boss' ? new BossSystems() : null;
@@ -168,12 +168,19 @@ export class Enemy {
       if (this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
         const systems = this.bossSystems;
         const modules = systems?.getOperationalModules() || [];
-        const has = (kind) => modules.some((module) => module.kind === kind);
+        const has = (kind) => modules.some((module) => {
+          if (kind === 'machine-gun') return module.kind.includes('machine-gun');
+          if (kind === 'missile') return module.kind.includes('missile') || module.kind.includes('rocket');
+          if (kind === 'light-laser') return module.kind.includes('laser');
+          if (kind === 'plasma-cannon') return module.kind.includes('plasma');
+          if (kind === 'energy-cannon') return module.kind.includes('energy') || module.kind.includes('overload-cannon');
+          return module.kind === kind;
+        });
         const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
         const shots = [];
         const makeShot = (angle, options = {}) => ({
           x: this.x + Math.cos(angle) * this.radius * 0.22,
-          y: this.y - Math.sin(this.facingRotation) * this.radius * 0.18,
+          y: this.y - this.radius * 0.82,
           targetX: this.x + Math.cos(angle) * 520,
           targetY: this.y + Math.sin(angle) * 520,
           damage: options.damage ?? 4,
