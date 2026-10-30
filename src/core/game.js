@@ -31,6 +31,7 @@ export class Game {
     this.waveManager = new WaveManager();
     this.enemies = [];
     this.eliteAlertsShown = new Set();
+    this.guardianAssignmentTimer = 0;
     this.projectiles = [];
     this.guidedMissiles = [];
     this.guidedMissileCooldown = 0;
@@ -208,6 +209,7 @@ export class Game {
     this.waveManager.reset();
     this.enemies = [];
     this.eliteAlertsShown = new Set();
+    this.guardianAssignmentTimer = 0;
     this.projectiles = [];
     this.guidedMissiles = [];
     this.guidedMissileCooldown = 0;
@@ -1184,21 +1186,26 @@ export class Game {
     this.guidedMissileEffects.length = effectWriteIndex;
     this.enemyProjectiles.forEach((shot) => shot.update(dt));
 
-    // Assign each active Guardian up to two unique allies. Elite Guardians are assigned first.
-    const guardians = this.enemies
-      .filter((enemy) => enemy.active && enemy.type === 'guardian')
-      .sort((a, b) => Number(b.isElite) - Number(a.isElite));
-    const assignedAllies = new Set();
-    for (const guardian of guardians) {
-      const candidates = this.enemies
-        .filter((ally) => ally.active && ally !== guardian && ally.type !== 'guardian' && ally.type !== 'boss' && !assignedAllies.has(ally))
-        .map((ally) => ({ ally, distance: (ally.x - guardian.x) ** 2 + (ally.y - guardian.y) ** 2 }))
-        .sort((a, b) => (Number(b.ally.type === 'sentinel') - Number(a.ally.type === 'sentinel')) || a.distance - b.distance);
-      guardian.protectedAllies = [];
-      for (let index = 0; index < Math.min(2, candidates.length); index += 1) {
-        const ally = candidates[index].ally;
-        guardian.protectedAllies.push(ally);
-        assignedAllies.add(ally);
+    // Reassign formations at a low cadence to avoid sorting the enemy roster every frame.
+    this.guardianAssignmentTimer = Math.max(0, this.guardianAssignmentTimer - dt);
+    if (this.guardianAssignmentTimer <= 0) {
+      this.guardianAssignmentTimer = 0.35;
+      // Assign each active Guardian up to two unique allies. Elite Guardians are assigned first.
+      const guardians = this.enemies
+        .filter((enemy) => enemy.active && enemy.type === 'guardian')
+        .sort((a, b) => Number(b.isElite) - Number(a.isElite));
+      const assignedAllies = new Set();
+      for (const guardian of guardians) {
+        const candidates = this.enemies
+          .filter((ally) => ally.active && ally !== guardian && ally.type !== 'guardian' && ally.type !== 'boss' && !assignedAllies.has(ally))
+          .map((ally) => ({ ally, distance: (ally.x - guardian.x) ** 2 + (ally.y - guardian.y) ** 2 }))
+          .sort((a, b) => (Number(b.ally.type === 'sentinel') - Number(a.ally.type === 'sentinel')) || a.distance - b.distance);
+        guardian.protectedAllies = [];
+        for (let index = 0; index < Math.min(2, candidates.length); index += 1) {
+          const ally = candidates[index].ally;
+          guardian.protectedAllies.push(ally);
+          assignedAllies.add(ally);
+        }
       }
     }
 
