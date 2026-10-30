@@ -9,7 +9,10 @@
 - Primeira aparição alterada para a onda 10; recorrência nas ondas 15, 20, 25...
 - Implementa entrada cinematográfica com aproximação suavizada, anel de detecção, bloqueio temporário dos disparos e zoom dinâmico de câmera com compensação da mira por mouse/toque.
 - Corrige a contenção vertical da nave durante a entrada e a inicialização da classificação de ondas de chefe no spawn.
-- Ainda pendentes: expansão física da arena, arte final em pixel art, efeitos avançados, sequência de destruição, refinamentos de HUD, balanceamento, auditoria estática completa e testes de navegador/desempenho.
+- Expande o mundo físico para 1,6× a largura e a altura do viewport, com câmera de acompanhamento, limites próprios e conversão de mira por mouse/toque.
+- Ajusta o spawn de inimigos e a entrada/patrulha do chefe à região visível da câmera; projéteis, mísseis e separação usam os limites do mundo.
+- Mantém o cache do fundo limitado ao tamanho do viewport para evitar multiplicar o consumo de memória pela expansão do mundo.
+- Ainda pendentes: arte final em pixel art, efeitos avançados, sequência de destruição, refinamentos de HUD, balanceamento, auditoria estática completa e testes de navegador/desempenho.
 - Candidata em desenvolvimento; não mesclada em `main`.
 
 ## [0.43.0] — Evolução da IA inimiga (candidata)
