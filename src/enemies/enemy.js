@@ -1,4 +1,4 @@
-import { BossSystems } from './boss-systems.js?v=0.44.0-arena-2-4';
+import { BossSystems, canWeaponFireAtTarget } from './boss-systems.js?v=0.44.0-arena-2-4';
 
 export class Enemy {
   constructor(x, y, level = 1, type = 'chaser', isElite = false) {
@@ -249,6 +249,8 @@ export class Enemy {
         const cosHull = Math.cos(hullRotation);
         const sinHull = Math.sin(hullRotation);
         for (const module of turretSystems.modules) {
+          module.canFire = false;
+          module.targetInArc = false;
           if (module.kind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled' && module.transitionTimer <= 0) {
             module.plasmaChargeTimer = Math.max(0, (module.plasmaChargeTimer ?? module.plasmaChargeDuration) - dt);
           }
@@ -282,6 +284,27 @@ export class Enemy {
             : module.kind.includes('plasma') ? 0.82
               : module.kind.includes('missile') || module.kind.includes('rocket') ? 1.05 : 1.35;
           module.turretAngle = (module.turretAngle ?? 0) + Math.max(-turnSpeed * dt, Math.min(turnSpeed * dt, delta));
+
+          const finalAlignmentError = Math.atan2(
+            Math.sin(targetAngle - module.turretAngle),
+            Math.cos(targetAngle - module.turretAngle)
+          );
+          const targetDx = targetX - muzzleX;
+          const targetDy = targetY - muzzleY;
+          const targetDistanceSquared = targetDx * targetDx + targetDy * targetDy;
+          const maxRange = module.kind.includes('plasma') ? 520
+            : module.kind.includes('missile') || module.kind.includes('rocket') ? 650
+              : module.kind.includes('light-laser') ? 560
+                : module.kind.includes('energy') ? 760 : 440;
+          module.targetInArc = desired >= minArc && desired <= maxArc;
+          module.canFire = canWeaponFireAtTarget({
+            angle: desired,
+            distanceSquared: targetDistanceSquared,
+            minArc,
+            maxArc,
+            maxRange,
+            alignmentError: finalAlignmentError
+          });
         }
       }
 
@@ -361,6 +384,7 @@ export class Enemy {
         // Every surviving mount now fires from its own physical position.
         // Destroying one weapon reduces that weapon family's actual output.
         for (const module of modules) {
+          if (!module.canFire) continue;
           if (module.kind.includes('light-laser')) {
             const spread = this.bossPhase === 3 ? 0.045 : 0.075;
             shots.push(makeShot(module, {
@@ -402,8 +426,14 @@ export class Enemy {
           }
         }
 
-        this.fireCooldown = this.bossPhase === 1 ? 2.35 : this.bossPhase === 2 ? 2.05 : 1.7;
-        if (shots.length) shot = shots;
+        if (shots.length) {
+          this.fireCooldown = this.bossPhase === 1 ? 2.35 : this.bossPhase === 2 ? 2.05 : 1.7;
+          shot = shots;
+        } else {
+          // Recheck target sectors shortly; do not waste a full volley cooldown
+          // while every mount is facing away from the pilot or out of range.
+          this.fireCooldown = 0.12;
+        }
       }
     } else if (this.type === 'interceptor') {
       // Interceptors combine pursuit with a smooth side-to-side arc to pressure the pilot.
