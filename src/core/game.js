@@ -1498,17 +1498,18 @@ export class Game {
       ctx.drawImage(this.backgroundCanvas, 0, 0, this.width, this.height);
     }
 
-    this.stars.forEach((star) => {
+    for (let index = 0; index < this.stars.length; index += 1) {
+      const star = this.stars[index];
       ctx.globalAlpha = star.alpha;
       ctx.fillStyle = '#a9d7ff';
       ctx.fillRect(star.x * this.width, star.y * this.height, star.size, star.size);
-    });
+    }
 
     ctx.globalAlpha = 1;
     if (this.continuousLaserHeld && this.player.continuousLaserLevel > 0) { const dx=Math.cos(this.player.rotation),dy=Math.sin(this.player.rotation),sx=this.player.x+dx*18,sy=this.player.y+dy*18,ex=sx+dx*460,ey=sy+dy*460; ctx.save();ctx.lineCap='round';ctx.globalAlpha=.2;ctx.strokeStyle='#44dfff';ctx.lineWidth=13;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=.92;ctx.strokeStyle='#6eeeff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#eaffff';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore(); }
-    this.projectiles.forEach((shot) => shot.draw(ctx));
-    this.enemyProjectiles.forEach((shot) => shot.draw(ctx));
-    this.enemies.forEach((enemy) => enemy.draw(ctx));
+    for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
+    for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx);
+    for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx);
     // Elite Guardian's shared barrier is drawn around each of its assigned allies.
     for (const guardian of this.enemies) {
       if (!guardian.active || !guardian.isElite || guardian.type !== 'guardian' || guardian.guardianCoverShield <= 0) continue;
@@ -1525,7 +1526,8 @@ export class Game {
       }
       ctx.restore();
     }
-    this.guidedMissileEffects.forEach((effect) => {
+    for (let index = 0; index < this.guidedMissileEffects.length; index += 1) {
+      const effect = this.guidedMissileEffects[index];
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
       const radius = effect.radius * (0.35 + progress * 0.65);
@@ -1537,7 +1539,7 @@ export class Game {
       ctx.globalAlpha = fade * 0.72; ctx.strokeStyle = '#fff0c8'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(effect.x, effect.y, radius * 0.68, 0, Math.PI * 2); ctx.stroke();
       ctx.restore();
-    });
+    }
 
     // Blink during the brief invulnerability window after taking damage.
     const playerVisible = this.player.invulnerabilityTimer <= 0 ||
@@ -1545,7 +1547,7 @@ export class Game {
     this.drawShield(ctx);
     this.player.draw(ctx, playerVisible);
     // Draw missiles after the ship so the hull cannot hide a launch from either wing.
-    this.guidedMissiles.forEach((missile) => missile.draw(ctx));
+    for (let index = 0; index < this.guidedMissiles.length; index += 1) this.guidedMissiles[index].draw(ctx);
 
     // Lightweight plasma-smoke rupture: preserve the semicircular rim, remove
     // the large translucent fill that covered the playfield and cost fill-rate.
@@ -1584,7 +1586,8 @@ export class Game {
     }
 
     // Lightweight dual-ring shockwave without per-frame shadow blur.
-    this.shieldBreakEffects.forEach((effect) => {
+    for (let index = 0; index < this.shieldBreakEffects.length; index += 1) {
+      const effect = this.shieldBreakEffects[index];
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
       ctx.save();
@@ -1595,7 +1598,7 @@ export class Game {
       ctx.arc(effect.x, effect.y, effect.radius * progress, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
-    });
+    }
 
     // Red circuit sparks and a brief edge flash make incoming damage easier to notice.
     // Indexed iteration avoids allocating a callback on every rendered frame.
