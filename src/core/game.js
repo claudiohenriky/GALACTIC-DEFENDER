@@ -503,6 +503,9 @@ export class Game {
 
   triggerSystemDisruption(duration = 1.4) {
     this.player.applySystemDisruption(duration);
+    // Keep the status message visible for the full recovery window; the canvas
+    // border flash remains capped separately so a longer disruption stays subtle.
+    this.damageFeedbackTimer = Math.max(this.damageFeedbackTimer, duration);
     const feedback = document.querySelector('#damage-feedback');
     if (!feedback) return;
     feedback.textContent = 'SISTEMAS DESESTABILIZADOS';
@@ -1785,7 +1788,7 @@ export class Game {
       ctx.restore();
     }
     if (this.damageFeedbackTimer > 0) {
-      const flash = this.damageFeedbackTimer / 0.48;
+      const flash = Math.min(1, this.damageFeedbackTimer / 0.48);
       ctx.save();
       ctx.globalAlpha = flash * 0.16;
       ctx.strokeStyle = '#ff526f';
