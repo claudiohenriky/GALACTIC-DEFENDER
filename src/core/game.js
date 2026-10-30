@@ -1265,15 +1265,38 @@ export class Game {
         .sort((a, b) => Number(b.isElite) - Number(a.isElite));
       const assignedAllies = new Set();
       for (const guardian of guardians) {
-        const candidates = this.enemies
-          .filter((ally) => ally.active && ally !== guardian && ally.type !== 'guardian' && ally.type !== 'boss' && !assignedAllies.has(ally))
-          .map((ally) => ({ ally, distance: (ally.x - guardian.x) ** 2 + (ally.y - guardian.y) ** 2 }))
-          .sort((a, b) => (Number(b.ally.type === 'sentinel') - Number(a.ally.type === 'sentinel')) || a.distance - b.distance);
+        // Preserve Sentinel-first priority and nearest-distance ordering without
+        // allocating, mapping, or sorting a candidate array every reassignment.
+        let first = null, second = null;
+        let firstPriority = Infinity, secondPriority = Infinity;
+        let firstDistance = Infinity, secondDistance = Infinity;
+        for (const ally of this.enemies) {
+          if (!ally.active || ally === guardian || ally.type === 'guardian' ||
+              ally.type === 'boss' || assignedAllies.has(ally)) continue;
+          const priority = ally.type === 'sentinel' ? 0 : 1;
+          const dx = ally.x - guardian.x, dy = ally.y - guardian.y;
+          const distance = dx * dx + dy * dy;
+          if (priority < firstPriority || (priority === firstPriority && distance < firstDistance)) {
+            second = first;
+            secondPriority = firstPriority;
+            secondDistance = firstDistance;
+            first = ally;
+            firstPriority = priority;
+            firstDistance = distance;
+          } else if (priority < secondPriority || (priority === secondPriority && distance < secondDistance)) {
+            second = ally;
+            secondPriority = priority;
+            secondDistance = distance;
+          }
+        }
         guardian.protectedAllies = [];
-        for (let index = 0; index < Math.min(2, candidates.length); index += 1) {
-          const ally = candidates[index].ally;
-          guardian.protectedAllies.push(ally);
-          assignedAllies.add(ally);
+        if (first) {
+          guardian.protectedAllies.push(first);
+          assignedAllies.add(first);
+        }
+        if (second) {
+          guardian.protectedAllies.push(second);
+          assignedAllies.add(second);
         }
       }
     }
