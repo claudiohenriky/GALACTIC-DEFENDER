@@ -24,13 +24,13 @@ export class GuidedMissile {
       return;
     }
 
-    if (!this.target || !this.target.active) {
+    if (!this.target || !this.target.active || this.target.bossDying) {
       let nearest = null;
       let nearestDistance = Infinity;
       let fallback = null;
       let fallbackDistance = Infinity;
       for (const enemy of enemies) {
-        if (!enemy.active) continue;
+        if (!enemy.active || enemy.bossDying) continue;
         const dx = enemy.x - this.x;
         const dy = enemy.y - this.y;
         const distance = dx * dx + dy * dy;
