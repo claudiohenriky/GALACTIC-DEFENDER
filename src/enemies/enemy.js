@@ -542,7 +542,8 @@ export class Enemy {
     const edge = this.isElite ? (artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
-    ctx.translate(this.x + (boss && this.bossDying ? this.bossDeathDriftX * 0.18 : 0), this.y + (boss && this.bossDying ? this.bossDeathDriftY * 0.18 : 0));
+    // The death update already integrates wreck velocity into x/y; do not add a second visual drift offset here.
+    ctx.translate(this.x, this.y);
     if (boss && this.bossDying) {
       const collapse = Math.min(1, this.bossDeathTimer / this.bossDeathDuration);
       ctx.rotate(Math.sin(this.bossDeathTimer * 1.35) * collapse * 0.075);
@@ -1092,13 +1093,14 @@ export class Enemy {
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
 
-      // Five deterministic internal detonations travel across the hull.
-      for (let index = 0; index < 5; index += 1) {
-        const burstStart = 0.42 + index * 0.58;
+      // Seven deterministic detonations now span the bow, side batteries, core and stern.
+      // Fixed local coordinates avoid per-frame particle allocation during the finale.
+      for (let index = 0; index < 7; index += 1) {
+        const burstStart = 0.35 + index * 0.52;
         const burstAge = deathTime - burstStart;
         const side = index % 2 === 0 ? -1 : 1;
-        const burstX = side * this.radius * (0.22 + (index % 3) * 0.19);
-        const burstY = this.radius * (-0.48 + index * 0.22);
+        const burstX = side * this.radius * (0.22 + (index % 3) * 0.16);
+        const burstY = this.radius * (-1.55 + index * 0.5);
 
         // A short-lived pressure ring marks each internal detonation.
         if (burstAge >= 0 && burstAge <= 0.56) {
