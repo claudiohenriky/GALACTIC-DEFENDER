@@ -672,6 +672,7 @@ export class Enemy {
           const mountSize = radius * 0.105;
           ctx.save();
           ctx.translate(mx, my);
+          ctx.rotate(module.turretAngle ?? 0);
           // Each module gets a visible armored hardpoint and a recognizable weapon silhouette.
           ctx.fillStyle = '#101d2a';
           ctx.strokeStyle = '#9ebbd0';
