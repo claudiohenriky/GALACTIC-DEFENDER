@@ -1,5 +1,8 @@
 ## [0.44.0] — Primeiro chefe: nave de guerra pesada (em desenvolvimento)
 
+- Refina o HUD tático com realce curto e distinto quando escudos/setores e módulos recebem dano ou recuperam integridade.
+- Adiciona barra de progresso da reconstrução por sobrecarga, calculada a partir do temporizador de 4,5 s do sistema, com suporte a movimento reduzido.
+
 - Amplia a escala física do chefe e introduz uma silhueta de nave de guerra com blindagem, núcleo e módulos visíveis.
 - Adiciona dez módulos independentes de armamento: metralhadoras, lançadores de mísseis, lasers leves, canhões de plasma, canhão principal e sistema auxiliar.
 - Implementa estados de módulo: operacional, danificado, inoperante e destruído; inclui sinais visuais iniciais de fumaça, fogo e faíscas.
