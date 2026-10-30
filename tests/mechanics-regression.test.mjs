@@ -79,3 +79,14 @@ test('continuous-laser victory and draw neutralize the contested projectile',()=
  assert.equal(resolveContinuousLaserProjectile(draw,'draw'),true);
  assert.equal(victory.active,false);assert.equal(draw.active,false);
 });
+
+test('boss test scenario starts at wave 10 without changing normal wave defaults',()=>{
+ const normal=new WaveManager();
+ assert.equal(normal.wave,1);
+ const testWave=new WaveManager();
+ testWave.startBossTest();
+ assert.equal(testWave.wave,10);assert.equal(testWave.enemyCount,1);
+ assert.equal(testWave.spawnedCount,0);assert.equal(testWave.state,'spawning');
+ assert.equal(testWave.update(0.81,0),true);
+ assert.equal(testWave.spawnedCount,1);
+});

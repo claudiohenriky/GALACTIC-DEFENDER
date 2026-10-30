@@ -464,3 +464,5 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 
 - [x] Bloquear mira, carga e disparo de armamentos durante a transição física de reparo/reconstrução/substituição; liberar após a instalação.
 - [x] Confirmar 22 testes automatizados aprovados no CI [41078411594](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41078411594).
+
+- [x] Criar cenário opcional de teste do boss por query string (`?bossTest=1`), sem alterar a progressão padrão; opção `&fps=1` exibe FPS na prévia.

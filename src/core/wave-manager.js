@@ -46,6 +46,16 @@ export class WaveManager {
     return false;
   }
 
+
+  /** Start directly at the boss encounter for isolated preview validation only. */
+  startBossTest() {
+    this.wave = 10;
+    this.enemyCount = 1;
+    this.spawnedCount = 0;
+    this.state = 'spawning';
+    this.timer = 0.8;
+  }
+
   getLabel() {
     if (this.state === 'intermission') return 'INTERVALO';
     return `ONDA ${String(this.wave).padStart(2, '0')}`;

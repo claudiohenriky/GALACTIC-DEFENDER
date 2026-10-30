@@ -88,16 +88,20 @@ export class Game {
     this.hudUpdateInterval = 0.1;
     this.hudUpdateTimer = 0;
     // Profiling is opt-in so normal gameplay pays no per-frame timing cost.
-    this.performanceProfileEnabled = new URLSearchParams(window.location.search).get('profile') === '1';
+    const query = new URLSearchParams(window.location.search);
+    this.performanceProfileEnabled = query.get('profile') === '1';
+    this.bossTestMode = query.get('bossTest') === '1';
     this.performanceProfileSamples = [];
     this.performanceProfileStartedAt = 0;
     this.performanceProfilePreviousFrameAt = 0;
-    this.fpsDisplayEnabled = false;
+    this.fpsDisplayEnabled = query.get('fps') === '1';
     this.fpsFrameCount = 0;
     this.fpsSampleStartedAt = 0;
     this.fpsCounterElement = document.querySelector('#fps-counter');
+    this.setFpsDisplayEnabled(this.fpsDisplayEnabled);
     this.backgroundCanvas = document.createElement('canvas');
     this.bindOverlayElements();
+    if (this.bossTestMode) this.waveManager.startBossTest();
   }
 
   setFpsDisplayEnabled(enabled) {
@@ -228,6 +232,7 @@ export class Game {
     this.progression = new Progression();
     this.mission = new Mission();
     this.waveManager.reset();
+    if (this.bossTestMode) this.waveManager.startBossTest();
     this.enemies = [];
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
