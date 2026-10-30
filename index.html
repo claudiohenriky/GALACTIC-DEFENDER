@@ -175,10 +175,30 @@
               <span><small>PONTUAÇÃO</small><b id="arena-score-value">000000</b></span>
             </div>
           </div>
-          <section id="boss-hud" class="boss-hud hidden" role="progressbar" aria-label="Integridade da nave de guerra inimiga" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+          <section id="boss-hud" class="boss-hud hidden" role="group" aria-label="Painel tático da nave de guerra inimiga">
             <div class="boss-hud-heading"><strong>NAVE DE GUERRA PESADA</strong><span id="boss-phase-label">FASE I</span></div>
-            <div class="boss-health-track"><div id="boss-health-fill"></div></div>
-            <div class="boss-hud-footer"><span>BLINDAGEM DO CASCO</span><strong id="boss-health-value">100%</strong></div>
+            <div class="boss-health-track" role="progressbar" aria-label="Integridade do casco" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="boss-health-fill"></div></div>
+            <div class="boss-hud-footer"><span>INTEGRIDADE DO CASCO</span><strong id="boss-health-value">100%</strong></div>
+            <div class="boss-section-heading"><span>ESCUDOS REGIONAIS</span><small id="boss-shield-summary">4/4 ATIVOS</small></div>
+            <div class="boss-shield-grid" aria-label="Estado dos quatro setores de escudo">
+              <div class="boss-shield-cell" data-boss-shield="front" data-state="operational"><span>FRENTE</span><div class="boss-shield-track"><div></div></div><small>100%</small></div>
+              <div class="boss-shield-cell" data-boss-shield="rear" data-state="operational"><span>TRASEIRO</span><div class="boss-shield-track"><div></div></div><small>100%</small></div>
+              <div class="boss-shield-cell" data-boss-shield="left" data-state="operational"><span>ESQUERDO</span><div class="boss-shield-track"><div></div></div><small>100%</small></div>
+              <div class="boss-shield-cell" data-boss-shield="right" data-state="operational"><span>DIREITO</span><div class="boss-shield-track"><div></div></div><small>100%</small></div>
+            </div>
+            <div class="boss-section-heading boss-module-heading"><span>MÓDULOS DE ARMAMENTO</span><small id="boss-module-summary">10/10 OPERACIONAIS</small></div>
+            <div class="boss-module-grid" aria-label="Dez módulos independentes de armamento">
+              <span class="boss-module-pip" data-boss-module="machine-gun-left" data-state="operational" title="Metralhadora esquerda" aria-label="Metralhadora esquerda: operacional"></span>
+              <span class="boss-module-pip" data-boss-module="machine-gun-right" data-state="operational" title="Metralhadora direita" aria-label="Metralhadora direita: operacional"></span>
+              <span class="boss-module-pip" data-boss-module="missile-left" data-state="operational" title="Lançador de mísseis esquerdo" aria-label="Lançador de mísseis esquerdo: operacional"></span>
+              <span class="boss-module-pip" data-boss-module="missile-right" data-state="operational" title="Lançador de mísseis direito" aria-label="Lançador de mísseis direito: operacional"></span>
+              <span class="boss-module-pip" data-boss-module="light-laser-left" data-state="operational" title="Laser leve esquerdo" aria-label="Laser leve esquerdo: operacional"></span>
+              <span class="boss-module-pip" data-boss-module="light-laser-right" data-state="operational" title="Laser leve direito" aria-label="Laser leve direito: operacional"></span>
+              <span class="boss-module-pip" data-boss-module="plasma-cannon-left" data-state="operational" title="Canhão de plasma esquerdo" aria-label="Canhão de plasma esquerdo: operacional"></span>
+              <span class="boss-module-pip" data-boss-module="plasma-cannon-right" data-state="operational" title="Canhão de plasma direito" aria-label="Canhão de plasma direito: operacional"></span>
+              <span class="boss-module-pip" data-boss-module="main-energy-cannon" data-state="operational" title="Canhão principal de energia" aria-label="Canhão principal de energia: operacional"></span>
+              <span class="boss-module-pip" data-boss-module="auxiliary-system" data-state="operational" title="Sistema auxiliar" aria-label="Sistema auxiliar: operacional"></span>
+            </div>
           </section>
           <aside id="overload-panel" class="overload-panel" data-state="stable" aria-label="Medidor de sobrecarga"><span class="overload-panel-title">SOBRECARGA</span><div class="overload-meter-vertical" aria-hidden="true"><div id="overload-meter-fill"></div></div><span id="overload-status" class="overload-status" data-state="stable" role="status" aria-live="polite">0% · ESTÁVEL</span></aside>
           <div id="fps-counter" class="fps-counter hidden" role="status" aria-live="off">FPS -- · -- ms</div>
