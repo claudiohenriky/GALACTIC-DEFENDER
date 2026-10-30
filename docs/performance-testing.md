@@ -19,14 +19,14 @@ Esta rotina compara versões no mesmo dispositivo e cenário. Verificações est
 
 ## Auditoria preparatória — candidata v0.44.0
 
-O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o teste de gameplay. As alterações abaixo são otimizações de código, não ganhos de FPS medidos:
+O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o teste de gameplay. As alterações abaixo são otimizações de código, não ganhos de FPS medidos. A rejeição AABB apenas descarta pares cuja distância horizontal ou vertical já é igual/superior à soma dos raios; os pares restantes continuam usando `circlesOverlap` como teste definitivo:
 
 - [x] Seleção do alvo do laser contínuo em uma passagem, sem criar arrays intermediários nem ordenar inimigos.
 - [x] Comparações de distância ao quadrado na previsão de esquiva e na separação de mísseis, calculando raiz quadrada somente quando necessária.
 - [x] Remover o desfoque de sombra do núcleo do chefe, substituindo-o por camadas sólidas.
 - [x] Pré-calcular reservas de alvos dos mísseis guiados uma vez por quadro e reutilizar o conjunto, evitando varrer todos os mísseis para cada inimigo candidato.
 - [x] Selecionar os dois aliados de cada Guardião por varredura linear, preservando prioridade de Sentinelas e proximidade sem criar, mapear ou ordenar listas de candidatos.
-- [ ] Auditar o custo de colisões entre projéteis, inimigos e habilidades em ondas avançadas.
+- [x] Auditar os pontos de colisão e adicionar rejeição AABB barata antes do teste circular exato em projétil/inimigo, projétil/projétil e míssil/inimigo. A regra final de sobreposição circular e a ordem de resolução foram preservadas.
 - [ ] Auditar atualizações e desenho de partículas, fumaça, fogo, faíscas, escudos e rastros.
 - [ ] Auditar a IA e a separação espacial quando houver muitos inimigos e projéteis simultâneos.
 - [ ] Conferir alocações temporárias e chamadas caras de Canvas no caminho de renderização.
