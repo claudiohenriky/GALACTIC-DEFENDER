@@ -3,16 +3,16 @@
 // It is intentionally data-driven so later bosses can reuse the same system.
 
 const MODULE_TEMPLATES = [
-  { id: 'machine-gun-left', kind: 'machine-gun', region: 'left', x: -0.72, y: -0.08, maxHealth: 34, replacement: 'plasma-turret' },
-  { id: 'machine-gun-right', kind: 'machine-gun', region: 'right', x: 0.72, y: -0.08, maxHealth: 34, replacement: 'plasma-turret' },
-  { id: 'missile-left', kind: 'missile', region: 'left', x: -0.58, y: 0.42, maxHealth: 38, replacement: 'rocket-pod' },
-  { id: 'missile-right', kind: 'missile', region: 'right', x: 0.58, y: 0.42, maxHealth: 38, replacement: 'rocket-pod' },
-  { id: 'light-laser-left', kind: 'light-laser', region: 'front', x: -0.32, y: -0.68, maxHealth: 28, replacement: 'light-laser' },
-  { id: 'light-laser-right', kind: 'light-laser', region: 'front', x: 0.32, y: -0.68, maxHealth: 28, replacement: 'light-laser' },
-  { id: 'plasma-cannon-left', kind: 'plasma-cannon', region: 'left', x: -0.9, y: 0.18, maxHealth: 48, replacement: 'reinforced-plasma' },
-  { id: 'plasma-cannon-right', kind: 'plasma-cannon', region: 'right', x: 0.9, y: 0.18, maxHealth: 48, replacement: 'reinforced-plasma' },
-  { id: 'main-energy-cannon', kind: 'energy-cannon', region: 'front', x: 0, y: -0.92, maxHealth: 58, replacement: 'overload-cannon' },
-  { id: 'auxiliary-system', kind: 'support-system', region: 'core', x: 0, y: 0.48, maxHealth: 42, replacement: 'adaptive-system' }
+  { id: 'machine-gun-left', kind: 'machine-gun', region: 'left', x: -0.52, y: -0.18, maxHealth: 34, replacement: 'plasma-turret' },
+  { id: 'machine-gun-right', kind: 'machine-gun', region: 'right', x: 0.52, y: -0.18, maxHealth: 34, replacement: 'plasma-turret' },
+  { id: 'missile-left', kind: 'missile', region: 'left', x: -0.55, y: 0.62, maxHealth: 38, replacement: 'rocket-pod' },
+  { id: 'missile-right', kind: 'missile', region: 'right', x: 0.55, y: 0.62, maxHealth: 38, replacement: 'rocket-pod' },
+  { id: 'light-laser-left', kind: 'light-laser', region: 'front', x: -0.24, y: -1.28, maxHealth: 28, replacement: 'light-laser' },
+  { id: 'light-laser-right', kind: 'light-laser', region: 'front', x: 0.24, y: -1.28, maxHealth: 28, replacement: 'light-laser' },
+  { id: 'plasma-cannon-left', kind: 'plasma-cannon', region: 'left', x: -0.66, y: 0.18, maxHealth: 48, replacement: 'reinforced-plasma' },
+  { id: 'plasma-cannon-right', kind: 'plasma-cannon', region: 'right', x: 0.66, y: 0.18, maxHealth: 48, replacement: 'reinforced-plasma' },
+  { id: 'main-energy-cannon', kind: 'energy-cannon', region: 'front', x: 0, y: -1.72, maxHealth: 58, replacement: 'overload-cannon' },
+  { id: 'auxiliary-system', kind: 'support-system', region: 'core', x: 0, y: 0.98, maxHealth: 42, replacement: 'adaptive-system' }
 ];
 
 const SHIELD_TEMPLATES = [
