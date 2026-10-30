@@ -110,7 +110,7 @@ Como o projeto usa módulos JavaScript, abra a pasta com um servidor HTTP local 
 
 ## Chefe v0.44.0
 
-O HUD tático diferencia dano e recuperação nos quatro escudos e dez módulos do encouraçado, além de exibir o progresso da reconstrução por sobrecarga. Esses sinais ainda aguardam validação visual em gameplay real.
+O HUD tático diferencia dano e recuperação nos quatro escudos e dez módulos do encouraçado, além de exibir o progresso da reconstrução por sobrecarga. Ataques sem ponto de impacto explícito agora usam a posição do jogador para resolver o setor atingido, mantendo a defesa regional ativa. Esses sinais ainda aguardam validação visual em gameplay real.
 
 ## Organização
 
