@@ -701,4 +701,7 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - CI aprovado no HEAD `47cf7c786cc82cbc9222447e5b73cc510279d0f8` (run [41077333473](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077333473)).
 
 - Corrige a decisão ESCAPAR do Attack Clash do Laser Contínuo: o projétil inimigo permanece ativo e retoma sua trajetória; vitória e empate neutralizam o projétil disputado.
-- Suíte de regressão ampliada para 20 testes. CI aprovado no HEAD `834394fd7143e0da2f9cb177fc8d119c105cae8d` (run [41077920626](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077920626)).
+- Suíte de regressão ampliada para 22 testes. CI aprovado no HEAD `834394fd7143e0da2f9cb177fc8d119c105cae8d` (run [41077920626](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077920626)).
+
+- Corrige a sobrecarga para impedir que torres em reparo, reconstrução ou substituição acompanhem o alvo, carreguem plasma ou disparem antes de a instalação terminar.
+- CI aprovado no HEAD `a4283aae8d0a8b5faf3dbedaf3f374f930f0d651` (run [41078411594](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41078411594)); suíte com 22 testes.

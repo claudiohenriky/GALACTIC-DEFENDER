@@ -284,4 +284,6 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - A suíte foi ampliada para 18 casos, incluindo mecânicas de ondas, mísseis guiados, resistência do Attack Clash, escudo do jogador e recuperação de controle após desestabilização. CI: [run 41077333473](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077333473).
 
 - Attack Clash do Laser Contínuo: ESCAPAR preserva o projétil para que retome sua trajetória; FORÇAR VITÓRIA e SUSTENTAR EMPATE neutralizam o projétil em disputa. Os dois resultados têm cobertura unitária.
-- Suíte atual: 20 testes automatizados. CI: [run 41077920626](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077920626).
+- Suíte atual: 22 testes automatizados. CI: [run 41077920626](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077920626).
+
+- Integridade temporal dos hardpoints: módulos em transição não rastreiam, carregam nem disparam; os testes confirmam liberação somente após o fim da instalação. Suíte total: 22 testes. CI: [run 41078411594](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41078411594).
