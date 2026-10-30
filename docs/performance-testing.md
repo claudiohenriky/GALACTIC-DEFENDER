@@ -282,3 +282,6 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - A suíte passou a 10 casos após incluir o Laser Contínuo contra o casco elíptico em diferentes orientações. CI: [run 41076189867](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41076189867).
 
 - A suíte foi ampliada para 18 casos, incluindo mecânicas de ondas, mísseis guiados, resistência do Attack Clash, escudo do jogador e recuperação de controle após desestabilização. CI: [run 41077333473](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077333473).
+
+- Attack Clash do Laser Contínuo: ESCAPAR preserva o projétil para que retome sua trajetória; FORÇAR VITÓRIA e SUSTENTAR EMPATE neutralizam o projétil em disputa. Os dois resultados têm cobertura unitária.
+- Suíte atual: 20 testes automatizados. CI: [run 41077920626](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077920626).

@@ -699,3 +699,6 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Adicionada resolução isolada do Attack Clash: disparos leves neutralizam munição leve, enquanto projéteis médios/pesados exigem impactos acumulados conforme a resistência.
 - Ampliada a suíte de regressão para 18 casos, cobrindo ondas de boss, seleção/expiração de mísseis guiados, resistência do Attack Clash, escudo do jogador e recuperação da desestabilização.
 - CI aprovado no HEAD `47cf7c786cc82cbc9222447e5b73cc510279d0f8` (run [41077333473](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077333473)).
+
+- Corrige a decisão ESCAPAR do Attack Clash do Laser Contínuo: o projétil inimigo permanece ativo e retoma sua trajetória; vitória e empate neutralizam o projétil disputado.
+- Suíte de regressão ampliada para 20 testes. CI aprovado no HEAD `834394fd7143e0da2f9cb177fc8d119c105cae8d` (run [41077920626](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077920626)).

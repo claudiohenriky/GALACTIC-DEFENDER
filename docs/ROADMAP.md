@@ -458,3 +458,6 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Extrair a resolução do Attack Clash para uma regra testável e confirmar resistência cumulativa de munição pesada.
 - [x] Adicionar regressões automatizadas para onda 10/15, retargeting e expiração de mísseis, resistência de projéteis, escudo do jogador e desestabilização.
 - [x] CI aprovado com 18 testes automatizados: [run 41077333473](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077333473).
+
+- [x] Corrigir a decisão ESCAPAR do Attack Clash contínuo para preservar o projétil inimigo; vitória/empate neutralizam o projétil.
+- [x] Confirmar 20 testes automatizados passando: [run 41077920626](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077920626).
