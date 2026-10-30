@@ -51,6 +51,7 @@ export class Enemy {
     this.disruptionTimer = 0;
     this.disruptionImpulseX = 0;
     this.disruptionImpulseY = 0;
+    this.ejectedModules = [];
 
     // Motion feedback is visual only: steering does not change damage or projectile rules.
     this.velocityX = 0;
@@ -67,6 +68,48 @@ export class Enemy {
     this.disruptionTimer = Math.max(this.disruptionTimer, duration);
     this.disruptionImpulseX += impulseX;
     this.disruptionImpulseY += impulseY;
+  }
+
+  ejectDestroyedModules() {
+    if (this.type !== 'boss' || !this.bossSystems) return 0;
+    let ejected = 0;
+    for (const module of this.bossSystems.modules) {
+      if (module.state !== 'destroyed' || !module.catastrophic || module.ejectionStarted) continue;
+      const length = Math.hypot(module.x, module.y) || 1;
+      const directionX = module.x / length;
+      const directionY = module.y / length;
+      const side = module.x < 0 ? -1 : 1;
+      this.ejectedModules.push({
+        x: module.x * this.radius,
+        y: module.y * this.radius,
+        vx: directionX * 82 + side * 16,
+        vy: directionY * 76 + 22,
+        rotation: 0,
+        spin: side * 2.1,
+        life: 2.2,
+        maxLife: 2.2,
+        size: this.radius * 0.095,
+        kind: module.kind
+      });
+      module.ejectionStarted = true;
+      ejected += 1;
+    }
+    return ejected;
+  }
+
+  updateEjectedModules(dt) {
+    let writeIndex = 0;
+    for (const part of this.ejectedModules) {
+      part.life = Math.max(0, part.life - dt);
+      if (part.life <= 0) continue;
+      part.x += part.vx * dt;
+      part.y += part.vy * dt;
+      part.vx *= Math.exp(-0.42 * dt);
+      part.vy = part.vy * Math.exp(-0.24 * dt) + 18 * dt;
+      part.rotation += part.spin * dt;
+      this.ejectedModules[writeIndex++] = part;
+    }
+    this.ejectedModules.length = writeIndex;
   }
 
   updateMotionFeedback(dt, previousX, previousY) {
@@ -103,6 +146,7 @@ export class Enemy {
     this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? (this.isElite ? 1.25 : 0.9) : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
     this.eliteSpawnTimer = Math.max(0, this.eliteSpawnTimer - dt);
     this.eliteShieldFlash = Math.max(0, this.eliteShieldFlash - dt);
+    this.updateEjectedModules(dt);
 
     // A destroyed dreadnought becomes a non-combat visual entity until its finale completes.
     if (this.type === 'boss' && this.bossDying) {
@@ -650,6 +694,32 @@ export class Enemy {
       ctx.globalAlpha = 1;
     }
     ctx.rotate(this.facingRotation + Math.PI / 2);
+
+    // Catastrophically destroyed weapon mounts are visible as detached wreckage
+    // drifting away from the hull while the replacement is installed.
+    for (const part of this.ejectedModules) {
+      const fade = Math.min(1, part.life / 0.42);
+      ctx.save();
+      ctx.translate(part.x, part.y);
+      ctx.rotate(part.rotation);
+      ctx.globalAlpha *= fade;
+      ctx.fillStyle = '#263746';
+      ctx.strokeStyle = '#9aabb7';
+      ctx.lineWidth = 1.4;
+      ctx.fillRect(-part.size * 0.58, -part.size * 0.42, part.size * 1.16, part.size * 0.84);
+      ctx.strokeRect(-part.size * 0.58, -part.size * 0.42, part.size * 1.16, part.size * 0.84);
+      ctx.fillStyle = '#536879';
+      ctx.fillRect(-part.size * 0.2, -part.size * 1.05, part.size * 0.4, part.size * 0.68);
+      ctx.strokeStyle = '#ffad69';
+      ctx.beginPath();
+      ctx.moveTo(-part.size * 0.42, part.size * 0.48);
+      ctx.lineTo(-part.size * 0.82, part.size * 0.82);
+      ctx.moveTo(part.size * 0.38, part.size * 0.42);
+      ctx.lineTo(part.size * 0.72, part.size * 0.74);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     // A little squash-and-stretch plus stronger shear gives enemy hulls the player's elastic turn cue.
     ctx.transform(
       1 + this.lateralThrust * 0.10 - Math.abs(this.bank) * 0.05,
