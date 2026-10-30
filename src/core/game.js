@@ -1102,13 +1102,14 @@ export class Game {
   }
 
   update(dt) {
-    this.stars.forEach((star) => {
+    for (let index = 0; index < this.stars.length; index += 1) {
+      const star = this.stars[index];
       star.y += star.speed * dt;
       if (star.y > 1) {
         star.y = 0;
         star.x = Math.random();
       }
-    });
+    }
 
     const mobileMode = document.documentElement.dataset.platform === 'mobile';
     const aimAngle = this.getAimAngle(mobileMode);
@@ -1209,7 +1210,9 @@ export class Game {
       }
     }
 
-    this.projectiles.forEach((shot) => shot.update(dt));
+    for (let index = 0; index < this.projectiles.length; index += 1) {
+      this.projectiles[index].update(dt);
+    }
     this.guidedMissileCooldown = Math.max(0, this.guidedMissileCooldown - dt);
     this.player.guidedMissileCooldown = this.guidedMissileCooldown;
     this.shieldPulseCooldown = Math.max(0, this.shieldPulseCooldown - dt);
@@ -1307,7 +1310,8 @@ export class Game {
       }
     }
 
-    this.enemies.forEach((enemy) => {
+    for (let index = 0; index < this.enemies.length; index += 1) {
+      const enemy = this.enemies[index];
       const shot = enemy.update(dt, this.player.x, this.player.y, this.width, this.height, this.projectiles, this.enemies);
       if (shot) {
         const shots = Array.isArray(shot) ? shot : [shot];
@@ -1316,7 +1320,7 @@ export class Game {
         }
         gameAudio.playEnemyShot(shots[0].color);
       }
-    });
+    }
 
     // Soft local separation prevents hostile ships from stacking while preserving their current tactics.
     for (let i = 0; i < this.enemies.length; i += 1) {
