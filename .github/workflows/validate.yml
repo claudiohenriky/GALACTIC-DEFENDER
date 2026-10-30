@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main, feature/v0.43.0-enemy-ai-evolution]
   push:
-    branches: [main, feature/v0.44.0-boss-evolution]
+    branches: [main, feature/v0.44.0-boss-evolution, preview-v0-44-0-heavy-boss]
 
 permissions:
   contents: read
