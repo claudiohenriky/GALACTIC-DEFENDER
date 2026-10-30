@@ -11,7 +11,7 @@ const MODULE_TEMPLATES = [
   { id: 'light-laser-right', kind: 'light-laser', region: 'front', x: 0.24, y: -1.28, maxHealth: 28, replacement: 'light-laser' },
   { id: 'plasma-cannon-left', kind: 'plasma-cannon', region: 'left', x: -0.66, y: 0.18, maxHealth: 48, replacement: 'reinforced-plasma' },
   { id: 'plasma-cannon-right', kind: 'plasma-cannon', region: 'right', x: 0.66, y: 0.18, maxHealth: 48, replacement: 'reinforced-plasma' },
-  { id: 'main-energy-cannon', kind: 'energy-cannon', region: 'front', x: 0, y: -1.72, maxHealth: 58, replacement: 'overload-cannon' },
+  { id: 'main-energy-cannon', kind: 'energy-cannon', region: 'front', x: 0, y: -1.72, maxHealth: 58, replacement: 'overload-cannon', energyState: 'standby', energyChargeDuration: 7.2, energyChargeTimer: 7.2, energyWarningDuration: 2.4, energyWarningTimer: 0, energyCooldownDuration: 5.5, energyCooldownTimer: 0 },
   { id: 'auxiliary-system', kind: 'support-system', region: 'core', x: 0, y: 0.98, maxHealth: 42, replacement: 'adaptive-system' }
 ];
 
