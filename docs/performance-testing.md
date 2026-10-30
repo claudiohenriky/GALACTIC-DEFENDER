@@ -280,3 +280,5 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - Cobertura geométrica adicional: segmento espesso do Laser Contínuo contra elipse orientada, incluindo teste de rotação e regiões de proa/popa.
 
 - A suíte passou a 10 casos após incluir o Laser Contínuo contra o casco elíptico em diferentes orientações. CI: [run 41076189867](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41076189867).
+
+- A suíte foi ampliada para 18 casos, incluindo mecânicas de ondas, mísseis guiados, resistência do Attack Clash, escudo do jogador e recuperação de controle após desestabilização. CI: [run 41077333473](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077333473).

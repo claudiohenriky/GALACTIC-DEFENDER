@@ -695,3 +695,7 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 
 - O Laser Contínuo também usa a elipse orientada do encouraçado, evitando falsos negativos ao cruzar a proa ou a popa; cobertura automatizada total desta rodada: 10 casos.
 - CI aprovado no HEAD `12bed74b2ecc52740fc54ee5bfd720a018f0dabc` (run [41076189867](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41076189867)).
+
+- Adicionada resolução isolada do Attack Clash: disparos leves neutralizam munição leve, enquanto projéteis médios/pesados exigem impactos acumulados conforme a resistência.
+- Ampliada a suíte de regressão para 18 casos, cobrindo ondas de boss, seleção/expiração de mísseis guiados, resistência do Attack Clash, escudo do jogador e recuperação da desestabilização.
+- CI aprovado no HEAD `47cf7c786cc82cbc9222447e5b73cc510279d0f8` (run [41077333473](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077333473)).

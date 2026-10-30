@@ -454,3 +454,7 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 
 - [x] Aplicar a geometria do casco alongado também ao Laser Contínuo.
 - [x] Confirmar 10 testes automatizados passando no CI [41076189867](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41076189867).
+
+- [x] Extrair a resolução do Attack Clash para uma regra testável e confirmar resistência cumulativa de munição pesada.
+- [x] Adicionar regressões automatizadas para onda 10/15, retargeting e expiração de mísseis, resistência de projéteis, escudo do jogador e desestabilização.
+- [x] CI aprovado com 18 testes automatizados: [run 41077333473](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41077333473).
