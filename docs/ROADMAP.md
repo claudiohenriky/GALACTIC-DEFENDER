@@ -13,7 +13,7 @@
 - Visual: primeira composição de nave de guerra em Canvas; pixel art final, fumaça/partículas avançadas e destruição completa ainda pendentes; entrada cinematográfica e zoom de câmera implementados, aguardando validação visual.
 - Arena: primeira implementação da expansão física concluída na branch — mundo com 1,6× a largura e a altura do viewport, câmera de acompanhamento, limites ampliados e mira convertida para coordenadas do mundo. Spawn comum e entrada/patrulha do chefe foram ajustados à área visível; a auditoria estática também corrigiu o Artilheiro para acompanhar a faixa do jogador e o posicionamento vertical do chefe nos extremos do mapa. O cache do fundo permanece limitado ao viewport. A implementação ainda requer teste real em celular e desktop.
 - Próxima sequência: validar movimentação nos quatro limites, colisões, mira por toque/mouse, câmera e entrada do chefe; depois implementar a sequência de destruição, refinar fogo/fumaça/faíscas/reconstrução e aprimorar o HUD do chefe.
-- Validação geral: concluir auditoria estática de projéteis, colisões, partículas, IA e renderização; executar verificações automatizadas e testes de navegador. Nenhum teste de navegador ou medição real de FPS foi executado para a expansão atual.
+- Validação geral: revisão estática dos caminhos de viewport/mundo, câmera, mira, movimentação, projéteis, colisões, separação e renderização concluída; os checks automatizados de sintaxe JavaScript, imports relativos e whitespace passaram no HEAD atual. Permanecem pendentes testes de navegador, estresse com alta densidade de entidades e medição real de FPS para a expansão atual.
 - Não mesclar em `main` sem aprovação explícita.
 
 ## Candidata v0.43.0 — Evolução da IA inimiga
