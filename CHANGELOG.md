@@ -1,3 +1,13 @@
+## [0.41.0] — Segunda Tropa de Elite: Sentinela de Elite (candidata)
+
+- Generaliza a identificação de variantes Elite para Artilheiro e Sentinela, sem criar uma nova classe-base.
+- Introduz a Sentinela de Elite ocasionalmente a partir da onda 14, preservando sua movimentação lateral, reposicionamento e mira.
+- Adiciona uma salva dupla de plasma: dois projéteis ligeiramente divergentes, com dano individual reduzido e dano total próximo ao disparo normal da Sentinela.
+- Diferencia a variante com placas escuras, casco roxo, núcleo luminoso azul-claro e identificação temporária na entrada.
+- Mantém o escudo de 8 pontos exclusivo do Artilheiro de Elite; a Sentinela de Elite não recebe esse escudo.
+- Concede pontuação de Elite sem alterar XP, vida ou dano de contato.
+- Candidata para teste manual; desempenho, frequência de aparição e legibilidade ainda precisam de validação. Não mesclada em `main`.
+
 ## [0.40.1] — Ajustes nas Tropas de Elite (patch)
 
 - Refina o Artilheiro de Elite: roxo predominante, placas pretas e detalhes verdes discretos.
