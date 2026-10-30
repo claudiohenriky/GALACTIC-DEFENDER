@@ -8,6 +8,8 @@ Este índice reúne os documentos de processo usados para organizar mudanças, r
 2. [Checklist de revisão de alterações](CHANGE_REVIEW_CHECKLIST.md) — orienta a revisão de escopo, qualidade, consistência e rastreabilidade antes de aceitar uma mudança.
 3. [Checklist de acessibilidade](ACCESSIBILITY_CHECKLIST.md) — ajuda a verificar legibilidade, navegação, feedback visual e uso por diferentes pessoas.
 4. [Modelo de registro de validação](VALIDATION_RECORD_TEMPLATE.md) — fornece um formato padronizado para documentar ambiente, verificações, evidências, problemas e decisão da rodada.
+5. [Relatório de prontidão da v0.44.0](RELEASE_READINESS_0.44.0.md) — registra o estado documental da candidata e deixa explícito o que ainda não foi validado.
+6. [Estado da documentação de processo](PROCESS_DOCUMENTATION_STATUS.md) — consolida o que foi organizado nesta etapa e os limites do que esse trabalho comprova.
 
 ## Como usar os documentos
 
