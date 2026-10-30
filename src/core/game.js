@@ -1418,10 +1418,10 @@ export class Game {
     // Soft local separation prevents hostile ships from stacking while preserving their current tactics.
     for (let i = 0; i < this.enemies.length; i += 1) {
       const first = this.enemies[i];
-      if (!first.active) continue;
+      if (!first.active || first.bossDying) continue;
       for (let j = i + 1; j < this.enemies.length; j += 1) {
         const second = this.enemies[j];
-        if (!second.active) continue;
+        if (!second.active || second.bossDying) continue;
         const firstRadius = first.collisionRadius ?? first.radius;
         const secondRadius = second.collisionRadius ?? second.radius;
         const minimumDistance = firstRadius + secondRadius + 4;
