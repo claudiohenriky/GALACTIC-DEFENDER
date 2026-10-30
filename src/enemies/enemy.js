@@ -569,9 +569,14 @@ export class Enemy {
 
       // Ten independently damageable weapon modules are represented by visible sockets.
       if (systems) {
+        const radius = this.radius;
+        const moduleHalfSize = radius * 0.105;
+        const moduleSize = moduleHalfSize * 2;
+        const damagePulse = Math.sin(this.phase * 8);
+        const smokeDrift = this.phase * 2;
         for (const module of systems.modules) {
-          const mx = module.x * this.radius;
-          const my = module.y * this.radius;
+          const mx = module.x * radius;
+          const my = module.y * radius;
           const moduleColor = module.state === 'destroyed' ? '#343b45'
             : module.state === 'disabled' ? '#713d32'
               : module.state === 'damaged' ? '#b86a37'
@@ -581,10 +586,10 @@ export class Enemy {
           ctx.fillStyle = moduleColor;
           ctx.strokeStyle = '#d5e7f2';
           ctx.lineWidth = 1.5;
-          ctx.fillRect(mx - this.radius * 0.105, my - this.radius * 0.105, this.radius * 0.21, this.radius * 0.21);
-          ctx.strokeRect(mx - this.radius * 0.105, my - this.radius * 0.105, this.radius * 0.21, this.radius * 0.21);
-          if (module.state === 'damaged' || module.state === 'disabled' || module.state === 'destroyed') {
-            ctx.globalAlpha = 0.45 + Math.sin(this.phase * 8 + mx) * 0.18;
+          ctx.fillRect(mx - moduleHalfSize, my - moduleHalfSize, moduleSize, moduleSize);
+          ctx.strokeRect(mx - moduleHalfSize, my - moduleHalfSize, moduleSize, moduleSize);
+          if (module.state !== 'operational') {
+            ctx.globalAlpha = 0.45 + damagePulse * 0.18;
             ctx.strokeStyle = '#ff9a55';
             ctx.beginPath();
             ctx.moveTo(mx - 7, my - 7);
@@ -598,7 +603,7 @@ export class Enemy {
             ctx.globalAlpha = Math.min(0.55, module.smoke * 0.45);
             ctx.fillStyle = '#aab4bd';
             ctx.beginPath();
-            ctx.arc(mx + Math.sin(this.phase * 2 + mx) * 7, my - 12 - module.smoke * 10, 5 + module.smoke * 7, 0, Math.PI * 2);
+            ctx.arc(mx + Math.sin(smokeDrift + mx) * 7, my - 12 - module.smoke * 10, 5 + module.smoke * 7, 0, Math.PI * 2);
             ctx.fill();
             ctx.globalAlpha = 1;
           }
@@ -612,16 +617,29 @@ export class Enemy {
           }
         }
 
+        // Scalar arc bounds avoid allocating four temporary arrays on every boss draw.
         for (const shield of systems.shields) {
           if (shield.health <= 0) continue;
-          const arc = shield.id === 'front' ? [-2.72, -0.42]
-            : shield.id === 'left' ? [2.45, 3.8]
-              : shield.id === 'right' ? [-0.68, 0.68] : [0.42, 2.72];
+          let arcStart = 0;
+          let arcEnd = 0;
+          if (shield.id === 'front') {
+            arcStart = -2.72;
+            arcEnd = -0.42;
+          } else if (shield.id === 'left') {
+            arcStart = 2.45;
+            arcEnd = 3.8;
+          } else if (shield.id === 'right') {
+            arcStart = -0.68;
+            arcEnd = 0.68;
+          } else {
+            arcStart = 0.42;
+            arcEnd = 2.72;
+          }
           ctx.globalAlpha = 0.12 + 0.26 * (shield.health / shield.maxHealth);
           ctx.strokeStyle = '#67dcff';
           ctx.lineWidth = 7;
           ctx.beginPath();
-          ctx.arc(0, 0, this.radius * 1.38, arc[0], arc[1]);
+          ctx.arc(0, 0, radius * 1.38, arcStart, arcEnd);
           ctx.stroke();
           ctx.globalAlpha = 1;
         }
