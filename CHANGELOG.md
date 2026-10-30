@@ -1,3 +1,13 @@
+## [0.40.1] — Ajustes nas Tropas de Elite (patch)
+
+- Refina o Artilheiro de Elite: roxo predominante, placas pretas e detalhes verdes discretos.
+- Substitui o anel completo de escudo por segmentos leves, mantendo os 8 pontos de absorção de dano.
+- Adiciona efeito de entrada simples e identificação temporária `ARTILHEIRO DE ELITE`, sem partículas extras.
+- Ajusta a movimentação evasiva do Artilheiro de Elite com deslocamento lateral inspirado na Sentinela, porém mais contido.
+- Faz o Guardião priorizar tropas de Elite ativas antes de Sentinelas ao escolher quem proteger.
+- Otimização visual direcionada; a causa exata da queda de FPS ainda depende de validação no dispositivo do usuário.
+- Candidata para teste geral posterior; não validada manualmente e não mesclada em `main`.
+
 ## [0.40.0] — Primeira Tropa de Elite: Artilheiro de Elite (candidata)
 
 - Adiciona o Artilheiro de Elite como variante do Artilheiro existente, não como uma quinta classe.

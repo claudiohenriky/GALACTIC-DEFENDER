@@ -7,6 +7,7 @@ export class Enemy {
     this.isElite = Boolean(isElite && type === 'artillery');
     this.eliteMaxShield = this.isElite ? 8 : 0;
     this.eliteShield = this.eliteMaxShield;
+    this.eliteSpawnTimer = this.isElite ? 1.65 : 0;
     this.radius = type === 'boss' ? 23 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
     this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'guardian' ? 7 + level : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
@@ -70,7 +71,8 @@ export class Enemy {
     this.contactCooldown = Math.max(0, this.contactCooldown - dt);
     this.dodgeCooldown = Math.max(0, this.dodgeCooldown - dt);
     this.dodgeTimer = Math.max(0, this.dodgeTimer - dt);
-    this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? 0.9 : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
+    this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? (this.isElite ? 1.25 : 0.9) : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
+    this.eliteSpawnTimer = Math.max(0, this.eliteSpawnTimer - dt);
 
     const dx = targetX - this.x;
     const dy = targetY - this.y;
@@ -82,18 +84,24 @@ export class Enemy {
     let supportAlly = null;
     let supportDistance = Infinity;
     if (this.type === 'guardian' || this.type === 'sentinel') {
-      const wantedType = this.type === 'guardian' ? 'sentinel' : 'guardian';
+      let supportPriority = Infinity;
       for (const ally of allies) {
-        if (ally === this || !ally.active || ally.type !== wantedType) continue;
+        if (ally === this || !ally.active) continue;
+        const isPreferredSupport = this.type === 'guardian'
+          ? (ally.isElite || ally.type === 'sentinel')
+          : ally.type === 'guardian';
+        if (!isPreferredSupport) continue;
+        const priority = this.type === 'guardian' && ally.isElite ? 0 : 1;
         const allyDistance = Math.hypot(ally.x - this.x, ally.y - this.y);
-        if (allyDistance < supportDistance) {
+        if (priority < supportPriority || (priority === supportPriority && allyDistance < supportDistance)) {
+          supportPriority = priority;
           supportDistance = allyDistance;
           supportAlly = ally;
         }
       }
     }
 
-    const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'artillery' ? 3 : this.type === 'guardian' ? 2.5 : this.type === 'interceptor' ? 5 : 9);
+    const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'artillery' ? (this.isElite ? 9 : 3) : this.type === 'guardian' ? 2.5 : this.type === 'interceptor' ? 5 : 9);
     let shot = null;
 
     // Estimate closest approach over a short horizon using relative velocity.
@@ -127,7 +135,7 @@ export class Enemy {
       }
     }
     const dodgeStrength = this.dodgeTimer > 0
-      ? (this.type === 'sentinel' ? 132 : this.type === 'artillery' ? 104 : this.type === 'boss' ? 42 : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'boss' ? 0.26 : 0.48))
+      ? (this.type === 'sentinel' ? 132 : this.type === 'artillery' ? (this.isElite ? 72 : 104) : this.type === 'boss' ? 42 : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'boss' ? 0.26 : 0.48))
       : 0;
 
     if (this.type === 'boss') {
@@ -183,9 +191,10 @@ export class Enemy {
       this.y += towardY * this.speed * 0.78 * dt + towardX * weave * dt;
     } else if (this.type === 'artillery') {
       // Artillery keeps a distant firing lane and uses a readable three-shot fan.
-      const desiredX = width / 2 + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150) + dodgeStrength;
+      const eliteStrafe = this.isElite ? Math.sin(this.phase * 0.82) * Math.min(width * 0.18, 88) : 0;
+      const desiredX = width / 2 + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150) + eliteStrafe + dodgeStrength;
       const desiredY = Math.max(36, targetY - Math.min(235, height * 0.42));
-      this.x += (desiredX - this.x) * Math.min(1, dt * 0.8);
+      this.x += (desiredX - this.x) * Math.min(1, dt * (this.isElite ? 1.05 : 0.8));
       this.y += (desiredY - this.y) * Math.min(1, dt * 1.0);
       this.fireCooldown -= dt;
       if (this.fireCooldown <= 0 && this.y > 18) {
@@ -306,8 +315,8 @@ export class Enemy {
     const artillery = this.type === 'artillery';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
-    const color = this.isElite ? '#252b35' : boss ? (this.bossPhase === 3 ? '#ff6d8f' : this.bossPhase === 2 ? '#ffb36b' : '#d59bff') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
-    const edge = this.isElite ? '#76f0a8' : boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
+    const color = this.isElite ? '#7546a6' : boss ? (this.bossPhase === 3 ? '#ff6d8f' : this.bossPhase === 2 ? '#ffb36b' : '#d59bff') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
+    const edge = this.isElite ? '#d9b8ff' : boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
     ctx.translate(this.x, this.y);
@@ -451,18 +460,18 @@ export class Enemy {
 
     if (this.isElite) {
       // Elite Artillery keeps the base silhouette with dark plating and a green energy core.
-      ctx.fillStyle = '#4c286b';
+      ctx.fillStyle = '#17131f';
       ctx.fillRect(-this.radius * 0.78, -this.radius * 0.35, this.radius * 0.34, this.radius * 0.8);
       ctx.fillRect(this.radius * 0.44, -this.radius * 0.35, this.radius * 0.34, this.radius * 0.8);
-      ctx.fillStyle = '#76f0a8';
-      ctx.fillRect(-this.radius * 0.12, -this.radius * 0.25, this.radius * 0.24, this.radius * 0.5);
+      ctx.fillStyle = '#65c98b';
+      ctx.fillRect(-this.radius * 0.07, -this.radius * 0.18, this.radius * 0.14, this.radius * 0.34);
     }
 
     ctx.fillStyle = '#25152f';
     ctx.fillRect(-this.radius * 0.62, -this.radius * 0.1, this.radius * 1.24, this.radius * 0.38);
     ctx.fillStyle = edge;
     ctx.fillRect(-this.radius * 0.2, -this.radius * 0.24, this.radius * 0.4, this.radius * 0.48);
-    ctx.fillStyle = boss ? '#fff2ff' : color;
+    ctx.fillStyle = boss ? '#fff2ff' : this.isElite ? '#65c98b' : color;
     ctx.fillRect(-this.radius * 0.08, this.radius * 0.3, this.radius * 0.16, this.radius * 0.32);
     if (boss) {
       ctx.strokeStyle = '#fff0ff';
@@ -482,13 +491,33 @@ export class Enemy {
     ctx.fillStyle = this.health / this.maxHealth <= 0.35 ? '#ff526f' : '#8cf5c7';
     ctx.fillRect(-barWidth / 2, barY, barWidth * (this.health / this.maxHealth), 3);
     if (this.isElite && this.eliteShield > 0) {
+      // Lightweight segmented shield cue, visually consistent with the player's shield arcs.
       const shieldRatio = this.eliteShield / Math.max(1, this.eliteMaxShield);
-      ctx.globalAlpha = 0.35 + shieldRatio * 0.45;
-      ctx.strokeStyle = '#76f0a8';
-      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.35 + shieldRatio * 0.35;
+      ctx.strokeStyle = '#82dca2';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.arc(0, 0, this.radius + 4 + Math.sin(this.phase * 3) * 0.8, 0, Math.PI * 2);
+      ctx.arc(0, 0, this.radius + 5, -2.72, -2.12);
+      ctx.arc(0, 0, this.radius + 5, -1.02, -0.42);
       ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+
+    if (this.isElite && this.eliteSpawnTimer > 0) {
+      const progress = 1 - this.eliteSpawnTimer / 1.65;
+      const fade = Math.min(1, this.eliteSpawnTimer / 0.35);
+      ctx.globalAlpha = fade * 0.75;
+      ctx.strokeStyle = '#b68be8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, this.radius + 9 + progress * 16, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = fade;
+      ctx.fillStyle = '#e8d5ff';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ARTILHEIRO DE ELITE', 0, -this.radius - 17);
       ctx.globalAlpha = 1;
     }
 
