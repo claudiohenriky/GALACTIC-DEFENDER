@@ -1,15 +1,15 @@
-import { Player } from '../player/player.js?v=0.40.1';
-import { Enemy } from '../enemies/enemy.js?v=0.40.1';
-import { Projectile } from '../combat/projectile.js?v=0.40.1';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.40.1';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.40.1';
-import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.40.1';
-import { Progression } from '../progression/progression.js?v=0.40.1';
-import { Mission } from '../missions/missions.js?v=0.40.1';
-import { WaveManager } from './wave-manager.js?v=0.40.1';
-import { updateHud } from '../ui/hud.js?v=0.40.1';
-import { gameAudio } from '../audio/game-audio.js?v=0.40.1';
-import { AchievementTracker } from '../progression/achievements.js?v=0.40.1';
+import { Player } from '../player/player.js?v=0.41.0';
+import { Enemy } from '../enemies/enemy.js?v=0.41.0';
+import { Projectile } from '../combat/projectile.js?v=0.41.0';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.41.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.41.0';
+import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.41.0';
+import { Progression } from '../progression/progression.js?v=0.41.0';
+import { Mission } from '../missions/missions.js?v=0.41.0';
+import { WaveManager } from './wave-manager.js?v=0.41.0';
+import { updateHud } from '../ui/hud.js?v=0.41.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.41.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.41.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -815,7 +815,7 @@ export class Game {
     enemy.health = Math.max(0, enemy.health - amount);
     if (enemy.health > 0) return;
     enemy.active = false;
-    this.score += enemy.type === 'boss' ? 1000 : enemy.type === 'artillery' ? 150 : 100;
+    this.score += enemy.type === 'boss' ? 1000 : enemy.isElite ? 150 : enemy.type === 'artillery' ? 150 : 100;
     this.destroyed += 1;
     const newlyUnlocked = this.achievements.record('kills');
     if (enemy.type === 'boss') newlyUnlocked.push(...this.achievements.record('bosses'));
@@ -1114,9 +1114,11 @@ export class Game {
             : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.49 : this.waveManager.wave >= 3 ? 0.37 : 0.25) ? 'sentinel'
               : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.67 : this.waveManager.wave >= 3 ? 0.55 : 0.43) ? 'interceptor'
                 : 'chaser';
-      // Elite variants begin in advanced waves and retain their base class behavior.
-      // The first proof of concept is an Artillery Elite, introduced from wave 12.
-      const isElite = !bossWave && this.waveManager.wave >= 12 && type === 'artillery' && Math.random() < 0.45;
+      // Artillery Elite appears from wave 12; Sentinel Elite joins from wave 14.
+      const isElite = !bossWave && (
+        (this.waveManager.wave >= 12 && type === 'artillery' && Math.random() < 0.45) ||
+        (this.waveManager.wave >= 14 && type === 'sentinel' && Math.random() < 0.30)
+      );
       this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave, type, isElite));
     }
 

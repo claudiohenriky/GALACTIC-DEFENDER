@@ -4,8 +4,9 @@ export class Enemy {
     this.y = y;
     this.type = type;
     this.level = level;
-    this.isElite = Boolean(isElite && type === 'artillery');
-    this.eliteMaxShield = this.isElite ? 8 : 0;
+    this.isElite = Boolean(isElite && (type === 'artillery' || type === 'sentinel'));
+    // The energy shield remains exclusive to the Artillery Elite.
+    this.eliteMaxShield = this.isElite && type === 'artillery' ? 8 : 0;
     this.eliteShield = this.eliteMaxShield;
     this.eliteSpawnTimer = this.isElite ? 1.65 : 0;
     this.radius = type === 'boss' ? 23 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
@@ -20,7 +21,7 @@ export class Enemy {
       : type === 'artillery'
         ? 2.6 + Math.random() * 0.8
         : type === 'sentinel'
-          ? 1.1 + Math.random() * 0.8
+          ? (this.isElite ? 2.8 : 1.1 + Math.random() * 0.8)
           : 2.4 + Math.random() * 0.8;
     this.active = true;
     this.contactCooldown = 0;
@@ -238,18 +239,38 @@ export class Enemy {
       this.fireCooldown -= dt;
 
       if (this.fireCooldown <= 0 && this.y > 18) {
-        this.fireCooldown = 2.2;
-        shot = {
-          x: this.x,
-          y: this.y + this.radius,
-          targetX,
-          targetY,
-          damage: 10,
-          speed: 190,
-          radius: 4,
-          color: '#ffe0a8',
-          glowColor: '#ffad55'
-        };
+        if (this.isElite) {
+          // A compact two-shot plasma burst gives this variant a distinct attack without a shield.
+          this.fireCooldown = 3.0;
+          const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
+          shot = [-1, 1].map((offset) => {
+            const angle = baseAngle + offset * 0.055;
+            return {
+              x: this.x,
+              y: this.y + this.radius,
+              targetX: this.x + Math.cos(angle) * 420,
+              targetY: this.y + Math.sin(angle) * 420,
+              damage: 5.5,
+              speed: 185,
+              radius: 3.8,
+              color: '#c99aff',
+              glowColor: '#9255d8'
+            };
+          });
+        } else {
+          this.fireCooldown = 2.2;
+          shot = {
+            x: this.x,
+            y: this.y + this.radius,
+            targetX,
+            targetY,
+            damage: 10,
+            speed: 190,
+            radius: 4,
+            color: '#ffe0a8',
+            glowColor: '#ffad55'
+          };
+        }
       }
     } else if (this.type === 'guardian') {
       // A Guardian normally advances on the pilot. Near a Sentinel, it instead
@@ -458,7 +479,7 @@ export class Enemy {
       ctx.strokeRect(this.radius * 0.64, -this.radius * 0.25, this.radius * 0.34, this.radius * 0.75);
     }
 
-    if (this.isElite) {
+    if (this.isElite && artillery) {
       // Elite Artillery keeps the base silhouette with dark plating and a green energy core.
       ctx.fillStyle = '#17131f';
       ctx.fillRect(-this.radius * 0.78, -this.radius * 0.35, this.radius * 0.34, this.radius * 0.8);
@@ -467,11 +488,31 @@ export class Enemy {
       ctx.fillRect(-this.radius * 0.07, -this.radius * 0.18, this.radius * 0.14, this.radius * 0.34);
     }
 
+    if (this.isElite && ranged) {
+      // Dark shoulder plates and a cool luminous core distinguish the Elite Sentinel.
+      ctx.fillStyle = '#17131f';
+      ctx.beginPath();
+      ctx.moveTo(-this.radius * 1.02, -this.radius * 0.34);
+      ctx.lineTo(-this.radius * 0.48, -this.radius * 0.05);
+      ctx.lineTo(-this.radius * 0.72, this.radius * 0.58);
+      ctx.lineTo(-this.radius * 1.18, this.radius * 0.18);
+      ctx.closePath();
+      ctx.moveTo(this.radius * 1.02, -this.radius * 0.34);
+      ctx.lineTo(this.radius * 0.48, -this.radius * 0.05);
+      ctx.lineTo(this.radius * 0.72, this.radius * 0.58);
+      ctx.lineTo(this.radius * 1.18, this.radius * 0.18);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = '#d9b8ff';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
     ctx.fillStyle = '#25152f';
     ctx.fillRect(-this.radius * 0.62, -this.radius * 0.1, this.radius * 1.24, this.radius * 0.38);
     ctx.fillStyle = edge;
     ctx.fillRect(-this.radius * 0.2, -this.radius * 0.24, this.radius * 0.4, this.radius * 0.48);
-    ctx.fillStyle = boss ? '#fff2ff' : this.isElite ? '#65c98b' : color;
+    ctx.fillStyle = boss ? '#fff2ff' : this.isElite && ranged ? '#8fdcff' : this.isElite ? '#65c98b' : color;
     ctx.fillRect(-this.radius * 0.08, this.radius * 0.3, this.radius * 0.16, this.radius * 0.32);
     if (boss) {
       ctx.strokeStyle = '#fff0ff';
@@ -517,7 +558,7 @@ export class Enemy {
       ctx.fillStyle = '#e8d5ff';
       ctx.font = 'bold 9px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('ARTILHEIRO DE ELITE', 0, -this.radius - 17);
+      ctx.fillText(this.type === 'sentinel' ? 'SENTINELA DE ELITE' : 'ARTILHEIRO DE ELITE', 0, -this.radius - 17);
       ctx.globalAlpha = 1;
     }
 
