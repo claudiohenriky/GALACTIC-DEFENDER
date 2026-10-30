@@ -1,3 +1,14 @@
+## [0.42.0] — Identidade Elite e Guardião de Elite (candidata)
+
+- Restaura o Artilheiro de Elite com casco predominantemente preto e detalhes verdes, mantendo o escudo de 8 pontos.
+- Diferencia mais a silhueta da Sentinela de Elite, preservando sua salva dupla de plasma e seu papel de combate à distância.
+- Adiciona o Guardião de Elite a partir da onda 16, com placas defensivas próprias, 12 pontos de escudo e função de proteção de aliados preservada.
+- Remove os nomes flutuantes sobre as tropas; a primeira aparição de cada classe Elite em uma partida gera um aviso de ameaça na interface, apenas quando a unidade realmente surge.
+- Substitui a entrada atual por uma distorção espacial breve, feita com poucos traços e sem sistema de partículas.
+- Aplica uma barra de integridade mais larga e destacada às variantes Elite.
+- A queda de FPS relatada permanece como investigação separada; esta candidata não declara a otimização como resolvida.
+- Candidata para teste manual; não mesclada em `main`.
+
 ## [0.41.0] — Segunda Tropa de Elite: Sentinela de Elite (candidata)
 
 - Generaliza a identificação de variantes Elite para Artilheiro e Sentinela, sem criar uma nova classe-base.
