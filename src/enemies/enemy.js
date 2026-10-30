@@ -451,46 +451,6 @@ export class Enemy {
 
     ctx.save();
     ctx.translate(this.x, this.y);
-    if (boss && this.bossDying) {
-      const deathTime = this.bossDeathTimer;
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      // Five timed internal detonations travel across the hull; all positions are deterministic.
-      for (let index = 0; index < 5; index += 1) {
-        const burstAge = deathTime - (0.42 + index * 0.58);
-        if (burstAge < 0 || burstAge > 0.56) continue;
-        const side = index % 2 === 0 ? -1 : 1;
-        const burstX = side * this.radius * (0.22 + (index % 3) * 0.19);
-        const burstY = this.radius * (-0.48 + index * 0.22);
-        const fade = 1 - burstAge / 0.56;
-        ctx.globalAlpha = fade * 0.88;
-        ctx.strokeStyle = index % 2 === 0 ? '#ffb45f' : '#8feaff';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(burstX, burstY, 5 + burstAge * 76, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.fillStyle = '#fff0b5';
-        ctx.beginPath();
-        ctx.arc(burstX, burstY, 3 + fade * 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      const finalAge = deathTime - 3.35;
-      if (finalAge >= 0) {
-        const finalFade = Math.max(0, 1 - finalAge / 1.15);
-        ctx.globalAlpha = finalFade * 0.9;
-        ctx.strokeStyle = '#fff0c2';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.arc(0, 0, 12 + finalAge * 145, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.globalAlpha = finalFade * 0.22;
-        ctx.fillStyle = '#ff9b54';
-        ctx.beginPath();
-        ctx.arc(0, 0, 9 + finalAge * 54, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
-    }
     if (boss && this.bossPhaseTransition > 0) {
       ctx.globalAlpha = 0.55 + Math.sin(this.bossPhaseTransition * 22) * 0.25;
       ctx.strokeStyle = edge;
@@ -898,6 +858,46 @@ export class Enemy {
       ctx.globalAlpha = 1;
     }
 
+    if (boss && this.bossDying) {
+      const deathTime = this.bossDeathTimer;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      // Five timed internal detonations travel across the hull; all positions are deterministic.
+      for (let index = 0; index < 5; index += 1) {
+        const burstAge = deathTime - (0.42 + index * 0.58);
+        if (burstAge < 0 || burstAge > 0.56) continue;
+        const side = index % 2 === 0 ? -1 : 1;
+        const burstX = side * this.radius * (0.22 + (index % 3) * 0.19);
+        const burstY = this.radius * (-0.48 + index * 0.22);
+        const fade = 1 - burstAge / 0.56;
+        ctx.globalAlpha = fade * 0.88;
+        ctx.strokeStyle = index % 2 === 0 ? '#ffb45f' : '#8feaff';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(burstX, burstY, 5 + burstAge * 76, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = '#fff0b5';
+        ctx.beginPath();
+        ctx.arc(burstX, burstY, 3 + fade * 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      const finalAge = deathTime - 3.35;
+      if (finalAge >= 0) {
+        const finalFade = Math.max(0, 1 - finalAge / 1.15);
+        ctx.globalAlpha = finalFade * 0.9;
+        ctx.strokeStyle = '#fff0c2';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, 0, 12 + finalAge * 145, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.globalAlpha = finalFade * 0.22;
+        ctx.fillStyle = '#ff9b54';
+        ctx.beginPath();
+        ctx.arc(0, 0, 9 + finalAge * 54, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
     ctx.restore();
   }
 }
