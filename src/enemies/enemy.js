@@ -334,10 +334,19 @@ export class Enemy {
       }
     } else if (this.type === 'guardian') {
       // Each Guardian screens its own assigned formation of at most two allies.
-      const formation = (this.protectedAllies || []).filter((ally) => ally.active);
-      if (formation.length) {
-        const centerX = formation.reduce((sum, ally) => sum + ally.x, 0) / formation.length;
-        const centerY = formation.reduce((sum, ally) => sum + ally.y, 0) / formation.length;
+      // Accumulate active positions directly to avoid a filtered array and reduce passes.
+      let formationCount = 0;
+      let centerX = 0;
+      let centerY = 0;
+      for (const ally of this.protectedAllies || []) {
+        if (!ally.active) continue;
+        formationCount += 1;
+        centerX += ally.x;
+        centerY += ally.y;
+      }
+      if (formationCount > 0) {
+        centerX /= formationCount;
+        centerY /= formationCount;
         const screenX = centerX + (targetX - centerX) * 0.45;
         const screenY = centerY + (targetY - centerY) * 0.45;
         this.x += (screenX - this.x) * Math.min(1, dt * (this.isElite ? 1.15 : 0.95)) + drift * dt;
