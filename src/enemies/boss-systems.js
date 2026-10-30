@@ -24,6 +24,18 @@ const SHIELD_TEMPLATES = [
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
 
+// A weapon may fire only when its target is inside the mount's physical arc,
+// within its effective range, and the barrel has finished turning toward it.
+export function canWeaponFireAtTarget({
+  angle, distanceSquared, minArc, maxArc, maxRange, alignmentError = 0
+}, alignmentTolerance = 0.18) {
+  if (![angle, distanceSquared, minArc, maxArc, maxRange, alignmentError].every(Number.isFinite)) return false;
+  if (minArc > maxArc || maxRange <= 0 || distanceSquared < 0) return false;
+  return angle >= minArc && angle <= maxArc &&
+    distanceSquared <= maxRange * maxRange &&
+    Math.abs(alignmentError) <= alignmentTolerance;
+}
+
 export class BossSystems {
   constructor() {
     this.modules = MODULE_TEMPLATES.map((module) => ({
@@ -40,6 +52,8 @@ export class BossSystems {
       catastrophic: false,
       originalKind: module.kind,
       turretAngle: 0,
+      targetInArc: false,
+      canFire: false,
       plasmaChargeDuration: 2.6,
       plasmaChargeTimer: module.kind.includes('plasma') ? 2.6 : 0
     }));
