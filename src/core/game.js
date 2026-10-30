@@ -843,33 +843,36 @@ export class Game {
     if (enemy.type === 'boss' && enemy.bossSystems) {
       let remainingDamage = amount;
       let hitModule = null;
-      if (Number.isFinite(impactX) && Number.isFinite(impactY)) {
-        const dx = impactX - enemy.x;
-        const dy = impactY - enemy.y;
-        const rotation = -(enemy.facingRotation + Math.PI / 2);
-        const localX = dx * Math.cos(rotation) - dy * Math.sin(rotation);
-        const localY = dx * Math.sin(rotation) + dy * Math.cos(rotation);
-        const radius = Math.max(1, enemy.radius);
-        const region = localY < -radius * 0.34 ? 'front'
-          : localY > radius * 0.48 ? 'rear'
-            : localX < 0 ? 'left' : 'right';
-        const shieldResult = enemy.bossSystems.damageShield(region, remainingDamage);
-        remainingDamage = shieldResult.remaining;
+      // Projectile callers provide the collision point. Area/special attacks do not
+      // always have a single impact point, so resolve them from the pilot's position
+      // instead of letting those attacks bypass the dreadnought's regional defenses.
+      const hitX = Number.isFinite(impactX) ? impactX : this.player.x;
+      const hitY = Number.isFinite(impactY) ? impactY : this.player.y;
+      const dx = hitX - enemy.x;
+      const dy = hitY - enemy.y;
+      const rotation = -(enemy.facingRotation + Math.PI / 2);
+      const localX = dx * Math.cos(rotation) - dy * Math.sin(rotation);
+      const localY = dx * Math.sin(rotation) + dy * Math.cos(rotation);
+      const radius = Math.max(1, enemy.radius);
+      const region = localY < -radius * 0.34 ? 'front'
+        : localY > radius * 0.48 ? 'rear'
+          : localX < 0 ? 'left' : 'right';
+      const shieldResult = enemy.bossSystems.damageShield(region, remainingDamage);
+      remainingDamage = shieldResult.remaining;
 
-        let nearestDistance = Infinity;
-        for (const module of enemy.bossSystems.modules) {
-          if (module.state === 'destroyed') continue;
-          const mx = module.x * radius;
-          const my = module.y * radius;
-          const distanceSquared = (localX - mx) ** 2 + (localY - my) ** 2;
-          if (distanceSquared < nearestDistance) {
-            nearestDistance = distanceSquared;
-            hitModule = module;
-          }
+      let nearestDistance = Infinity;
+      for (const module of enemy.bossSystems.modules) {
+        if (module.state === 'destroyed') continue;
+        const mx = module.x * radius;
+        const my = module.y * radius;
+        const distanceSquared = (localX - mx) ** 2 + (localY - my) ** 2;
+        if (distanceSquared < nearestDistance) {
+          nearestDistance = distanceSquared;
+          hitModule = module;
         }
-        if (remainingDamage > 0 && hitModule && nearestDistance <= (radius * 0.42) ** 2) {
-          enemy.bossSystems.damageModule(hitModule.id, remainingDamage);
-        }
+      }
+      if (remainingDamage > 0 && hitModule && nearestDistance <= (radius * 0.42) ** 2) {
+        enemy.bossSystems.damageModule(hitModule.id, remainingDamage);
       }
       if (remainingDamage <= 0) return;
       amount = remainingDamage;
