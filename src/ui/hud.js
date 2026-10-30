@@ -68,6 +68,8 @@ function updateBossHud(boss) {
     const progress = Math.max(0, Math.min(100, (1 - systems.rebuildTimer / rebuildDuration) * 100));
     const width = rebuilding ? `${progress}%` : '0%';
     if (rebuildFill.style.width !== width) rebuildFill.style.width = width;
+    const ariaValue = String(Math.round(rebuilding ? progress : 0));
+    if (rebuildTrack?.getAttribute('aria-valuenow') !== ariaValue) rebuildTrack?.setAttribute('aria-valuenow', ariaValue);
   }
   const phaseLabel = boss.bossDying
     ? 'DESTRUINDO'
