@@ -1588,7 +1588,9 @@ export class Game {
     });
 
     // Red circuit sparks and a brief edge flash make incoming damage easier to notice.
-    this.damageSparks.forEach((spark) => {
+    // Indexed iteration avoids allocating a callback on every rendered frame.
+    for (let index = 0; index < this.damageSparks.length; index += 1) {
+      const spark = this.damageSparks[index];
       const fade = Math.max(0, spark.life / spark.maxLife);
       ctx.save();
       ctx.translate(spark.x, spark.y);
@@ -1599,7 +1601,7 @@ export class Game {
         ctx.arc(0, 0, spark.size * (1 + (1 - fade) * 0.7), 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
-        return;
+        continue;
       }
       ctx.rotate(Math.atan2(spark.vy, spark.vx));
       ctx.strokeStyle = spark.color || (fade > 0.55 ? '#ffdce3' : '#ff526f');
@@ -1610,7 +1612,7 @@ export class Game {
       ctx.lineTo(spark.length, 0);
       ctx.stroke();
       ctx.restore();
-    });
+    }
     if (this.damageFeedbackTimer > 0) {
       const flash = this.damageFeedbackTimer / 0.48;
       ctx.save();
@@ -1642,7 +1644,8 @@ export class Game {
     }
 
     // Short-lived gold particles make level gains visible without blocking play.
-    this.levelUpParticles.forEach((particle) => {
+    for (let index = 0; index < this.levelUpParticles.length; index += 1) {
+      const particle = this.levelUpParticles[index];
       ctx.save();
       ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
       ctx.translate(particle.x, particle.y);
@@ -1660,6 +1663,6 @@ export class Game {
       ctx.closePath();
       ctx.fill();
       ctx.restore();
-    });
+    }
   }
 }
