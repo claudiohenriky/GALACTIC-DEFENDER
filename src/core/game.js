@@ -5,6 +5,7 @@ import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, orientedEllipseOverlapsSegment } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
 import { resolveAttackClash, resolveContinuousLaserProjectile } from '../combat/attack-clash.js?v=0.44.0-attack-clash-resistance';
+import { predictProjectileThreat } from '../combat/threat-detection.js?v=0.44.1-threat-alerts';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { WaveManager } from './wave-manager.js?v=0.44.0';
@@ -41,6 +42,8 @@ export class Game {
     // The visible viewport moves through a larger world; boss zoom remains a separate camera effect.
     this.cameraZoom = 1;
     this.bossEncounterSeen = false;
+    this.bossApproachAlertWave = 0;
+    this.combatAlert = { icon: '', label: '', timer: 0, maxTimer: 0, cooldown: 0 };
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
     this.projectiles = [];
@@ -225,6 +228,8 @@ export class Game {
     this.player = new Player(this.worldWidth, this.worldHeight);
     this.cameraZoom = 1;
     this.bossEncounterSeen = false;
+    this.bossApproachAlertWave = 0;
+    this.combatAlert = { icon: '', label: '', timer: 0, maxTimer: 0, cooldown: 0 };
     this.cameraX = 0;
     this.cameraY = 0;
     this.updateCamera(0, true);
@@ -483,6 +488,64 @@ export class Game {
       document.querySelector('#title-unlock-label').textContent = `NOVO TÍTULO: ${unlockedTitles[unlockedTitles.length - 1].name}`;
       document.querySelector('#title-unlock-toast').classList.remove('hidden');
     }
+  }
+
+  triggerCombatAlert(icon, label, duration = 0.82, cooldown = 0.95) {
+    const alert = this.combatAlert;
+    if (alert.timer > 0 && icon !== '!') return;
+    alert.icon = icon;
+    alert.label = label;
+    alert.timer = duration;
+    alert.maxTimer = duration;
+    alert.cooldown = Math.max(alert.cooldown, cooldown);
+  }
+
+  updateCombatAlert(dt) {
+    const alert = this.combatAlert;
+    alert.timer = Math.max(0, alert.timer - dt);
+    alert.cooldown = Math.max(0, alert.cooldown - dt);
+    if (alert.timer > 0 || alert.cooldown > 0) return;
+
+    // Only heavy or high-damage attacks trigger this cue. Ordinary fire remains
+    // readable through projectile visuals and does not flood the pilot with alerts.
+    let earliestThreat = Infinity;
+    for (const shot of this.enemyProjectiles) {
+      if (!shot.active || !(shot.heavyImpact || shot.plasmaImpact || shot.damage >= 12)) continue;
+      const threat = predictProjectileThreat(shot, this.player);
+      if (threat && threat.impactTime < earliestThreat) earliestThreat = threat.impactTime;
+    }
+    if (earliestThreat < Infinity) {
+      this.triggerCombatAlert('!', 'IMPACTO IMINENTE', 0.78, 1.05);
+    }
+  }
+
+  drawCombatAlert(ctx, cameraZoom = 1) {
+    const alert = this.combatAlert;
+    if (!alert || alert.timer <= 0) return;
+    const zoom = Math.max(0.01, cameraZoom);
+    const fade = Math.min(1, alert.timer / 0.18);
+    const pulse = 1 + Math.sin((alert.maxTimer - alert.timer) * 13) * 0.045;
+    const danger = alert.icon === '!';
+    ctx.save();
+    ctx.translate(this.player.x + 26 / zoom, this.player.y - 28 / zoom);
+    ctx.scale(pulse / zoom, pulse / zoom);
+    ctx.globalAlpha = fade;
+    ctx.fillStyle = danger ? '#5b1d2c' : '#18314b';
+    ctx.strokeStyle = danger ? '#ff8b78' : '#8bdcff';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.arc(0, 0, 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 21px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(alert.icon, 0, 0.5);
+    ctx.font = '800 8px system-ui, sans-serif';
+    ctx.fillStyle = danger ? '#ffd5d2' : '#d4f3ff';
+    ctx.fillText(alert.label, 0, 25);
+    ctx.restore();
   }
 
   triggerDamageFeedback(amount) {
@@ -1266,7 +1329,16 @@ export class Game {
       const enemy = this.enemies[index];
       if (enemy.active && enemy.type === 'boss') { bossPresent = true; break; }
     }
-    if (bossPresent) this.bossEncounterSeen = true;
+    const isBossWave = this.waveManager.wave >= 10 && this.waveManager.wave % 5 === 0;
+    if (isBossWave && this.waveManager.state === 'spawning' &&
+        this.waveManager.spawnedCount === 0 && this.bossApproachAlertWave !== this.waveManager.wave) {
+      this.bossApproachAlertWave = this.waveManager.wave;
+      this.triggerCombatAlert('?', 'SINAL INCOMUM', 1.35, 0.35);
+    }
+    if (bossPresent && !this.bossEncounterSeen) {
+      this.bossEncounterSeen = true;
+      this.triggerCombatAlert('!', 'AMEAÇA DETECTADA', 1.1, 0.5);
+    }
     // The 2.4x world is fully visible at its calculated minimum zoom (1 / arenaScale).
     // Keep the tactical overview after the boss is defeated until the next run.
     const targetCameraZoom = this.bossEncounterSeen ? this.cameraMinZoom : 1;
@@ -1628,6 +1700,8 @@ export class Game {
       }
     }
 
+    this.updateCombatAlert(dt);
+
     // Enemy shots deal damage on direct impact and respect the player's invulnerability window.
     for (const shot of this.enemyProjectiles) {
       if (!shot.active) continue;
@@ -1757,6 +1831,7 @@ export class Game {
       Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
     this.drawShield(ctx);
     this.player.draw(ctx, playerVisible);
+    this.drawCombatAlert(ctx, cameraZoom);
     // Draw missiles after the ship so the hull cannot hide a launch from either wing.
     for (let index = 0; index < this.guidedMissiles.length; index += 1) this.guidedMissiles[index].draw(ctx);
 
