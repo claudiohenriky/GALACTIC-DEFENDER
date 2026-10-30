@@ -61,10 +61,11 @@ test('player shield absorbs hits before hull integrity and recharges',()=>{
 });
 test('system disruption reduces propulsion authority and recovers',()=>{
  const disrupted=new Player(360,780),normal=new Player(360,780);
- disrupted.applySystemDisruption(1.4);
+ disrupted.applySystemDisruption(2.1);
  disrupted.update(0.1,new Set(['arrowup']),360,780);
  normal.update(0.1,new Set(['arrowup']),360,780);
  assert.ok(disrupted.y>normal.y,'disrupted ship should travel a shorter distance');
+ assert.ok(normal.y-disrupted.y>35,'heavy-impact disruption should substantially reduce propulsion authority');
  disrupted.update(2,new Set(),360,780);
  assert.equal(disrupted.systemDisruptionTimer,0);
 });
