@@ -1,4 +1,4 @@
-import { BossSystems, canWeaponFireAtTarget } from './boss-systems.js?v=0.44.0-arena-2-4';
+import { BossSystems, canWeaponFireAtTarget } from './boss-systems.js?v=0.44.1-sector-targeting';
 
 export class Enemy {
   constructor(x, y, level = 1, type = 'chaser', isElite = false) {
