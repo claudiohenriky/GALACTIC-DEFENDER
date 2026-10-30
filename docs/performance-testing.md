@@ -17,6 +17,31 @@ Esta rotina compara versões no mesmo dispositivo e cenário. Verificações est
 - Não declare ganhos medidos sem dados reais. Registre travamentos, erros, aquecimento e alterações nos controles.
 - Confirme o comportamento no GitHub Pages em celular e computador antes de aprovar uma candidata.
 
+## Auditoria preparatória — candidata v0.44.0
+
+O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o teste de gameplay. As alterações abaixo são otimizações de código, não ganhos de FPS medidos:
+
+- [x] Seleção do alvo do laser contínuo em uma passagem, sem criar arrays intermediários nem ordenar inimigos.
+- [x] Comparações de distância ao quadrado na previsão de esquiva e na separação de mísseis, calculando raiz quadrada somente quando necessária.
+- [x] Remover o desfoque de sombra do núcleo do chefe, substituindo-o por camadas sólidas.
+- [x] Pré-calcular reservas de alvos dos mísseis guiados uma vez por quadro e reutilizar o conjunto, evitando varrer todos os mísseis para cada inimigo candidato.
+- [ ] Auditar o custo de colisões entre projéteis, inimigos e habilidades em ondas avançadas.
+- [ ] Auditar atualizações e desenho de partículas, fumaça, fogo, faíscas, escudos e rastros.
+- [ ] Auditar a IA e a separação espacial quando houver muitos inimigos e projéteis simultâneos.
+- [ ] Conferir alocações temporárias e chamadas caras de Canvas no caminho de renderização.
+
+### Cenários de validação após a auditoria
+
+- [ ] Onda comum com quantidade alta de inimigos e projéteis.
+- [ ] Chefe da onda 10 com todos os módulos e escudos ativos.
+- [ ] Chefe após perder vários armamentos e setores de escudo.
+- [ ] Transição de sobrecarga e reconstrução de módulos.
+- [ ] Habilidade de mísseis guiados com vários alvos e fragmentação.
+- [ ] Comparar três rodadas no mesmo aparelho, navegador, orientação e duração; registrar mediana de FPS, tempo de quadro, atualização e renderização.
+- [ ] Confirmar ausência de erros no console e verificar responsividade dos controles.
+
+**Regra de liberação:** não disponibilizar a prévia para o teste principal do chefe antes de concluir a auditoria preparatória e as verificações estáticas. Os cenários acima são executados depois dessa etapa, para identificar o custo real no dispositivo.
+
 ## Checklist da candidata v0.29.1
 
 - [ ] Comparar partida leve e partida com muitos inimigos/projéteis.
