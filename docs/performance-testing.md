@@ -86,6 +86,6 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - Jogador, inimigos, separação espacial, projéteis e mísseis teleguiados usam os limites do mundo expandido; a tela continua sendo apenas a janela de visualização.
 - Mouse e toque são convertidos de coordenadas de tela para coordenadas do mundo considerando posição e zoom da câmera.
 - Inimigos comuns surgem no topo da área atualmente visível; a entrada do chefe usa o topo da câmera e sua patrulha permanece ancorada à posição do jogador.
-- O fundo em grade e as estrelas acompanham o mundo expandido.
+- As estrelas usam coordenadas do mundo; o fundo em grade é cacheado no tamanho do viewport e acompanha a câmera sem criar um bitmap do mundo inteiro.
 
 **Validação pendente:** revisão estática dos limites e transformações concluída parcialmente; ainda é necessário executar a suíte de sintaxe/imports e testar gameplay real em celular e desktop. Não há medição de FPS para esta alteração. Verificar principalmente movimentação até as quatro bordas, mira por toque/mouse, entrada do chefe, colisões e limpeza de projéteis.
