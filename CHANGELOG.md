@@ -1,3 +1,14 @@
+## [0.44.1] — Estabilização do combate do encouraçado (em desenvolvimento)
+
+- Armamentos do boss agora só podem disparar quando o alvo está dentro do arco físico da montagem, dentro do alcance efetivo e com a torre suficientemente alinhada; isso impede disparos de setores laterais/traseiros sem linha de tiro válida.
+- O ciclo de disparo não consome uma salva completa quando nenhum módulo possui uma solução de tiro válida; a elegibilidade é reavaliada em intervalo curto.
+- Adicionado alerta contextual sobre a nave do jogador: interrogação durante a aproximação de uma onda de boss e exclamação quando uma ameaça pesada está em trajetória de colisão iminente.
+- A previsão de ameaça considera velocidade relativa do projétil, movimento e knockback do jogador, distância de aproximação e janela temporal; disparos comuns não geram alertas repetitivos.
+- Adicionados testes unitários para arco, alcance, alinhamento das armas e previsão de colisão de projéteis pesados.
+- O modo normal continua iniciando na onda 1; `?bossTest=1` permanece reservado para testes da onda 10.
+- Validação real de navegador, gameplay, apresentação cinematográfica, mobile e FPS continua pendente. Checks automatizados não substituem esses testes.
+- Alterações mantidas exclusivamente na branch experimental; `main` não foi alterada.
+
 ## [0.44.0] — Primeiro chefe: nave de guerra pesada (em desenvolvimento)
 
 - Corrige a geometria de colisão do laser contínuo: o teste agora considera o raio real de projéteis inimigos e entidades (incluindo a hitbox ampliada do boss), somado à largura do feixe. Isso evita falsos negativos em interseções visíveis sem alterar dano, cadência ou alcance.
