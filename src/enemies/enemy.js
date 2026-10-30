@@ -10,6 +10,7 @@ export class Enemy {
     // Artillery keeps its 8-point shield; Guardian Elite has a stronger defensive reserve.
     this.eliteMaxShield = this.isElite ? (type === 'artillery' ? 8 : type === 'guardian' ? 12 : 0) : 0;
     this.eliteShield = this.eliteMaxShield;
+    this.eliteShieldFlash = 0;
     this.protectedAllies = [];
     this.guardianCoverShieldMax = this.isElite && type === 'guardian' ? 18 : 0;
     this.guardianCoverShield = this.guardianCoverShieldMax;
@@ -1057,14 +1058,24 @@ export class Enemy {
     if (this.isElite && this.eliteShield > 0) {
       // Lightweight segmented shield cue, visually consistent with the player's shield arcs.
       const shieldRatio = this.eliteShield / Math.max(1, this.eliteMaxShield);
-      ctx.globalAlpha = 0.35 + shieldRatio * 0.35;
+      const flashProgress = this.eliteShieldFlash > 0 ? 1 - this.eliteShieldFlash / 0.42 : 1;
+      const shieldRadius = this.radius + 3 + (this.eliteShieldFlash > 0 ? flashProgress * 5 : 2);
+      ctx.globalAlpha = 0.28 + shieldRatio * 0.28 + (this.eliteShieldFlash > 0 ? this.eliteShieldFlash * 1.15 : 0);
       ctx.strokeStyle = guardian ? '#a7f2ce' : '#82dca2';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = this.eliteShieldFlash > 0 ? 2.5 + this.eliteShieldFlash * 3 : 1.8;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.arc(0, 0, this.radius + 5, -2.72, -2.12);
-      ctx.arc(0, 0, this.radius + 5, -1.02, -0.42);
+      ctx.arc(0, 0, shieldRadius, -2.72, -2.12);
+      ctx.arc(0, 0, shieldRadius, -1.02, -0.42);
       ctx.stroke();
+      if (this.eliteShieldFlash > 0) {
+        ctx.globalAlpha = this.eliteShieldFlash * 1.45;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(0, 0, shieldRadius + 3, -2.72, -2.12);
+        ctx.arc(0, 0, shieldRadius + 3, -1.02, -0.42);
+        ctx.stroke();
+      }
       ctx.globalAlpha = 1;
     }
 
