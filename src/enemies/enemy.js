@@ -927,12 +927,28 @@ export class Enemy {
             arcStart = 0.42;
             arcEnd = 2.72;
           }
-          ctx.globalAlpha = 0.12 + 0.26 * (shield.health / shield.maxHealth);
+          ctx.globalAlpha = 0.07 + 0.13 * (shield.health / shield.maxHealth);
           ctx.strokeStyle = '#67dcff';
-          ctx.lineWidth = 7;
+          ctx.lineWidth = 5;
           ctx.beginPath();
           ctx.arc(0, 0, radius * 1.38, arcStart, arcEnd);
           ctx.stroke();
+          if (shield.impactFlash > 0) {
+            const impactProgress = 1 - shield.impactFlash / 0.46;
+            const impactRadius = radius * (1.34 + impactProgress * 0.2);
+            ctx.globalAlpha = Math.min(1, shield.impactFlash * 2.5) * (0.55 + shield.impactStrength * 0.45);
+            ctx.strokeStyle = '#b8f7ff';
+            ctx.lineWidth = 3 + shield.impactStrength * 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, impactRadius, arcStart, arcEnd);
+            ctx.stroke();
+            ctx.globalAlpha = shield.impactFlash * 1.2;
+            ctx.strokeStyle = '#5fe5ff';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.arc(0, 0, impactRadius + 4, arcStart, arcEnd);
+            ctx.stroke();
+          }
           if (shield.repairGlow > 0.08) {
             ctx.globalAlpha = shield.repairGlow * 0.72;
             ctx.strokeStyle = '#b4f8ff';
