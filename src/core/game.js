@@ -585,7 +585,7 @@ export class Game {
     this.damageFeedbackTimer = Math.max(this.damageFeedbackTimer, duration);
     const feedback = document.querySelector('#damage-feedback');
     if (!feedback) return;
-    feedback.textContent = 'SISTEMAS DESESTABILIZADOS';
+    feedback.textContent = 'SISTEMAS EM ESTABILIZAÇÃO';
     this.restartFeedbackAnimation(feedback, 'damage-active');
   }
 
@@ -1035,6 +1035,7 @@ export class Game {
       enemy.bossPhase = 3;
       enemy.bossPhaseTransition = 4.5;
       enemy.health = Math.max(1, Math.round(enemy.maxHealth * 0.5));
+      enemy.ejectDestroyedModules();
       enemy.bossSystems.beginOverloadRebuild();
       enemy.fireCooldown = Math.max(enemy.fireCooldown, 4.5);
       return;
