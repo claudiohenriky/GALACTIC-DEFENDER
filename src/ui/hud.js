@@ -40,4 +40,16 @@ export function updateHud(game) {
   setText('#pilot-title-label', game.progression.getTitle().name.toUpperCase());
   setText('#status-label', game.status === 'running' ? 'SISTEMA ONLINE' : game.status.toUpperCase());
   setText('#wave-label', game.waveManager.getLabel());
+
+  // Update the dedicated boss bar on the existing throttled HUD cadence.
+  const bossHud = document.querySelector('#boss-hud');
+  const boss = game.enemies.find((enemy) => enemy.active && enemy.type === 'boss');
+  bossHud.classList.toggle('hidden', !boss);
+  if (boss) {
+    const healthPercent = Math.max(0, Math.min(100, boss.health / Math.max(1, boss.maxHealth) * 100));
+    setWidth('#boss-health-fill', healthPercent);
+    setText('#boss-health-value', String(Math.ceil(healthPercent)) + '%');
+    setText('#boss-phase-label', boss.bossPhase === 3 ? 'FASE III · SOBRECARGA' : boss.bossPhase === 2 ? 'FASE II' : 'FASE I');
+    bossHud.setAttribute('aria-valuenow', String(Math.round(healthPercent)));
+  }
 }
