@@ -55,6 +55,7 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 
 - [x] Ajustar o encouraçado para deslocamento lento e limitado, com rotação gradual (0,85 rad/s), preservando a fantasia de tanque espacial e a oportunidade de atacar os setores laterais/traseiro.
 - [x] Criar `collisionRadius` próprio para o boss (1,35× o raio visual), usando-o nos limites físicos, separação e colisões de tiros, mísseis e contato; o raio visual continua controlando a arte e os módulos.
+- [x] Garantir que o raio ampliado também seja passado ao teste geométrico exato `circlesOverlap`, não apenas à rejeição rápida por eixos; tiros, mísseis e contato usam o mesmo footprint.
 
 ### Cenários de validação após a auditoria
 
