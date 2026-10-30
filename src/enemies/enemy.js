@@ -166,29 +166,62 @@ export class Enemy {
       this.x = Math.max(this.radius + 4, Math.min(width - this.radius - 4, this.x));
       this.fireCooldown -= dt;
       if (this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
-        this.fireCooldown = this.bossPhase === 1 ? 1.65 : this.bossPhase === 2 ? 1.85 : 2.05;
+        const systems = this.bossSystems;
+        const modules = systems?.getOperationalModules() || [];
+        const has = (kind) => modules.some((module) => module.kind === kind);
         const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
-        const shotCount = this.bossPhase === 1 ? 1 : this.bossPhase === 2 ? 3 : 5;
-        const spread = this.bossPhase === 2 ? 0.2 : 0.17;
-        const shotDamage = this.bossPhase === 1 ? 8 : this.bossPhase === 2 ? 6 : 5;
-        const shotSpeed = this.bossPhase === 3 ? 185 : 165;
         const shots = [];
-        for (let index = 0; index < shotCount; index += 1) {
-          const offset = index - (shotCount - 1) / 2;
-          const angle = baseAngle + offset * spread;
-          shots.push({
-            x: this.x,
-            y: this.y + this.radius,
-            targetX: this.x + Math.cos(angle) * 420,
-            targetY: this.y + Math.sin(angle) * 420,
-            damage: shotDamage,
-            speed: shotSpeed,
-            radius: this.bossPhase === 3 ? 4.5 : 5,
-            color: this.bossPhase === 1 ? '#d59bff' : this.bossPhase === 2 ? '#ffb36b' : '#ff6d8f',
-            glowColor: this.bossPhase === 1 ? '#a85cff' : this.bossPhase === 2 ? '#ff7b42' : '#ff315e'
-          });
+        const makeShot = (angle, options = {}) => ({
+          x: this.x + Math.cos(angle) * this.radius * 0.22,
+          y: this.y - Math.sin(this.facingRotation) * this.radius * 0.18,
+          targetX: this.x + Math.cos(angle) * 520,
+          targetY: this.y + Math.sin(angle) * 520,
+          damage: options.damage ?? 4,
+          speed: options.speed ?? 190,
+          radius: options.radius ?? 4,
+          color: options.color ?? '#73e7ff',
+          glowColor: options.glowColor ?? '#36aee8'
+        });
+
+        // Light lasers keep pressure on the pilot but remain individually low-damage.
+        if (has('light-laser')) {
+          const laserSpread = this.bossPhase === 3 ? 0.10 : 0.16;
+          shots.push(makeShot(baseAngle - laserSpread, { damage: 2.2, speed: 245, radius: 3, color: '#8df4ff', glowColor: '#32c9ff' }));
+          shots.push(makeShot(baseAngle + laserSpread, { damage: 2.2, speed: 245, radius: 3, color: '#8df4ff', glowColor: '#32c9ff' }));
         }
-        shot = shotCount === 1 ? shots[0] : shots;
+
+        // Heavy machine guns fire short, readable bursts rather than one unavoidable stream.
+        if (has('machine-gun')) {
+          const burst = this.bossPhase === 1 ? 2 : this.bossPhase === 2 ? 3 : 4;
+          for (let index = 0; index < burst; index += 1) {
+            const offset = index - (burst - 1) / 2;
+            shots.push(makeShot(baseAngle + offset * 0.11, { damage: 3.2, speed: 215, radius: 4, color: '#ffd08a', glowColor: '#ff9b45' }));
+          }
+        }
+
+        // Missile pods launch slow, strongly telegraphed aimed projectiles that can be outmaneuvered.
+        if (has('missile')) {
+          const missileSpread = this.bossPhase === 3 ? 0.22 : 0.30;
+          shots.push(makeShot(baseAngle - missileSpread, { damage: 9, speed: 118, radius: 7, color: '#d7b6ff', glowColor: '#9d6cff' }));
+          shots.push(makeShot(baseAngle + missileSpread, { damage: 9, speed: 118, radius: 7, color: '#d7b6ff', glowColor: '#9d6cff' }));
+        }
+
+        // Plasma cannons are slow and heavy; their impact can break the player's shield.
+        if (has('plasma-cannon')) {
+          const plasmaCount = this.bossPhase === 3 ? 2 : 1;
+          for (let index = 0; index < plasmaCount; index += 1) {
+            const angle = baseAngle + (index - (plasmaCount - 1) / 2) * 0.24;
+            shots.push(makeShot(angle, { damage: 16, speed: 108, radius: 9, color: '#ff9b62', glowColor: '#ff5d32' }));
+          }
+        }
+
+        // The central cannon charges into the final phase and fires a heavy, readable energy bolt.
+        if (has('energy-cannon') && this.bossPhase >= 2) {
+          shots.push(makeShot(baseAngle, { damage: this.bossPhase === 3 ? 23 : 18, speed: 145, radius: 12, color: '#ff6b9d', glowColor: '#ff2f70' }));
+        }
+
+        this.fireCooldown = this.bossPhase === 1 ? 2.35 : this.bossPhase === 2 ? 2.05 : 1.7;
+        if (shots.length) shot = shots;
       }
     } else if (this.type === 'interceptor') {
       // Interceptors combine pursuit with a smooth side-to-side arc to pressure the pilot.
