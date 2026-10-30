@@ -1120,7 +1120,7 @@ export class Game {
       const margin = Math.min(20, this.width / 2);
       const spawnX = rand(margin, Math.max(margin, this.width - margin));
       const roll = Math.random();
-      const bossWave = this.waveManager.wave % 5 === 0;
+      const bossWave = this.waveManager.wave >= 10 && this.waveManager.wave % 10 === 0;
       const type = bossWave ? 'boss'
         : this.waveManager.wave >= 4 && roll < 0.12 ? 'artillery'
           : this.waveManager.wave >= 3 && roll < (this.waveManager.wave >= 4 ? 0.24 : 0.12) ? 'guardian'
