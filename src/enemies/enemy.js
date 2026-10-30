@@ -353,13 +353,10 @@ export class Enemy {
               module.plasmaChargeTimer = module.plasmaChargeDuration ?? 4.8;
             }
           } else if (module.kind.includes('energy') || module.kind.includes('overload-cannon')) {
-            if (this.bossPhase >= 2) {
-              shots.push(makeShot(module, {
-                damage: this.bossPhase === 3 ? 23 : 18,
-                speed: 145, radius: 12,
-                color: '#ff6b9d', glowColor: '#ff2f70'
-              }));
-            }
+            // The main energy cannon is presentation-only in this iteration:
+            // keep its independent tracking and visible hardware, but do not
+            // launch a damaging projectile until its telegraph/charge sequence
+            // and counterplay are implemented and validated together.
           }
         }
 
