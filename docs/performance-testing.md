@@ -120,3 +120,6 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Verificar legibilidade e sobreposição em telas pequenas, celulares em paisagem e desktop.
 - [ ] Conferir em gameplay a transição de escudo operacional para danificado/inoperante e a reconstrução após sobrecarga.
 - [ ] Confirmar que o resumo de módulos acompanha corretamente os estados dos dez componentes.
+
+- [x] Indicadores dos dez módulos usam abreviações visíveis (MG, MIS, LAS, PLS, CAN, AUX) em grade 5×2; nomes completos ficam disponíveis em título/rótulo acessível.
+- [ ] Verificar que abreviações e estados por cor continuam legíveis em telas de baixa largura e brilho.
