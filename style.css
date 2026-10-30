@@ -659,3 +659,15 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
  .boss-section-heading{margin:4px 0 2px}.boss-shield-cell>span,.boss-shield-cell>small{font-size:5.5px}
  .boss-module-pip{min-height:12px}.boss-module-pip b{font-size:5.5px}
 }
+
+
+/* v0.44.2 — compact tactical overlay and graphite/cyan boss identity. */
+.boss-hud{width:min(26%,280px);padding:6px 8px 5px;border-color:#32647a;background:linear-gradient(180deg,#0c1d2beF,#08111eef);box-shadow:0 3px 12px #0006}
+.boss-hud-heading strong{color:#b8efff}.boss-hud-heading span{color:#7bdfff}
+.boss-health-track{border-color:#28566b;background:#07121e}
+#boss-health-fill{background:linear-gradient(90deg,#267da0,#67e5ff);box-shadow:0 0 8px #48d8ff66}
+.boss-hud-footer span{color:#81a9b9}.boss-hud-footer strong{color:#d9f7ff}
+.boss-section-heading{color:#a9d9e9}.boss-shield-cell{border-color:#2c6175;background:#0a1b29}
+.boss-shield-track>div{background:#56d9e9}.boss-module-pip{border-color:#367b88;background:#10313a;color:#b5f5f4}
+@media(max-width:700px){.boss-hud{width:min(27%,230px);padding:5px 6px 4px}}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.boss-hud{width:min(28%,260px);top:7px;right:7px;padding:4px 5px}}
