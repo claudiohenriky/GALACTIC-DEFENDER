@@ -1329,10 +1329,12 @@ export class Game {
       for (let j = i + 1; j < this.enemies.length; j += 1) {
         const second = this.enemies[j];
         if (!second.active) continue;
-        let dx = second.x - first.x;
-        let dy = second.y - first.y;
-        let distanceSquared = dx * dx + dy * dy;
         const minimumDistance = first.radius + second.radius + 4;
+        const dx = second.x - first.x;
+        const dy = second.y - first.y;
+        // Reject distant pairs on the cheap axis checks before multiplying.
+        if (Math.abs(dx) >= minimumDistance || Math.abs(dy) >= minimumDistance) continue;
+        let distanceSquared = dx * dx + dy * dy;
         if (distanceSquared >= minimumDistance * minimumDistance) continue;
         if (distanceSquared < 0.01) {
           const angle = first.phase - second.phase || 0.5;
