@@ -113,6 +113,7 @@ export class BossSystems {
       if (shield.rechargeTimer === 0) {
         shield.health = shield.maxHealth * 0.55;
         shield.disabled = false;
+        shield.repairGlow = 0.65;
       }
     }
 
@@ -143,6 +144,7 @@ export class BossSystems {
     for (const module of this.modules) {
       if (module.state === 'destroyed') {
         module.replacementInstalled = true;
+        module.repairGlow = 1;
         module.kind = module.replacement;
         module.state = 'operational';
         module.health = module.maxHealth * 0.72;
