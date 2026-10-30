@@ -552,6 +552,11 @@ export class Game {
       const impulse = heavyImpact ? 210 : 85;
       this.player.knockbackX += dx / length * impulse;
       this.player.knockbackY += dy / length * impulse;
+      // Reinforce the predicted sector with a distinct contact pulse when the
+      // shield actually absorbs the hit; this is presentation only.
+      const angle = Math.atan2(sourceY - this.player.y, sourceX - this.player.x);
+      const sector = ((Math.round((angle + Math.PI) / (Math.PI / 4)) % 8) + 8) % 8;
+      this.shieldThreatArcs[sector] = Math.max(this.shieldThreatArcs[sector], heavyImpact ? 0.52 : 0.42);
     }
   }
 
