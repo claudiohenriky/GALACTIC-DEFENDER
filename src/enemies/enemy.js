@@ -1,4 +1,4 @@
-import { BossSystems, canWeaponFireAtTarget } from './boss-systems.js?v=0.44.1-sector-targeting';
+import { BossSystems, canWeaponFireAtTarget } from './boss-systems.js?v=0.44.3-muzzle-exit';
 
 export class Enemy {
   constructor(x, y, level = 1, type = 'chaser', isElite = false) {
@@ -410,9 +410,13 @@ export class Enemy {
           const muzzle = getMuzzle(module, options.forwardOffset ?? 0.16);
           const angle = this.facingRotation + (module.turretAngle ?? 0) + (options.angleOffset ?? 0);
           const speed = options.speed ?? 190;
+          const projectileRadius = options.radius ?? 4;
+          const launchOffset = options.launchOffset ?? this.radius * 0.38 + projectileRadius * 1.6;
           return {
-            x: muzzle.x,
-            y: muzzle.y,
+            // Hardpoints sit partly inside the armored silhouette; push the spawn point
+            // forward along the actual firing vector so shots never begin inside the hull.
+            x: muzzle.x + Math.cos(angle) * launchOffset,
+            y: muzzle.y + Math.sin(angle) * launchOffset,
             targetX: muzzle.x + Math.cos(angle) * 520,
             targetY: muzzle.y + Math.sin(angle) * 520,
             damage: options.damage ?? 4,
