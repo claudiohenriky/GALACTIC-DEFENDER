@@ -316,3 +316,15 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Validar sintaxe, imports e workflows automatizados; depois testar pelo GitHub Pages em computador e celular.
 - Não afirmar teste manual sem confirmação explícita do usuário.
 - Seguir versionamento semântico: correção incrementa patch; funcionalidade incrementa minor; marco estável pode atingir v1.0.0.
+
+
+## HUD tático do encouraçado — candidata v0.44.0
+
+- [x] Separar visualmente a integridade geral do casco dos quatro setores regionais de escudo.
+- [x] Mostrar percentual e estado de cada escudo: operacional, danificado ou inoperante.
+- [x] Representar os dez módulos independentes com indicadores individuais: operacional, danificado, inoperante ou destruído.
+- [x] Resumir armamentos disponíveis e estados degradados sem confundir módulos com integridade do casco.
+- [x] Indicar fase de sobrecarga, reconstrução e sequência de destruição no cabeçalho do painel.
+- [x] Adaptar grade e tipografia para telas estreitas e orientação horizontal.
+- [ ] Validar a legibilidade e a ausência de sobreposição em navegador móvel e desktop.
+- [ ] Confirmar durante gameplay a atualização dos indicadores após dano regional, desativação do gerador auxiliar e reconstrução da sobrecarga.
