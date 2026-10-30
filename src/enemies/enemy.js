@@ -83,7 +83,11 @@ export class Enemy {
 
     const dx = targetX - this.x;
     const dy = targetY - this.y;
-    const distance = Math.hypot(dx, dy) || 1;
+    // Ranged classes steer toward explicit lanes and do not consume target distance.
+    // Avoid a square root for them; pursuit/formation classes retain the exact distance.
+    const needsTargetDistance = this.type === 'interceptor' || this.type === 'guardian' ||
+      (this.type !== 'boss' && this.type !== 'artillery' && this.type !== 'sentinel');
+    const distance = needsTargetDistance ? (Math.hypot(dx, dy) || 1) : 1;
 
     // First tactical-cooperation pass: Guardians screen nearby Sentinels;
     // Sentinels use that cover to keep a firing lane behind the Guardian.
