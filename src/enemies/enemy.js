@@ -471,7 +471,7 @@ export class Enemy {
     ctx.fillRect(-this.radius * 0.62, -this.radius * 0.1, this.radius * 1.24, this.radius * 0.38);
     ctx.fillStyle = edge;
     ctx.fillRect(-this.radius * 0.2, -this.radius * 0.24, this.radius * 0.4, this.radius * 0.48);
-    ctx.fillStyle = boss ? '#fff2ff' : color;
+    ctx.fillStyle = boss ? '#fff2ff' : this.isElite ? '#65c98b' : color;
     ctx.fillRect(-this.radius * 0.08, this.radius * 0.3, this.radius * 0.16, this.radius * 0.32);
     if (boss) {
       ctx.strokeStyle = '#fff0ff';
