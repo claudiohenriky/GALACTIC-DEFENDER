@@ -1,3 +1,13 @@
+## [0.42.1] — Guardião de Elite: Égide de Proteção (candidata)
+
+- Guardião de Elite mantém o posicionamento frontal e recebe aumento moderado de integridade (+2 pontos sobre o Guardião normal), além do escudo individual de 12 pontos.
+- Adiciona uma segunda barreira compartilhada de 18 pontos que envolve até duas tropas atribuídas ao Guardião de Elite.
+- A barreira absorve dano destinado às tropas protegidas; quando esgotada, o dano volta a atingir a integridade da tropa.
+- Cada Guardião, normal ou Elite, recebe no máximo duas tropas exclusivas; uma tropa não é atribuída simultaneamente a vários Guardiões.
+- Guardiões de Elite recebem prioridade na distribuição; Sentinelas só usam a cobertura do Guardião que realmente as recebeu como alvo.
+- O escudo externo é finito e não se regenera nesta versão; sem invulnerabilidade permanente.
+- Candidata para teste manual; não mesclada em `main`.
+
 ## [0.42.0] — Identidade Elite e Guardião de Elite (candidata)
 
 - Restaura o Artilheiro de Elite com casco predominantemente preto e detalhes verdes, mantendo o escudo de 8 pontos.
