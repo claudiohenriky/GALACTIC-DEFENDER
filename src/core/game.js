@@ -1,15 +1,15 @@
-import { Player } from '../player/player.js?v=0.41.0';
-import { Enemy } from '../enemies/enemy.js?v=0.41.0';
-import { Projectile } from '../combat/projectile.js?v=0.41.0';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.41.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.41.0';
-import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.41.0';
-import { Progression } from '../progression/progression.js?v=0.41.0';
-import { Mission } from '../missions/missions.js?v=0.41.0';
-import { WaveManager } from './wave-manager.js?v=0.41.0';
-import { updateHud } from '../ui/hud.js?v=0.41.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.41.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.41.0';
+import { Player } from '../player/player.js?v=0.42.0';
+import { Enemy } from '../enemies/enemy.js?v=0.42.0';
+import { Projectile } from '../combat/projectile.js?v=0.42.0';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.42.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.42.0';
+import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.42.0';
+import { Progression } from '../progression/progression.js?v=0.42.0';
+import { Mission } from '../missions/missions.js?v=0.42.0';
+import { WaveManager } from './wave-manager.js?v=0.42.0';
+import { updateHud } from '../ui/hud.js?v=0.42.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.42.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.42.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -30,6 +30,7 @@ export class Game {
     this.mission = new Mission();
     this.waveManager = new WaveManager();
     this.enemies = [];
+    this.eliteAlertsShown = new Set();
     this.projectiles = [];
     this.guidedMissiles = [];
     this.guidedMissileCooldown = 0;
@@ -206,6 +207,7 @@ export class Game {
     this.mission = new Mission();
     this.waveManager.reset();
     this.enemies = [];
+    this.eliteAlertsShown = new Set();
     this.projectiles = [];
     this.guidedMissiles = [];
     this.guidedMissileCooldown = 0;
@@ -1114,12 +1116,23 @@ export class Game {
             : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.49 : this.waveManager.wave >= 3 ? 0.37 : 0.25) ? 'sentinel'
               : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.67 : this.waveManager.wave >= 3 ? 0.55 : 0.43) ? 'interceptor'
                 : 'chaser';
-      // Artillery Elite appears from wave 12; Sentinel Elite joins from wave 14.
+      // Elite variants enter gradually; warn only when a class actually spawns for the first time in this run.
       const isElite = !bossWave && (
         (this.waveManager.wave >= 12 && type === 'artillery' && Math.random() < 0.45) ||
-        (this.waveManager.wave >= 14 && type === 'sentinel' && Math.random() < 0.30)
+        (this.waveManager.wave >= 14 && type === 'sentinel' && Math.random() < 0.30) ||
+        (this.waveManager.wave >= 16 && type === 'guardian' && Math.random() < 0.24)
       );
       this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave, type, isElite));
+      if (isElite && !this.eliteAlertsShown.has(type)) {
+        this.eliteAlertsShown.add(type);
+        const alerts = {
+          artillery: ['AMEAÇA DE ARTILHARIA DETECTADA', 'A nave detectou um Artilheiro de Elite. Blindagem e poder de fogo acima do padrão.'],
+          sentinel: ['AMEAÇA TÁTICA DETECTADA', 'A nave detectou uma Sentinela de Elite. Disparos de plasma em salva dupla.'],
+          guardian: ['UNIDADE DEFENSIVA DETECTADA', 'A nave detectou um Guardião de Elite. Blindagem reforçada e proteção de aliados.']
+        };
+        const [heading, detail] = alerts[type];
+        this.showRewardBanner(heading, detail, 'elite');
+      }
     }
 
     this.projectiles.forEach((shot) => shot.update(dt));
