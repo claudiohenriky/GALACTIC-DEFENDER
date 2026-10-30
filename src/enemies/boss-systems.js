@@ -41,6 +41,9 @@ export class BossSystems {
       rechargeTimer: 0,
       disabled: false
     }));
+    // The auxiliary generator is stable for this boss lifetime; cache its reference
+    // instead of searching the module array on every simulation frame.
+    this.shieldGenerator = this.modules.find((module) => module.id === 'auxiliary-system') || null;
     this.overloadUsed = false;
     this.rebuildTimer = 0;
     this.rebuildComplete = false;
@@ -95,7 +98,7 @@ export class BossSystems {
   }
 
   update(dt) {
-    const shieldGenerator = this.modules.find((module) => module.id === 'auxiliary-system');
+    const shieldGenerator = this.shieldGenerator;
     const canRechargeShields = shieldGenerator &&
       shieldGenerator.state !== 'destroyed' && shieldGenerator.state !== 'disabled';
     for (const shield of this.shields) {
@@ -103,7 +106,7 @@ export class BossSystems {
       if (shield.health > 0 || !shield.disabled) continue;
       shield.rechargeTimer = Math.max(0, shield.rechargeTimer - dt);
       if (shield.rechargeTimer === 0) {
-        shield.health = Math.min(shield.maxHealth * 0.55, shield.maxHealth * 0.55);
+        shield.health = shield.maxHealth * 0.55;
         shield.disabled = false;
       }
     }
