@@ -1401,7 +1401,9 @@ export class Game {
       for (let j = i + 1; j < this.enemies.length; j += 1) {
         const second = this.enemies[j];
         if (!second.active) continue;
-        const minimumDistance = first.radius + second.radius + 4;
+        const firstRadius = first.collisionRadius ?? first.radius;
+        const secondRadius = second.collisionRadius ?? second.radius;
+        const minimumDistance = firstRadius + secondRadius + 4;
         let dx = second.x - first.x;
         let dy = second.y - first.y;
         // Reject distant pairs on the cheap axis checks before multiplying.
@@ -1417,19 +1419,19 @@ export class Game {
         const distance = Math.sqrt(distanceSquared);
         const overlap = minimumDistance - distance;
         const separation = Math.min(3.5, overlap * 0.32);
-        const totalRadius = Math.max(1, first.radius + second.radius);
-        const firstShare = second.radius / totalRadius;
-        const secondShare = first.radius / totalRadius;
+        const totalRadius = Math.max(1, firstRadius + secondRadius);
+        const firstShare = secondRadius / totalRadius;
+        const secondShare = firstRadius / totalRadius;
         const pushX = dx / distance * separation;
         const pushY = dy / distance * separation;
         first.x -= pushX * firstShare;
         first.y -= pushY * firstShare;
         second.x += pushX * secondShare;
         second.y += pushY * secondShare;
-        first.x = Math.max(first.radius, Math.min(this.worldWidth - first.radius, first.x));
-        first.y = Math.max(first.radius, Math.min(this.worldHeight - first.radius, first.y));
-        second.x = Math.max(second.radius, Math.min(this.worldWidth - second.radius, second.x));
-        second.y = Math.max(second.radius, Math.min(this.worldHeight - second.radius, second.y));
+        first.x = Math.max(firstRadius, Math.min(this.worldWidth - firstRadius, first.x));
+        first.y = Math.max(firstRadius, Math.min(this.worldHeight - firstRadius, first.y));
+        second.x = Math.max(secondRadius, Math.min(this.worldWidth - secondRadius, second.x));
+        second.y = Math.max(secondRadius, Math.min(this.worldHeight - secondRadius, second.y));
       }
     }
 
@@ -1442,7 +1444,7 @@ export class Game {
         if (!enemy.active || shot.hitEnemies.has(enemy)) continue;
         // Cheap axis-aligned rejection avoids the squared-distance test for
         // pairs that cannot overlap; the exact circle test remains authoritative.
-        const combinedRadius = (shot.radius ?? 0) + (enemy.radius ?? 0);
+        const combinedRadius = (shot.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
         if (Math.abs(shot.x - enemy.x) >= combinedRadius ||
             Math.abs(shot.y - enemy.y) >= combinedRadius) continue;
         if (circlesOverlap(shot, enemy)) {
@@ -1476,7 +1478,7 @@ export class Game {
       if (!missile.active) continue;
       for (const enemy of this.enemies) {
         if (!enemy.active) continue;
-        const combinedRadius = (missile.radius ?? 0) + (enemy.radius ?? 0);
+        const combinedRadius = (missile.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
         if (Math.abs(missile.x - enemy.x) >= combinedRadius ||
             Math.abs(missile.y - enemy.y) >= combinedRadius) continue;
         if (circlesOverlap(missile, enemy)) {
@@ -1491,7 +1493,7 @@ export class Game {
     // without instantly destroying enemies or losing all charge in a few frames.
     for (const enemy of this.enemies) {
       if (!enemy.active) continue;
-      const contactRadius = (this.player.radius ?? 0) + (enemy.radius ?? 0);
+      const contactRadius = (this.player.radius ?? 0) + (enemy.collisionRadius ?? enemy.radius ?? 0);
       if (Math.abs(this.player.x - enemy.x) >= contactRadius ||
           Math.abs(this.player.y - enemy.y) >= contactRadius) continue;
       if (circlesOverlap(this.player, enemy) && enemy.contactCooldown <= 0) {
