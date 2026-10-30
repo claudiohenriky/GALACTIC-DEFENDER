@@ -322,7 +322,7 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 
 - [x] Separar visualmente a integridade geral do casco dos quatro setores regionais de escudo.
 - [x] Mostrar percentual e estado de cada escudo: operacional, danificado ou inoperante.
-- [x] Representar os dez módulos independentes com indicadores individuais: operacional, danificado, inoperante ou destruído.
+- [x] Representar os dez módulos independentes com indicadores individuais e abreviações identificáveis em grade 5×2: operacional, danificado, inoperante ou destruído.
 - [x] Resumir armamentos disponíveis e estados degradados sem confundir módulos com integridade do casco.
 - [x] Indicar fase de sobrecarga, reconstrução e sequência de destruição no cabeçalho do painel.
 - [x] Adaptar grade e tipografia para telas estreitas e orientação horizontal.
