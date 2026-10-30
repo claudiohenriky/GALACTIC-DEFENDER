@@ -35,6 +35,7 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Cachear a referência estável do gerador auxiliar de escudos no construtor do chefe, removendo a busca `find()` repetida a cada quadro; simplificar a atribuição da recarga para o mesmo valor de 55% (sem alteração de balanceamento).
 - [x] Criar índices `Map` estáveis para módulos e setores de escudo do chefe; `getModule()` e `damageShield()` passam a consultar por ID sem percorrer arrays.
 - [x] Substituir callbacks `forEach()` na atualização dos mísseis guiados e projéteis inimigos por loops indexados, preservando a ordem e os argumentos de atualização.
+- [x] No desenho do chefe, calcular uma vez por quadro os fatores trigonométricos compartilhados pelos módulos danificados e substituir arrays temporários de limites dos arcos de escudo por limites escalares; posições, pulsação, ângulos e aparência permanecem iguais.
 - [ ] Auditar fumaça, fogo, faíscas e escudos específicos do chefe, incluindo custo de Canvas e quantidade de efeitos.
 - [ ] Auditar a IA e a separação espacial quando houver muitos inimigos e projéteis simultâneos.
 - [ ] Conferir alocações temporárias e chamadas caras de Canvas no caminho de renderização.
