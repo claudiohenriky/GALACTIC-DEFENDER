@@ -62,8 +62,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            git fetch --no-tags --depth=1 origin "$PR_BASE_SHA"
-            git diff --check "$PR_BASE_SHA"...HEAD
+            git diff --check "$PR_BASE_SHA" HEAD
           else
             git show --check --oneline HEAD
           fi
