@@ -38,6 +38,7 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] No desenho do chefe, calcular uma vez por quadro os fatores trigonométricos compartilhados pelos módulos danificados e substituir arrays temporários de limites dos arcos de escudo por limites escalares; posições, pulsação, ângulos e aparência permanecem iguais.
 - [x] Auditar o ciclo atual de fumaça, fogo, faíscas e escudos do chefe; adicionar faíscas visíveis nos módulos e indicadores de reparo em módulos/escudos, sem criar partículas ou arrays por quadro.
 - [x] Corrigir a dissipação de fumaça residual em módulos substituídos: efeitos agora continuam decaindo mesmo depois que o armamento volta ao estado operacional.
+- [x] Implementar entrada inicial do chefe com spawn acima da tela, descida suavizada por smoothstep, anel de detecção e bloqueio dos disparos durante a aproximação.
 - [ ] Refinar a arte/variedade dos efeitos e revisar o custo visual com o chefe em combate.
 - [ ] Auditar a IA e a separação espacial quando houver muitos inimigos e projéteis simultâneos.
 - [ ] Conferir alocações temporárias e chamadas caras de Canvas no caminho de renderização.
