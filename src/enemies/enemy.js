@@ -733,6 +733,8 @@ export class Enemy {
                     : module.kind.includes('plasma') ? '#ffb56b'
                       : module.kind.includes('energy') || module.kind.includes('cannon') ? '#ff8cae' : '#9ab7ca';
           const mountSize = radius * 0.105;
+          const moduleSize = mountSize * 2;
+          const moduleHalfSize = moduleSize / 2;
           ctx.save();
           ctx.translate(mx, my);
           ctx.rotate(module.turretAngle ?? 0);
@@ -749,6 +751,31 @@ export class Enemy {
           ctx.fill();
           ctx.stroke();
           if (!module.catastrophic) {
+            // Replacement animation physically withdraws the old mount, then seats
+            // the new weapon into the same hardpoint. Repair/rebuild uses a shorter lift.
+            const transitionDuration = module.transitionType === 'replacement' ? 2.2
+              : module.transitionType === 'rebuild' ? 1.8
+                : module.transitionType === 'repair' ? 1.35 : 0;
+            const transitionProgress = transitionDuration > 0 && module.transitionTimer > 0
+              ? Math.max(0, Math.min(1, 1 - module.transitionTimer / transitionDuration)) : 1;
+            let weaponOffsetY = 0;
+            let weaponAlpha = 1;
+            if (module.transitionTimer > 0 && transitionDuration > 0) {
+              if (module.transitionType === 'replacement') {
+                const retracting = transitionProgress < 0.46;
+                const phaseProgress = retracting ? transitionProgress / 0.46 : (transitionProgress - 0.46) / 0.54;
+                weaponOffsetY = retracting
+                  ? -mountSize * 2.8 * phaseProgress
+                  : mountSize * 2.4 * (1 - phaseProgress);
+                weaponAlpha = retracting ? Math.max(0, 1 - phaseProgress * 1.35) : Math.min(1, phaseProgress * 1.5);
+              } else {
+                weaponOffsetY = -mountSize * 0.7 * (1 - transitionProgress);
+                weaponAlpha = 0.35 + transitionProgress * 0.65;
+              }
+            }
+            ctx.save();
+            ctx.translate(0, weaponOffsetY);
+            ctx.globalAlpha *= weaponAlpha;
             ctx.fillStyle = moduleColor;
             ctx.strokeStyle = '#e3f0f7';
             ctx.lineWidth = 1.2;
@@ -786,6 +813,7 @@ export class Enemy {
               ctx.fill();
             }
             ctx.strokeRect(-mountSize * 0.72, -mountSize * 0.55, mountSize * 1.44, mountSize * 1.1);
+            ctx.restore();
           } else {
             ctx.globalAlpha = 0.85;
             ctx.strokeStyle = '#ff704e';
