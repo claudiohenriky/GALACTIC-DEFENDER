@@ -337,3 +337,10 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Exibir uma barra de progresso durante a reconstrução da sobrecarga, usando a duração real configurada de 4,5 s.
 - [x] Respeitar a preferência de movimento reduzido e manter a atualização na cadência limitada da HUD.
 - [ ] Validar em gameplay as animações, a leitura da barra de reconstrução e o comportamento em telas pequenas.
+
+
+## Integração de dano regional — candidata v0.44.0
+
+- [x] Aplicar defesa regional também a habilidades especiais, laser contínuo e ataques de área sem ponto de impacto explícito, usando a posição do jogador como referência direcional.
+- [x] Manter a posição real do projétil para impactos com coordenadas conhecidas.
+- [ ] Validar em gameplay se cada ângulo de aproximação consome o setor esperado e se o dano residual chega ao casco/módulo corretamente.
