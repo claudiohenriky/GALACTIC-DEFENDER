@@ -32,6 +32,8 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [x] Auditar a atualização das partículas de dano, partículas de nível e efeitos de quebra de escudo: as listas já são compactadas in-place, sem arrays novos por quadro.
 - [x] Remover callbacks `forEach()` do desenho das faíscas/fumaça e partículas de nível; a renderização usa loops indexados no caminho por quadro.
 - [x] Cachear a referência estável do gerador auxiliar de escudos no construtor do chefe, removendo a busca `find()` repetida a cada quadro; simplificar a atribuição da recarga para o mesmo valor de 55% (sem alteração de balanceamento).
+- [x] Criar índices `Map` estáveis para módulos e setores de escudo do chefe; `getModule()` e `damageShield()` passam a consultar por ID sem percorrer arrays.
+- [x] Substituir callbacks `forEach()` na atualização dos mísseis guiados e projéteis inimigos por loops indexados, preservando a ordem e os argumentos de atualização.
 - [ ] Auditar fumaça, fogo, faíscas e escudos específicos do chefe, incluindo custo de Canvas e quantidade de efeitos.
 - [ ] Auditar a IA e a separação espacial quando houver muitos inimigos e projéteis simultâneos.
 - [ ] Conferir alocações temporárias e chamadas caras de Canvas no caminho de renderização.
