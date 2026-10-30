@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#070b18">
   <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.44.0">
+  <link rel="stylesheet" href="./style.css?v=0.44.0-cannon-telegraph">
   <link rel="stylesheet" href="./src/ui/version-history.css?v=0.44.0">
-  <script type="module" src="./main.js?v=0.44.0"></script>
+  <script type="module" src="./main.js?v=0.44.0-cannon-telegraph"></script>
 </head>
 <body>
   <main class="app-shell">
@@ -177,6 +177,10 @@
           </div>
           <section id="boss-hud" class="boss-hud hidden" role="group" aria-label="Painel tático da nave de guerra inimiga">
             <div class="boss-hud-heading"><strong>NAVE DE GUERRA PESADA</strong><span id="boss-phase-label">FASE I</span></div>
+            <div id="boss-cannon-panel" class="boss-cannon-panel hidden" data-state="charging" role="group" aria-label="Telemetria visual do canhão principal">
+              <div class="boss-cannon-heading"><strong id="boss-cannon-status" aria-live="polite">CANHÃO PRINCIPAL · CARREGANDO</strong><span>TELEMETRIA</span></div>
+              <div id="boss-cannon-track" class="boss-cannon-track" role="progressbar" aria-label="Carga visual do canhão principal; nenhum disparo será realizado nesta versão" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="boss-cannon-fill"></div></div>
+            </div>
             <div id="boss-rebuild-track" class="boss-rebuild-track hidden" role="progressbar" aria-label="Progresso da reconstrução por sobrecarga" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="boss-rebuild-fill"></div></div>
             <small id="boss-rebuild-value" class="boss-rebuild-value" aria-live="polite"></small>
             <div class="boss-health-track" role="progressbar" aria-label="Integridade do casco" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="boss-health-fill"></div></div>
