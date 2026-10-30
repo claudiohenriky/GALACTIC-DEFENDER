@@ -722,13 +722,20 @@ export class Game {
     if (!this.continuousLaserHeld || this.player.continuousLaserLevel <= 0 || this.overloadLockTimer > 0 || this.continuousLaserClash) return;
     const dx = Math.cos(this.player.rotation), dy = Math.sin(this.player.rotation), sx = this.player.x + dx * 18, sy = this.player.y + dy * 18, ex = sx + dx * 460, ey = sy + dy * 460;
     for (const shot of this.enemyProjectiles) {
-      if (!shot.active || !circleOverlapsSegment(shot, sx, sy, ex, ey, 7)) continue;
+      // The segment helper expects the full combined radius, not only the beam width.
+      const clashRadius = (shot.radius ?? 0) + 7;
+      if (!shot.active || !circleOverlapsSegment(shot, sx, sy, ex, ey, clashRadius)) continue;
       shot.active = false; this.continuousLaserClash = { x: shot.x, y: shot.y }; this.continuousLaserHeld = false; this.status = 'paused';
       document.querySelector('#laser-clash-overlay')?.classList.remove('hidden'); this.updateContinuousLaserButton(); return;
     }
     if (this.continuousLaserDamageClock <= 0) {
       const weakened = this.overload >= 70;
-      for (const enemy of this.enemies) if (enemy.active && !enemy.bossDying && circleOverlapsSegment(enemy, sx, sy, ex, ey, 13)) {
+      for (const enemy of this.enemies) {
+        if (!enemy.active || enemy.bossDying) continue;
+        // Include both the target hit radius and the beam's half-width so visible
+        // edge intersections are not missed for large bosses or smaller enemies.
+        const hitRadius = (enemy.collisionRadius ?? enemy.radius ?? 0) + 13;
+        if (!circleOverlapsSegment(enemy, sx, sy, ex, ey, hitRadius)) continue;
         const boss = enemy.type === 'boss' || enemy.type === 'megaboss';
         this.damageEnemy(enemy, (boss ? 8 : 13) * (1 + this.player.continuousLaserLevel * .22) * (weakened ? .72 : 1));
       }
