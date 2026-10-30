@@ -17,7 +17,7 @@ export class GuidedMissile {
     this.trailTimer = 0;
   }
 
-  update(dt, enemies, width, height, missiles = []) {
+  update(dt, enemies, width, height, missiles = [], reservedTargets = null) {
     this.life -= dt;
     if (this.life <= 0) {
       this.active = false;
@@ -39,10 +39,14 @@ export class GuidedMissile {
           fallback = enemy;
         }
         let reserved = false;
-        for (const other of missiles) {
-          if (other !== this && other.active && other.target === enemy) {
-            reserved = true;
-            break;
+        if (reservedTargets) {
+          reserved = reservedTargets.has(enemy);
+        } else {
+          for (const other of missiles) {
+            if (other !== this && other.active && other.target === enemy) {
+              reserved = true;
+              break;
+            }
           }
         }
         if (!reserved && distance < nearestDistance) {
@@ -51,6 +55,7 @@ export class GuidedMissile {
         }
       }
       this.target = nearest || fallback;
+      if (this.target && reservedTargets) reservedTargets.add(this.target);
     }
 
     if (this.target && this.target.active) {
@@ -67,8 +72,9 @@ export class GuidedMissile {
         if (other === this || !other.active) continue;
         const dx = this.x - other.x;
         const dy = this.y - other.y;
-        const distance = Math.hypot(dx, dy);
-        if (distance <= 0.001 || distance >= separationRadius) continue;
+        const distanceSquared = dx * dx + dy * dy;
+        if (distanceSquared <= 0.000001 || distanceSquared >= separationRadius * separationRadius) continue;
+        const distance = Math.sqrt(distanceSquared);
         const strength = 1.5 * (1 - distance / separationRadius);
         steerX += (dx / distance) * strength;
         steerY += (dy / distance) * strength;
