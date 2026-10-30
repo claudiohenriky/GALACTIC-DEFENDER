@@ -103,7 +103,7 @@ export class Player {
     const disruptionProgress = this.systemDisruptionDuration > 0
       ? 1 - this.systemDisruptionTimer / this.systemDisruptionDuration : 1;
     const controlRecovery = this.systemDisruptionTimer > 0
-      ? 0.38 + 0.62 * Math.max(0, Math.min(1, disruptionProgress)) : 1;
+      ? 0.08 + 0.92 * Math.max(0, Math.min(1, disruptionProgress)) : 1;
     dx *= controlRecovery;
     dy *= controlRecovery;
     inputStrength *= controlRecovery;
@@ -123,8 +123,8 @@ export class Player {
       this.velocityX += (velocityDeltaX / velocityDelta) * maxVelocityChange;
       this.velocityY += (velocityDeltaY / velocityDelta) * maxVelocityChange;
     }
-    this.knockbackX *= Math.exp(-7 * dt);
-    this.knockbackY *= Math.exp(-7 * dt);
+    this.knockbackX *= Math.exp(-3.8 * dt);
+    this.knockbackY *= Math.exp(-3.8 * dt);
     this.x += (this.velocityX + this.knockbackX) * dt;
     this.y += (this.velocityY + this.knockbackY) * dt;
 
