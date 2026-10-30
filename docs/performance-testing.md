@@ -278,3 +278,5 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - A aprovação do CI não substitui nenhuma dessas verificações em navegador real.
 
 - Cobertura geométrica adicional: segmento espesso do Laser Contínuo contra elipse orientada, incluindo teste de rotação e regiões de proa/popa.
+
+- A suíte passou a 10 casos após incluir o Laser Contínuo contra o casco elíptico em diferentes orientações. CI: [run 41076189867](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41076189867).

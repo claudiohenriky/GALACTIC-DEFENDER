@@ -439,7 +439,7 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Aumentar a patrulha lateral e manter a proa afastada da posição do piloto durante o encontro.
 - [x] Usar colisão elíptica orientada para casco, projéteis, mísseis e contato do jogador.
 - [x] Melhorar a legibilidade do HUD tático em telas móveis.
-- [x] Adicionar 9 testes automatizados de geometria, módulos, escudos, sobrecarga/reconstrução e disparos do boss.
+- [x] Adicionar 10 testes automatizados de geometria, módulos, escudos, sobrecarga/reconstrução e disparos do boss.
 - [ ] Validar visualmente o design e o HUD em celular e computador.
 - [ ] Testar flanqueamento, colisões, dano regional, reconstrução, Attack Clash, habilidades do jogador e desempenho.
 - [ ] Abrir a prévia somente após revisão integrada e autorização explícita do usuário.
@@ -451,3 +451,6 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - PR #78 continua Draft e a prévia permanece fechada.
 
 - [x] Integrar o Laser Contínuo à colisão elíptica orientada do encouraçado, incluindo proa, popa e rotação.
+
+- [x] Aplicar a geometria do casco alongado também ao Laser Contínuo.
+- [x] Confirmar 10 testes automatizados passando no CI [41076189867](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41076189867).

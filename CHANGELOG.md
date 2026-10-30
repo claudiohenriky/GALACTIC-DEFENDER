@@ -686,9 +686,12 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - A patrulha lateral foi ampliada e a proa mantém uma distância mínima do piloto durante o combate.
 - Colisões de tiros, mísseis guiados e contato do jogador usam uma elipse orientada pelo casco; a hitbox agora acompanha o comprimento e a largura visíveis da nave.
 - HUD tático móvel recebeu ajustes de legibilidade.
-- Adicionada suíte automatizada com 9 testes para colisão, módulos, escudos, sobrecarga/reconstrução e disparos do boss.
-- GitHub Actions aprovado no HEAD `4542afa81c682bcb7b5f6ea5a8efe937b3f979ab` (run [41075516210](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41075516210)): sintaxe, 9 testes automatizados, imports relativos e whitespace.
+- Adicionada suíte automatizada com 10 testes para colisão, módulos, escudos, sobrecarga/reconstrução e disparos do boss.
+- GitHub Actions aprovado no HEAD `4542afa81c682bcb7b5f6ea5a8efe937b3f979ab` (run [41075516210](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41075516210)): sintaxe, 10 testes automatizados, imports relativos e whitespace.
 - Testes visuais e de gameplay em navegador, responsividade e FPS continuam pendentes.
 
 - Integra também o Laser Contínuo à geometria elíptica do encouraçado: o feixe agora pode atingir corretamente proa e popa, respeitando a rotação do casco.
 - Cobertura automatizada ampliada para interseção de segmentos com o casco alongado.
+
+- O Laser Contínuo também usa a elipse orientada do encouraçado, evitando falsos negativos ao cruzar a proa ou a popa; cobertura automatizada total desta rodada: 10 casos.
+- CI aprovado no HEAD `12bed74b2ecc52740fc54ee5bfd720a018f0dabc` (run [41076189867](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41076189867)).
