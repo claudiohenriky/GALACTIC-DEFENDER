@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import {
   createPilotReactionState,
   triggerPilotReaction,
+  triggerElitePilotReaction,
   updatePilotReaction,
   signalPilotThreat,
   drawPilotReaction,
@@ -22,6 +23,22 @@ test('pilot threat warning triggers once per attack telegraph transition', () =>
   assert.equal(signalPilotThreat(state, attack, false), false);
   assert.equal(signalPilotThreat(state, attack, true), true);
   assert.equal(state.symbol, '❗');
+});
+
+test('Elite dialogue is shown once per class per run and remains visible for six seconds', () => {
+  const state = createPilotReactionState();
+  const seen = new Set();
+  assert.equal(triggerElitePilotReaction(state, seen, 'sentinel', 'Sentinela de elite detectada.', 6), true);
+  assert.equal(state.remaining, 6);
+  assert.equal(state.duration, 6);
+  assert.equal(seen.has('sentinel'), true);
+  updatePilotReaction(state, 2.5);
+  assert.equal(state.remaining, 3.5);
+  assert.equal(triggerElitePilotReaction(state, seen, 'sentinel', 'Sentinela de elite detectada.', 6), false);
+  assert.equal(state.remaining, 3.5);
+  assert.equal(triggerElitePilotReaction(state, seen, 'artillery', 'Artilharia de elite detectada.', 6), true);
+  assert.equal(state.message, 'Artilharia de elite detectada.');
+  assert.equal(state.remaining, 6);
 });
 
 test('pilot reactions preserve question, danger, and combined Elite indicators', () => {
