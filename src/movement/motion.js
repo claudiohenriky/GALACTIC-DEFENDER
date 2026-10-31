@@ -28,15 +28,15 @@ export function integrateVelocity(entity, dt) {
 }
 
 export const ENEMY_MOTION_PROFILES = Object.freeze({
-  chaser: Object.freeze({ maxSpeed: 70, acceleration: 180 }),
-  boss: Object.freeze({ maxSpeed: 46, acceleration: 32 }),
-  bossPhaseThree: Object.freeze({ maxSpeed: 54, acceleration: 40 }),
-  artillery: Object.freeze({ maxSpeed: 125, acceleration: 260 }),
-  artilleryElite: Object.freeze({ maxSpeed: 155, acceleration: 340 }),
-  sentinel: Object.freeze({ maxSpeed: 112, acceleration: 240 }),
-  sentinelElite: Object.freeze({ maxSpeed: 185, acceleration: 390 }),
-  guardian: Object.freeze({ maxSpeed: 105, acceleration: 190 }),
-  guardianElite: Object.freeze({ maxSpeed: 125, acceleration: 240 })
+  chaser: Object.freeze({ maxSpeed: 64, acceleration: 155 }),
+  boss: Object.freeze({ maxSpeed: 56, acceleration: 42 }),
+  bossPhaseThree: Object.freeze({ maxSpeed: 68, acceleration: 52 }),
+  artillery: Object.freeze({ maxSpeed: 88, acceleration: 170 }),
+  artilleryElite: Object.freeze({ maxSpeed: 132, acceleration: 270 }),
+  sentinel: Object.freeze({ maxSpeed: 88, acceleration: 180 }),
+  sentinelElite: Object.freeze({ maxSpeed: 165, acceleration: 350 }),
+  guardian: Object.freeze({ maxSpeed: 90, acceleration: 165 }),
+  guardianElite: Object.freeze({ maxSpeed: 112, acceleration: 215 })
 });
 
 // Accelerates toward a point and brakes according to stopping distance.
