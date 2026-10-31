@@ -248,6 +248,7 @@ export class Game {
     this.waveManager.reset();
     if (Number.isInteger(this.testStartWave) && this.testStartWave > 1) this.waveManager.startAtWaveForTesting(this.testStartWave);
     this.bossCinematic = null;
+    this.setCinematicHudOpacity(1, false);
     this.bossEncounterDialogue = null;
     this.bossEncounterDialogueTimer = 0;
     this.bossEncounterCount = 0;
@@ -1517,9 +1518,13 @@ export class Game {
 
   update(dt) {
     updatePilotReaction(this.pilotReaction, dt);
-    if (this.waveTenTransition) {
-      this.updateWaveTenTransition(dt);
+    if (this.bossCinematic) {
+      this.updateBossCinematic(dt);
       return;
+    }
+    if (this.bossEncounterDialogueTimer > 0) {
+      this.bossEncounterDialogueTimer = Math.max(0, this.bossEncounterDialogueTimer - dt);
+      if (this.bossEncounterDialogueTimer === 0) this.bossEncounterDialogue = null;
     }
     let bossPresent = false;
     for (let index = 0; index < this.enemies.length; index += 1) {
@@ -1616,11 +1621,11 @@ export class Game {
     const previousWaveState = this.waveManager.state;
     const spawnRequested = this.waveManager.update(dt, this.enemies.length);
     if (previousWave === 9 && previousWaveState === 'intermission' && this.waveManager.wave === 10 && this.waveManager.state === 'spawning') {
-      this.beginWaveTenTransition();
+      this.beginBossCinematic();
       return;
     }
     if (spawnRequested) {
-      const bossWave = (BOSS_TEST_MODE && this.waveManager.wave === 1) || (this.waveManager.wave >= 10 && this.waveManager.wave % 5 === 0);
+      const bossWave = (BOSS_TEST_MODE && this.waveManager.wave === 1) || (this.waveManager.wave >= 10 && this.waveManager.wave % 10 === 0);
       const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
       const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * zoom);
       const viewTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
@@ -1645,7 +1650,18 @@ export class Game {
       const spawnY = bossWave ? viewTop - 180 : viewTop + 20;
       this.enemies.push(new Enemy(spawnX, spawnY, this.waveManager.wave, type, isElite));
       if (bossWave) {
-        this.showRewardBanner('ALERTA MÁXIMA · DREADNOUGHT DETECTADO', 'COLOSSAL WARSHIP · SISTEMAS DE COMBATE IDENTIFICADOS', 'boss');
+        this.bossEncounterCount += 1;
+        if (this.waveManager.wave >= 20) {
+          const firstReturn = this.waveManager.wave === 20;
+          this.bossEncounterDialogue = {
+            duration: 9,
+            lineInterval: 4.5,
+            lines: firstReturn
+              ? ['Espere... eu já enfrentei essa nave. Como ela voltou?','É a mesma assinatura. Desta vez, vou estar preparado.']
+              : ['De novo você? Achei que tinha acabado com essa nave.','Não vou deixar essa batalha se repetir do mesmo jeito.']
+          };
+          this.bossEncounterDialogueTimer = this.bossEncounterDialogue.duration;
+        }
       }
       if (isElite && !this.eliteAlertsShown.has(type)) {
         this.eliteAlertsShown.add(type);
@@ -1985,7 +2001,7 @@ export class Game {
     if (!this.ctx || !this.width || !this.height) return;
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
-    const cameraZoom = this.waveTenTransition ? Math.max(this.cameraMinZoom, this.waveTenTransition.cameraZoom) : Math.max(this.cameraMinZoom, Math.min(1, this.cameraZoom || 1));
+    const cameraZoom = this.bossCinematic ? Math.max(this.cameraMinZoom, this.bossCinematic.cameraZoom) : Math.max(this.cameraMinZoom, Math.min(1, this.cameraZoom || 1));
     ctx.save();
     ctx.translate(this.width / 2, this.height / 2);
     ctx.scale(cameraZoom, cameraZoom);
@@ -2008,7 +2024,18 @@ export class Game {
     for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
     for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx);
     for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx);
-    if (this.waveTenTransition?.boss) this.waveTenTransition.boss.draw(ctx);
+    if (this.bossCinematic?.boss) {
+      const cinematic = this.bossCinematic;
+      const revealAlpha = cinematic.phase === 'distant-contact'
+        ? Math.max(0, Math.min(1, (cinematic.phaseElapsed - 0.35) / 2.1))
+        : cinematic.phase === 'boss-identification' || cinematic.phase === 'handoff' ? 1 : 0;
+      if (revealAlpha > 0) {
+        ctx.save();
+        ctx.globalAlpha = revealAlpha;
+        cinematic.boss.draw(ctx);
+        ctx.restore();
+      }
+    }
     // Main-cannon telegraph and beam use the exact same world-space segment as collision.
     for (const boss of this.enemies) {
       if (!boss.active || boss.type !== 'boss' || boss.bossDying) continue;
@@ -2111,7 +2138,7 @@ export class Game {
       Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
     this.drawShield(ctx);
     this.player.draw(ctx, playerVisible);
-    if (!this.waveTenTransition && this.pilotReaction.remaining > 0) {
+    if (!this.bossCinematic && this.pilotReaction.remaining > 0) {
       this.drawPilotReaction(ctx, this.player.x + (this.player.radius ?? 12) + 18, this.player.y - (this.player.radius ?? 12) - 18);
     }
     // Draw missiles after the ship so the hull cannot hide a launch from either wing.
@@ -2262,6 +2289,7 @@ export class Game {
       ctx.restore();
     }
     ctx.restore();
-    this.renderWaveTenTransition(ctx);
+    this.renderBossCinematic(ctx);
+    this.renderRecurringBossDialogue(ctx);
   }
 }
