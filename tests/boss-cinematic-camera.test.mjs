@@ -117,7 +117,7 @@ test('loading reset repositions and restores combat readiness without erasing pr
   };
   preparePlayerForBossCinematic(ship, 2160, 1008);
   assert.equal(ship.x, 1080);
-  assert.equal(ship.y, 705.6);
+  assert.ok(Math.abs(ship.y - 705.6) < 1e-9);
   assert.equal(ship.health, 120);
   assert.equal(ship.shieldHealth, 5);
   assert.equal(ship.shieldRechargeTimer, 0);
