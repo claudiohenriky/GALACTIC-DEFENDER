@@ -37,14 +37,14 @@ test('Devastador Elite has a defensive shield and a shorter, stronger attack cyc
   assert.equal(elite.isElite, true);
   assert.equal(elite.eliteMaxShield, 12);
   assert.equal(elite.eliteShield, 12);
-  assert.equal(elite.siegeWarningDuration, 0.82);
+  assert.equal(elite.siegeWarningDuration, 0.98);
   elite.siegeChargeTimer = 0.01;
   const args = [0.02, 650, 850, 1200, 1600, [], [], 0, 100, 0];
   elite.update(...args);
   elite.siegeWarningTimer = 0.01;
   const shot = elite.update(...args);
   assert.equal(shot.siegeImpact, true);
-  assert.equal(shot.damage, 44);
+  assert.equal(shot.damage, 40);
 });
 
 test('EnemyProjectile preserves the dedicated siege-impact flag', () => {
