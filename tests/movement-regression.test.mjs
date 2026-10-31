@@ -213,3 +213,16 @@ test('Dreadnought turret tracking leads a moving pilot instead of aiming only at
   const leadingAngle = leadingBoss.bossSystems.getModule('machine-gun-left').turretAngle;
   assert.notEqual(leadingAngle, stationaryAngle);
 });
+
+test('Guardian uses its class-specific steering profile with and without a protected formation', () => {
+  for (const isElite of [false, true]) {
+    const guardian = new Enemy(200, 180, 16, 'guardian', isElite);
+    const ally = new Enemy(220, 160, 16, 'sentinel');
+    if (isElite) guardian.protectedAllies = [ally];
+    for (let frame = 0; frame < 180; frame += 1) {
+      guardian.update(1 / 60, 650, 700, 1200, 1600, [], [ally], 0);
+      assert.ok(Number.isFinite(guardian.x) && Number.isFinite(guardian.y));
+      assert.ok(Math.hypot(guardian.velocityX, guardian.velocityY) <= guardian.motionProfile.maxSpeed + 1e-6);
+    }
+  }
+});
