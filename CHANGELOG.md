@@ -1,3 +1,14 @@
+## [0.54.1] — correções de apresentação da cutscene do DREADNOUGHT
+
+- **Patch corretivo da v0.54.0:** preserva a sequência e a duração das fases; não representa uma nova versão minor de funcionalidades.
+- Corrige a entrada abrupta do DREADNOUGHT: a nave agora se aproxima gradualmente a partir de uma posição distante e termina em um ponto de espera com separação maior em relação ao piloto.
+- Suaviza o enquadramento da câmera nos eixos horizontal e vertical durante a revelação, com interpolação independente da taxa de quadros.
+- Redesenha os balões para ficarem mais compactos e animados, com identidades próprias: piloto à esquerda, sistema de bordo à direita e DREADNOUGHT com identidade visual distinta.
+- Inclui uma fala própria do sistema de bordo durante a análise da interferência.
+- Reativa os sinais diegéticos na cutscene: ❓ para a anomalia, ❗ durante a revelação do chefe e ❓❗ para alertas de tropas de Elite.
+- Corrige a comparação temporal dos alertas para tolerar pequenas diferenças de ponto flutuante e adiciona testes de regressão.
+- **Validação automatizada:** sintaxe JavaScript, 55 testes, imports relativos e whitespace aprovados no GitHub Actions. A inspeção visual em celular/desktop ainda está pendente.
+
 ## [0.54.0] — nova cinemática, chefes recorrentes e revisão de desempenho
 
 - Substitui o controlador antigo da transição da onda 9 para 10 por uma sequência independente, com fade do HUD, carregamento de 10 segundos, diálogos com intervalos definidos, alerta anônimo, revelação distante e identificação final do DREADNOUGHT.
