@@ -7,7 +7,8 @@ import {
   createBossCinematic,
   getBossCinematicAlert,
   getBossCinematicDialogue,
-  getBossCinematicBossOpacity
+  getBossCinematicBossOpacity,
+  wrapBossCinematicDialogue
 } from '../src/core/boss-cinematic.js';
 
 function advance(state, seconds) {
