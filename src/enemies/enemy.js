@@ -1190,18 +1190,21 @@ export class Enemy {
           if (module.kind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled' &&
               module.plasmaChargeTimer <= (module.plasmaWarningDuration ?? 1.5)) {
             const charge = 1 - Math.max(0, module.plasmaChargeTimer) / (module.plasmaWarningDuration ?? 1.5);
-            const pulse = 0.72 + Math.sin(this.phase * 18 + module.x * 3) * 0.28;
-            ctx.globalAlpha = 0.28 + charge * 0.58;
+            const reducedEffects = effectsScale < 0.75;
+            const pulse = reducedEffects ? 0 : 0.72 + Math.sin(this.phase * 18 + module.x * 3) * 0.28;
+            ctx.globalAlpha = reducedEffects ? 0.32 + charge * 0.28 : 0.28 + charge * 0.58;
             ctx.strokeStyle = '#ff7544';
             ctx.lineWidth = mountSize * (0.09 + charge * 0.05);
             ctx.beginPath();
             ctx.arc(0, 0, mountSize * (1.2 + charge * 0.9), 0, Math.PI * 2);
             ctx.stroke();
-            ctx.globalAlpha = 0.18 + charge * 0.42;
-            ctx.fillStyle = '#ff4b24';
-            ctx.beginPath();
-            ctx.arc(0, 0, mountSize * (0.65 + pulse * 0.22), 0, Math.PI * 2);
-            ctx.fill();
+            if (!reducedEffects) {
+              ctx.globalAlpha = 0.18 + charge * 0.42;
+              ctx.fillStyle = '#ff4b24';
+              ctx.beginPath();
+              ctx.arc(0, 0, mountSize * (0.65 + pulse * 0.22), 0, Math.PI * 2);
+              ctx.fill();
+            }
             ctx.globalAlpha = 1;
           }
           if (module.id !== 'main-energy-cannon') ctx.rotate(module.turretAngle ?? 0);
