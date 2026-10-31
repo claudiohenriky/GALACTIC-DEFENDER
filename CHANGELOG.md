@@ -1,3 +1,16 @@
+## [0.58.0] — padronização das tropas Elite e falas de primeiro contato
+
+- Reequilibra velocidade, aceleração, esquiva e vida das tropas Elite para que sigam os padrões de suas classes normais, com bônus moderados em vez de deslocamentos extremos.
+- Dá escudo pessoal a todas as classes Elite, mantendo reservas maiores para Guardião e Devastador.
+- Faz o Artilheiro Elite disparar uma salva de três projéteis, mantendo o padrão de dois tiros da versão normal.
+- Adiciona dois micro-mísseis à Sentinela Elite: orientação curta, depois trajetória reta, com dano baixo e intervalo amplo.
+- Adiciona duas metralhadoras auxiliares de baixa potência ao Devastador Elite, sem substituir o canhão de cerco.
+- Faz o Guardião priorizar tropas Elite ao selecionar aliados para proteção.
+- Reduz o dano base dos mísseis guiados do jogador e impede que o dano atravesse escudos pessoais/escudos de cobertura de Guardiões.
+- Corrige o ciclo de aviso do canhão de plasma do DREADNOUGHT: o disparo só ocorre após a janela de aviso estar ativa e terminar, inclusive ao trocar o jogador de lateral.
+- As falas de primeiro contato com cada classe Elite agora aparecem uma única vez por partida e permanecem por seis segundos.
+- Adiciona testes automatizados para os perfis Elite, habilidades, escudos, prioridade do Guardião, mísseis e avisos do canhão de plasma.
+
 ## [0.57.2] — balanceamento do Encouraçado, mísseis e mira do Devastador
 
 - Reduz o armamento de plasma do DREADNOUGHT de quatro para dois canhões, mantendo um módulo por lateral.
