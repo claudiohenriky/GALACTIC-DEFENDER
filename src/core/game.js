@@ -1,5 +1,6 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
 import { Enemy } from '../enemies/enemy.js?v=0.45.0-tactical-steering';
+import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
@@ -42,8 +43,7 @@ export class Game {
     this.bossEncounterSeen = false;
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
-    this.eliteFlankDecisionTimer = 0;
-    this.activeEliteFlanker = null;
+    this.eliteTactics = new EliteTacticalCoordinator();
     this.projectiles = [];
     this.guidedMissiles = [];
     this.guidedMissileTargetReservations = new Set();
@@ -1478,70 +1478,7 @@ export class Game {
       }
     }
 
-    // Elite flanking is coordinated at a low cadence: only one specialist repositions at a time.
-    this.eliteFlankDecisionTimer = Math.max(0, this.eliteFlankDecisionTimer - dt);
-    if (this.eliteFlankDecisionTimer <= 0) {
-      this.eliteFlankDecisionTimer = 0.6;
-      if (!this.activeEliteFlanker || !this.activeEliteFlanker.active || this.activeEliteFlanker.flankTimer <= dt) {
-        this.activeEliteFlanker = null;
-        let activeCombatants = 0;
-        let candidate = null;
-        let candidatePriority = Infinity;
-        let candidateDistance = Infinity;
-        for (const enemy of this.enemies) {
-          if (!enemy.active || enemy.bossDying || enemy.type === 'boss') continue;
-          activeCombatants += 1;
-          if (!enemy.isElite || enemy.eliteSpawnTimer > 0 || enemy.flankCooldown > 0) continue;
-          if (enemy.type !== 'sentinel' && enemy.type !== 'artillery' && enemy.type !== 'guardian') continue;
-          // A Guardian does not abandon living allies assigned to its defensive screen.
-          if (enemy.type === 'guardian' && enemy.protectedAllies.some(ally => ally.active)) continue;
-          const priority = enemy.type === 'sentinel' ? 0 : enemy.type === 'artillery' ? 1 : 2;
-          const dx = enemy.x - this.player.x;
-          const dy = enemy.y - this.player.y;
-          const distance = dx * dx + dy * dy;
-          if (priority < candidatePriority || (priority === candidatePriority && distance < candidateDistance)) {
-            candidate = enemy;
-            candidatePriority = priority;
-            candidateDistance = distance;
-          }
-        }
-
-        if (activeCombatants >= 4 && candidate) {
-          const playerSpeed = Math.hypot(this.player.velocityX, this.player.velocityY);
-          const headingX = playerSpeed > 40 ? this.player.velocityX / playerSpeed : Math.cos(this.player.rotation);
-          const headingY = playerSpeed > 40 ? this.player.velocityY / playerSpeed : Math.sin(this.player.rotation);
-          const rearX = -headingX;
-          const rearY = -headingY;
-          const sideX = -headingY;
-          const sideY = headingX;
-          const baseX = this.player.x + rearX * 165;
-          const baseY = this.player.y + rearY * 165;
-          const leftX = baseX + sideX * 105;
-          const leftY = baseY + sideY * 105;
-          const rightX = baseX - sideX * 105;
-          const rightY = baseY - sideY * 105;
-          let leftCrowding = 0;
-          let rightCrowding = 0;
-          for (const enemy of this.enemies) {
-            if (!enemy.active || enemy === candidate || enemy.type === 'boss') continue;
-            const leftDx = enemy.x - leftX;
-            const leftDy = enemy.y - leftY;
-            const rightDx = enemy.x - rightX;
-            const rightDy = enemy.y - rightY;
-            if (leftDx * leftDx + leftDy * leftDy < 180 * 180) leftCrowding += 1;
-            if (rightDx * rightDx + rightDy * rightDy < 180 * 180) rightCrowding += 1;
-          }
-          const chooseLeft = leftCrowding <= rightCrowding;
-          const margin = candidate.radius + 24;
-          candidate.flankTargetX = Math.max(margin, Math.min(this.worldWidth - margin, chooseLeft ? leftX : rightX));
-          candidate.flankTargetY = Math.max(margin, Math.min(this.worldHeight - margin, chooseLeft ? leftY : rightY));
-          candidate.flankSide = chooseLeft ? -1 : 1;
-          candidate.flankTimer = 3.2;
-          candidate.flankCooldown = 11.5;
-          this.activeEliteFlanker = candidate;
-        }
-      }
-    }
+    this.eliteTactics.update(dt, this.enemies, this.player, this.worldWidth, this.worldHeight);
 
     for (let index = 0; index < this.enemies.length; index += 1) {
       const enemy = this.enemies[index];
