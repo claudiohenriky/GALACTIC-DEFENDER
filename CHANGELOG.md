@@ -1,3 +1,13 @@
+## [0.57.2] — balanceamento do Encouraçado, mísseis e mira do Devastador
+
+- Reduz o armamento de plasma do DREADNOUGHT de quatro para dois canhões, mantendo um módulo por lateral.
+- Substitui os dois módulos traseiros de plasma por emissores iônicos laterais de longo alcance (1.050 unidades), com disparos rápidos e dano individual reduzido.
+- Redesenha os mísseis guiados do chefe como dardos alongados roxos, com velocidade de 280/300/320 unidades/s por fase, correção de trajetória limitada e curvas discretas.
+- Reduz o dano dos mísseis para 10/11/12, amplia o intervalo entre lançamentos para 6,0/5,7/5,4 s e limita a vida útil a 4,2 s para impedir acúmulo indefinido.
+- Move a primeira aparição do Encouraçado para a onda 15 e mantém recorrência a cada 15 ondas (15, 30, 45...).
+- No Devastador, a direção é capturada ao fim da carga; durante o aviso o casco permanece estável e o disparo usa exatamente o ângulo travado.
+- Adiciona cobertura automatizada para quantidade e posição dos canhões, vida útil/curva dos mísseis, agenda de chefes e ângulo de disparo do Devastador.
+
 ## [0.57.1] — balanceamento do Encouraçado e flanqueamento
 
 - Aumenta a recarga dos quatro canhões de plasma de 5,4 s para 7,2 s; dano, velocidade do projétil, ruptura de escudo e repulsão permanecem inalterados.
