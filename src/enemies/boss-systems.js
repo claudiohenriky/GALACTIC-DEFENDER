@@ -3,15 +3,17 @@
 // It is intentionally data-driven so later bosses can reuse the same system.
 
 const MODULE_TEMPLATES = [
-  { id: 'machine-gun-left', kind: 'machine-gun', region: 'left', x: -1.02, y: -0.30, maxHealth: 34, replacement: 'plasma-turret' },
-  { id: 'machine-gun-right', kind: 'machine-gun', region: 'right', x: 1.02, y: -0.30, maxHealth: 34, replacement: 'plasma-turret' },
-  { id: 'missile-left', kind: 'missile', region: 'left', x: -1.16, y: 0.82, maxHealth: 38, replacement: 'rocket-pod' },
-  { id: 'missile-right', kind: 'missile', region: 'right', x: 1.16, y: 0.82, maxHealth: 38, replacement: 'rocket-pod' },
-  { id: 'light-laser-left', kind: 'light-laser', region: 'front', x: -0.42, y: -1.50, maxHealth: 28, replacement: 'light-laser' },
-  { id: 'light-laser-right', kind: 'light-laser', region: 'front', x: 0.42, y: -1.50, maxHealth: 28, replacement: 'light-laser' },
-  { id: 'plasma-cannon-left', kind: 'plasma-cannon', region: 'left', x: -1.34, y: 0.12, maxHealth: 48, replacement: 'reinforced-plasma' },
-  { id: 'plasma-cannon-right', kind: 'plasma-cannon', region: 'right', x: 1.34, y: 0.12, maxHealth: 48, replacement: 'reinforced-plasma' },
-  { id: 'main-energy-cannon', kind: 'energy-cannon', region: 'front', x: 0, y: -1.84, maxHealth: 58, replacement: 'overload-cannon', energyState: 'standby', energyChargeDuration: 7.2, energyChargeTimer: 7.2, energyWarningDuration: 2.4, energyWarningTimer: 0, energyCooldownDuration: 5.5, energyCooldownTimer: 0 },
+  { id: 'machine-gun-left', kind: 'machine-gun', region: 'left', x: -1.02, y: -0.30, maxHealth: 34, replacement: 'plasma-turret', firingRange: 920, crossSide: true },
+  { id: 'machine-gun-right', kind: 'machine-gun', region: 'right', x: 1.02, y: -0.30, maxHealth: 34, replacement: 'plasma-turret', firingRange: 920, crossSide: true },
+  { id: 'missile-left', kind: 'missile', region: 'left', x: -1.16, y: 0.82, maxHealth: 38, replacement: 'rocket-pod', firingRange: 720 },
+  { id: 'missile-right', kind: 'missile', region: 'right', x: 1.16, y: 0.82, maxHealth: 38, replacement: 'rocket-pod', firingRange: 720 },
+  { id: 'light-laser-left', kind: 'light-laser', region: 'front', x: -0.42, y: -1.50, maxHealth: 28, replacement: 'light-laser', firingRange: 620 },
+  { id: 'light-laser-right', kind: 'light-laser', region: 'front', x: 0.42, y: -1.50, maxHealth: 28, replacement: 'light-laser', firingRange: 620 },
+  { id: 'plasma-cannon-left-forward', kind: 'plasma-cannon', region: 'left', x: -1.34, y: -0.02, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 },
+  { id: 'plasma-cannon-left-rear', kind: 'plasma-cannon', region: 'left', x: -1.42, y: 0.52, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 },
+  { id: 'plasma-cannon-right-forward', kind: 'plasma-cannon', region: 'right', x: 1.34, y: -0.02, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 },
+  { id: 'plasma-cannon-right-rear', kind: 'plasma-cannon', region: 'right', x: 1.42, y: 0.52, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 }, 
+  { id: 'main-energy-cannon', kind: 'energy-cannon', region: 'front', x: 0, y: -1.84, maxHealth: 58, replacement: 'overload-cannon', firingRange: 1250, energyState: 'standby', energyChargeDuration: 7.2, energyChargeTimer: 7.2, energyWarningDuration: 2.4, energyWarningTimer: 0, energyCooldownDuration: 5.5, energyCooldownTimer: 0 },
   { id: 'auxiliary-system', kind: 'support-system', region: 'core', x: 0, y: 1.04, maxHealth: 42, replacement: 'adaptive-system' }
 ];
 
@@ -40,8 +42,9 @@ export class BossSystems {
       catastrophic: false,
       originalKind: module.kind,
       turretAngle: 0,
-      plasmaChargeDuration: 2.6,
-      plasmaChargeTimer: module.kind.includes('plasma') ? 2.6 : 0
+      plasmaChargeDuration: 5.4,
+      plasmaWarningDuration: 1.5,
+      plasmaChargeTimer: module.kind.includes('plasma') ? 5.4 : 0
     }));
     this.shields = SHIELD_TEMPLATES.map((shield) => ({
       ...shield,
