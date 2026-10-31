@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { circlesOverlap, orientedEllipseOverlapsCircle } from '../src/combat/collision.js';
 import { BossSystems } from '../src/enemies/boss-systems.js';
 import { Enemy } from '../src/enemies/enemy.js';
+import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
  assert.equal(circlesOverlap({x:0,y:0,radius:5},{x:8,y:0,radius:4}),true);
@@ -57,4 +58,23 @@ test('heavy boss enters, retains its expanded footprint and fires from surviving
  for(let frame=0;frame<900&&!volley;frame++){const shots=boss.update(1/60,500,900,1000,1200,[],[],0);if(Array.isArray(shots)&&shots.length)volley=shots;}
  assert.ok(volley,'boss should fire after entrance and initial cooldown');
  assert.ok(volley.every(s=>Number.isFinite(s.x)&&Number.isFinite(s.y)));
+});
+
+
+test('normal wave progression starts with five enemies and reserves the Dreadnought for wave 10',()=>{
+ assert.equal(BOSS_TEST_MODE,false);
+ const waves=new WaveManager();
+ assert.equal(waves.wave,1);
+ assert.equal(waves.enemyCount,5);
+ waves.wave=9;
+ waves.state='intermission';
+ waves.timer=0;
+ waves.update(0.01,0);
+ assert.equal(waves.wave,10);
+ assert.equal(waves.enemyCount,1);
+ waves.state='intermission';
+ waves.timer=0;
+ waves.update(0.01,0);
+ assert.equal(waves.wave,11);
+ assert.equal(waves.enemyCount,18);
 });
