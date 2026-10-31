@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.55.0-cinematic-performance-polish';
+import { Game } from './src/core/game.js?v=0.55.1-cinematic-correction';
 import { gameAudio } from './src/audio/game-audio.js?v=0.54.0-cinematic-rebuild';
 
 // Entry point: connect the game engine to the page UI.
