@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { circlesOverlap, orientedEllipseOverlapsCircle } from '../src/combat/collision.js';
-import { BossSystems, getBossBeamSegment, selectBossAttack } from '../src/enemies/boss-systems.js';
+import { BossSystems, getBossBeamSegment, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from '../src/enemies/boss-systems.js';
 import { Enemy } from '../src/enemies/enemy.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
 
@@ -79,6 +79,44 @@ test('boss attack selection prefers the appropriate family and respects module s
  assert.equal(selectBossAttack(systems.modules,680,32,8,2),'machine-gun');
  systems.getModule('machine-gun-right').state='disabled';
  assert.equal(selectBossAttack(systems.modules,950,32,8,2),null);
+});
+
+
+test('DREADNOUGHT missiles use phase-scaled speed and damage with a slower launch cadence',()=>{
+ const phaseOne=getBossMissileProfile(1);
+ const phaseTwo=getBossMissileProfile(2);
+ const phaseThree=getBossMissileProfile(3);
+ assert.deepEqual(phaseOne,{speed:185,damage:12,turnRate:1.36,cooldown:5.2});
+ assert.deepEqual(phaseTwo,{speed:205,damage:13,turnRate:1.42,cooldown:4.8});
+ assert.deepEqual(phaseThree,{speed:225,damage:15,turnRate:1.48,cooldown:4.4});
+ assert.ok(phaseOne.speed>118 && phaseOne.damage>9 && phaseOne.cooldown>2.35);
+});
+
+test('DREADNOUGHT missile launcher selection alternates wings and respects target side and range',()=>{
+ const systems=new BossSystems();
+ const left=systems.getModule('missile-left');
+ const right=systems.getModule('missile-right');
+ assert.equal(selectBossMissileLauncher(systems.modules,600,0,8,-1),left);
+ assert.equal(selectBossMissileLauncher(systems.modules,600,0,8,1),right);
+ assert.equal(selectBossMissileLauncher(systems.modules,600,-35,8,1),left);
+ right.state='disabled';
+ assert.equal(selectBossMissileLauncher(systems.modules,600,0,8,1),left);
+ assert.equal(selectBossMissileLauncher(systems.modules,800,0,8,-1),null);
+});
+
+test('DREADNOUGHT launches only one missile per salvo and applies a dedicated cooldown',()=>{
+ const boss=new Enemy(500,300,10,'boss');
+ boss.bossEntranceTimer=0;
+ boss.fireCooldown=0;
+ boss.facingRotation=Math.PI/2;
+ const targetX=500,targetY=900;
+ const first=boss.update(1/60,targetX,targetY,1000,1200,[],[],0,0,0);
+ assert.ok(first && !Array.isArray(first));
+ assert.equal(first.speed,185);
+ assert.equal(first.damage,12);
+ assert.equal(boss.bossMissileCooldown,5.2);
+ const next=boss.update(1/60,targetX,targetY,1000,1200,[],[],0,0,0);
+ assert.equal(next,null,'missiles must not launch again during the dedicated cooldown');
 });
 
 test('main cannon beam geometry starts at the open bow and follows its locked angle',()=>{
