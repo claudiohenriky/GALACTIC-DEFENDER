@@ -1442,20 +1442,22 @@ export class Enemy {
           }
 
           if (module.id === 'main-energy-cannon' && module.state !== 'destroyed' && module.state !== 'disabled' &&
-              (module.energyState === 'charging' || module.energyState === 'warning')) {
+              ['charging', 'aligning', 'warning', 'firing'].includes(module.energyState)) {
             const warning = module.energyState === 'warning';
-            const chargeRatio = warning ? 1 : 1 - module.energyChargeTimer / Math.max(0.1, module.energyChargeDuration);
-            const pulse = 0.78 + Math.sin(this.phase * (warning ? 18 : 10)) * 0.16;
+            const firing = module.energyState === 'firing';
+            const chargeRatio = warning || firing || module.energyState === 'aligning'
+              ? 1 : 1 - module.energyChargeTimer / Math.max(0.1, module.energyChargeDuration);
+            const pulse = 0.78 + Math.sin(this.phase * (warning || firing ? 18 : 10)) * 0.16;
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
-            ctx.globalAlpha = (warning ? 0.9 : 0.25 + chargeRatio * 0.55) * pulse;
-            ctx.strokeStyle = warning ? '#ff684f' : '#72eaff';
-            ctx.lineWidth = warning ? 2.8 : 1.4 + chargeRatio * 1.8;
+            ctx.globalAlpha = (warning || firing ? 0.9 : 0.25 + chargeRatio * 0.55) * pulse;
+            ctx.strokeStyle = firing ? '#fff0c9' : warning ? '#ff684f' : '#72eaff';
+            ctx.lineWidth = firing ? 4 : warning ? 2.8 : 1.4 + chargeRatio * 1.8;
             ctx.beginPath();
             ctx.arc(mx, my, moduleHalfSize + 5 + chargeRatio * 9, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.08, chargeRatio));
             ctx.stroke();
-            ctx.fillStyle = warning ? '#ffb08a' : '#c8f8ff';
-            ctx.globalAlpha = (warning ? 0.85 : 0.18 + chargeRatio * 0.58) * pulse;
+            ctx.fillStyle = firing ? '#fff0c9' : warning ? '#ffb08a' : '#c8f8ff';
+            ctx.globalAlpha = (warning || firing ? 0.85 : 0.18 + chargeRatio * 0.58) * pulse;
             ctx.beginPath();
             ctx.arc(mx, my, 2 + chargeRatio * 5, 0, Math.PI * 2);
             ctx.fill();
