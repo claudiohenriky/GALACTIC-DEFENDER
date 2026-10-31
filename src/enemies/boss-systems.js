@@ -68,8 +68,8 @@ export function getBossBeamSegment(boss, module) {
   const angle = module.energyAimAngle ?? boss.facingRotation;
   const range = module.energyBeamRange ?? module.firingRange ?? 1250;
   const apertureOffset = boss.radius * 1.82;
-  const startX = boss.x + Math.sin(angle) * apertureOffset;
-  const startY = boss.y - Math.cos(angle) * apertureOffset;
+  const startX = boss.x + Math.cos(angle) * apertureOffset;
+  const startY = boss.y + Math.sin(angle) * apertureOffset;
   return {
     startX, startY,
     endX: startX + Math.cos(angle) * range,
