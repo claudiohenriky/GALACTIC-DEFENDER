@@ -14,10 +14,10 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert } from './boss-cinematic.js?v=0.55.0-typewriter';
-import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.55.0-centered-framing';
+import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert } from './boss-cinematic.js?v=0.55.1-cinematic-correction';
+import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.55.1-cinematic-correction';
 import { prepareBossForCombatHandoff } from './boss-cinematic-camera.js?v=0.55.0-centered-framing';
-import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.53.2-reaction-polish';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.55.1-cinematic-correction';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1357,6 +1357,7 @@ export class Game {
     this.enemies.length = 0;
     this.bossCinematic = createBossCinematic();
     this.bossCinematic.cameraZoom = this.cameraZoom || 1;
+    this.cinematicDialogueRect = null;
     this.setCinematicHudOpacity(1, true);
     this.bossEncounterDialogue = null;
     this.bossEncounterDialogueTimer = 0;
@@ -1368,15 +1369,48 @@ export class Game {
     const previousPhase = cinematic.phase;
     advanceBossCinematic(cinematic, dt);
 
+    if (cinematic.phase !== previousPhase) {
+      if (cinematic.phase === 'anomaly-scan' && !cinematic.anomalyReactionShown) {
+        triggerPilotReaction(this.pilotReaction, '❓', 2.8);
+        cinematic.anomalyReactionShown = true;
+      }
+      if (cinematic.phase === 'distant-contact' && !cinematic.bossReactionShown) {
+        triggerPilotReaction(this.pilotReaction, '❗', 2.6);
+        cinematic.bossReactionShown = true;
+      }
+    }
+
     if (!cinematic.bossSpawned && cinematic.phase === 'distant-contact') {
-      // Spawn once at a fixed standoff. The boss is not updated by its AI until
-      // the explicit handoff, so no second entrance controller can move it.
-      const bossY = Math.max(160, this.player.y - this.height * 1.08);
-      cinematic.boss = new Enemy(this.player.x, bossY, 10, 'boss');
-      cinematic.boss.bossEntranceTimer = 0;
-      cinematic.boss.facingRotation = Math.PI / 2;
-      cinematic.boss.rotation = Math.PI / 2;
+      // The DREADNOUGHT enters from the upper-right and travels to a safe standoff.
+      // Its approach is owned by the cinematic; combat AI remains disabled until handoff.
+      const boss = new Enemy(0, 0, 10, 'boss');
+      const margin = boss.collisionRadius + 24;
+      const clampX = (value) => Math.max(margin, Math.min(this.worldWidth - margin, value));
+      const clampY = (value) => Math.max(margin, Math.min(this.worldHeight - margin, value));
+      cinematic.bossTargetX = clampX(this.player.x + this.width * 0.72);
+      cinematic.bossTargetY = clampY(this.player.y - this.height * 1.16);
+      cinematic.bossStartX = clampX(cinematic.bossTargetX + this.width * 0.22);
+      cinematic.bossStartY = clampY(cinematic.bossTargetY - this.height * 0.12);
+      boss.x = cinematic.bossStartX;
+      boss.y = cinematic.bossStartY;
+      boss.bossEntranceTimer = 0;
+      boss.bossMoveTargetX = cinematic.bossTargetX;
+      boss.bossMoveTargetY = cinematic.bossTargetY;
+      boss.facingRotation = Math.PI / 2;
+      boss.rotation = Math.PI / 2;
+      cinematic.boss = boss;
       cinematic.bossSpawned = true;
+    }
+
+    if (cinematic.boss) {
+      const progress = cinematic.phase === 'distant-contact'
+        ? Math.max(0, Math.min(1, cinematic.phaseElapsed / Math.max(0.001, cinematic.phaseDuration)))
+        : ['boss-identification', 'handoff', 'complete'].includes(cinematic.phase) ? 1 : 0;
+      const eased = progress * progress * (3 - 2 * progress);
+      cinematic.boss.x = cinematic.bossStartX + (cinematic.bossTargetX - cinematic.bossStartX) * eased;
+      cinematic.boss.y = cinematic.bossStartY + (cinematic.bossTargetY - cinematic.bossStartY) * eased;
+      cinematic.boss.velocityX = 0;
+      cinematic.boss.velocityY = 0;
     }
 
     const cameraFrame = getBossCinematicCameraFrame({
@@ -1391,7 +1425,8 @@ export class Game {
       worldWidth: this.worldWidth,
       worldHeight: this.worldHeight
     });
-    const cameraBlend = Math.min(1, Math.max(0, dt) * 3.2);
+    // Exponential smoothing is frame-rate independent and prevents camera snapping.
+    const cameraBlend = 1 - Math.exp(-Math.max(0, dt) * 3.4);
     cinematic.cameraZoom += (cameraFrame.zoom - cinematic.cameraZoom) * cameraBlend;
     this.cameraX += (cameraFrame.x - this.cameraX) * cameraBlend;
     this.cameraY += (cameraFrame.y - this.cameraY) * cameraBlend;
@@ -1412,49 +1447,35 @@ export class Game {
         this.waveManager.enemyCount = 1;
         this.waveManager.spawnedCount = 1;
       }
-      // Snap only once to the exact combat target. The camera helper uses the
-      // same bounds/focus equation as updateCamera, avoiding a handoff jump.
       this.cameraZoom = this.cameraMinZoom;
       this.updateCamera(0, true);
       this.waveManager.timer = 1.0;
       this.clearInput();
       this.bossCinematic = null;
+      this.cinematicDialogueRect = null;
       this.setCinematicHudOpacity(1, false);
     }
   }
 
   drawCinematicDialogue(ctx, cue) {
+    this.cinematicDialogueRect = null;
     if (!cue) return;
     const cinematic = this.bossCinematic;
     const actor = cue.actor === 'boss' ? cinematic?.boss : this.player;
     const zoom = Math.max(this.cameraMinZoom, cinematic?.cameraZoom ?? this.cameraZoom);
     const anchorX = this.width / 2 + (actor.x - this.width / 2 - this.cameraX) * zoom;
     const anchorY = this.height / 2 + (actor.y - this.height / 2 - this.cameraY) * zoom;
-    const boxWidth = Math.min(340, Math.max(190, this.width * 0.48), this.width - 24);
-    const boxHeight = this.height < 390 ? 68 : 76;
-    const placeRight = anchorX < this.width * 0.5;
-    const x = Math.max(12, Math.min(this.width - boxWidth - 12,
-      placeRight ? anchorX + 24 : anchorX - boxWidth - 24));
-    const y = Math.max(12, Math.min(this.height - boxHeight - 14,
-      anchorY > this.height * 0.52 ? anchorY - boxHeight - 26 : anchorY + 26));
-    const accent = cue.actor === 'boss' ? '#ef829a' : '#68e5f2';
-    ctx.save();
-    ctx.fillStyle = 'rgba(3, 10, 23, 0.94)';
-    ctx.fillRect(x, y, boxWidth, boxHeight);
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 1.4;
-    ctx.strokeRect(x + 0.7, y + 0.7, boxWidth - 1.4, boxHeight - 1.4);
-    ctx.fillStyle = accent;
-    ctx.textAlign = 'left';
-    ctx.font = '900 9px ui-monospace, monospace';
-    ctx.fillText(cue.speaker, x + 11, y + 17);
-    ctx.fillStyle = '#f0f5ff';
-    const fontSize = this.width < 520 ? 10 : 12;
-    ctx.font = `${fontSize}px ui-monospace, monospace`;
-    const maxWidth = boxWidth - 22;
+    const isPilot = cue.actor === 'pilot';
+    const isSystem = cue.actor === 'system';
+    const sideLeft = isPilot;
+    const boxWidth = Math.min(292, Math.max(164, this.width * 0.38), this.width - 24);
+    const fontSize = this.width < 520 ? 9 : 11;
+    const maxWidth = boxWidth - 24;
     const words = (cue.visibleText ?? cue.text).split(' ');
     const rows = [];
     let row = '';
+    ctx.save();
+    ctx.font = `${fontSize}px ui-monospace, monospace`;
     for (const word of words) {
       const candidate = row ? `${row} ${word}` : word;
       if (row && ctx.measureText(candidate).width > maxWidth) {
@@ -1463,8 +1484,52 @@ export class Game {
       } else row = candidate;
     }
     if (row) rows.push(row);
-    rows.slice(0, 3).forEach((line, index) => ctx.fillText(line, x + 11, y + 39 + index * (fontSize + 3)));
+    const visibleRows = rows.slice(0, 2);
+    const boxHeight = Math.max(57, 37 + visibleRows.length * (fontSize + 4));
+    const x = sideLeft ? 12 : this.width - boxWidth - 12;
+    const preferredY = isPilot ? anchorY - boxHeight - 24 : anchorY + 28;
+    const y = Math.max(14, Math.min(this.height - boxHeight - 14, preferredY));
+    const age = Math.max(0, cinematic.phaseElapsed - (cue.at || 0));
+    const enter = Math.min(1, age / 0.24);
+    const eased = enter * enter * (3 - 2 * enter);
+    const accent = cue.actor === 'boss' ? '#ff829a' : isSystem ? '#9be8b8' : '#68e5f2';
+    const shiftX = (sideLeft ? -1 : 1) * (1 - eased) * 14;
+
+    ctx.globalAlpha = eased;
+    ctx.translate(shiftX, 0);
+    ctx.fillStyle = cue.actor === 'boss' ? 'rgba(25, 8, 18, 0.96)' : 'rgba(4, 13, 27, 0.96)';
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = cue.actor === 'boss' ? 1.7 : 1.2;
+    const radius = 9;
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + boxWidth - radius, y);
+    ctx.quadraticCurveTo(x + boxWidth, y, x + boxWidth, y + radius);
+    ctx.lineTo(x + boxWidth, y + boxHeight - radius);
+    ctx.quadraticCurveTo(x + boxWidth, y + boxHeight, x + boxWidth - radius, y + boxHeight);
+    ctx.lineTo(x + radius, y + boxHeight);
+    ctx.quadraticCurveTo(x, y + boxHeight, x, y + boxHeight - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = accent;
+    ctx.fillRect(x + 10, y + 8, 3, boxHeight - 16);
+    ctx.textAlign = 'left';
+    ctx.font = '900 8px ui-monospace, monospace';
+    ctx.fillText(cue.speaker, x + 19, y + 18);
+    ctx.fillStyle = '#f0f5ff';
+    ctx.font = `${fontSize}px ui-monospace, monospace`;
+    visibleRows.forEach((line, index) => ctx.fillText(line, x + 19, y + 36 + index * (fontSize + 4), maxWidth - 5));
+    // Small side marker gives each voice a distinct visual signature.
+    ctx.fillStyle = accent;
+    ctx.globalAlpha = eased * 0.75;
+    ctx.beginPath();
+    ctx.arc(sideLeft ? x + boxWidth - 9 : x + 9, y + boxHeight / 2, 2.2, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
+    this.cinematicDialogueRect = { x, y, width: boxWidth, height: boxHeight };
   }
 
   drawCinematicAlert(ctx, alert) {
@@ -1560,6 +1625,17 @@ export class Game {
       const cue = getBossCinematicDialogue(cinematic);
       this.drawCinematicDialogue(ctx, cue);
       this.drawCinematicAlert(ctx, getBossCinematicAlert(cinematic));
+      if (this.pilotReaction.remaining > 0) {
+        const zoom = Math.max(this.cameraMinZoom, Math.min(1, cinematic.cameraZoom || this.cameraZoom));
+        const screenX = this.width / 2 + (this.player.x - this.width / 2 - this.cameraX) * zoom;
+        const screenY = this.height / 2 + (this.player.y - this.height / 2 - this.cameraY) * zoom;
+        const reactionPosition = getPilotReactionPosition({
+          x: screenX, y: screenY, bubble: this.cinematicDialogueRect,
+          width: this.width, height: this.height,
+          radius: this.pilotReaction.symbol === '❓❗' ? 21 : 15, offset: 30
+        });
+        if (reactionPosition) this.drawPilotReaction(ctx, reactionPosition.x, reactionPosition.y);
+      }
     }
     ctx.restore();
   }
