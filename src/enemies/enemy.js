@@ -588,6 +588,7 @@ export class Enemy {
 
     const pixelCanvas = this.bossPixelCanvas;
     const pixelCtx = this.bossPixelContext;
+    if (!pixelCtx) return this.drawVector(ctx);
     const pixelScale = 0.2;
     pixelCtx.setTransform(1, 0, 0, 1, 0, 0);
     pixelCtx.clearRect(0, 0, pixelCanvas.width, pixelCanvas.height);
@@ -777,41 +778,6 @@ export class Enemy {
     if (boss) {
       const systems = this.bossSystems;
 
-      // Aggressive pixel-art armor silhouette: stepped shoulder blades and
-      // outward-facing armor teeth make the ship feel more predatory.
-      for (const side of [-1, 1]) {
-        ctx.fillStyle = '#111820';
-        ctx.beginPath();
-        ctx.moveTo(side * this.radius * 0.96, -this.radius * 0.76);
-        ctx.lineTo(side * this.radius * 1.54, -this.radius * 0.98);
-        ctx.lineTo(side * this.radius * 1.34, -this.radius * 0.42);
-        ctx.lineTo(side * this.radius * 1.52, this.radius * 0.02);
-        ctx.lineTo(side * this.radius * 1.20, this.radius * 0.34);
-        ctx.lineTo(side * this.radius * 1.02, -this.radius * 0.12);
-        ctx.closePath();
-        ctx.fill();
-
-        // Block-built steel plates and narrow orange warning marks.
-        ctx.fillStyle = '#596574';
-        ctx.fillRect(side < 0 ? -this.radius * 1.38 : this.radius * 1.18, -this.radius * 0.48, this.radius * 0.20, this.radius * 0.72);
-        ctx.fillStyle = '#8796a6';
-        ctx.fillRect(side < 0 ? -this.radius * 1.30 : this.radius * 1.22, -this.radius * 0.36, this.radius * 0.08, this.radius * 0.40);
-        ctx.fillStyle = '#ff653d';
-        ctx.fillRect(side < 0 ? -this.radius * 1.42 : this.radius * 1.30, -this.radius * 0.08, this.radius * 0.07, this.radius * 0.20);
-      }
-
-      // Stern vents and stepped heat channels add mechanical density without
-      // relying on tiny photorealistic highlights.
-      ctx.fillStyle = '#111820';
-      ctx.fillRect(-this.radius * 0.46, this.radius * 1.36, this.radius * 0.92, this.radius * 0.30);
-      for (let vent = -2; vent <= 2; vent += 1) {
-        ctx.fillStyle = vent === 0 ? '#36d9ff' : '#596574';
-        ctx.fillRect(vent * this.radius * 0.15 - this.radius * 0.045, this.radius * 1.40, this.radius * 0.09, this.radius * 0.20);
-      }
-      ctx.fillStyle = '#ff653d';
-      ctx.fillRect(-this.radius * 0.54, this.radius * 0.98, this.radius * 0.12, this.radius * 0.08);
-      ctx.fillRect(this.radius * 0.42, this.radius * 0.98, this.radius * 0.12, this.radius * 0.08);
-
       // Matte graphite armor with brushed-steel structural ribs.
       ctx.fillStyle = '#293542'; ctx.strokeStyle = '#718091'; ctx.lineWidth = 2;
       ctx.beginPath();
@@ -841,6 +807,33 @@ export class Enemy {
         ctx.strokeStyle = '#596574'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(side * this.radius * 1.30, -this.radius * 0.42); ctx.lineTo(side * this.radius * 1.34, this.radius * 0.72); ctx.stroke();
         ctx.strokeStyle = '#a0acb8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(side * this.radius * 0.82, -this.radius * 0.66); ctx.lineTo(side * this.radius * 1.14, -this.radius * 0.48); ctx.stroke();
       }
+
+      // Exposed stepped armor teeth sit above the deck plating, so their
+      // serrated silhouette remains visible instead of being covered by it.
+      for (const side of [-1, 1]) {
+        ctx.fillStyle = '#111820';
+        ctx.beginPath();
+        ctx.moveTo(side * this.radius * 1.18, -this.radius * 0.72);
+        ctx.lineTo(side * this.radius * 1.58, -this.radius * 0.92);
+        ctx.lineTo(side * this.radius * 1.42, -this.radius * 0.30);
+        ctx.lineTo(side * this.radius * 1.58, this.radius * 0.12);
+        ctx.lineTo(side * this.radius * 1.26, this.radius * 0.34);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#596574';
+        ctx.fillRect(side < 0 ? -this.radius * 1.43 : this.radius * 1.31, -this.radius * 0.42, this.radius * 0.08, this.radius * 0.54);
+        ctx.fillStyle = '#ff653d';
+        ctx.fillRect(side < 0 ? -this.radius * 1.50 : this.radius * 1.42, -this.radius * 0.02, this.radius * 0.07, this.radius * 0.18);
+      }
+
+      // Rear cooling grille: chunky metal ribs with a single cyan power channel.
+      ctx.fillStyle = '#111820';
+      ctx.fillRect(-this.radius * 0.40, this.radius * 1.48, this.radius * 0.80, this.radius * 0.24);
+      for (let vent = -2; vent <= 2; vent += 1) {
+        ctx.fillStyle = vent === 0 ? '#36d9ff' : '#596574';
+        ctx.fillRect(vent * this.radius * 0.14 - this.radius * 0.04, this.radius * 1.51, this.radius * 0.08, this.radius * 0.16);
+      }
+
       // Reinforced stern and twin cyan engine banks.
       ctx.fillStyle = '#111820'; ctx.strokeStyle = '#596574'; ctx.lineWidth = 2;
       for (const side of [-1, 1]) {
