@@ -13,7 +13,7 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createWaveTenTransition, advanceWaveTenTransition } from './wave-ten-transition.js?v=0.46.0-wave10-cutscene';
+import { createWaveTenTransition, advanceWaveTenTransition, finalizeWaveTenTransition } from './wave-ten-transition.js?v=0.48.0-boss-handoff';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1301,7 +1301,7 @@ export class Game {
       transition.boss.y = transition.bossStartY + (transition.bossEndY - transition.bossStartY) * eased;
     }
     if (transition.phase === 'complete') {
-      const revealedBoss = transition.boss;
+      const revealedBoss = finalizeWaveTenTransition(transition);
       this.waveTenTransition = null;
       this.cameraZoom = 1;
       this.updateCamera(0, true);
@@ -1361,9 +1361,10 @@ export class Game {
       }[transition.phase];
       if (dialogue) {
         const boxWidth = Math.min(this.width * 0.88, 720);
-        const boxHeight = Math.min(this.height * 0.48, 190);
+        // Give dialogue more vertical room on short landscape displays without covering the full arena.
+        const boxHeight = Math.min(this.height * 0.64, 220);
         const x = (this.width - boxWidth) / 2;
-        const y = this.height - boxHeight - Math.max(16, this.height * 0.045);
+        const y = this.height - boxHeight - Math.max(10, this.height * 0.035);
         ctx.fillStyle = 'rgba(5, 13, 28, 0.94)';
         ctx.fillRect(x, y, boxWidth, boxHeight);
         ctx.strokeStyle = transition.phase === 'boss-taunt' ? '#bd6c91' : '#4d9fb8';
@@ -1374,8 +1375,10 @@ export class Game {
         ctx.font = '900 10px ui-monospace, monospace';
         ctx.fillText(dialogue.speaker, x + 16, y + 22);
         ctx.fillStyle = '#edf5ff';
-        const fontSize = this.width < 520 ? 10 : 13;
-        const lineHeight = this.width < 520 ? 15 : 19;
+        const fontSize = this.width < 520
+          ? Math.max(9, Math.min(11, this.height * 0.022))
+          : Math.max(11, Math.min(14, this.height * 0.022));
+        const lineHeight = Math.ceil(fontSize * 1.45);
         ctx.font = `${fontSize}px ui-monospace, monospace`;
         const wrappedLines = [];
         for (const line of dialogue.lines) {
