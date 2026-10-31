@@ -16,7 +16,7 @@ import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity, wrapBossCinematicDialogue, getBossDialogueVisualState, getBossDialoguePlacement } from './boss-cinematic.js?v=0.54.5-dialogue-placement';
 import { getBossCinematicCameraFrame, prepareBossForCombatHandoff, BOSS_CINEMATIC_ARENA_ZOOM } from './boss-cinematic-camera.js?v=0.54.1-camera-rebuild';
 import { getBossCinematicSpawnPositions, preparePlayerForBossCinematic } from './boss-positioning.js?v=0.54.2-combat-aligned-entry';
-import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.57.0-elite-callouts';
+import { createPilotReactionState, triggerPilotReaction, triggerElitePilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.58.0-elite-dialogue-once';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1860,9 +1860,9 @@ export class Game {
           guardian: 'Guardião de elite. Está protegendo as tropas próximas.',
           devastator: 'Devastador de elite! Saia da linha do canhão.'
         };
-        triggerPilotReaction(this.pilotReaction, '❓❗', 3.4, reactions[type] || 'Unidade de elite detectada.');
-        if (!this.eliteAlertsShown.has(type)) {
-          this.eliteAlertsShown.add(type);
+        const firstEliteEncounter = !this.eliteAlertsShown.has(type);
+        triggerElitePilotReaction(this.pilotReaction, this.eliteAlertsShown, type, reactions[type] || 'Unidade de elite detectada.', 6);
+        if (firstEliteEncounter) {
           const alerts = {
             artillery: ['AMEAÇA DE ARTILHARIA DETECTADA', 'A nave detectou um Artilheiro de Elite. Blindagem e poder de fogo acima do padrão.'],
             sentinel: ['AMEAÇA TÁTICA DETECTADA', 'A nave detectou uma Sentinela de Elite. Disparos de plasma em salva dupla.'],
