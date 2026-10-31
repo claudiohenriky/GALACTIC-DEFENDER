@@ -600,10 +600,8 @@ export class Enemy {
         const screenX = centerX + (targetX - centerX) * 0.45;
         const screenY = centerY + (targetY - centerY) * 0.45;
         steerToPoint(this, screenX, screenY, this.motionProfile, dt);
-        this.x += drift * dt;
       } else {
         steerToPoint(this, targetX, targetY, this.motionProfile, dt);
-        this.x += drift * dt;
       }
     } else {
       if (repositionActive) {
