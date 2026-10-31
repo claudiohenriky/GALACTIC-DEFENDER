@@ -4,7 +4,9 @@
 - Tropas comuns poderão buscar posições melhores e cooperar sem perder suas funções-base; o Interceptador permanece a unidade mais básica, com perseguição veloz e sem habilidade especial própria.
 - Flanqueamento coordenado e leitura tática avançada ficam reservados às tropas de Elite existentes: Sentinela, Guardião e Artilheiro. Não existe Interceptador de Elite.
 - O DREADNOUGHT terá controlador próprio, baseado em controle de distância, reposicionamento, proteção de ângulos de armamento e ataques antecipatórios com aviso e oportunidade de reação.
-- **Estado:** escopo e arquitetura em planejamento; nenhuma física ou IA de combate foi alterada nesta etapa.
+- Auditoria inicial: jogador usa aceleração vetorial de 1800 unidades/s², com inclinação visual e câmera suavizadas separadamente; lógica de decisão e deslocamento dos inimigos ainda está concentrada em `Enemy.update()`.
+- Adiciona teste de regressão garantindo que somente Sentinela, Guardião e Artilheiro aceitam `isElite`; o Interceptador permanece básico.
+- **Estado:** escopo, arquitetura e auditoria registrados; nenhuma física ou IA de combate foi alterada nesta etapa.
 
 ## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
 
