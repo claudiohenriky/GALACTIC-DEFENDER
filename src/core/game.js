@@ -12,12 +12,13 @@ import { SkillTree } from '../progression/skill-tree.js?v=0.59.0-skill-tree';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.57.2-boss-wave-15';
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
-import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
+import { gameAudio } from '../audio/game-audio.js?v=0.60.0-audiovisual';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity, wrapBossCinematicDialogue, getBossDialogueVisualState, getBossDialoguePlacement } from './boss-cinematic.js?v=0.54.5-dialogue-placement';
 import { getBossCinematicCameraFrame, prepareBossForCombatHandoff, BOSS_CINEMATIC_ARENA_ZOOM } from './boss-cinematic-camera.js?v=0.54.1-camera-rebuild';
 import { getBossCinematicSpawnPositions, preparePlayerForBossCinematic } from './boss-positioning.js?v=0.54.2-combat-aligned-entry';
-import { createPilotReactionState, triggerPilotReaction, triggerElitePilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.58.0-elite-dialogue-once';
+import { createPilotReactionState, triggerPilotReaction, triggerElitePilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.60.0-speaker-portraits';
+import { drawDialoguePortrait } from '../ui/dialogue-portraits.js?v=0.60.0-speaker-portraits';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1338,6 +1339,9 @@ export class Game {
     this.player.knockbackY = 0;
 
     this.bossCinematic = createBossCinematic();
+    gameAudio.setMusicMode('boss');
+    gameAudio.playBossWarning();
+    this.activeDialogueCueKey = '';
     this.bossCinematic.cameraZoom = this.cameraZoom || 1;
     this.bossCinematic.worldResetDone = false;
     this.cinematicDialogueRect = null;
@@ -1472,6 +1476,8 @@ export class Game {
       }
       this.cameraZoom = BOSS_CINEMATIC_ARENA_ZOOM;
       this.bossCombatZoom = BOSS_CINEMATIC_ARENA_ZOOM;
+      gameAudio.setMusicMode('combat');
+      this.activeDialogueCueKey = '';
       this.updateCamera(0, true);
       this.waveManager.state = 'spawning';
       this.waveManager.timer = 1.0;
@@ -1484,7 +1490,13 @@ export class Game {
 
   drawCinematicDialogue(ctx, cue) {
     this.cinematicDialogueRect = null;
-    if (!cue) return;
+    if (!cue) { this.activeDialogueCueKey = ''; return; }
+    const cueKey = `${cue.actor}:${cue.text}`;
+    if (this.activeDialogueCueKey !== cueKey) {
+      this.activeDialogueCueKey = cueKey;
+      gameAudio.playDialogueLine(cue.actor);
+    }
+    gameAudio.playDialogueTick(cue.actor, (cue.visibleText ?? '').length, cueKey);
     const cinematic = this.bossCinematic;
     const actor = cue.actor === 'boss' ? cinematic?.boss : this.player;
     const zoom = Math.max(this.cameraMinZoom, cinematic?.cameraZoom ?? this.cameraZoom);
@@ -1552,18 +1564,11 @@ export class Game {
     // A compact channel header separates speaker identity from the spoken line.
     ctx.fillStyle = visual.header;
     ctx.fillRect(x + 1, y + 1, boxWidth - 2, 27);
-    // Three compact signal bars animate gently beside the speaker identity.
-    const signalBaseY = y + 20;
-    for (let bar = 0; bar < 3; bar += 1) {
-      const barPulse = 0.5 + Math.sin((cinematic?.elapsed ?? 0) * 3.2 + bar * 1.35) * 0.5;
-      ctx.globalAlpha = eased * (0.38 + barPulse * 0.42);
-      ctx.fillStyle = accent;
-      ctx.fillRect(x + 9 + bar * 3.2, signalBaseY - (3 + barPulse * 5), 1.7, 3 + barPulse * 5);
-    }
+    drawDialoguePortrait(ctx, cue.actor, x + 7, y + 5, 18, cinematic?.elapsed ?? 0);
     ctx.globalAlpha = eased;
     ctx.textAlign = 'left';
     ctx.font = '900 8px ui-monospace, monospace';
-    ctx.fillText(cue.speaker, x + 23, y + 18);
+    ctx.fillText(cue.speaker, x + 31, y + 18, Math.max(40, boxWidth - 112));
     const channelTag = cue.actor === 'boss' ? 'SINAL HOSTIL' : isSystem ? 'DIAGNÓSTICO' : 'COMUNICAÇÃO';
     ctx.textAlign = 'right';
     ctx.font = '700 7px ui-monospace, monospace';
@@ -1722,6 +1727,12 @@ export class Game {
     if (!cue) return;
     const lineElapsed = lineIndex === 0 ? elapsed : elapsed - this.bossEncounterDialogue.lineInterval;
     const visibleCue = cue.slice(0, Math.max(0, Math.floor((lineElapsed - 0.35) * 36)));
+    const cueKey = `recurring-pilot:${lineIndex}:${cue}`;
+    if (this.activeRecurringDialogueCue !== cueKey) {
+      this.activeRecurringDialogueCue = cueKey;
+      gameAudio.playDialogueLine('pilot');
+    }
+    gameAudio.playDialogueTick('pilot', visibleCue.length, cueKey);
     const width = Math.min(this.width - 24, 390);
     const boxHeight = 78;
     const x = (this.width - width) / 2;
@@ -1732,15 +1743,16 @@ export class Game {
     ctx.strokeStyle = '#68dfe9';
     ctx.lineWidth = 1.2;
     ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, boxHeight - 1.2);
+    drawDialoguePortrait(ctx, 'pilot', x + 8, y + 7, 24, elapsed);
     ctx.textAlign = 'left';
     ctx.fillStyle = '#68dfe9';
     ctx.font = '900 9px ui-monospace, monospace';
-    ctx.fillText('PILOTO // VANGUARD', x + 11, y + 17);
+    ctx.fillText('PILOTO // VANGUARD', x + 40, y + 17);
     ctx.fillStyle = '#f0f5ff';
     ctx.font = `${this.width < 520 ? 10 : 12}px ui-monospace, monospace`;
     const rows = [];
     let row = '';
-    const maxWidth = width - 22;
+    const maxWidth = width - 50;
     for (const word of visibleCue.split(' ')) {
       const candidate = row ? `${row} ${word}` : word;
       if (row && ctx.measureText(candidate).width > maxWidth) {
@@ -1749,7 +1761,7 @@ export class Game {
       } else row = candidate;
     }
     if (row) rows.push(row);
-    rows.slice(0, 2).forEach((line, index) => ctx.fillText(line, x + 11, y + 42 + index * 15));
+    rows.slice(0, 2).forEach((line, index) => ctx.fillText(line, x + 40, y + 42 + index * 15));
     ctx.restore();
   }
 
@@ -1910,6 +1922,8 @@ export class Game {
         const firstEliteEncounter = !this.eliteAlertsShown.has(type);
         triggerElitePilotReaction(this.pilotReaction, this.eliteAlertsShown, type, reactions[type] || 'Unidade de elite detectada.', 6);
         if (firstEliteEncounter) {
+          gameAudio.playEliteArrival(type);
+          gameAudio.playDialogueLine(type);
           const alerts = {
             artillery: ['AMEAÇA DE ARTILHARIA DETECTADA', 'A nave detectou um Artilheiro de Elite. Blindagem e poder de fogo acima do padrão.'],
             sentinel: ['AMEAÇA TÁTICA DETECTADA', 'A nave detectou uma Sentinela de Elite. Disparos de plasma em salva dupla.'],
