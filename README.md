@@ -4,7 +4,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Candidata atual em desenvolvimento:** `0.57.0` — fundação do combate e nova tropa Devastador na branch `fix/v0.54.1-cinematic-correction` ([PR #81](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/81)). Remove as três mecânicas de laser/Attack Clash rejeitadas, corrige a previsão direcional do escudo e adiciona o Devastador com canhão de plasma de cerco, variante Elite e falas táticas contextuais a cada aparição Elite. Preserva o DREADNOUGHT, a cutscene e as notificações aprovadas. Validação automatizada em andamento; nenhum playtest manual foi realizado. Não mesclada em `main`.
+**Candidata atual em desenvolvimento:** `0.57.1` — balanceamento do Encouraçado na branch `fix/v0.54.1-cinematic-correction` ([PR #81](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/81)). Mantém as entregas da v0.55.0–v0.57.0 e ajusta o DREADNOUGHT: recarga dos canhões de plasma ampliada para 7,2 s, casco mais lento, rotação deliberada e waypoints de patrulha estáveis com reposicionamento lateral mais amplo para permitir flanqueamento. Testes automatizados adicionados; gameplay real ainda não validado. Não mesclada em `main`.
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
