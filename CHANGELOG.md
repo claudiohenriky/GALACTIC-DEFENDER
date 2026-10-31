@@ -5,7 +5,7 @@
 - Amplia os cartões em telas pequenas e aumenta a tipografia mobile; agora o texto pode ocupar até quatro linhas em vez de ser cortado após duas.
 - Centraliza o cálculo de quebra de linhas em uma função testável e adiciona testes para preservar o texto completo e limitar o cartão.
 - Preserva a entrada, a distância aprovada, a câmera, a arena e a duração geral da cutscene.
-- Validação automatizada e visual desta revisão pendentes.
+- **Validação automatizada:** 68/68 testes aprovados, sintaxe JavaScript, imports relativos e whitespace aprovados. Validação visual em Android/desktop ainda pendente.
 
 ## [0.54.2] — ajuste de distância na entrada do DREADNOUGHT
 
