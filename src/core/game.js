@@ -695,10 +695,12 @@ export class Game {
       const angle = Math.atan2(sourceY - this.player.y, sourceX - this.player.x);
       const sector = ((Math.round((angle + Math.PI) / (Math.PI / 4)) % 8) + 8) % 8;
       this.shieldThreatArcs[sector] = Math.max(this.shieldThreatArcs[sector], heavyImpact ? 0.52 : 0.42);
+      gameAudio.playShieldHit();
     }
   }
 
   triggerShieldBreak() {
+    gameAudio.playShieldBreak();
     const x = this.player.x;
     const y = this.player.y;
     const radius = 96;
@@ -728,6 +730,7 @@ export class Game {
     const overloaded = this.overload >= 70;
     const originX = this.player.x + directionX * 24;
     const originY = this.player.y + directionY * 24;
+    gameAudio.playShieldPulse();
     this.shieldPulseWave = {
       originX, originY, x: originX, y: originY,
       directionX, directionY, traveled: 0, previousRadius: 0, speed: 400,
@@ -889,6 +892,7 @@ export class Game {
     // Launch from the right wing first; at level 2+, launch the left missile 0.2s later.
     const rightTarget = targets[0] || null;
     this.createGuidedMissileFromWing(1, rightTarget, level);
+    gameAudio.playMissileLaunch();
     if (missileCount === 2) {
       this.pendingGuidedMissileLaunch = {
         timer: 0.2,
@@ -926,6 +930,7 @@ export class Game {
   }
 
   explodeGuidedMissile(missile) {
+    gameAudio.playExplosion(false);
     const radius = missile.blastRadius;
     if (this.guidedMissileEffects.length >= this.getEffectLimit(6)) this.guidedMissileEffects.shift();
     this.guidedMissileEffects.push({ x: missile.x, y: missile.y, radius, life: 0.48, maxLife: 0.48 });
@@ -1045,12 +1050,14 @@ export class Game {
     if (enemy.type === 'boss') {
       // Keep the dreadnought in the world for its one-shot destruction sequence.
       enemy.bossDying = true;
+      gameAudio.playExplosion(true);
       enemy.bossDeathTimer = 0;
       enemy.fireCooldown = Infinity;
       enemy.dodgeTimer = 0;
       return;
     }
     enemy.active = false;
+    gameAudio.playExplosion(enemy.isElite || enemy.type === 'devastator');
     this.awardEnemyKill(enemy);
   }
 
@@ -1914,10 +1921,10 @@ export class Game {
       }
       if (isElite) {
         const reactions = {
-          artillery: 'Artilharia de elite. Não fique na linha de tiro.',
-          sentinel: 'Sentinela de elite detectada. Prepare-se para a salva dupla.',
-          guardian: 'Guardião de elite. Está protegendo as tropas próximas.',
-          devastator: 'Devastador de elite! Saia da linha do canhão.'
+          artillery: 'Contato confirmado. Vou atravessar sua blindagem.',
+          sentinel: 'Você está no meu alcance. Tente acompanhar.',
+          guardian: 'Não toque na minha formação. Eu protejo os meus.',
+          devastator: 'Canhão de cerco pronto. Fique na minha linha de tiro.'
         };
         const firstEliteEncounter = !this.eliteAlertsShown.has(type);
         triggerElitePilotReaction(this.pilotReaction, this.eliteAlertsShown, type, reactions[type] || 'Unidade de elite detectada.', 6);
