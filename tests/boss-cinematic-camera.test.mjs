@@ -53,21 +53,21 @@ test('cinematic camera clamps safely on narrow and portrait viewports', () => {
 });
 
 test('cinematic camera keeps both ships centered when their horizontal positions differ', () => {
-  const separatedPlayer = { x: 900, y: 1500, radius: 12 };
-  const separatedBoss = { x: 1500, y: 900, collisionRadius: 145 };
+  const separatedPlayer = { x: 1200, y: 1500, radius: 12 };
+  const separatedBoss = { x: 1800, y: 900, collisionRadius: 145 };
   const frame = getBossCinematicCameraFrame({
     phase: 'distant-contact', phaseElapsed: 13, phaseDuration: 13,
     player: separatedPlayer, boss: separatedBoss,
     width: 900, height: 420, minZoom: 1 / 2.4,
-    worldWidth: 2160, worldHeight: 1008
+    worldWidth: 3600, worldHeight: 1680
   });
   const expectedFocus = (separatedPlayer.x + separatedBoss.x) / 2;
   assert.ok(Math.abs((frame.x + 450) - expectedFocus) < 1e-9);
 });
 
 test('cinematic camera blends horizontal focus gradually instead of snapping at reveal start', () => {
-  const separatedPlayer = { x: 900, y: 1500, radius: 12 };
-  const separatedBoss = { x: 1500, y: 900, collisionRadius: 145 };
+  const separatedPlayer = { x: 1200, y: 1500, radius: 12 };
+  const separatedBoss = { x: 1800, y: 900, collisionRadius: 145 };
   const frameAtStart = getBossCinematicCameraFrame({
     phase: 'distant-contact', phaseElapsed: 0, phaseDuration: 17,
     player: separatedPlayer, boss: separatedBoss,
@@ -84,7 +84,7 @@ test('cinematic camera blends horizontal focus gradually instead of snapping at 
     phase: 'distant-contact', phaseElapsed: 17, phaseDuration: 17,
     player: separatedPlayer, boss: separatedBoss,
     width: 900, height: 420, minZoom: 1 / 2.4,
-    worldWidth: 2160, worldHeight: 1008
+    worldWidth: 3600, worldHeight: 1680
   });
   const centerAtStart = frameAtStart.x + 450;
   const centerMidway = frameMidway.x + 450;
