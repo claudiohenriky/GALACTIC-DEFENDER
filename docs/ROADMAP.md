@@ -1,3 +1,15 @@
+## v0.57.1 — Balanceamento do Encouraçado e flanqueamento
+
+- [x] Aumentar a recarga dos canhões de plasma de 5,4 s para 7,2 s, preservando dano e impacto.
+- [x] Reduzir velocidade máxima e aceleração do casco, inclusive na fase 3.
+- [x] Reduzir a resposta de rotação para impedir que o casco acompanhe instantaneamente o piloto.
+- [x] Manter waypoints de patrulha estáveis por alguns segundos, sem perseguição recalculada a cada quadro.
+- [x] Ampliar o deslocamento lateral e a duração do reposicionamento para abrir janelas de ataque aos flancos e à traseira.
+- [x] Adicionar testes automatizados de recarga, perfis de movimento e retenção de waypoint.
+- [ ] Validar em gameplay real se o jogador consegue alcançar e danificar módulos laterais e traseiros sem tornar o chefe passivo.
+- [ ] Confirmar o ritmo de combate e o desempenho em celular e desktop.
+- **Estado:** candidata em PR #81; `main` preservada. Checks automatizados ainda serão executados pelo GitHub Actions; nenhum playtest manual foi realizado.
+
 ## v0.57.0 — Reações táticas das tropas Elite
 
 - [x] Criar falas contextuais curtas para Artilheiro, Sentinela, Guardião e Devastador Elite.
