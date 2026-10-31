@@ -43,6 +43,15 @@ export function steerToPoint(entity, targetX, targetY, profile, dt) {
   const dx = targetX - entity.x;
   const dy = targetY - entity.y;
   const distance = Math.hypot(dx, dy);
+  const currentSpeed = Math.hypot(entity.velocityX, entity.velocityY);
+  const arrivalTolerance = 0.15;
+  if (distance <= arrivalTolerance && currentSpeed <= Math.max(6, profile.acceleration * dt)) {
+    entity.x = targetX;
+    entity.y = targetY;
+    entity.velocityX = 0;
+    entity.velocityY = 0;
+    return;
+  }
   if (distance <= 0.001) {
     approachVelocity(entity, 0, 0, profile.acceleration, dt);
     integrateVelocity(entity, dt);
