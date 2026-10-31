@@ -1,3 +1,12 @@
+### DREADNOUGHT — proa limpa e redução de custo visual
+
+- [x] Remover a passagem antiga duplicada do casco; manter apenas a renderização vetorial em camadas.
+- [x] Retirar a superestrutura/ponte cinza do eixo frontal, deixando a proa central limpa entre a cavidade de energia e a ponta.
+- [x] Preservar os conduítes e detalhes laterais que indicam o caminho de energia do canhão principal.
+- [x] Substituir gradientes transitórios do casco, reator e cavidade por preenchimentos sólidos e reduzir arrays temporários nos loops de desenho.
+- [ ] Validar visualmente a proa e a separação das armas em escala de gameplay.
+- [ ] Medir FPS e tempo de quadro no mesmo dispositivo e cenário antes/depois; ainda não há ganho de desempenho medido.
+
 ### Revisão visual do DREADNOUGHT — armamentos e integração do casco
 
 - [x] Preservar o casco vetorial em camadas e redesenhar as armas para recuperar silhuetas reconhecíveis sobre a nova superestrutura.
