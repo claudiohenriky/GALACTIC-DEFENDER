@@ -732,3 +732,12 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Os fragmentos preservam uma silhueta metálica legível e uma linha interna de calor/falha, desaparecendo antes do encerramento da sequência.
 - O efeito usa quatro transformações determinísticas no desenho existente; não cria arrays, entidades físicas ou partículas por quadro.
 - Movimento, colisões e integridade do combate não são alterados; a validação visual da sequência completa permanece pendente.
+
+
+### Revisão da proa e do sistema emissor do DREADNOUGHT — 30/10/2026
+- Remove o canhão físico/barrel projetado na ponta da nave; o módulo lógico principal permanece no sistema, mas sua representação visual passa a ser a abertura central oca e permanentemente aberta.
+- Redesenha a boca emissora como uma cavidade escura com borda de contenção segmentada. O laser futuro será carregado e lançado a partir desse vão, sem uma peça de canhão atravessando ou preenchendo a abertura.
+- Adiciona manifolds laterais de energia com carcaças rebaixadas, conduítes ciano e pequenos nós capacitivos, preparados visualmente para uma futura animação de carga.
+- Remove o realce quase branco/azul-claro do núcleo dos propulsores e mantém a paleta em ciano e azul-petróleo.
+- Escopo exclusivamente visual: não altera disparos, dano, cadência, IA, hitboxes, colisões, escudos ou telemetria de carga. O laser principal continua sem disparo/dano nesta candidata.
+- Validação visual em navegador, celular e desktop ainda pendente.
