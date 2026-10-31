@@ -4,6 +4,7 @@ import { circlesOverlap, orientedEllipseOverlapsCircle } from '../src/combat/col
 import { BossSystems, getBossBeamSegment, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from '../src/enemies/boss-systems.js';
 import { Enemy } from '../src/enemies/enemy.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
+import { advanceWaveTenTransition, createWaveTenTransition, WAVE_TEN_TRANSITION_DURATION } from '../src/core/wave-ten-transition.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
  assert.equal(circlesOverlap({x:0,y:0,radius:5},{x:8,y:0,radius:4}),true);
@@ -205,4 +206,33 @@ test('elite variants are limited to Sentinel, Guardian and Artillery; Intercepto
   const elite=new Enemy(100,100,12,type,true);
   assert.equal(elite.isElite,true,`${type} should support an Elite variant`);
  }
+});
+
+
+test('wave 9 to 10 transition waits ten seconds, then runs the cinematic phases in order',()=>{
+ const transition=createWaveTenTransition();
+ assert.equal(transition.phase,'loading');
+ assert.equal(transition.phaseDuration,10);
+ advanceWaveTenTransition(transition,9.9);
+ assert.equal(transition.phase,'loading');
+ advanceWaveTenTransition(transition,0.1);
+ assert.equal(transition.phase,'pilot-report');
+ advanceWaveTenTransition(transition,3.2);
+ assert.equal(transition.phase,'pilot-warning');
+ advanceWaveTenTransition(transition,3);
+ assert.equal(transition.phase,'boss-entry');
+ advanceWaveTenTransition(transition,4.8);
+ assert.equal(transition.phase,'boss-taunt');
+ advanceWaveTenTransition(transition,4.2);
+ assert.equal(transition.phase,'complete');
+ assert.equal(WAVE_TEN_TRANSITION_DURATION,25.2);
+});
+
+test('wave 10 transition ignores negative and oversized frame deltas safely',()=>{
+ const transition=createWaveTenTransition();
+ advanceWaveTenTransition(transition,-1);
+ assert.equal(transition.elapsed,0);
+ advanceWaveTenTransition(transition,1);
+ assert.equal(transition.elapsed,0.05);
+ assert.equal(transition.phase,'loading');
 });
