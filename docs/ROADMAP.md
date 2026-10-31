@@ -1,3 +1,19 @@
+## v0.58.0 — Padronização das tropas Elite e falas de primeiro contato
+
+- [x] Aproximar velocidade, aceleração, esquiva e vida das tropas Elite dos perfis das classes comuns, com bônus moderados.
+- [x] Dar escudo pessoal a todas as classes Elite.
+- [x] Dar ao Artilheiro Elite uma salva de três projéteis.
+- [x] Dar à Sentinela Elite dois micro-mísseis com orientação curta e trajetória reta após a janela inicial.
+- [x] Dar ao Devastador Elite duas metralhadoras auxiliares de baixa potência.
+- [x] Fazer o Guardião priorizar unidades Elite na proteção.
+- [x] Reduzir o dano dos mísseis guiados do jogador e respeitar escudos Elite/cobertura do Guardião.
+- [x] Exigir aviso completo antes dos disparos dos canhões de plasma do Encouraçado.
+- [x] Exibir falas de Elite uma vez por classe por partida, com duração de seis segundos.
+- [x] Adicionar testes automatizados para os novos comportamentos.
+- [ ] Validar em gameplay o equilíbrio das habilidades Elite, os escudos e a leitura das falas.
+- [ ] Confirmar em celular que a redução de dano dos mísseis e a janela de aviso do plasma ficaram justas.
+- **Estado:** candidata em PR #81; main preservada. Playtest manual pendente.
+
 ## v0.57.2 — Balanceamento do Encouraçado e correção de mira
 
 - [x] Reduzir os canhões de plasma do chefe de quatro para dois, um em cada lateral.
@@ -27,12 +43,12 @@
 ## v0.57.0 — Reações táticas das tropas Elite
 
 - [x] Criar falas contextuais curtas para Artilheiro, Sentinela, Guardião e Devastador Elite.
-- [x] Exibir uma reação em cada aparição Elite, não apenas na primeira aparição da classe.
+- [x] Exibir uma reação apenas no primeiro encontro com cada classe Elite durante a partida.
 - [x] Preservar o alerta de descoberta por classe e o design aprovado das notificações.
 - [x] Manter a fala próxima ao piloto, compacta e limitada à viewport.
 - [ ] Revisar o Guardião e suas táticas de proteção em formações.
 - [ ] Validar legibilidade e frequência das falas durante gameplay real.
-- **Estado:** candidata em PR #81; validação automatizada em andamento. Nenhum playtest manual foi realizado.
+- **Estado:** supersedida pela v0.58.0; o comportamento de primeiro contato foi consolidado e ampliado.
 
 ## v0.56.0 — Nova tropa pesada: Devastador
 
