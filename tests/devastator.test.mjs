@@ -10,7 +10,7 @@ test('Devastador is larger, durable, and slower than the Guardian', () => {
   assert.equal(unit.radius, 18);
   assert.ok(unit.maxHealth > 16);
   assert.ok(unit.speed < guardian.speed);
-  assert.equal(unit.motionProfile, ENEMY_MOTION_PROFILES.devastator);
+  assert.deepEqual(unit.motionProfile, ENEMY_MOTION_PROFILES.devastator);
   assert.ok(ENEMY_MOTION_PROFILES.devastator.maxSpeed < ENEMY_MOTION_PROFILES.guardian.maxSpeed);
 });
 
