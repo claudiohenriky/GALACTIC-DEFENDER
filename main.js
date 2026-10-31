@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.48.0-boss-transition-polish';
+import { Game } from './src/core/game.js?v=0.49.0-pilot-reactions';
 import { gameAudio } from './src/audio/game-audio.js?v=0.44.0';
 
 // Entry point: connect the game engine to the page UI.
