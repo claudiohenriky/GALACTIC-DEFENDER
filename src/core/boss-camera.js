@@ -11,8 +11,15 @@ const PHASE_CAMERA = {
 // The simulation world and collision geometry remain untouched.
 export function getBossCameraFrame({ phase, player, boss = null, width, height, minZoom = 0.4 }) {
   const profile = PHASE_CAMERA[phase] ?? PHASE_CAMERA.loading;
-  const focusY = boss && (phase === 'boss-entry' || phase === 'boss-taunt' || phase === 'complete')
-    ? (player.y + boss.y) / 2
+  const bossPhase = phase === 'boss-entry' || phase === 'boss-taunt' || phase === 'complete';
+  const bossHalfHeight = boss
+    ? (Number.isFinite(boss.collisionRadius) ? boss.collisionRadius * 1.5 : height * 0.44)
+    : 0;
+  const playerHalfHeight = Number.isFinite(player.radius) ? player.radius : 12;
+  // Frame the outer bounds of the long hull and the pilot, not just their centers.
+  // This leaves headroom for the DREADNOUGHT's silhouette on short landscape screens.
+  const focusY = boss && bossPhase
+    ? (boss.y - bossHalfHeight + player.y + playerHalfHeight) / 2
     : player.y - height * profile.focusOffset;
   return {
     zoom: Math.max(minZoom, profile.zoom),
