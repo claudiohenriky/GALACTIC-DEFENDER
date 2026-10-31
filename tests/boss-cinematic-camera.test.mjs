@@ -72,13 +72,13 @@ test('cinematic camera blends horizontal focus gradually instead of snapping at 
     phase: 'distant-contact', phaseElapsed: 0, phaseDuration: 17,
     player: separatedPlayer, boss: separatedBoss,
     width: 900, height: 420, minZoom: 1 / 2.4,
-    worldWidth: 2160, worldHeight: 1008
+    worldWidth: 3600, worldHeight: 1680
   });
   const frameMidway = getBossCinematicCameraFrame({
     phase: 'distant-contact', phaseElapsed: 8.5, phaseDuration: 17,
     player: separatedPlayer, boss: separatedBoss,
     width: 900, height: 420, minZoom: 1 / 2.4,
-    worldWidth: 2160, worldHeight: 1008
+    worldWidth: 3600, worldHeight: 1680
   });
   const frameAtEnd = getBossCinematicCameraFrame({
     phase: 'distant-contact', phaseElapsed: 17, phaseDuration: 17,
