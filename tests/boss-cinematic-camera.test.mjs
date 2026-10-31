@@ -105,7 +105,7 @@ test('boss spawn stays in front of the player with a fixed hull clearance', () =
   assert.ok(position.targetY - position.startY >= 420 * 0.9);
 });
 
- 
+
 test('loading reset repositions and restores combat readiness without erasing progression', () => {
   const ship = {
     x: 12, y: 34, radius: 13, maxHealth: 120, health: 18,
