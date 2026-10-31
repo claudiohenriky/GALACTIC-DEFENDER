@@ -1681,9 +1681,11 @@ export class Game {
         }
         for (const module of enemy.bossSystems?.modules || []) {
           if (!module.kind.includes('plasma')) continue;
+          const warningWindow = module.plasmaWarningDuration ?? 1.5;
           const warningActive = module.state !== 'destroyed' && module.state !== 'disabled' &&
             module.transitionTimer <= 0 && module.plasmaChargeTimer > 0 &&
-            module.plasmaChargeTimer <= (module.plasmaWarningDuration ?? 1.5);
+            module.plasmaChargeTimer <= warningWindow && enemy.fireCooldown > 0 &&
+            module.plasmaChargeTimer <= enemy.fireCooldown;
           let threatensPilot = false;
           if (warningActive) {
             const hullRotation = enemy.facingRotation + Math.PI / 2;
@@ -1695,7 +1697,11 @@ export class Game {
             const angle = enemy.facingRotation + (module.turretAngle ?? 0);
             const endX = muzzleX + Math.cos(angle) * 520;
             const endY = muzzleY + Math.sin(angle) * 520;
-            threatensPilot = circleOverlapsSegment(
+            const targetLocalX = (this.player.x - enemy.x) * cosHull + (this.player.y - enemy.y) * sinHull;
+            const sameWeaponSide = Math.abs(targetLocalX) <= enemy.radius * 0.08 ||
+              Math.sign(targetLocalX) === Math.sign(module.x);
+            const withinWeaponRange = Math.hypot(this.player.x - muzzleX, this.player.y - muzzleY) <= (module.firingRange ?? 500);
+            threatensPilot = sameWeaponSide && withinWeaponRange && circleOverlapsSegment(
               this.player, muzzleX, muzzleY, endX, endY,
               (this.player.radius ?? 0) + 21
             );
