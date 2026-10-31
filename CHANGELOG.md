@@ -1,3 +1,12 @@
+## [Unreleased] — Encouraçado em pixel art
+
+- Converte toda a renderização do Encouraçado para uma superfície pixelada reutilizável de baixa resolução, ampliada com amostragem nearest-neighbor para formar blocos de pixels nítidos.
+- Afina visualmente a silhueta em 18%, preservando o enquadramento, as dimensões físicas e as regras de colisão existentes.
+- Adiciona placas laterais serrilhadas, dentes de blindagem, marcações de alerta e grelhas de exaustão em blocos de cor.
+- Preserva os dez hardpoints, os estados dos módulos, os escudos regionais, as animações de dano, reconstrução e destruição.
+- **Escopo:** alteração exclusivamente visual; nenhum dano, cadência, IA, movimento ou hitbox foi alterado.
+- **Validação pendente:** conferir a leitura dos pixels, a silhueta mais estreita, a legibilidade dos módulos e o desempenho em celular e computador.
+
 ## [0.44.0] — Modo temporário de teste do Encouraçado
 
 - Ativado o surgimento do Encouraçado já na onda 1, sozinho, para permitir testes imediatos do chefe durante o desenvolvimento.
