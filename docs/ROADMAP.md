@@ -5,7 +5,10 @@
 - [x] Adicionar teste de regressão para a progressão inicial e a entrada da onda de chefe.
 - [x] Confirmar que não existe Interceptador de Elite: a variante Elite é válida somente para Sentinela, Guardião e Artilheiro. O Interceptador permanece a unidade básica de perseguição, com 1 ponto de integridade e sem habilidade especial própria.
 - [ ] Substituir a movimentação excessivamente orgânica/gelatinosa por uma resposta mais precisa e previsível, mantendo apenas animações visuais moderadas quando não prejudicarem o controle.
-- [ ] Separar decisão tática (objetivo), controle de movimento (como chegar) e apresentação visual (inclinação/efeitos).
+- [x] Criar núcleo compartilhado e sem alocações por quadro para aproximação de velocidade e integração de posição (`src/movement/motion.js`).
+- [x] Migrar a física básica do jogador para o núcleo compartilhado, mantendo o limite de velocidade em 250 e elevando a aceleração de 1800 para 2400 unidades/s²; isso reduz o tempo de reversão sem aumentar a velocidade máxima.
+- [x] Adicionar testes de movimento em 30/60/120 FPS, reversão, delta inválido, normalização diagonal e limite de velocidade do jogador.
+- [ ] Separar decisão tática (objetivo), controle de movimento (como chegar) e apresentação visual (inclinação/efeitos) também para as tropas e chefes.
 - [ ] Revisar aceleração, desaceleração, inércia, rotação, limites de arena e suavização da câmera sem confundir a resposta do jogador com o acompanhamento da câmera.
 - [ ] Dar às tropas comuns mais autonomia de posicionamento, sem abandonar suas funções-base nem tornar todas perseguidoras idênticas.
 - [ ] Reservar flanqueamento coordenado às tropas de Elite existentes: Sentinela, Guardião e Artilheiro. Elas podem avaliar oportunidades de contorno, mas devem sinalizar a manobra e respeitar tempo de decisão e limites de coordenação.
@@ -14,10 +17,10 @@
 - [ ] Dar aos chefes padrões próprios; não reutilizar a perseguição simples das tropas como controlador principal.
 - [ ] Testar teclado e controles móveis, limites da arena, mudanças de direção, colisões e estabilidade em diferentes taxas de quadros.
 - **Princípio de dificuldade:** os inimigos devem ganhar vantagem por posicionamento, cooperação e controle de áreas — não por conhecer perfeitamente o futuro ou reagir instantaneamente.
-- **Auditoria do jogador:** `Player.update()` usa velocidade-base de 250 e aceleração de 1800 unidades/s² para aproximar a velocidade atual da velocidade desejada; rotação, inclinação e propulsão visual são suavizadas separadamente. A câmera segue com suavização própria (`dt * 5.5`). A revisão deve distinguir a resposta física real dos efeitos visuais e do atraso da câmera.
+- **Auditoria do jogador:** antes da primeira implementação, `Player.update()` usava velocidade-base de 250 e aceleração de 1800 unidades/s²; a nova fundação mantém a velocidade máxima e usa aceleração de 2400. Rotação, inclinação e propulsão visual continuam separadas da física. A câmera segue com suavização própria (`dt * 5.5`).
 - **Auditoria dos inimigos:** a decisão de comportamento e o deslocamento ainda estão concentrados em ramificações de `Enemy.update()`. A atualização geral ocorre em `Game`, que também distribui formações dos Guardiões. Isso oferece um ponto claro para separar decisão tática, direção desejada e integração física.
 - **Auditoria das elites:** o construtor já limita `isElite` a `artillery`, `sentinel` e `guardian`; o Interceptador tem 1 ponto de integridade e não recebe variante Elite. Foi adicionado teste de regressão para manter essa regra.
-- **Estado:** auditoria estática inicial concluída; a implementação da nova arquitetura de movimentação ainda não começou. A próxima etapa é criar e testar a fundação de movimento sem alterar ainda os padrões de combate.
+- **Estado:** núcleo compartilhado e primeira integração do jogador implementados; testes automatizados adicionados. A IA das tropas, a coordenação de elites e o controlador próprio do DREADNOUGHT ainda não foram alterados. Teste real de sensação/controle em navegador continua pendente.
 
 ### DREADNOUGHT — proa limpa e redução de custo visual
 
