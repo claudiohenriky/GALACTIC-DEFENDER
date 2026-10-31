@@ -94,3 +94,25 @@ test('cinematic camera blends horizontal focus gradually instead of snapping at 
   assert.ok(Math.abs(centerAtStart - separatedPlayer.x) < 1e-9);
   assert.ok(Math.abs(centerAtEnd - (separatedPlayer.x + separatedBoss.x) / 2) < 1e-9);
 });
+
+test('camera pans gradually toward the pilot-boss midpoint during the reveal', () => {
+  const offsetBoss = { x: 1800, y: 900, collisionRadius: 145 };
+  const start = getBossCinematicCameraFrame({
+    phase: 'distant-contact', phaseElapsed: 0, phaseDuration: 17,
+    player, boss: offsetBoss, width: 900, height: 420,
+    worldWidth: 3000, worldHeight: 1200
+  });
+  const middle = getBossCinematicCameraFrame({
+    phase: 'distant-contact', phaseElapsed: 8.5, phaseDuration: 17,
+    player, boss: offsetBoss, width: 900, height: 420,
+    worldWidth: 3000, worldHeight: 1200
+  });
+  const end = getBossCinematicCameraFrame({
+    phase: 'distant-contact', phaseElapsed: 17, phaseDuration: 17,
+    player, boss: offsetBoss, width: 900, height: 420,
+    worldWidth: 3000, worldHeight: 1200
+  });
+  assert.ok(start.x < middle.x);
+  assert.ok(middle.x < end.x);
+  assert.ok(start.y !== middle.y);
+});
