@@ -1,3 +1,11 @@
+## [Unreleased] — v0.45.0 · movimentação precisa e IA tática
+
+- Define a substituição da movimentação excessivamente orgânica por controles mais precisos e previsíveis, com física, decisão tática e animação visual separadas.
+- Tropas comuns poderão buscar posições melhores e cooperar sem perder suas funções-base; o Interceptador permanece a unidade mais básica, com perseguição veloz e sem habilidade especial própria.
+- Flanqueamento coordenado e leitura tática avançada ficam reservados às tropas de Elite existentes: Sentinela, Guardião e Artilheiro. Não existe Interceptador de Elite.
+- O DREADNOUGHT terá controlador próprio, baseado em controle de distância, reposicionamento, proteção de ângulos de armamento e ataques antecipatórios com aviso e oportunidade de reação.
+- **Estado:** escopo e arquitetura em planejamento; nenhuma física ou IA de combate foi alterada nesta etapa.
+
 ## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
 
 - Desativa o modo temporário que fazia o DREADNOUGHT surgir já na primeira onda; a partida volta a começar com cinco inimigos e segue a progressão normal.
