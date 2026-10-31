@@ -41,7 +41,8 @@ export class Game {
     this.mission = new Mission();
     this.waveManager = new WaveManager();
     this.waveTenTransition = null;
-    this.enemies = [];
+    this.testStartWave = null;
+    this.enemies = []
     // The visible viewport moves through a larger world; boss zoom remains a separate camera effect.
     this.cameraZoom = 1;
     this.bossEncounterSeen = false;
@@ -243,6 +244,7 @@ export class Game {
     this.progression = new Progression();
     this.mission = new Mission();
     this.waveManager.reset();
+    if (Number.isInteger(this.testStartWave) && this.testStartWave > 1) this.waveManager.startAtWaveForTesting(this.testStartWave);
     this.waveTenTransition = null;
     this.enemies = [];
     this.eliteAlertsShown = new Set();
