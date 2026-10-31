@@ -1,3 +1,12 @@
+## [0.54.3] — diálogos e cartões cinematográficos
+
+- Reescreve as falas do piloto, do sistema de bordo e do DREADNOUGHT para criar uma progressão mais natural: setor aparentemente limpo, anomalia, contato visual, ameaça e identificação.
+- Ajusta as frases para uma comunicação mais direta e coerente com a situação de cada personagem.
+- Amplia os cartões em telas pequenas e aumenta a tipografia mobile; agora o texto pode ocupar até quatro linhas em vez de ser cortado após duas.
+- Centraliza o cálculo de quebra de linhas em uma função testável e adiciona testes para preservar o texto completo e limitar o cartão.
+- Preserva a entrada, a distância aprovada, a câmera, a arena e a duração geral da cutscene.
+- Validação automatizada e visual desta revisão pendentes.
+
 ## [0.54.2] — ajuste de distância na entrada do DREADNOUGHT
 
 - Ajusta o ponto final da aproximação para usar exatamente o mesmo afastamento vertical definido pela IA de combate.
