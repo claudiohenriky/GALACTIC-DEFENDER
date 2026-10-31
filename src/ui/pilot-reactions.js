@@ -58,11 +58,10 @@ export function getPilotReactionPosition({ x, y, bubble = null, width, height, r
 
 export function drawPilotReaction(ctx, state, x, y) {
   if (!ctx || !state || state.remaining <= 0 || !state.symbol) return;
-  const danger = state.symbol === '❗';
-  const combined = state.symbol === '❓❗';
-  const accent = danger || combined ? '#ff9878' : '#7de8ff';
-  const glow = danger || combined ? '#ff654d' : '#35c8f4';
-  const radius = combined ? 15 : 13;
+  const question = state.symbol === '❓';
+  const danger = state.symbol === '❗' || state.symbol === '❓❗';
+  const accent = '#ff806d';
+  const glow = '#ff493d';
   const elapsed = Math.max(0, state.duration - state.remaining);
   const pulse = 0.5 + Math.sin(elapsed * 4.8) * 0.5;
   const alpha = Math.min(1, state.remaining / 0.16);
@@ -72,23 +71,20 @@ export function drawPilotReaction(ctx, state, x, y) {
   ctx.globalAlpha = alpha;
   ctx.shadowColor = glow;
   ctx.shadowBlur = 7 + pulse * 4;
-  ctx.fillStyle = 'rgba(5, 13, 28, 0.96)';
-  ctx.beginPath();
-  ctx.arc(0, 0, radius, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.shadowBlur = 0;
-  ctx.lineWidth = 1.35;
-  ctx.strokeStyle = accent;
-  ctx.stroke();
-  // One restrained halo pulse improves visibility without adding decorative clutter.
-  ctx.globalAlpha = alpha * (0.16 + pulse * 0.14);
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.arc(0, 0, radius + 3 + pulse * 1.5, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.globalAlpha = alpha;
-  ctx.fillStyle = '#f5fbff';
-  ctx.font = combined ? '900 11px system-ui, sans-serif' : '900 16px system-ui, sans-serif';
+  if (!question) {
+    const radius = state.symbol === '❓❗' ? 15 : 13;
+    ctx.fillStyle = 'rgba(25, 5, 12, 0.94)';
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 1.35;
+    ctx.strokeStyle = accent;
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#fff4f1';
+  ctx.font = question ? '900 25px system-ui, sans-serif'
+    : state.symbol === '❓❗' ? '900 11px system-ui, sans-serif' : '900 16px system-ui, sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(state.symbol, 0, 0.5);
