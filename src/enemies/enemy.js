@@ -1,4 +1,4 @@
-import { BossSystems } from './boss-systems.js?v=0.44.0-arena-2-4';
+import { BossSystems, selectBossAttack } from './boss-systems.js?v=0.45.0-boss-tactics';
 import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.45.0-motion-core';
 
 export class Enemy {
@@ -39,6 +39,7 @@ export class Enemy {
     this.bossDeathDriftX = 0;
     this.bossDeathDriftY = 0;
     this.bossDeathSpin = 0;
+    this.bossBeamHit = false;
     this.rewardGranted = false;
     this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.motionProfile = type === 'artillery' ? (this.isElite ? ENEMY_MOTION_PROFILES.artilleryElite : ENEMY_MOTION_PROFILES.artillery)
@@ -367,20 +368,24 @@ export class Enemy {
         }
       }
 
-      // The main cannon is a telegraphed future threat only: this cycle charges and warns,
-      // but deliberately creates no projectile and applies no damage in v0.44.0.
+      // The main cannon uses a complete attack cycle: charge, align, warn, fire, recover.
+      // The firing direction locks before the warning ends, leaving a clear dodge window.
       const mainCannon = turretSystems?.getModule('main-energy-cannon');
       if (mainCannon) {
         const cannonAvailable = mainCannon.state !== 'destroyed' && mainCannon.state !== 'disabled' && mainCannon.transitionTimer <= 0;
         if (!cannonAvailable) {
           mainCannon.energyState = 'offline';
           mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
+          mainCannon.energyAlignTimer = 0;
           mainCannon.energyWarningTimer = 0;
+          mainCannon.energyFireTimer = 0;
           mainCannon.energyCooldownTimer = 0;
         } else if (this.bossPhase < 2 || this.bossEntranceTimer > 0) {
           mainCannon.energyState = 'standby';
           mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
+          mainCannon.energyAlignTimer = 0;
           mainCannon.energyWarningTimer = 0;
+          mainCannon.energyFireTimer = 0;
           mainCannon.energyCooldownTimer = 0;
         } else if (mainCannon.energyState === 'standby' || mainCannon.energyState === 'offline') {
           mainCannon.energyState = 'charging';
@@ -388,12 +393,26 @@ export class Enemy {
         } else if (mainCannon.energyState === 'charging') {
           mainCannon.energyChargeTimer = Math.max(0, mainCannon.energyChargeTimer - dt);
           if (mainCannon.energyChargeTimer === 0) {
+            mainCannon.energyState = 'aligning';
+            mainCannon.energyAlignTimer = mainCannon.energyAlignDuration;
+          }
+        } else if (mainCannon.energyState === 'aligning') {
+          mainCannon.energyAlignTimer = Math.max(0, mainCannon.energyAlignTimer - dt);
+          if (mainCannon.energyAlignTimer === 0) {
             mainCannon.energyState = 'warning';
             mainCannon.energyWarningTimer = mainCannon.energyWarningDuration;
+            mainCannon.energyAimAngle = this.facingRotation;
           }
         } else if (mainCannon.energyState === 'warning') {
           mainCannon.energyWarningTimer = Math.max(0, mainCannon.energyWarningTimer - dt);
           if (mainCannon.energyWarningTimer === 0) {
+            mainCannon.energyState = 'firing';
+            mainCannon.energyFireTimer = mainCannon.energyFireDuration;
+            this.bossBeamHit = false;
+          }
+        } else if (mainCannon.energyState === 'firing') {
+          mainCannon.energyFireTimer = Math.max(0, mainCannon.energyFireTimer - dt);
+          if (mainCannon.energyFireTimer === 0) {
             mainCannon.energyState = 'cooldown';
             mainCannon.energyCooldownTimer = mainCannon.energyCooldownDuration;
             mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
@@ -403,7 +422,6 @@ export class Enemy {
           if (mainCannon.energyCooldownTimer === 0) mainCannon.energyState = 'charging';
         }
       }
-
       if (this.bossEntranceTimer <= 0) this.fireCooldown -= dt;
       else this.fireCooldown = Math.max(this.fireCooldown, 1.8);
       if (this.bossEntranceTimer <= 0 && this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
@@ -443,10 +461,17 @@ export class Enemy {
         // Every surviving mount now fires from its own physical position.
         // Destroying one weapon reduces that weapon family's actual output.
         const targetLocalX = (targetX - this.x) * Math.cos(shipRotation) + (targetY - this.y) * Math.sin(shipRotation);
+        const targetDistance = Math.hypot(targetX - this.x, targetY - this.y);
+        const selectedAttack = selectBossAttack(modules, targetDistance, targetLocalX, this.radius * 0.08, this.bossPhase);
         for (const module of modules) {
           const moduleSideAllowed = module.region !== 'left' && module.region !== 'right'
             || module.crossSide || Math.abs(targetLocalX) <= this.radius * 0.08 || Math.sign(targetLocalX) === Math.sign(module.x);
           if (!moduleSideAllowed) continue;
+          const family = module.kind.includes('plasma') ? 'plasma'
+            : module.kind.includes('missile') || module.kind.includes('rocket') ? 'missile'
+              : module.kind.includes('machine-gun') ? 'machine-gun'
+                : module.kind.includes('light-laser') ? 'light-laser' : null;
+          if (!family || family !== selectedAttack) continue;
           const muzzleForRange = getMuzzle(module);
           const targetDistance = Math.hypot(targetX - muzzleForRange.x, targetY - muzzleForRange.y);
           if (targetDistance > (module.firingRange ?? 700)) continue;
@@ -663,12 +688,20 @@ export class Enemy {
     // Ranged classes keep their weapons oriented toward the pilot while repositioning.
     // Movement rotation still drives the motion feedback; facing rotation drives the hull.
     if (this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') {
-      const desiredFacing = Math.atan2(targetY + playerVelocityY * 0.32 - this.y, targetX + playerVelocityX * 0.32 - this.x);
-      const facingDelta = Math.atan2(
-        Math.sin(desiredFacing - this.facingRotation),
-        Math.cos(desiredFacing - this.facingRotation)
-      );
-      this.facingRotation += facingDelta * Math.min(1, dt * (this.type === 'boss' ? 0.34 : 4.5));
+      const cannon = this.type === 'boss' ? this.bossSystems?.getModule('main-energy-cannon') : null;
+      if (cannon && (cannon.energyState === 'warning' || cannon.energyState === 'firing')) {
+        this.facingRotation = cannon.energyAimAngle;
+      } else {
+        const desiredFacing = Math.atan2(targetY + playerVelocityY * 0.32 - this.y, targetX + playerVelocityX * 0.32 - this.x);
+        const facingDelta = Math.atan2(
+          Math.sin(desiredFacing - this.facingRotation),
+          Math.cos(desiredFacing - this.facingRotation)
+        );
+        const turnResponse = this.type === 'boss'
+          ? cannon?.energyState === 'aligning' ? 1.15 : 0.34
+          : 4.5;
+        this.facingRotation += facingDelta * Math.min(1, dt * turnResponse);
+      }
     } else {
       this.facingRotation = this.rotation;
     }
