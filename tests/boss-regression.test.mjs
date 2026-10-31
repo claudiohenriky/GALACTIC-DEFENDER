@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { circlesOverlap, orientedEllipseOverlapsCircle } from '../src/combat/collision.js';
 import { BossSystems, getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from '../src/enemies/boss-systems.js';
 import { Enemy } from '../src/enemies/enemy.js';
+import { EnemyProjectile } from '../src/combat/enemy-projectile.js';
 import { getGuardianProtectionPriority, selectGuardianProtectionTargets } from '../src/ai/guardian-protection.js';
 import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
@@ -21,15 +22,19 @@ test('oriented hull collision follows the long axis and ship rotation',()=>{
  assert.equal(orientedEllipseOverlapsCircle(hull,{x:205,y:0,radius:3},142,218,Math.PI/2),true);
  assert.equal(orientedEllipseOverlapsCircle(hull,{x:0,y:205,radius:3},142,218,Math.PI/2),false);
 });
-test('boss owns twelve unique weapon modules, including four plasma cannons, and four regional shields',()=>{
+test('boss owns twelve unique weapon modules, two plasma cannons and two long-range ion emitters',()=>{
  const systems=new BossSystems();
  assert.equal(systems.modules.length,12);
  assert.equal(new Set(systems.modules.map(m=>m.id)).size,12);
  const plasma=systems.modules.filter(m=>m.kind.includes('plasma'));
- assert.equal(plasma.length,4);
- assert.equal(plasma.filter(m=>m.region==='left').length,2);
- assert.equal(plasma.filter(m=>m.region==='right').length,2);
+ assert.equal(plasma.length,2);
+ assert.equal(plasma.filter(m=>m.region==='left').length,1);
+ assert.equal(plasma.filter(m=>m.region==='right').length,1);
  assert.ok(plasma.every(m=>m.firingRange===500 && m.plasmaWarningDuration===1.5));
+ assert.equal(systems.getModule('long-range-ion-left').kind,'light-laser');
+ assert.equal(systems.getModule('long-range-ion-right').kind,'light-laser');
+ assert.equal(systems.getModule('long-range-ion-left').firingRange,1050);
+ assert.equal(systems.getModule('long-range-ion-right').firingRange,1050);
  assert.equal(systems.getModule('machine-gun-left').crossSide,true);
  assert.equal(systems.getModule('machine-gun-right').crossSide,true);
  assert.ok(systems.modules.filter(m=>m.region==='left'||m.region==='right').every(m=>m.firingRange>0));
@@ -94,7 +99,7 @@ test('boss attack selection prefers the appropriate family and respects module s
  assert.equal(selectBossAttack(systems.modules,450,-32,8,2),'plasma');
  assert.equal(selectBossAttack(systems.modules,680,32,8,2),'missile');
  systems.getModule('missile-right').state='destroyed';
- assert.equal(selectBossAttack(systems.modules,680,32,8,2),'machine-gun');
+ assert.equal(selectBossAttack(systems.modules,680,32,8,2),'light-laser');
  systems.getModule('machine-gun-right').state='disabled';
  assert.equal(selectBossAttack(systems.modules,950,32,8,2),null);
 });
@@ -104,10 +109,10 @@ test('DREADNOUGHT missiles use phase-scaled speed and damage with a slower launc
  const phaseOne=getBossMissileProfile(1);
  const phaseTwo=getBossMissileProfile(2);
  const phaseThree=getBossMissileProfile(3);
- assert.deepEqual(phaseOne,{speed:185,damage:12,turnRate:1.36,cooldown:5.2});
- assert.deepEqual(phaseTwo,{speed:205,damage:13,turnRate:1.42,cooldown:4.8});
- assert.deepEqual(phaseThree,{speed:225,damage:15,turnRate:1.48,cooldown:4.4});
- assert.ok(phaseOne.speed>118 && phaseOne.damage>9 && phaseOne.cooldown>2.35);
+ assert.deepEqual(phaseOne,{speed:280,damage:10,turnRate:0.38,cooldown:6.0,lifetime:4.2,curveAmplitude:0.08,curveFrequency:2.4});
+ assert.deepEqual(phaseTwo,{speed:300,damage:11,turnRate:0.42,cooldown:5.7,lifetime:4.2,curveAmplitude:0.09,curveFrequency:2.6});
+ assert.deepEqual(phaseThree,{speed:320,damage:12,turnRate:0.46,cooldown:5.4,lifetime:4.2,curveAmplitude:0.10,curveFrequency:2.8});
+ assert.ok(phaseOne.speed>118 && phaseOne.damage>=10 && phaseOne.cooldown>5);
 });
 
 test('DREADNOUGHT missile launcher selection alternates wings and respects target side and range',()=>{
@@ -133,7 +138,7 @@ test('DREADNOUGHT launches only one missile per salvo and applies a dedicated co
  assert.equal(first.length,1,'only one wing may launch in a salvo');
  assert.equal(first[0].speed,185);
  assert.equal(first[0].damage,12);
- assert.equal(boss.bossMissileCooldown,5.2);
+ assert.equal(boss.bossMissileCooldown,6.0);
  const next=boss.update(1/60,targetX,targetY,1000,1200,[],[],0,0,0);
  assert.equal(next,null,'missiles must not launch again during the dedicated cooldown');
 });
@@ -184,21 +189,21 @@ test('destroyed main cannon cannot enter the attack cycle',()=>{
  assert.equal(cannon.energyState,'offline');
 });
 
-test('normal wave progression reserves bosses for every tenth wave',()=>{
+test('normal wave progression reserves bosses for every fifteenth wave',()=>{
  assert.equal(BOSS_TEST_MODE,false);
  const waves=new WaveManager();
  assert.equal(waves.wave,1);
  assert.equal(waves.enemyCount,5);
- waves.wave=9;
+ waves.wave=14;
  waves.state='intermission';
  waves.timer=0;
  waves.update(0.01,0);
- assert.equal(waves.wave,10);
+ assert.equal(waves.wave,15);
  assert.equal(waves.enemyCount,1);
  waves.state='intermission';
  waves.timer=0;
  waves.update(0.01,0);
- assert.equal(waves.wave,11);
+ assert.equal(waves.wave,16);
  assert.equal(waves.enemyCount,18);
 });
 
@@ -213,12 +218,23 @@ test('elite variants are limited to Sentinel, Guardian, Artillery and Devastator
 });
 
 
-test('waves 15 and 25 are normal; waves 20 and 30 spawn the recurring boss',()=>{
+test('waves 10 and 20 are normal; waves 15 and 30 spawn the recurring boss',()=>{
  const waves=new WaveManager();
- waves.startAtWaveForTesting(15); assert.equal(waves.enemyCount,18);
- waves.startAtWaveForTesting(20); assert.equal(waves.enemyCount,1);
- waves.startAtWaveForTesting(25); assert.equal(waves.enemyCount,18);
+ waves.startAtWaveForTesting(10); assert.equal(waves.enemyCount,18);
+ waves.startAtWaveForTesting(15); assert.equal(waves.enemyCount,1);
+ waves.startAtWaveForTesting(20); assert.equal(waves.enemyCount,18);
  waves.startAtWaveForTesting(30); assert.equal(waves.enemyCount,1);
+});
+
+test('guided DREADNOUGHT missiles have bounded steering, a visible dart profile and finite lifetime',()=>{
+ const target={x:1000,y:0};
+ const missile=new EnemyProjectile(0,0,1000,0,{speed:300,homing:true,target,turnRate:0.4,guidedStyle:true,lifetime:4.2,curveAmplitude:0.08,curveFrequency:2.4});
+ target.x=0; target.y=1000;
+ missile.update(0.1);
+ const angle=Math.atan2(missile.vy,missile.vx);
+ assert.ok(Math.abs(angle)<0.05,'steering must remain a small correction, not a hard lock');
+ for(let i=0;i<42;i++) missile.update(0.1);
+ assert.equal(missile.active,false,'missile expires instead of accumulating indefinitely');
 });
 
 test('Sentinel projectile scans are throttled between checks when no dodge is active',()=>{
