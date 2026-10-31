@@ -1,6 +1,7 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
-import { Enemy } from '../enemies/enemy.js?v=0.45.0-elite-flank';
+import { Enemy } from '../enemies/enemy.js?v=0.45.0-common-reposition';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
+import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
@@ -44,6 +45,7 @@ export class Game {
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
     this.eliteTactics = new EliteTacticalCoordinator();
+    this.enemyTactics = new EnemyTacticalCoordinator();
     this.projectiles = [];
     this.guidedMissiles = [];
     this.guidedMissileTargetReservations = new Set();
@@ -1479,6 +1481,8 @@ export class Game {
     }
 
     this.eliteTactics.update(dt, this.enemies, this.player, this.worldWidth, this.worldHeight);
+    const eliteFlankActive = Boolean(this.eliteTactics.activeFlanker?.active && this.eliteTactics.activeFlanker.flankTimer > 0);
+    this.enemyTactics.update(dt, this.enemies, this.player, this.worldWidth, this.worldHeight, eliteFlankActive);
 
     for (let index = 0; index < this.enemies.length; index += 1) {
       const enemy = this.enemies[index];
