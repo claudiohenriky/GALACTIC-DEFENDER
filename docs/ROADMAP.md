@@ -12,7 +12,8 @@
 - [x] Adicionar testes de movimento em 30/60/120 FPS, reversão, delta inválido, normalização diagonal e limite de velocidade do jogador.
 - [ ] Separar decisão tática (objetivo), controle de movimento (como chegar) e apresentação visual (inclinação/efeitos) também para as tropas e chefes.
 - [ ] Revisar aceleração, desaceleração, inércia, rotação, limites de arena e suavização da câmera sem confundir a resposta do jogador com o acompanhamento da câmera.
-- [ ] Dar às tropas comuns mais autonomia de posicionamento, sem abandonar suas funções-base nem tornar todas perseguidoras idênticas.
+- [x] Dar às tropas comuns mais autonomia de posicionamento por meio de uma reposição lateral simples: somente um Chaser comum por vez pode procurar uma faixa menos congestionada, sem prever o movimento do jogador.
+- [x] Suspender os disparos do Chaser durante essa breve reposição; o Interceptador permanece excluído dessa lógica e continua com perseguição veloz e direta.
 - [x] Implementar coordenador de flanqueamento Elite com apenas uma manobra ativa por vez, escolha de corredor traseiro menos congestionado e intervalo entre tentativas.
 - [x] Fazer Sentinelas e Artilheiros Elite suspenderem disparos durante a janela de reposicionamento; Guardião Elite só pode flanquear quando não tiver aliados vivos sob proteção.
 - [ ] Refinar os critérios de oportunidade de flanqueamento, feedback visual e balanceamento após teste manual.
@@ -25,7 +26,7 @@
 - **Auditoria dos inimigos:** a decisão de comportamento e o deslocamento ainda estão concentrados em ramificações de `Enemy.update()`. A atualização geral ocorre em `Game`, que também distribui formações dos Guardiões. Isso oferece um ponto claro para separar decisão tática, direção desejada e integração física.
 - **Auditoria das elites:** o construtor já limita `isElite` a `artillery`, `sentinel` e `guardian`; o Interceptador tem 1 ponto de integridade e não recebe variante Elite. Foi adicionado teste de regressão para manter essa regra.
 - **Primeira migração da IA:** Sentinelas e Artilheiros usam `steerToPoint()` para alcançar suas posições de combate com aceleração e frenagem previsível. Os perfis Elite têm limites próprios superiores; os padrões de disparo, dano e escudos foram preservados. O Guardião já possui perfil definido, mas a formação sem aliados e o comportamento de proteção ainda precisam de integração completa com a nova direção física.
-- **Estado:** núcleo compartilhado integrado ao jogador, Sentinelas e Artilheiros; coordenador inicial de flanqueamento Elite implementado e coberto por testes. A autonomia tática das tropas comuns, a integração completa do Guardião à física de steering e o controlador próprio do DREADNOUGHT ainda não foram implementados. Teste real de sensação/controle em navegador continua pendente.
+- **Estado:** núcleo compartilhado integrado ao jogador, Sentinelas, Artilheiros e reposicionamento lateral básico de Chasers; coordenadores separados impedem que uma reposição comum ocorra durante um flanqueamento Elite. A integração completa do Guardião à física de steering e o controlador próprio do DREADNOUGHT ainda não foram implementados. Teste real de sensação/controle em navegador continua pendente.
 
 ### DREADNOUGHT — proa limpa e redução de custo visual
 
