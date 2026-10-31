@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.51.0-cinematic-camera';
+import { Game } from './src/core/game.js?v=0.52.0-impact-refinement';
 import { gameAudio } from './src/audio/game-audio.js?v=0.44.0';
 
 // Entry point: connect the game engine to the page UI.

@@ -7,7 +7,7 @@ import { getGuardianProtectionPriority, selectGuardianProtectionTargets } from '
 import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
 import { advanceWaveTenTransition, createWaveTenTransition, finalizeWaveTenTransition, WAVE_TEN_TRANSITION_DURATION } from '../src/core/wave-ten-transition.js';
-import { getBossCameraFrame } from '../src/core/boss-camera.js';
+import { getBossCameraFrame, getBossEntrancePositions } from '../src/core/boss-camera.js';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat } from '../src/ui/pilot-reactions.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
@@ -225,6 +225,16 @@ test('wave 9 to 10 transition waits ten seconds, then runs the cinematic phases 
  advance(4.8);assert.equal(transition.phase,'boss-taunt');
  advance(4.2);assert.equal(transition.phase,'complete');
  assert.equal(WAVE_TEN_TRANSITION_DURATION,25.2);
+});
+
+test('DREADNOUGHT reveal keeps a larger buffer between the player and the lower hull',()=>{
+ const height=720, playerY=1400;
+ const {startY,endY}=getBossEntrancePositions(playerY,height);
+ assert.equal(startY,playerY-height*1.42);
+ assert.equal(endY,playerY-height*0.92);
+ const hullHalfHeight=145*1.5, playerRadius=12;
+ const visibleGap=playerY-(endY+hullHalfHeight+playerRadius);
+ assert.ok(visibleGap>400,`expected a clear reveal gap, received ${visibleGap}`);
 });
 
 test('cinematic handoff releases the boss internal entrance timer before combat',()=>{

@@ -1,3 +1,11 @@
+export function getBossEntrancePositions(playerY, height) {
+  const safeHeight = Math.max(1, Number(height) || 1);
+  return {
+    startY: playerY - safeHeight * 1.42,
+    endY: playerY - safeHeight * 0.92
+  };
+}
+
 const PHASE_CAMERA = {
   loading: { zoom: 0.72, focusOffset: 0.12 },
   'pilot-report': { zoom: 0.9, focusOffset: 0.08 },

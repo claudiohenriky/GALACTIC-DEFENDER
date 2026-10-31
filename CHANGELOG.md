@@ -881,3 +881,11 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Adiciona início de onda configurável apenas por URL de teste; a campanha normal continua iniciando na onda 1.
 - A branch da cutscene aceita testStartWave=9 para jogar a onda inteira antes da transição; a branch de gameplay normal não usa esse atalho.
 - Testes automatizados adicionados para o perfil do Sentinela e a configuração da onda de teste. A validação em navegador e o ajuste fino de dificuldade continuam pendentes.
+
+
+## [Unreleased] — Refinamento de impacto e aparição do DREADNOUGHT
+- Adiciona um anel curto de impacto ao redor da nave do jogador quando ela recebe dano, separado das faíscas e do aviso de integridade; o efeito é posicional, leve e expira em 0,3 s.
+- Limita o novo feedback a um único pulso ativo, sem criar entidades persistentes ou efeitos por quadro.
+- Afasta a posição final da entrada do DREADNOUGHT de 0,62 para 0,92 da altura da tela em relação ao jogador; a posição inicial também recua para 1,42, mantendo a entrada gradual.
+- Centraliza o cálculo das posições de entrada em uma função testável e reutiliza o mesmo cálculo após redimensionamento, evitando divergência entre telas.
+- Não altera hitboxes, colisões, dano, velocidade, IA ou dimensões da arena. Validação visual em navegador ainda pendente.

@@ -15,7 +15,7 @@ import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createWaveTenTransition, advanceWaveTenTransition, finalizeWaveTenTransition } from './wave-ten-transition.js?v=0.51.0-cinematic-camera';
-import { getBossCameraFrame } from './boss-camera.js?v=0.51.0-cinematic-camera';
+import { getBossCameraFrame, getBossEntrancePositions } from './boss-camera.js?v=0.52.0-impact-refinement';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction } from '../ui/pilot-reactions.js?v=0.50.0-pilot-reactions';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
@@ -84,6 +84,7 @@ export class Game {
     this.animationId = 0;
     this.levelUpParticles = [];
     this.damageSparks = [];
+    this.damageImpactPulse = null;
     this.shieldBreakEffects = [];
     this.shieldThreatScanTimer = 0;
     this.shieldThreatArcs = Array.from({ length: 8 }, () => 0);
@@ -164,8 +165,9 @@ export class Game {
     this.player.fitToArena(this.worldWidth, this.worldHeight);
     this.updateCamera(0, true);
     if (this.waveTenTransition) {
-      this.waveTenTransition.bossStartY = this.player.y - this.height * 1.12;
-      this.waveTenTransition.bossEndY = this.player.y - this.height * 0.62;
+      const entrance = getBossEntrancePositions(this.player.y, this.height);
+      this.waveTenTransition.bossStartY = entrance.startY;
+      this.waveTenTransition.bossEndY = entrance.endY;
       if (this.waveTenTransition.boss && this.waveTenTransition.phase === 'boss-entry') {
         const progress = Math.max(0, Math.min(1, this.waveTenTransition.phaseElapsed / this.waveTenTransition.phaseDuration));
         const eased = progress * progress * (3 - 2 * progress);
@@ -504,6 +506,7 @@ export class Game {
 
   triggerDamageFeedback(amount) {
     this.damageFeedbackTimer = 0.48;
+    this.damageImpactPulse = { x: this.player.x, y: this.player.y, life: 0.3, maxLife: 0.3 };
     // Brief red electrical sparks around the ship communicate a hit without obscuring play.
     for (let i = 0; i < 9; i += 1) {
       const angle = rand(0, Math.PI * 2);
@@ -1292,8 +1295,9 @@ export class Game {
     this.enemies.length = 0;
     this.waveTenTransition = createWaveTenTransition();
     this.waveTenTransition.boss = null;
-    this.waveTenTransition.bossStartY = this.player.y - this.height * 1.12;
-    this.waveTenTransition.bossEndY = this.player.y - this.height * 0.62;
+    const entrance = getBossEntrancePositions(this.player.y, this.height);
+    this.waveTenTransition.bossStartY = entrance.startY;
+    this.waveTenTransition.bossEndY = entrance.endY;
     this.cameraX = this.player.x - this.width / 2;
     this.cameraY = this.player.y - this.height / 2;
     this.cameraZoom = 0.72;
@@ -1522,6 +1526,10 @@ export class Game {
       if (spark.life > 0) this.damageSparks[writeIndex++] = spark;
     }
     this.damageSparks.length = writeIndex;
+    if (this.damageImpactPulse) {
+      this.damageImpactPulse.life = Math.max(0, this.damageImpactPulse.life - dt);
+      if (this.damageImpactPulse.life === 0) this.damageImpactPulse = null;
+    }
 
     writeIndex = 0;
     for (let index = 0; index < this.shieldBreakEffects.length; index += 1) {
@@ -2141,6 +2149,19 @@ export class Game {
       ctx.moveTo(-spark.length * 0.6, 0);
       ctx.lineTo(-spark.length * 0.15, -2);
       ctx.lineTo(spark.length, 0);
+      ctx.stroke();
+      ctx.restore();
+    }
+    if (this.damageImpactPulse) {
+      const pulse = this.damageImpactPulse;
+      const progress = 1 - pulse.life / pulse.maxLife;
+      const radius = (this.player.radius || 12) * (1.05 + progress * 1.45);
+      ctx.save();
+      ctx.globalAlpha = (pulse.life / pulse.maxLife) * 0.68;
+      ctx.strokeStyle = '#ff9d45';
+      ctx.lineWidth = 2.2 - progress * 0.8;
+      ctx.beginPath();
+      ctx.arc(pulse.x, pulse.y, radius, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
     }
