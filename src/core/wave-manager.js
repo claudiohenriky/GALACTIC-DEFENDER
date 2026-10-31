@@ -1,5 +1,5 @@
-// Temporary boss-development switch: spawn the Dreadnought in wave 1 until its development is complete.
-export const BOSS_TEST_MODE = true;
+// Normal progression is the default; enable this flag only for isolated boss-development sessions.
+export const BOSS_TEST_MODE = false;
 
 // Controls enemy waves independently from the main game loop.
 export class WaveManager {
