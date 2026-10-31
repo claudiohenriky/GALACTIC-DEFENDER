@@ -14,6 +14,18 @@ test('DREADNOUGHT keeps one plasma cannon per side with the longer 7.2-second re
   assert.ok(cannons.every((module) => module.plasmaChargeTimer === 7.2));
 });
 
+test('Devastator fires along the exact angle locked at the end of its warning', () => {
+  const devastator = new Enemy(300, 300, 12, 'devastator');
+  devastator.siegeState = 'warning';
+  devastator.siegeWarningTimer = 0.01;
+  devastator.siegeLockedAngle = 0.63;
+  devastator.siegeAimAngle = 0.63;
+  const shot = devastator.update(0.02, 600, 700, 1000, 1000);
+  assert.ok(shot);
+  const firedAngle = Math.atan2(shot.targetY - shot.y, shot.targetX - shot.x);
+  assert.ok(Math.abs(firedAngle - devastator.siegeLockedAngle) < 1e-9);
+});
+
 test('DREADNOUGHT movement profiles preserve a heavy, slower hull', () => {
   assert.deepEqual(ENEMY_MOTION_PROFILES.boss, { maxSpeed: 34, acceleration: 24 });
   assert.deepEqual(ENEMY_MOTION_PROFILES.bossPhaseThree, { maxSpeed: 42, acceleration: 30 });
