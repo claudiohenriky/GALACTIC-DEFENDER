@@ -1341,7 +1341,7 @@ export class Game {
       }[transition.phase];
       if (dialogue) {
         const boxWidth = Math.min(this.width * 0.88, 720);
-        const boxHeight = Math.min(this.height * 0.25, 142);
+        const boxHeight = Math.min(this.height * 0.48, 190);
         const x = (this.width - boxWidth) / 2;
         const y = this.height - boxHeight - Math.max(16, this.height * 0.045);
         ctx.fillStyle = 'rgba(5, 13, 28, 0.94)';
@@ -1354,8 +1354,22 @@ export class Game {
         ctx.font = '900 10px ui-monospace, monospace';
         ctx.fillText(dialogue.speaker, x + 16, y + 22);
         ctx.fillStyle = '#edf5ff';
-        ctx.font = ` ${this.width < 520 ? 11 : 13}px ui-monospace, monospace`;
-        dialogue.lines.forEach((line, index) => ctx.fillText(line, x + 16, y + 49 + index * 22, boxWidth - 32));
+        const fontSize = this.width < 520 ? 10 : 13;
+        const lineHeight = this.width < 520 ? 15 : 19;
+        ctx.font = `${fontSize}px ui-monospace, monospace`;
+        const wrappedLines = [];
+        for (const line of dialogue.lines) {
+          let currentLine = '';
+          for (const word of line.split(' ')) {
+            const candidate = currentLine ? `${currentLine} ${word}` : word;
+            if (currentLine && ctx.measureText(candidate).width > boxWidth - 32) {
+              wrappedLines.push(currentLine);
+              currentLine = word;
+            } else currentLine = candidate;
+          }
+          if (currentLine) wrappedLines.push(currentLine);
+        }
+        wrappedLines.forEach((line, index) => ctx.fillText(line, x + 16, y + 48 + index * lineHeight));
         ctx.textAlign = 'right';
         ctx.fillStyle = '#718aa4';
         ctx.font = '9px ui-monospace, monospace';
