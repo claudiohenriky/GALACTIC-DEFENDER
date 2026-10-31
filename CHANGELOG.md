@@ -755,6 +755,14 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Attack Clash agora considera resistência dos projéteis inimigos, evitando que ataques pesados sejam neutralizados por um único disparo leve.
 
 
+## [Unreleased] — IA tática e canhão principal do DREADNOUGHT
+
+- Cada salva agora escolhe uma família de armas com base na distância, alcance real, lado do jogador, integridade dos módulos e disponibilidade de carga; armas indisponíveis não participam da seleção.
+- O canhão principal ganhou ciclo completo de carga, alinhamento, aviso, disparo e recuperação. O casco acelera o alinhamento, trava a direção durante o aviso e não persegue o jogador depois de fixar a linha de tiro.
+- O feixe possui corredor visual antecipado, duração curta e colisão calculada no mesmo segmento usado pela renderização. O jogador pode sair da linha durante o aviso; cada disparo pode causar no máximo um impacto.
+- A destruição/inoperância do módulo principal cancela o ciclo e impede o disparo.
+- Validação automatizada cobre seleção por alcance/lado/estado, geometria do feixe, transições e bloqueio por módulo destruído. Teste visual e balanceamento em navegador continuam pendentes.
+
 ## [Unreleased] — Boss cinematográfico
 - Limpa o estado temporário das animações de reparo, reconstrução e substituição dos módulos ao término de cada transição.
 
