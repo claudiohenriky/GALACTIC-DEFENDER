@@ -1175,9 +1175,7 @@ export class Game {
     const focusY = boss
       ? (boss.y - boss.collisionRadius * 1.5 + this.player.y + (this.player.radius ?? 12)) / 2
       : this.player.y;
-    // Keep the pilot and DREADNOUGHT balanced horizontally during combat, matching the cinematic framing.
-    const focusX = boss ? (this.player.x + boss.x) * 0.5 : this.player.x;
-    const targetX = Math.max(minX, Math.min(maxX, focusX - this.width / 2));
+    const targetX = Math.max(minX, Math.min(maxX, this.player.x - this.width / 2));
     const targetY = Math.max(minY, Math.min(maxY, focusY - this.height / 2));
     if (snap) {
       this.cameraX = targetX;
