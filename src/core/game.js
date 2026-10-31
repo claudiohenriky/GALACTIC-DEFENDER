@@ -1322,6 +1322,7 @@ export class Game {
       averageUpdateMs: Number(average('update').toFixed(2)),
       averageRenderMs: Number(average('render').toFixed(2)),
       averageGameWorkMs: Number(average('work').toFixed(2)),
+      effectsQuality: { mode: this.effectsMode, scale: this.effectsScale },
       entities: {
         enemies: this.enemies.length,
         playerProjectiles: this.projectiles.length,
@@ -1575,21 +1576,33 @@ export class Game {
     const lineElapsed = lineIndex === 0 ? elapsed : elapsed - this.bossEncounterDialogue.lineInterval;
     const visibleCue = cue.slice(0, Math.max(0, Math.floor((lineElapsed - 0.35) * 36)));
     const width = Math.min(this.width - 24, 390);
+    const boxHeight = 78;
     const x = (this.width - width) / 2;
-    const y = Math.max(14, this.height - 112);
+    const y = Math.max(14, this.height - boxHeight - 18);
     ctx.save();
-    ctx.fillStyle = 'rgba(4, 12, 25, 0.92)';
-    ctx.fillRect(x, y, width, 66);
+    ctx.fillStyle = 'rgba(4, 12, 25, 0.96)';
+    ctx.fillRect(x, y, width, boxHeight);
     ctx.strokeStyle = '#68dfe9';
     ctx.lineWidth = 1.2;
-    ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, 64.8);
+    ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, boxHeight - 1.2);
     ctx.textAlign = 'left';
     ctx.fillStyle = '#68dfe9';
     ctx.font = '900 9px ui-monospace, monospace';
     ctx.fillText('PILOTO // VANGUARD', x + 11, y + 17);
     ctx.fillStyle = '#f0f5ff';
     ctx.font = `${this.width < 520 ? 10 : 12}px ui-monospace, monospace`;
-    ctx.fillText(visibleCue, x + 11, y + 41, width - 22);
+    const rows = [];
+    let row = '';
+    const maxWidth = width - 22;
+    for (const word of visibleCue.split(' ')) {
+      const candidate = row ? `${row} ${word}` : word;
+      if (row && ctx.measureText(candidate).width > maxWidth) {
+        rows.push(row);
+        row = word;
+      } else row = candidate;
+    }
+    if (row) rows.push(row);
+    rows.slice(0, 2).forEach((line, index) => ctx.fillText(line, x + 11, y + 42 + index * 15));
     ctx.restore();
   }
 
