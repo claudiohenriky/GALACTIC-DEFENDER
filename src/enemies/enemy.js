@@ -1,5 +1,5 @@
-import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.45.1-boss-readability';
-import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.45.3-sentinel-balance';
+import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.47.0-combat-rebalance';
+import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.47.0-combat-rebalance';
 
 export class Enemy {
   constructor(x, y, level = 1, type = 'chaser', isElite = false) {
@@ -43,7 +43,7 @@ export class Enemy {
     this.bossMissileNextSide = -1;
     this.bossBeamHit = false;
     this.rewardGranted = false;
-    this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 38 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
+    this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 25 : type === 'artillery' ? 28 : type === 'sentinel' ? 34 : type === 'interceptor' ? 78 + Math.random() * 16 : 43 + Math.random() * 21) + Math.min(level, 8) * (type === 'guardian' ? 0.9 : 1.6);
     this.motionProfile = type === 'artillery' ? (this.isElite ? ENEMY_MOTION_PROFILES.artilleryElite : ENEMY_MOTION_PROFILES.artillery)
       : type === 'sentinel' ? (this.isElite ? ENEMY_MOTION_PROFILES.sentinelElite : ENEMY_MOTION_PROFILES.sentinel)
         : type === 'guardian' ? (this.isElite ? ENEMY_MOTION_PROFILES.guardianElite : ENEMY_MOTION_PROFILES.guardian)
@@ -52,9 +52,9 @@ export class Enemy {
     this.fireCooldown = type === 'boss'
       ? 1.8
       : type === 'artillery'
-        ? 2.6 + Math.random() * 0.8
+        ? 3.0 + Math.random() * 0.7
         : type === 'sentinel'
-          ? (this.isElite ? 2.8 : 1.1 + Math.random() * 0.8)
+          ? (this.isElite ? 2.8 : 1.35 + Math.random() * 0.75)
           : 2.4 + Math.random() * 0.8;
     this.active = true;
     this.contactCooldown = 0;
@@ -206,12 +206,12 @@ export class Enemy {
     }
     const supportDistance = supportAlly ? Math.sqrt(supportDistanceSquared) : Infinity;
 
-    const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'artillery' ? (this.isElite ? 9 : 3) : this.type === 'guardian' ? 2.5 : this.type === 'interceptor' ? 5 : 9);
+    const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 14 : this.type === 'artillery' ? (this.isElite ? 7 : 2) : this.type === 'guardian' ? 2 : this.type === 'interceptor' ? 4 : 7);
     let shot = null;
 
     // Estimate closest approach over a short horizon using relative velocity.
     // Only Sentinel, Artillery and Boss react in this first pass; each has a different response strength.
-    if ((this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') && this.dodgeCooldown <= 0) {
+    if ((this.type === 'sentinel' || this.type === 'artillery') && this.dodgeCooldown <= 0) {
       let hasBestThreat = false;
       let bestThreatX = 0;
       let bestClearanceSquared = Infinity;
@@ -242,7 +242,7 @@ export class Enemy {
       }
     }
     const dodgeStrength = this.dodgeTimer > 0
-      ? (this.type === 'sentinel' ? (this.isElite ? 168 : 42) : this.type === 'artillery' ? (this.isElite ? 122 : 76) : this.type === 'boss' ? 42 : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'boss' ? 0.26 : this.type === 'sentinel' && this.isElite ? 0.62 : this.type === 'sentinel' ? 0.22 : 0.48))
+      ? (this.type === 'sentinel' ? (this.isElite ? 150 : 28) : this.type === 'artillery' ? (this.isElite ? 96 : 48) : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'sentinel' && this.isElite ? 0.62 : this.type === 'sentinel' ? 0.18 : 0.48))
       : 0;
 
     if (this.type === 'boss') {
@@ -272,7 +272,7 @@ export class Enemy {
 
       if (this.bossMovementState === 'reposition' && this.bossMovementTimer <= 0) {
         this.bossMovementState = 'stabilize';
-        this.bossMovementTimer = 1.15;
+        this.bossMovementTimer = 0.7;
       } else if (this.bossMovementState === 'stabilize' && this.bossMovementTimer <= 0) {
         this.bossMovementState = 'patrol';
       }
@@ -295,22 +295,20 @@ export class Enemy {
         );
         const standoff = Math.max(bowClearance, height * 0.28);
         if (this.bossMovementState === 'patrol' && this.bossRepositionCooldown <= 0 &&
-            (Math.abs(facingDelta) > 1.18 || playerDistance < standoff * 0.72)) {
-          // If the pilot reaches a poor firing angle or closes too much, the battleship
-          // chooses a new heavy position instead of accelerating into a direct chase.
-          const awayX = -toPlayerX / playerDistance;
-          const awayY = -toPlayerY / playerDistance;
-          const sideX = -awayY;
-          const sideY = awayX;
+            (Math.abs(facingDelta) > 1.35 || playerDistance < standoff * 0.82)) {
+          // Reposition laterally to recover a firing angle. Never add an "away from
+          // player" vector here: that caused repeated retreating and edge pinning.
+          const sideX = -toPlayerY / playerDistance;
+          const sideY = toPlayerX / playerDistance;
           this.bossPatrolSide *= -1;
-          const sideOffset = Math.min(width * 0.12, 140) * this.bossPatrolSide;
-          this.bossMoveTargetX = Math.max(this.collisionRadius + 4, Math.min(width - this.collisionRadius - 4,
-            predictedTargetX + awayX * standoff + sideX * sideOffset));
-          this.bossMoveTargetY = Math.max(this.collisionRadius + 24, Math.min(height - this.collisionRadius - 30,
-            predictedTargetY + awayY * standoff + sideY * sideOffset));
+          const sideOffset = Math.min(width * 0.10, 118) * this.bossPatrolSide;
+          this.bossMoveTargetX = Math.max(this.collisionRadius + 12, Math.min(width - this.collisionRadius - 12,
+            predictedTargetX + sideX * sideOffset));
+          this.bossMoveTargetY = Math.max(this.collisionRadius + 30, Math.min(height - this.collisionRadius - 36,
+            desiredY + sideY * sideOffset * 0.32));
           this.bossMovementState = 'reposition';
-          this.bossMovementTimer = 2.6;
-          this.bossRepositionCooldown = 5.2;
+          this.bossMovementTimer = 1.8;
+          this.bossRepositionCooldown = 4.2;
         }
 
         if (this.bossMovementState === 'patrol') {
@@ -516,7 +514,7 @@ export class Enemy {
           } else if (module.kind.includes('plasma')) {
             if ((module.plasmaChargeTimer ?? 0) <= 0) {
               shots.push(makeShot(module, {
-                damage: 68, speed: 620, radius: 15,
+                damage: 68, speed: 760, radius: 15,
                 heavyImpact: true, plasmaImpact: true,
                 color: '#fff0c2', glowColor: '#ff542e'
               }));
@@ -530,41 +528,41 @@ export class Enemy {
           }
         }
 
-        this.fireCooldown = this.bossPhase === 1 ? 2.35 : this.bossPhase === 2 ? 2.05 : 1.7;
+        this.fireCooldown = this.bossPhase === 1 ? 1.85 : this.bossPhase === 2 ? 1.55 : 1.3;
         if (shots.length) shot = shots;
       }
     } else if (this.type === 'interceptor') {
       // Interceptors combine pursuit with a smooth side-to-side arc to pressure the pilot.
       const towardX = dx / distance;
       const towardY = dy / distance;
-      const weave = Math.sin(this.phase) * this.speed * 0.62;
-      this.x += towardX * this.speed * 0.78 * dt - towardY * weave * dt;
-      this.y += towardY * this.speed * 0.78 * dt + towardX * weave * dt;
+      const weave = Math.sin(this.phase) * this.speed * 0.48;
+      this.x += towardX * this.speed * 0.70 * dt - towardY * weave * dt;
+      this.y += towardY * this.speed * 0.70 * dt + towardX * weave * dt;
     } else if (this.type === 'artillery') {
       // Artillery keeps a distant firing lane and uses a readable three-shot fan.
-      const eliteStrafe = this.isElite ? Math.sin(this.phase * 0.82) * Math.min(width * 0.18, 88) : 0;
+      const eliteStrafe = this.isElite ? Math.sin(this.phase * 0.82) * Math.min(width * 0.15, 72) : 0;
       const desiredX = flankActive
         ? this.flankTargetX
-        : targetX + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150) + eliteStrafe + dodgeStrength;
+        : targetX + Math.sin(this.phase * 0.65) * Math.min(width * 0.24, 112) + eliteStrafe + dodgeStrength;
       const desiredY = flankActive
         ? this.flankTargetY
-        : Math.max(36, targetY - Math.min(235, height * 0.42));
+        : Math.max(36, targetY - Math.min(205, height * 0.36));
       steerToPoint(this, desiredX, desiredY, this.motionProfile, dt);
       if (flankActive) this.fireCooldown = Math.max(this.fireCooldown, 0.2);
       else this.fireCooldown -= dt;
       if (!flankActive && this.fireCooldown <= 0 && this.y > 18) {
-        this.fireCooldown = this.isElite ? 2.95 : 3.4;
+        this.fireCooldown = this.isElite ? 3.6 : 4.4;
         const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
-        const spread = this.isElite ? 0.19 : 0.22;
-        shot = [-1, 0, 1].map((offset) => {
+        const spread = this.isElite ? 0.17 : 0.14;
+        shot = [-1, 1].map((offset) => {
           const angle = baseAngle + offset * spread;
           return {
             x: this.x,
             y: this.y + this.radius,
             targetX: this.x + Math.cos(angle) * 420,
             targetY: this.y + Math.sin(angle) * 420,
-            damage: this.isElite ? 5.8 : 5,
-            speed: this.isElite ? 172 : 150,
+            damage: this.isElite ? 5.2 : 3.8,
+            speed: this.isElite ? 160 : 132,
             radius: this.isElite ? 4 : 3.5,
             color: this.isElite ? '#8ff0b0' : '#d6a0ff',
             glowColor: this.isElite ? '#42c978' : '#a95cff'
@@ -573,9 +571,9 @@ export class Enemy {
       }
     } else if (this.type === 'sentinel') {
       // Sentinels strafe around a moving firing lane instead of sliding directly toward the player.
-      const laneOffset = Math.sin(this.phase * (this.isElite ? 1.05 : 0.62)) * Math.min(this.isElite ? 125 : 52, width * (this.isElite ? 0.27 : 0.13));
+      const laneOffset = Math.sin(this.phase * (this.isElite ? 1.0 : 0.58)) * Math.min(this.isElite ? 112 : 40, width * (this.isElite ? 0.24 : 0.10));
       let desiredX = Math.max(this.radius, Math.min(width - this.radius, targetX + laneOffset + dodgeStrength));
-      let desiredY = Math.max(42, targetY - Math.min(this.isElite ? 195 : 160, height * (this.isElite ? 0.34 : 0.28)));
+      let desiredY = Math.max(42, targetY - Math.min(this.isElite ? 185 : 145, height * (this.isElite ? 0.32 : 0.25)));
       if (flankActive) {
         desiredX = this.flankTargetX;
         desiredY = this.flankTargetY;
@@ -616,14 +614,14 @@ export class Enemy {
             };
           });
         } else {
-          this.fireCooldown = 2.2;
+          this.fireCooldown = 2.6;
           shot = {
             x: this.x,
             y: this.y + this.radius,
             targetX,
             targetY,
-            damage: 10,
-            speed: 190,
+            damage: 8.5,
+            speed: 175,
             radius: 4,
             color: '#ffe0a8',
             glowColor: '#ffad55'
@@ -712,7 +710,7 @@ export class Enemy {
           Math.cos(desiredFacing - this.facingRotation)
         );
         const turnResponse = this.type === 'boss'
-          ? cannon?.energyState === 'aligning' ? 1.15 : 0.34
+          ? cannon?.energyState === 'aligning' ? 1.15 : 0.48
           : 4.5;
         this.facingRotation += facingDelta * Math.min(1, dt * turnResponse);
       }
