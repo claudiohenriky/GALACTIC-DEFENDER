@@ -1339,9 +1339,9 @@ export class Game {
 
     if (transition.phase === 'complete') {
       const revealedBoss = finalizeWaveTenTransition(transition);
+      // Keep the cinematic camera frame through handoff; normal boss tracking
+      // takes over on the next simulation tick without a one-frame zoom snap.
       this.waveTenTransition = null;
-      this.cameraZoom = 1;
-      this.updateCamera(0, true);
       if (revealedBoss) {
         revealedBoss.y = transition.bossEndY;
         this.enemies = [revealedBoss];
