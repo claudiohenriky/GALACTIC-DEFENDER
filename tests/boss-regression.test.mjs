@@ -102,15 +102,17 @@ test('main cannon aligns, warns, fires briefly, locks aim and enters recovery',(
  cannon.energyChargeTimer=0;
  const seen=new Set();
  let lockedAngle=null;
+ let previousState=cannon.energyState;
  for(let frame=0;frame<900;frame++){
   const targetX=frame<180?760:250;
   boss.update(1/60,targetX,900,1000,1200,[],[],0,0,0);
   seen.add(cannon.energyState);
+  if(cannon.energyState==='warning'&&previousState!=='warning') lockedAngle=cannon.energyAimAngle;
   if(cannon.energyState==='warning'||cannon.energyState==='firing'){
-   if(lockedAngle===null) lockedAngle=cannon.energyAimAngle;
    const delta=Math.atan2(Math.sin(boss.facingRotation-lockedAngle),Math.cos(boss.facingRotation-lockedAngle));
    assert.ok(Math.abs(delta)<1e-8,'boss facing must remain locked through warning and firing');
   }
+  previousState=cannon.energyState;
  }
  for(const state of ['aligning','warning','firing','cooldown']) assert.ok(seen.has(state),`missing ${state} state`);
 });
