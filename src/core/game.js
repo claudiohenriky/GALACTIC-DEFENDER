@@ -1,5 +1,5 @@
 import { Player } from '../player/player.js?v=0.44.0';
-import { Enemy } from '../enemies/enemy.js?v=0.44.0-dreadnought-pixel-crisp-engines';
+import { Enemy } from '../enemies/enemy.js?v=0.44.0-dreadnought-3d-redesign';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
@@ -1362,7 +1362,7 @@ export class Game {
       const spawnY = bossWave ? viewTop - 180 : viewTop + 20;
       this.enemies.push(new Enemy(spawnX, spawnY, this.waveManager.wave, type, isElite));
       if (bossWave) {
-        this.showRewardBanner('ALERTA MÁXIMA · ENCOURAÇADO DETECTADO', 'CONTATO HOSTIL DE GRANDE PORTE · AGUARDANDO ATIVAÇÃO DOS SISTEMAS', 'boss');
+        this.showRewardBanner('ALERTA MÁXIMA · DREADNOUGHT DETECTADO', 'COLOSSAL WARSHIP · SISTEMAS DE COMBATE IDENTIFICADOS', 'boss');
       }
       if (isElite && !this.eliteAlertsShown.has(type)) {
         this.eliteAlertsShown.add(type);
