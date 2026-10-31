@@ -15,6 +15,7 @@ class GameAudio {
     this.lastVoiceTick = 0;
     this.lastVoiceLength = 0;
     this.lastVoiceKey = '';
+    this.lastExplosionAt = 0;
     this.notes = [110, 146.83, 164.81, 130.81, 98, 146.83, 174.61, 130.81];
     this.bossNotes = [82.41, 98, 110, 73.42, 87.31, 98, 65.41, 82.41];
     this.voiceProfiles = {
@@ -135,12 +136,26 @@ class GameAudio {
     this.tone(880, 0.07, 'triangle', 0.025, 420);
   }
 
+  playShieldBreak() {
+    this.tone(640, 0.28, 'sawtooth', 0.075, 75);
+    this.tone(180, 0.34, 'triangle', 0.06, 38);
+  }
+
+  playShieldPulse() {
+    this.tone(160, 0.24, 'sine', 0.045, 680);
+    this.tone(420, 0.3, 'triangle', 0.05, 90);
+  }
+
   playMissileLaunch() {
     this.tone(210, 0.2, 'sawtooth', 0.045, 720);
     this.tone(95, 0.24, 'triangle', 0.04, 55);
   }
 
   playExplosion(heavy = false) {
+    if (!this.context) return;
+    const now = this.context.currentTime;
+    if (now - this.lastExplosionAt < 0.075) return;
+    this.lastExplosionAt = now;
     this.tone(heavy ? 105 : 155, heavy ? 0.42 : 0.24, 'sawtooth', heavy ? 0.09 : 0.055, 38);
     this.tone(heavy ? 58 : 82, heavy ? 0.48 : 0.28, 'triangle', heavy ? 0.07 : 0.035, 30);
   }
