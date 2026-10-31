@@ -22,7 +22,10 @@
 - [x] Dar aos módulos de armamento alcances próprios e envelopes de disparo por região; armas laterais não atravessam o eixo da nave para mirar no lado oposto, com exceção das metralhadoras de longo alcance.
 - [x] Expandir a bateria de plasma de dois para quatro canhões (dois por lateral), com ciclo de carga, aviso visual de 1,5 s e disparo de alta velocidade.
 - [x] Tornar o impacto de plasma uma ameaça pesada: dano elevado, destruição imediata do escudo ativo e forte impulso de repulsão, menor quando o escudo absorve o impacto.
-- [ ] Completar seleção tática de ataques por estado dos módulos, cobertura de ângulos e zonas de perigo antecipadas; calibrar após teste manual.
+- [x] Selecionar uma família de armamento por salva conforme distância, alcance real, lado do alvo, estado do módulo e carga disponível; manter fallback quando uma família estiver indisponível.
+- [x] Completar o ciclo do canhão principal: carga, alinhamento acelerado, aviso de 1,8 s, feixe de 0,42 s e recuperação; o ângulo fica travado antes do aviso terminar.
+- [x] Renderizar o corredor de perigo e resolver colisão usando o mesmo segmento geométrico; permitir esquiva durante o aviso e limitar o impacto a um acerto por disparo.
+- [ ] Calibrar dano, largura do feixe, frequência e legibilidade após teste manual.
 - [ ] Dar aos chefes padrões próprios; não reutilizar a perseguição simples das tropas como controlador principal.
 - [ ] Testar teclado e controles móveis, limites da arena, mudanças de direção, colisões e estabilidade em diferentes taxas de quadros.
 - **Princípio de dificuldade:** os inimigos devem ganhar vantagem por posicionamento, cooperação e controle de áreas — não por conhecer perfeitamente o futuro ou reagir instantaneamente.
