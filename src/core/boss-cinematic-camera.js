@@ -3,39 +3,45 @@ const smoothstep = (value) => {
   return t * t * (3 - 2 * t);
 };
 
+const clampCamera = (focus, viewport, zoom, worldSize) => {
+  const halfView = viewport / (2 * zoom);
+  const min = halfView - viewport / 2;
+  const max = Math.max(min, worldSize - halfView - viewport / 2);
+  return Math.max(min, Math.min(max, focus - viewport / 2));
+};
+
+export const BOSS_CINEMATIC_REVEAL_ZOOM = 0.58;
+export const BOSS_CINEMATIC_ARENA_ZOOM = 0.54;
+
 export function getBossCinematicCameraFrame({
   phase, phaseElapsed = 0, phaseDuration = 1, player, boss = null,
   width, height, minZoom = 1 / 2.4, worldWidth = width * 2.4, worldHeight = height * 2.4
 }) {
   const revealProgress = phase === 'distant-contact'
     ? smoothstep(phaseElapsed / Math.max(0.001, phaseDuration))
-    : phase === 'boss-identification' || phase === 'handoff' || phase === 'complete' ? 1 : 0;
-  const closeZoom = phase === 'pilot-intro' ? 0.9
-    : phase === 'anomaly-scan' ? 0.82
-      : phase === 'distant-contact' ? 0.82 - (0.82 - minZoom) * revealProgress
-        : phase === 'hud-fade' || phase === 'loading' ? 0.9 : minZoom;
-  const zoom = Math.max(minZoom, closeZoom);
-  const showBoth = Boolean(boss && (phase === 'distant-contact' || phase === 'boss-identification' || phase === 'handoff' || phase === 'complete'));
-  // Keep the pair centered as the zoom changes; never anchor the framing to one actor.
-  // Blend from the pilot to the pair across the existing reveal; never snap sideways at phase entry.
-  const pairFocusX = showBoth ? (player.x + boss.x) * 0.5 : player.x;
-  const focusX = player.x + (pairFocusX - player.x) * revealProgress;
-  const pilotFocusY = player.y - height * (phase === 'pilot-intro' ? 0.12 : 0.08);
-  const pairFocusY = showBoth
-    ? (boss.y - (boss.collisionRadius || 145) * 1.5 + player.y + (player.radius || 12)) / 2
-    : pilotFocusY;
-  const focusY = pilotFocusY + (pairFocusY - pilotFocusY) * revealProgress;
-  const halfViewWidth = width / (2 * zoom);
-  const halfViewHeight = height / (2 * zoom);
-  const minX = halfViewWidth - width / 2;
-  const minY = halfViewHeight - height / 2;
-  const maxX = Math.max(minX, worldWidth - halfViewWidth - width / 2);
-  const maxY = Math.max(minY, worldHeight - halfViewHeight - height / 2);
-  const targetLeft = focusX - halfViewWidth;
-  const targetTop = focusY - halfViewHeight;
-  const x = Math.max(minX, Math.min(maxX, targetLeft + halfViewWidth - width / 2));
-  const y = Math.max(minY, Math.min(maxY, targetTop + halfViewHeight - height / 2));
-  return { zoom, x, y };
+    : ['boss-identification', 'arena-reveal', 'handoff', 'complete'].includes(phase) ? 1 : 0;
+
+  const closeZoom = phase === 'hud-fade' || phase === 'loading' ? 1
+    : phase === 'pilot-intro' ? 1.12
+      : phase === 'anomaly-scan' ? 1.04
+        : phase === 'distant-contact'
+          ? 1.04 + (BOSS_CINEMATIC_REVEAL_ZOOM - 1.04) * revealProgress
+          : BOSS_CINEMATIC_REVEAL_ZOOM;
+  const arenaProgress = phase === 'arena-reveal' || phase === 'handoff' || phase === 'complete' ? 1 : 0;
+  const zoom = Math.max(minZoom, closeZoom + (BOSS_CINEMATIC_ARENA_ZOOM - closeZoom) * arenaProgress);
+
+  // Horizontal framing is deliberately locked to the pilot. The boss enters on the same axis,
+  // so the camera never drifts sideways during the reveal.
+  const focusX = player.x;
+  const bossTopY = boss ? boss.y - (boss.radius || boss.collisionRadius || 100) * 2.1 : player.y;
+  const pairFocusY = boss ? (bossTopY + player.y) / 2 : player.y;
+  const focusY = player.y + (pairFocusY - player.y) * revealProgress;
+
+  return {
+    zoom,
+    x: clampCamera(focusX, width, zoom, worldWidth),
+    y: clampCamera(focusY, height, zoom, worldHeight)
+  };
 }
 
 export function prepareBossForCombatHandoff(boss, targetY = boss?.y) {
