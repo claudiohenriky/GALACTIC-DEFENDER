@@ -467,7 +467,9 @@ export class Enemy {
             color: options.color ?? '#73e7ff',
             glowColor: options.glowColor ?? '#36aee8',
             homing: options.homing ?? false,
-            turnRate: options.turnRate ?? 1.8
+            turnRate: options.turnRate ?? 1.8,
+            heavyImpact: options.heavyImpact ?? false,
+            plasmaImpact: options.plasmaImpact ?? false
           };
         };
 

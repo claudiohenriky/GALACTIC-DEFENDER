@@ -6,6 +6,7 @@
 - O DREADNOUGHT não usa esquiva de tropas contra tiros do jogador; reposicionamento lateral e estabilização ficam mais curtos, a rotação do casco responde melhor e a cadência de ataque aumenta gradualmente por fase.
 - Mísseis continuam sendo priorizados a longa distância; lançadores mantêm alcance de 980. O plasma mantém velocidade de 760 e repulsão pesada já definida.
 - O renderer do encouraçado agora respeita a escala adaptativa de efeitos: em qualidade reduzida, substitui o gradiente dos propulsores por preenchimento sólido, preservando a silhueta.
+- Corrige a propagação dos sinalizadores `heavyImpact` e `plasmaImpact` dos canhões para o sistema de colisão, garantindo que a ruptura e a repulsão próprias do plasma sejam acionadas.
 - **Validação automatizada:** testes de balanceamento, mobilidade, cadência, esquiva do boss e armamento adicionados. Playtest mobile/desktop e medição real de FPS continuam pendentes.
 
 ## [0.54.5] — notificações táticas e posicionamento de diálogo
