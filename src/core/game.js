@@ -1,5 +1,6 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
-import { Enemy } from '../enemies/enemy.js?v=0.47.0-combat-rebalance';
+import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
+import { Enemy } from '../enemies/enemy.js?v=0.50.0-ai-balance';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
@@ -14,7 +15,7 @@ import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createWaveTenTransition, advanceWaveTenTransition, finalizeWaveTenTransition } from './wave-ten-transition.js?v=0.48.0-boss-handoff';
-import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction } from '../ui/pilot-reactions.js?v=0.49.0-pilot-reactions';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction } from '../ui/pilot-reactions.js?v=0.50.0-pilot-reactions';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1295,11 +1296,18 @@ export class Game {
     const previousPhase = transition.phase;
     advanceWaveTenTransition(transition, dt);
     if (previousPhase !== transition.phase) {
-      if (transition.phase === 'boss-entry') triggerPilotReaction(this.pilotReaction, '❓', 2.1);
-      if (transition.phase === 'boss-taunt') triggerPilotReaction(this.pilotReaction, '❗', 2.0);
+      if (transition.phase === 'boss-entry') {
+        transition.bossDangerReactionShown = false;
+        triggerPilotReaction(this.pilotReaction, '❓', 1.55);
+      }
     }
     if (previousPhase !== 'boss-entry' && transition.phase === 'boss-entry') {
       transition.boss = new Enemy(this.player.x, transition.bossStartY, 10, 'boss');
+    }
+    if (transition.phase === 'boss-entry' && !transition.bossDangerReactionShown &&
+        transition.phaseElapsed >= transition.phaseDuration - 0.3) {
+      transition.bossDangerReactionShown = true;
+      triggerPilotReaction(this.pilotReaction, '❗', 2.0);
     }
     if (transition.phase === 'boss-entry' && transition.boss) {
       const progress = Math.max(0, Math.min(1, transition.phaseElapsed / transition.phaseDuration));
@@ -1615,46 +1623,17 @@ export class Game {
     this.guardianAssignmentTimer = Math.max(0, this.guardianAssignmentTimer - dt);
     if (this.guardianAssignmentTimer <= 0) {
       this.guardianAssignmentTimer = 0.35;
-      // Assign each active Guardian up to two unique allies. Elite Guardians are assigned first.
+      // Elite Guardians receive assignments first; protection priority is then
+      // based on ally class/rank, with distance as the tie-breaker.
       const assignedAllies = new Set();
-      // Two stable passes preserve the former elite-first sort order without
-      // allocating and sorting a temporary Guardian roster.
       for (let priorityPass = 0; priorityPass < 2; priorityPass += 1) {
         const elitePass = priorityPass === 0;
         for (const guardian of this.enemies) {
           if (!guardian.active || guardian.type !== 'guardian' || Boolean(guardian.isElite) !== elitePass) continue;
-          // Preserve Sentinel-first priority and nearest-distance ordering.
-          let first = null, second = null;
-          let firstPriority = Infinity, secondPriority = Infinity;
-          let firstDistance = Infinity, secondDistance = Infinity;
-          for (const ally of this.enemies) {
-            if (!ally.active || ally === guardian || ally.type === 'guardian' ||
-                ally.type === 'boss' || assignedAllies.has(ally)) continue;
-            const priority = ally.type === 'sentinel' ? 0 : 1;
-            const dx = ally.x - guardian.x, dy = ally.y - guardian.y;
-            const distance = dx * dx + dy * dy;
-            if (priority < firstPriority || (priority === firstPriority && distance < firstDistance)) {
-              second = first;
-              secondPriority = firstPriority;
-              secondDistance = firstDistance;
-              first = ally;
-              firstPriority = priority;
-              firstDistance = distance;
-            } else if (priority < secondPriority || (priority === secondPriority && distance < secondDistance)) {
-              second = ally;
-              secondPriority = priority;
-              secondDistance = distance;
-            }
-          }
-          guardian.protectedAllies = [];
-          if (first) {
-            guardian.protectedAllies.push(first);
-            assignedAllies.add(first);
-          }
-          if (second) {
-            guardian.protectedAllies.push(second);
-            assignedAllies.add(second);
-          }
+          guardian.protectedAllies = selectGuardianProtectionTargets(
+            guardian, this.enemies, assignedAllies, 360
+          );
+          for (const ally of guardian.protectedAllies) assignedAllies.add(ally);
         }
       }
     }
