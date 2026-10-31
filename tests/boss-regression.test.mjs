@@ -249,8 +249,8 @@ test('basic Sentinel has reduced mobility while Elite remains a distinct faster 
  const elite=new Enemy(100,100,1,'sentinel',true);
  assert.equal(basic.isElite,false);
  assert.equal(basic.speed,40);
- assert.equal(ENEMY_MOTION_PROFILES.sentinel.maxSpeed,112);
- assert.equal(ENEMY_MOTION_PROFILES.sentinel.acceleration,240);
+ assert.equal(ENEMY_MOTION_PROFILES.sentinel.maxSpeed,76);
+ assert.equal(ENEMY_MOTION_PROFILES.sentinel.acceleration,155);
  assert.ok(ENEMY_MOTION_PROFILES.sentinelElite.maxSpeed>ENEMY_MOTION_PROFILES.sentinel.maxSpeed);
  assert.ok(ENEMY_MOTION_PROFILES.sentinelElite.acceleration>ENEMY_MOTION_PROFILES.sentinel.acceleration);
  assert.equal(elite.isElite,true);
@@ -278,13 +278,15 @@ test('combat rebalance lowers basic enemy mobility and keeps Elite variants dist
  const guardian=new Enemy(100,100,1,'guardian');
  const interceptor=new Enemy(100,100,1,'interceptor');
  assert.equal(sentinel.speed,35.6);
- assert.equal(ENEMY_MOTION_PROFILES.sentinel.maxSpeed,88);
- assert.equal(ENEMY_MOTION_PROFILES.sentinel.acceleration,180);
+ assert.equal(ENEMY_MOTION_PROFILES.sentinel.maxSpeed,76);
+ assert.equal(ENEMY_MOTION_PROFILES.sentinel.acceleration,155);
  assert.equal(artillery.speed,29.6);
- assert.equal(ENEMY_MOTION_PROFILES.artillery.maxSpeed,88);
- assert.equal(ENEMY_MOTION_PROFILES.artillery.acceleration,170);
- assert.ok(ENEMY_MOTION_PROFILES.artilleryElite.maxSpeed>ENEMY_MOTION_PROFILES.artillery.maxSpeed);
- assert.ok(ENEMY_MOTION_PROFILES.artilleryElite.acceleration>ENEMY_MOTION_PROFILES.artillery.acceleration);
+ assert.equal(ENEMY_MOTION_PROFILES.artillery.maxSpeed,68);
+ assert.equal(ENEMY_MOTION_PROFILES.artillery.acceleration,135);
+ assert.equal(ENEMY_MOTION_PROFILES.artilleryElite.maxSpeed,108);
+  assert.ok(ENEMY_MOTION_PROFILES.artilleryElite.maxSpeed>ENEMY_MOTION_PROFILES.artillery.maxSpeed);
+ assert.equal(ENEMY_MOTION_PROFILES.artilleryElite.acceleration,210);
+  assert.ok(ENEMY_MOTION_PROFILES.artilleryElite.acceleration>ENEMY_MOTION_PROFILES.artillery.acceleration);
  assert.equal(ENEMY_MOTION_PROFILES.guardian.maxSpeed,90);
  assert.ok(interceptor.speed<100);
  assert.equal(guardian.isElite,false);
@@ -346,7 +348,7 @@ test('basic Artillery uses a slower and shorter lateral dodge',()=>{
 
 test('Guardian protection prioritizes Elite ranged allies, then normal ranged allies and nearby troops',()=>{
  const guardian=new Enemy(400,400,1,'guardian');
- const eliteSentinel=new Enemy(560,400,1,'sentinel',true);
+ const eliteSentinel=new Enemy(500,400,1,'sentinel',true);
  const eliteArtillery=new Enemy(420,560,1,'artillery',true);
  const normalSentinel=new Enemy(430,420,1,'sentinel');
  const normalArtillery=new Enemy(440,420,1,'artillery');
