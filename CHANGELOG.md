@@ -1,3 +1,13 @@
+## [Unreleased] — DREADNOUGHT · COLOSSAL WARSHIP — redesign tridimensional
+
+- Retorna o boss à renderização vetorial suave do jogo; a experiência de pixel art permanece apenas como estudo visual e não é usada nesta implementação.
+- Redesenha a apresentação do DREADNOUGHT com geometria em camadas, laterais facetadas, sombras projetadas, chanfros, gradientes direcionais e superestrutura elevada para criar volume 3D em perspectiva superior 2D.
+- Adiciona ponte de comando escalonada, encaixe frontal do canhão principal, poço de reator ciano com iluminação radial, segmentação de blindagem, rebites, grelhas e propulsores auxiliares.
+- Preserva o grafite fosco, o aço escovado, o núcleo ciano, os armamentos de plasma laranja e os traços verdes localizados da fase adaptativa.
+- Atualiza a identificação de entrada e o alerta da arena para **DREADNOUGHT — COLOSSAL WARSHIP**.
+- Mantém os dez módulos, escudos regionais, IA, movimento, dano, cadência, colisões, hitboxes e transições de fase sem alterações intencionais.
+- **Validação pendente:** conferir leitura da silhueta, profundidade dos volumes, sobreposição dos hardpoints, efeitos de dano, escala em celular e desempenho em computador.
+
 ## [Unreleased] — Nitidez da pixel art e propulsores do Encouraçado
 
 - Aumentada a resolução interna da arte de 80 × 104 para 100 × 144 pixels, com ampliação exata de 4× e suavização desativada para bordas mais definidas.
