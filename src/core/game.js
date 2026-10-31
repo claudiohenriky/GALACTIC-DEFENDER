@@ -7,7 +7,7 @@ import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
-import { getBossBeamSegment } from '../enemies/boss-systems.js?v=0.47.0-combat-rebalance';
+import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.53.0-stage-6-7';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nine-test-start';
@@ -15,7 +15,7 @@ import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createWaveTenTransition, advanceWaveTenTransition, finalizeWaveTenTransition } from './wave-ten-transition.js?v=0.51.0-cinematic-camera';
-import { getBossCameraFrame, getBossEntrancePositions } from './boss-camera.js?v=0.52.0-impact-refinement';
+import { getBossCameraFrame, getBossEntrancePositions } from './boss-camera.js?v=0.53.0-stage-6-7';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction } from '../ui/pilot-reactions.js?v=0.50.0-pilot-reactions';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
@@ -1288,6 +1288,11 @@ export class Game {
 
   beginWaveTenTransition() {
     this.clearInput();
+    // Freeze residual inertia/knockback while the cinematic owns the camera.
+    this.player.velocityX = 0;
+    this.player.velocityY = 0;
+    this.player.knockbackX = 0;
+    this.player.knockbackY = 0;
     this.continuousLaserHeld = false;
     this.projectiles.length = 0;
     this.enemyProjectiles.length = 0;
@@ -1351,6 +1356,18 @@ export class Game {
       this.waveTenTransition = null;
       if (revealedBoss) {
         revealedBoss.y = transition.bossEndY;
+        // Transfer the cinematic zoom and preserve its vertical standoff at handoff.
+        this.cameraZoom = transition.cameraZoom;
+        revealedBoss.bossMoveTargetY = transition.bossEndY;
+        revealedBoss.bossMoveTargetX = revealedBoss.x;
+        revealedBoss.bossMovementState = 'patrol';
+        revealedBoss.bossMovementTimer = 0;
+        revealedBoss.velocityX = 0;
+        revealedBoss.velocityY = 0;
+        this.player.velocityX = 0;
+        this.player.velocityY = 0;
+        this.player.knockbackX = 0;
+        this.player.knockbackY = 0;
         this.enemies = [revealedBoss];
         this.waveManager.enemyCount = 1;
         this.waveManager.spawnedCount = 1;
@@ -1719,32 +1736,12 @@ export class Game {
         }
         for (const module of enemy.bossSystems?.modules || []) {
           if (!module.kind.includes('plasma')) continue;
-          const warningWindow = module.plasmaWarningDuration ?? 1.5;
-          const warningActive = module.state !== 'destroyed' && module.state !== 'disabled' &&
-            module.transitionTimer <= 0 && module.plasmaChargeTimer > 0 &&
-            module.plasmaChargeTimer <= warningWindow && enemy.fireCooldown > 0 &&
-            module.plasmaChargeTimer <= enemy.fireCooldown &&
-            Math.hypot(this.player.x - enemy.x, this.player.y - enemy.y) <= 500;
-          let threatensPilot = false;
-          if (warningActive) {
-            const hullRotation = enemy.facingRotation + Math.PI / 2;
-            const cosHull = Math.cos(hullRotation), sinHull = Math.sin(hullRotation);
-            const localX = module.x * enemy.radius;
-            const localY = (module.y - 0.16) * enemy.radius;
-            const muzzleX = enemy.x + localX * cosHull - localY * sinHull;
-            const muzzleY = enemy.y + localX * sinHull + localY * cosHull;
-            const angle = enemy.facingRotation + (module.turretAngle ?? 0);
-            const endX = muzzleX + Math.cos(angle) * 520;
-            const endY = muzzleY + Math.sin(angle) * 520;
-            const targetLocalX = (this.player.x - enemy.x) * cosHull + (this.player.y - enemy.y) * sinHull;
-            const sameWeaponSide = Math.abs(targetLocalX) <= enemy.radius * 0.08 ||
-              Math.sign(targetLocalX) === Math.sign(module.x);
-            const withinWeaponRange = Math.hypot(this.player.x - muzzleX, this.player.y - muzzleY) <= (module.firingRange ?? 500);
-            threatensPilot = sameWeaponSide && withinWeaponRange && circleOverlapsSegment(
-              this.player, muzzleX, muzzleY, endX, endY,
-              (this.player.radius ?? 0) + 21
-            );
-          }
+          const warningActive = isBossPlasmaTelegraphActive(enemy, module, this.player.x, this.player.y);
+          const segment = warningActive ? getBossPlasmaSegment(enemy, module) : null;
+          const threatensPilot = Boolean(segment && circleOverlapsSegment(
+            this.player, segment.startX, segment.startY, segment.endX, segment.endY,
+            (this.player.radius ?? 0) + segment.width / 2
+          ));
           signalPilotThreat(this.pilotReaction, module, threatensPilot);
         }
         if (mainCannon?.energyState === 'firing' && !enemy.bossBeamHit) {
@@ -2033,6 +2030,33 @@ export class Game {
         ctx.beginPath(); ctx.moveTo(beam.startX, beam.startY); ctx.lineTo(beam.endX, beam.endY); ctx.stroke();
       }
       ctx.restore();
+    }
+    // Plasma telegraphs reuse the muzzle/trajectory geometry used by threat detection.
+    for (const boss of this.enemies) {
+      if (!boss.active || boss.type !== 'boss' || boss.bossDying) continue;
+      for (const module of boss.bossSystems?.modules || []) {
+        if (!isBossPlasmaTelegraphActive(boss, module, this.player.x, this.player.y)) continue;
+        const segment = getBossPlasmaSegment(boss, module);
+        if (!circleOverlapsSegment(this.player, segment.startX, segment.startY, segment.endX, segment.endY,
+          (this.player.radius ?? 0) + segment.width / 2)) continue;
+        const pulse = 0.72 + Math.sin(boss.phase * 16 + (module.x < 0 ? 0 : Math.PI)) * 0.16;
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.globalAlpha = 0.12 * pulse;
+        ctx.strokeStyle = '#ff9d48';
+        ctx.lineWidth = segment.width;
+        ctx.beginPath(); ctx.moveTo(segment.startX, segment.startY); ctx.lineTo(segment.endX, segment.endY); ctx.stroke();
+        ctx.globalAlpha = 0.82 * pulse;
+        ctx.strokeStyle = '#ffd08a';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([10, 9]);
+        ctx.beginPath(); ctx.moveTo(segment.startX, segment.startY); ctx.lineTo(segment.endX, segment.endY); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = '#ffe2a8';
+        ctx.beginPath(); ctx.arc(segment.startX, segment.startY, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
     }
     // Elite Guardian's shared barrier is drawn around each of its assigned allies.
     for (const guardian of this.enemies) {

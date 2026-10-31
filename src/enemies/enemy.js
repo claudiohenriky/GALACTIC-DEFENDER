@@ -1,4 +1,5 @@
-import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.47.0-combat-rebalance';
+import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.53.0-stage-6-7';
+import { getBossCombatTargetY } from '../core/boss-camera.js?v=0.53.0-stage-6-7';
 import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.50.0-ai-balance';
 import { getGuardianProtectionPriority } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
 
@@ -275,7 +276,7 @@ export class Enemy {
       const predictionHorizon = this.bossPhase === 3 ? 0.5 : 0.38;
       const predictedTargetX = Math.max(this.radius, Math.min(width - this.radius, targetX + playerVelocityX * predictionHorizon));
       const predictedTargetY = Math.max(this.radius, Math.min(height - this.radius, targetY + playerVelocityY * predictionHorizon));
-      const desiredY = Math.max(this.collisionRadius + 24, Math.min(predictedTargetY - Math.max(bowClearance, height * 0.28), height - this.collisionRadius - 30));
+      const desiredY = getBossCombatTargetY(predictedTargetY, height, this.radius, this.collisionRadius);
       const entryStartY = cameraTop - this.radius * 1.9;
 
       if (this.bossMovementState === 'reposition' && this.bossMovementTimer <= 0) {
@@ -499,7 +500,7 @@ export class Enemy {
               color: '#8df4ff', glowColor: '#32c9ff'
             }));
           } else if (module.kind.includes('machine-gun')) {
-            const burst = this.bossPhase === 1 ? 2 : this.bossPhase === 2 ? 3 : 4;
+            const burst = this.bossPhase === 1 ? 2 : 3;
             for (let index = 0; index < burst; index += 1) {
               const offset = index - (burst - 1) / 2;
               shots.push(makeShot(module, {
@@ -536,7 +537,7 @@ export class Enemy {
           }
         }
 
-        this.fireCooldown = this.bossPhase === 1 ? 1.85 : this.bossPhase === 2 ? 1.55 : 1.3;
+        this.fireCooldown = this.bossPhase === 1 ? 1.85 : this.bossPhase === 2 ? 1.7 : 1.55;
         if (shots.length) shot = shots;
       }
     } else if (this.type === 'interceptor') {

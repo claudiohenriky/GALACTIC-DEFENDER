@@ -37,11 +37,19 @@ const getWeaponFamily = (kind = '') => {
 // Select one readable weapon family per volley. Selection considers live modules,
 // target range, the side envelope and whether a plasma mount has actually charged.
 export function selectBossAttack(modules, targetDistance, targetLocalX, centerlineTolerance = 8, phase = 1) {
-  const priorities = targetDistance <= 500
-    ? ['plasma', 'machine-gun', 'light-laser', 'missile']
-    : targetDistance <= 760
-      ? ['missile', 'machine-gun', 'light-laser', 'plasma']
-      : ['missile', 'machine-gun', 'light-laser', 'plasma'];
+  // Each phase changes the order of weapon families without stacking every
+  // attack at once. Phase 3 mixes close-range missile pressure with plasma.
+  const priorities = phase >= 3
+    ? (targetDistance <= 500
+      ? ['missile', 'plasma', 'machine-gun', 'light-laser']
+      : ['missile', 'machine-gun', 'light-laser', 'plasma'])
+    : phase === 2
+      ? (targetDistance <= 500
+        ? ['plasma', 'missile', 'machine-gun', 'light-laser']
+        : ['missile', 'light-laser', 'machine-gun', 'plasma'])
+      : (targetDistance <= 500
+        ? ['plasma', 'machine-gun', 'light-laser', 'missile']
+        : ['missile', 'machine-gun', 'light-laser', 'plasma']);
 
   for (const family of priorities) {
     const available = modules.some((module) => {
@@ -98,6 +106,38 @@ export function getBossBeamSegment(boss, module) {
     range,
     width: module.energyBeamWidth ?? 46
   };
+}
+
+// Exact muzzle-to-trajectory geometry for plasma warning and shot readability.
+export function getBossPlasmaSegment(boss, module) {
+  const hullRotation = boss.facingRotation + Math.PI / 2;
+  const localX = module.x * boss.radius;
+  const localY = (module.y - 0.16) * boss.radius;
+  const cosHull = Math.cos(hullRotation);
+  const sinHull = Math.sin(hullRotation);
+  const startX = boss.x + localX * cosHull - localY * sinHull;
+  const startY = boss.y + localX * sinHull + localY * cosHull;
+  const angle = boss.facingRotation + (module.turretAngle ?? 0);
+  const range = 520;
+  return { startX, startY, endX: startX + Math.cos(angle) * range,
+    endY: startY + Math.sin(angle) * range, angle, range, width: 42 };
+}
+
+// A plasma telegraph is shown only when the weapon is near-ready, can reach
+// the pilot, and its wing is allowed to engage that side.
+export function isBossPlasmaTelegraphActive(boss, module, targetX, targetY) {
+  if (!boss || !module || !module.kind.includes('plasma')) return false;
+  if (boss.bossEntranceTimer > 0 || boss.bossPhaseTransition > 0 || boss.fireCooldown <= 0) return false;
+  if (module.state === 'destroyed' || module.state === 'disabled' || (module.transitionTimer ?? 0) > 0) return false;
+  const charge = module.plasmaChargeTimer ?? 0;
+  const warningWindow = module.plasmaWarningDuration ?? 1.5;
+  if (charge > warningWindow || charge > boss.fireCooldown) return false;
+  const segment = getBossPlasmaSegment(boss, module);
+  const dx = targetX - segment.startX, dy = targetY - segment.startY;
+  if (dx * dx + dy * dy > (module.firingRange ?? 500) ** 2) return false;
+  const hullRotation = boss.facingRotation + Math.PI / 2;
+  const targetLocalX = dx * Math.cos(hullRotation) + dy * Math.sin(hullRotation);
+  return Math.abs(targetLocalX) <= boss.radius * 0.08 || Math.sign(targetLocalX) === Math.sign(module.x);
 }
 
 export class BossSystems {

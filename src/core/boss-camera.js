@@ -35,3 +35,12 @@ export function getBossCameraFrame({ phase, player, boss = null, width, height, 
     y: focusY - height / 2
   };
 }
+
+
+// Keep the normal combat standoff aligned with the cinematic reveal. The arena
+// is 2.4x the viewport, so 0.92 viewport-heights equals this world-space ratio.
+export function getBossCombatTargetY(playerY, worldHeight, radius = 100, collisionRadius = radius * 1.45) {
+  const safeHeight = Math.max(1, Number(worldHeight) || 1);
+  const standoff = Math.max(radius * 2.18 + 38, safeHeight * (0.92 / 2.4));
+  return Math.max(collisionRadius + 24, Math.min(playerY - standoff, safeHeight - collisionRadius - 30));
+}

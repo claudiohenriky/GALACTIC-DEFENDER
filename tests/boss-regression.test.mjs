@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { circlesOverlap, orientedEllipseOverlapsCircle } from '../src/combat/collision.js';
-import { BossSystems, getBossBeamSegment, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from '../src/enemies/boss-systems.js';
+import { BossSystems, getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from '../src/enemies/boss-systems.js';
 import { Enemy } from '../src/enemies/enemy.js';
 import { getGuardianProtectionPriority, selectGuardianProtectionTargets } from '../src/ai/guardian-protection.js';
 import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
 import { advanceWaveTenTransition, createWaveTenTransition, finalizeWaveTenTransition, WAVE_TEN_TRANSITION_DURATION } from '../src/core/wave-ten-transition.js';
-import { getBossCameraFrame, getBossEntrancePositions } from '../src/core/boss-camera.js';
+import { getBossCameraFrame, getBossEntrancePositions, getBossCombatTargetY } from '../src/core/boss-camera.js';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat } from '../src/ui/pilot-reactions.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
@@ -397,4 +397,37 @@ test('boss camera respects the calculated minimum zoom on narrow viewports',()=>
  const frame=getBossCameraFrame({phase:'boss-taunt',player:{x:180,y:500,radius:12},boss:{x:180,y:200,collisionRadius:145},width:360,height:740,minZoom:0.55});
  assert.equal(frame.zoom,0.55);
  assert.equal(frame.x,0);
+});
+
+
+test('DREADNOUGHT combat standoff matches its cinematic reveal and prevents a vertical handoff correction',()=>{
+ const viewportHeight=720, worldHeight=viewportHeight*2.4, playerY=1400;
+ const entrance=getBossEntrancePositions(playerY,viewportHeight);
+ const combatTarget=getBossCombatTargetY(playerY,worldHeight,100,145);
+ assert.ok(Math.abs(entrance.endY-combatTarget)<1e-9);
+});
+
+test('DREADNOUGHT phase attack priorities create distinct but readable weapon rotations',()=>{
+ const systems=new BossSystems();
+ for(const module of systems.modules) module.plasmaChargeTimer=0;
+ assert.equal(selectBossAttack(systems.modules,450,-32,8,1),'plasma');
+ assert.equal(selectBossAttack(systems.modules,450,-32,8,2),'plasma');
+ assert.equal(selectBossAttack(systems.modules,450,-32,8,3),'missile');
+ assert.equal(selectBossAttack(systems.modules,680,32,8,2),'missile');
+});
+
+test('DREADNOUGHT plasma telegraph matches the weapon muzzle and activates only during its final charge window',()=>{
+ const boss=new Enemy(500,300,10,'boss');
+ boss.bossEntranceTimer=0;
+ boss.fireCooldown=1.2;
+ boss.facingRotation=Math.PI/2;
+ const module=boss.bossSystems.getModule('plasma-cannon-left-forward');
+ module.plasmaChargeTimer=1.1;
+ const segment=getBossPlasmaSegment(boss,module);
+ assert.ok(Number.isFinite(segment.startX)&&Number.isFinite(segment.endY));
+ assert.equal(isBossPlasmaTelegraphActive(boss,module,segment.startX+100,segment.startY+40),true);
+ module.plasmaChargeTimer=2.1;
+ assert.equal(isBossPlasmaTelegraphActive(boss,module,segment.startX+100,segment.startY+40),false);
+ module.plasmaChargeTimer=0;
+ assert.equal(isBossPlasmaTelegraphActive(boss,module,segment.startX+100,segment.startY+40),true);
 });
