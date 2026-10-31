@@ -51,3 +51,16 @@ test('cinematic camera clamps safely on narrow and portrait viewports', () => {
     assert.ok(frame.x >= 0 && frame.y >= 0);
   }
 });
+
+test('cinematic camera keeps both ships centered when their horizontal positions differ', () => {
+  const separatedPlayer = { x: 900, y: 1500, radius: 12 };
+  const separatedBoss = { x: 1500, y: 900, collisionRadius: 145 };
+  const frame = getBossCinematicCameraFrame({
+    phase: 'distant-contact', phaseElapsed: 13, phaseDuration: 13,
+    player: separatedPlayer, boss: separatedBoss,
+    width: 900, height: 420, minZoom: 1 / 2.4,
+    worldWidth: 2160, worldHeight: 1008
+  });
+  const expectedFocus = (separatedPlayer.x + separatedBoss.x) / 2;
+  assert.ok(Math.abs((frame.x + 450) - expectedFocus) < 1e-9);
+});
