@@ -24,7 +24,7 @@ export function advanceWaveTenTransition(state, dt) {
   const safeDelta = Math.max(0, Math.min(0.05, Number(dt) || 0));
   state.elapsed += safeDelta;
   state.phaseElapsed += safeDelta;
-  if (state.phaseElapsed >= state.phaseDuration) {
+  if (state.phaseElapsed + 1e-9 >= state.phaseDuration) {
     state.phaseIndex = Math.min(TRANSITION_PHASES.length - 1, state.phaseIndex + 1);
     const next = TRANSITION_PHASES[state.phaseIndex];
     state.phase = next.phase;
