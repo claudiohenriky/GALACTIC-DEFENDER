@@ -16,24 +16,42 @@ export const BOSS_CINEMATIC_PHASES = Object.freeze([
 // This keeps the 4.5-second reading rhythm stable if a phase is later extended.
 export const BOSS_CINEMATIC_DIALOGUE = Object.freeze({
   'pilot-intro': Object.freeze([
-    { at: 0.5, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Setor nove... finalmente limpo. Não detecto mais nenhuma unidade hostil.' },
-    { at: 5, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Vou conferir os sistemas e traçar a próxima rota. Por enquanto, parece tranquilo.' }
+    { at: 0.5, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Setor nove limpo. Nenhuma unidade hostil no radar.' },
+    { at: 4.8, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Leituras estáveis... vou recalcular a rota. Por enquanto, tudo parece tranquilo.' }
   ]),
   'anomaly-scan': Object.freeze([
-    { at: 0.35, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Espera... isso não é interferência comum. Tem alguma coisa à nossa frente.' },
-    { at: 3.55, speaker: 'SISTEMA // VANGUARD', actor: 'system', text: 'Interferência confirmada. Origem e classe da assinatura ainda desconhecidas.' },
-    { at: 6.45, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'A assinatura está aumentando rápido. Central, estão recebendo esses dados?' }
+    { at: 0.35, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Espera. Estou captando uma distorção à frente. Isso não parece interferência comum.' },
+    { at: 3.55, speaker: 'SISTEMA // VANGUARD', actor: 'system', text: 'Leitura confirmada. Assinatura desconhecida. Intensidade em rápida elevação.' },
+    { at: 6.45, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Central, estão recebendo isso? A assinatura está crescendo rápido demais!' }
   ]),
   'distant-contact': Object.freeze([
-    { at: 0.4, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Contato visual... pelos céus. Essa nave é gigantesca!' },
-    { at: 4.9, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Não vou chegar mais perto. Armas em alerta — não sabemos o alcance dela.' },
-    { at: 9.4, speaker: 'DREADNOUGHT', actor: 'boss', text: 'Identificação: piloto Vanguard. Sua resistência foi... curiosa.' },
-    { at: 13.9, speaker: 'DREADNOUGHT', actor: 'boss', text: 'A avaliação terminou. Ajoelhe-se diante do poder da minha frota.' }
+    { at: 0.4, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Contato visual... Isso é uma nave? É enorme!' },
+    { at: 4.9, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Sem aproximação. Mantendo distância e travando os sistemas defensivos.' },
+    { at: 9.4, speaker: 'DREADNOUGHT', actor: 'boss', text: 'Identificação confirmada: Vanguard. Você chegou mais longe do que o previsto.' },
+    { at: 14, speaker: 'DREADNOUGHT', actor: 'boss', text: 'A avaliação terminou. Agora, testemunhe o poder da minha frota.' }
   ]),
   'boss-identification': Object.freeze([
-    { at: 0.2, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'DREADNOUGHT... então era você por trás dos sinais. Sistemas defensivos, agora!' }
+    { at: 0.2, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'DREADNOUGHT... então você estava por trás de tudo. Sistemas defensivos, preparar!' }
   ])
 });
+
+// Wrap dialogue without silently discarding words on narrow mobile screens.
+export function wrapBossCinematicDialogue(text, measureText, maxWidth, maxRows = 4) {
+  if (typeof measureText !== 'function' || !Number.isFinite(maxWidth) || maxWidth <= 0) return [];
+  const rows = [];
+  let row = '';
+  for (const word of String(text ?? '').split(/\\s+/).filter(Boolean)) {
+    const candidate = row ? `${row} ${word}` : word;
+    if (row && measureText(candidate) > maxWidth) {
+      rows.push(row);
+      row = word;
+    } else {
+      row = candidate;
+    }
+  }
+  if (row) rows.push(row);
+  return rows.slice(0, Math.max(1, Math.floor(maxRows)));
+}
 
 export const BOSS_CINEMATIC_ALERTS = Object.freeze({
   anomaly: Object.freeze({
