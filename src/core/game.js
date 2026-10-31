@@ -14,6 +14,7 @@ import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createWaveTenTransition, advanceWaveTenTransition, finalizeWaveTenTransition } from './wave-ten-transition.js?v=0.48.0-boss-handoff';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction } from '../ui/pilot-reactions.js?v=0.49.0-pilot-reactions';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -47,6 +48,7 @@ export class Game {
     this.cameraZoom = 1;
     this.bossEncounterSeen = false;
     this.eliteAlertsShown = new Set();
+    this.pilotReaction = createPilotReactionState();
     this.guardianAssignmentTimer = 0;
     this.eliteTactics = new EliteTacticalCoordinator();
     this.enemyTactics = new EnemyTacticalCoordinator();
@@ -1292,6 +1294,10 @@ export class Game {
     if (!transition) return;
     const previousPhase = transition.phase;
     advanceWaveTenTransition(transition, dt);
+    if (previousPhase !== transition.phase) {
+      if (transition.phase === 'boss-entry') triggerPilotReaction(this.pilotReaction, '❓', 2.1);
+      if (transition.phase === 'boss-taunt') triggerPilotReaction(this.pilotReaction, '❗', 2.0);
+    }
     if (previousPhase !== 'boss-entry' && transition.phase === 'boss-entry') {
       transition.boss = new Enemy(this.player.x, transition.bossStartY, 10, 'boss');
     }
@@ -1315,6 +1321,10 @@ export class Game {
       this.showRewardBanner('ALERTA MÁXIMA · DREADNOUGHT DETECTADO', 'COLOSSAL WARSHIP · SISTEMAS DE COMBATE IDENTIFICADOS', 'boss');
       this.clearInput();
     }
+  }
+
+  drawPilotReaction(ctx, x, y) {
+    drawPilotReaction(ctx, this.pilotReaction, x, y);
   }
 
   renderWaveTenTransition(ctx) {
@@ -1400,9 +1410,16 @@ export class Game {
       }
     }
     ctx.restore();
+    if (this.pilotReaction.remaining > 0) {
+      const zoom = Math.max(this.cameraMinZoom, transition.cameraZoom);
+      const screenX = (this.player.x - this.cameraX - this.width / 2) * zoom + this.width / 2 + 30;
+      const screenY = (this.player.y - this.cameraY - this.height / 2) * zoom + this.height / 2 - 34;
+      this.drawPilotReaction(ctx, screenX, screenY);
+    }
   }
 
   update(dt) {
+    updatePilotReaction(this.pilotReaction, dt);
     if (this.waveTenTransition) {
       this.updateWaveTenTransition(dt);
       return;
@@ -1531,6 +1548,7 @@ export class Game {
       }
       if (isElite && !this.eliteAlertsShown.has(type)) {
         this.eliteAlertsShown.add(type);
+        triggerPilotReaction(this.pilotReaction, '❓', 1.55);
         const alerts = {
           artillery: ['AMEAÇA DE ARTILHARIA DETECTADA', 'A nave detectou um Artilheiro de Elite. Blindagem e poder de fogo acima do padrão.'],
           sentinel: ['AMEAÇA TÁTICA DETECTADA', 'A nave detectou uma Sentinela de Elite. Disparos de plasma em salva dupla.'],
@@ -1652,6 +1670,38 @@ export class Game {
       const shot = enemy.update(dt, this.player.x, this.player.y, this.worldWidth, this.worldHeight, this.projectiles, this.enemies, cameraTop, this.player.velocityX, this.player.velocityY);
       if (enemy.type === 'boss' && !enemy.bossDying) {
         const mainCannon = enemy.bossSystems?.getModule('main-energy-cannon');
+        if (mainCannon) {
+          const beam = getBossBeamSegment(enemy, mainCannon);
+          const warningActive = mainCannon.energyState === 'warning';
+          const threatensPilot = warningActive && circleOverlapsSegment(
+            this.player, beam.startX, beam.startY, beam.endX, beam.endY,
+            (this.player.radius ?? 0) + beam.width / 2
+          );
+          signalPilotThreat(this.pilotReaction, mainCannon, threatensPilot);
+        }
+        for (const module of enemy.bossSystems?.modules || []) {
+          if (!module.kind.includes('plasma')) continue;
+          const warningActive = module.state !== 'destroyed' && module.state !== 'disabled' &&
+            module.transitionTimer <= 0 && module.plasmaChargeTimer > 0 &&
+            module.plasmaChargeTimer <= (module.plasmaWarningDuration ?? 1.5);
+          let threatensPilot = false;
+          if (warningActive) {
+            const hullRotation = enemy.facingRotation + Math.PI / 2;
+            const cosHull = Math.cos(hullRotation), sinHull = Math.sin(hullRotation);
+            const localX = module.x * enemy.radius;
+            const localY = (module.y - 0.16) * enemy.radius;
+            const muzzleX = enemy.x + localX * cosHull - localY * sinHull;
+            const muzzleY = enemy.y + localX * sinHull + localY * cosHull;
+            const angle = enemy.facingRotation + (module.turretAngle ?? 0);
+            const endX = muzzleX + Math.cos(angle) * 520;
+            const endY = muzzleY + Math.sin(angle) * 520;
+            threatensPilot = circleOverlapsSegment(
+              this.player, muzzleX, muzzleY, endX, endY,
+              (this.player.radius ?? 0) + 21
+            );
+          }
+          signalPilotThreat(this.pilotReaction, module, threatensPilot);
+        }
         if (mainCannon?.energyState === 'firing' && !enemy.bossBeamHit) {
           const beam = getBossBeamSegment(enemy, mainCannon);
           const hitRadius = (this.player.radius ?? 0) + beam.width / 2;
@@ -1975,6 +2025,9 @@ export class Game {
       Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
     this.drawShield(ctx);
     this.player.draw(ctx, playerVisible);
+    if (!this.waveTenTransition && this.pilotReaction.remaining > 0) {
+      this.drawPilotReaction(ctx, this.player.x + (this.player.radius ?? 12) + 18, this.player.y - (this.player.radius ?? 12) - 18);
+    }
     // Draw missiles after the ship so the hull cannot hide a launch from either wing.
     for (let index = 0; index < this.guidedMissiles.length; index += 1) this.guidedMissiles[index].draw(ctx);
 
