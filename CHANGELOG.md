@@ -821,3 +821,10 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Remove o realce quase branco/azul-claro do núcleo dos propulsores e mantém a paleta em ciano e azul-petróleo.
 - Escopo exclusivamente visual: não altera disparos, dano, cadência, IA, hitboxes, colisões, escudos ou telemetria de carga. O laser principal continua sem disparo/dano nesta candidata.
 - Validação visual em navegador, celular e desktop ainda pendente.
+
+
+## [Unreleased] — Balanceamento do Sentinela e preparação do teste da onda 9
+- Reduz a mobilidade evasiva do Sentinela básico: velocidade máxima e aceleração menores, esquiva lateral menos intensa/curta e deslocamento de patrulha mais contido. O perfil Elite permanece inalterado nesta rodada.
+- Adiciona início de onda configurável apenas por URL de teste; a campanha normal continua iniciando na onda 1.
+- A branch da cutscene aceita testStartWave=9 para jogar a onda inteira antes da transição; a branch de gameplay normal não usa esse atalho.
+- Testes automatizados adicionados para o perfil do Sentinela e a configuração da onda de teste. A validação em navegador e o ajuste fino de dificuldade continuam pendentes.
