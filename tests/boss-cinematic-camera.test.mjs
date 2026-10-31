@@ -5,7 +5,7 @@ import {
   BOSS_CINEMATIC_REVEAL_ZOOM,
   BOSS_CINEMATIC_ARENA_ZOOM
 } from '../src/core/boss-cinematic-camera.js';
-import { getBossCinematicSpawnPositions, preparePlayerForBossCinematic } from '../src/core/boss-positioning.js';
+import { getBossCinematicSpawnPositions, getBossCombatTargetY, preparePlayerForBossCinematic } from '../src/core/boss-positioning.js';
 
 const player = { x: 1200, y: 1650, radius: 13 };
 const boss = { x: 1200, y: 1200, radius: 100, collisionRadius: 145 };
@@ -101,7 +101,8 @@ test('boss spawn stays in front of the player with a fixed hull clearance', () =
   assert.equal(position.startX, ship.x);
   assert.equal(position.targetX, ship.x);
   assert.ok(position.startY < position.targetY);
-  assert.equal(position.targetY, ship.y - (100 * 2.1 + 13 + 80));
+  assert.equal(position.targetY, getBossCombatTargetY(ship.y, 2016, 100, 145));
+  assert.ok(ship.y - position.targetY >= 100 * 2.18 + ship.radius);
   assert.ok(position.targetY - position.startY >= 420 * 0.9);
 });
 
