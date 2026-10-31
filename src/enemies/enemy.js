@@ -1,4 +1,4 @@
-import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.57.1-plasma-cooldown';
+import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.57.2-boss-weapon-pass';
 import { getBossCombatTargetY } from '../core/boss-positioning.js?v=0.54.0-clean-cinematic';
 import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.57.1-boss-flank-movement';
 import { getGuardianProtectionPriority } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
@@ -67,6 +67,7 @@ export class Enemy {
     this.siegeWarningTimer = 0;
     this.siegeRecoveryTimer = 0;
     this.siegeAimAngle = Math.PI / 2;
+    this.siegeLockedAngle = this.siegeAimAngle;
     this.active = true;
     this.contactCooldown = 0;
     // Threat response is deliberately limited: ranged units dodge predicted near-misses, not every shot.
@@ -513,11 +514,19 @@ export class Enemy {
           if (targetDistance > (module.firingRange ?? 700)) continue;
           if (module.kind.includes('light-laser')) {
             const spread = this.bossPhase === 3 ? 0.045 : 0.075;
-            shots.push(makeShot(module, {
-              damage: 2.2, speed: 245, radius: 3,
-              angleOffset: module.x < 0 ? -spread : spread,
-              color: '#8df4ff', glowColor: '#32c9ff'
-            }));
+            if (module.id?.startsWith('long-range-ion-')) {
+              shots.push(makeShot(module, {
+                damage: 3.6, speed: 325, radius: 3.4,
+                angleOffset: module.x < 0 ? -0.025 : 0.025,
+                color: '#c8fbff', glowColor: '#38c9ff'
+              }));
+            } else {
+              shots.push(makeShot(module, {
+                damage: 2.2, speed: 245, radius: 3,
+                angleOffset: module.x < 0 ? -spread : spread,
+                color: '#8df4ff', glowColor: '#32c9ff'
+              }));
+            }
           } else if (module.kind.includes('machine-gun')) {
             const burst = this.bossPhase === 1 ? 2 : 3;
             for (let index = 0; index < burst; index += 1) {
@@ -532,10 +541,12 @@ export class Enemy {
             const profile = getBossMissileProfile(this.bossPhase);
             const spread = this.bossPhase === 3 ? 0.09 : 0.14;
             shots.push(makeShot(module, {
-              damage: profile.damage, speed: profile.speed, radius: 7,
-              homing: true, turnRate: profile.turnRate,
+              damage: profile.damage, speed: profile.speed, radius: 6,
+              homing: true, turnRate: profile.turnRate, guidedStyle: true,
+              lifetime: profile.lifetime, curveAmplitude: profile.curveAmplitude,
+              curveFrequency: profile.curveFrequency,
               angleOffset: module.x < 0 ? -spread : spread,
-              color: '#d7b6ff', glowColor: '#9d6cff'
+              color: '#f0d9ff', glowColor: '#bd72ff'
             }));
             this.bossMissileCooldown = profile.cooldown;
             this.bossMissileNextSide = -Math.sign(module.x);
@@ -567,12 +578,12 @@ export class Enemy {
       this.x += towardX * this.speed * 0.70 * dt - towardY * weave * dt;
       this.y += towardY * this.speed * 0.70 * dt + towardX * weave * dt;
     } else if (this.type === 'devastator') {
-      // Siege positioning is deliberately slow: the unit holds a distant lane
-      // and makes small corrections instead of chasing the pilot around the arena.
+      // Siege positioning is deliberately slow. During the warning the hull and barrel
+      // hold still so the locked telegraph remains exactly aligned with the fired shot.
       const laneOffset = Math.sin(this.phase * 0.28) * Math.min(width * 0.045, this.isElite ? 28 : 20);
       const desiredX = Math.max(this.radius * 1.5, Math.min(width - this.radius * 1.5, targetX + laneOffset));
       const desiredY = Math.max(this.radius * 2.6, targetY - Math.min(300, height * 0.42));
-      steerToPoint(this, desiredX, desiredY, this.motionProfile, dt);
+      if (this.siegeState !== 'warning') steerToPoint(this, desiredX, desiredY, this.motionProfile, dt);
 
       if (this.siegeState === 'charging') {
         this.siegeChargeTimer = Math.max(0, this.siegeChargeTimer - dt);
@@ -585,12 +596,14 @@ export class Enemy {
         this.siegeAimAngle = Math.atan2(predictedY - muzzleY, predictedX - muzzleX);
         if (this.siegeChargeTimer <= 0) {
           this.siegeState = 'warning';
+          this.siegeLockedAngle = this.siegeAimAngle;
+          this.siegeAimAngle = this.siegeLockedAngle;
           this.siegeWarningTimer = this.siegeWarningDuration;
         }
       } else if (this.siegeState === 'warning') {
         this.siegeWarningTimer = Math.max(0, this.siegeWarningTimer - dt);
         if (this.siegeWarningTimer <= 0) {
-          const angle = this.siegeAimAngle;
+          const angle = this.siegeLockedAngle;
           const muzzleX = this.x + Math.cos(angle) * this.radius * 1.82;
           const muzzleY = this.y + Math.sin(angle) * this.radius * 1.82;
           const reach = Math.max(width, height) * 1.9;
@@ -781,7 +794,7 @@ export class Enemy {
     if (this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss' || this.type === 'devastator') {
       const cannon = this.type === 'boss' ? this.bossSystems?.getModule('main-energy-cannon') : null;
       if (this.type === 'devastator' && this.siegeState === 'warning') {
-        this.facingRotation = this.siegeAimAngle;
+        this.facingRotation = this.siegeLockedAngle;
       } else if (cannon && (cannon.energyState === 'warning' || cannon.energyState === 'firing')) {
         this.facingRotation = cannon.energyAimAngle;
       } else {
