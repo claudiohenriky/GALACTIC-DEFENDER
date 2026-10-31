@@ -14,7 +14,10 @@
 - [ ] Dar aos chefes padrões próprios; não reutilizar a perseguição simples das tropas como controlador principal.
 - [ ] Testar teclado e controles móveis, limites da arena, mudanças de direção, colisões e estabilidade em diferentes taxas de quadros.
 - **Princípio de dificuldade:** os inimigos devem ganhar vantagem por posicionamento, cooperação e controle de áreas — não por conhecer perfeitamente o futuro ou reagir instantaneamente.
-- **Estado:** auditoria inicial identificou a lógica de movimento em `Enemy.update()` e a atualização de inimigos em `Game`; a implementação da nova arquitetura ainda não começou.
+- **Auditoria do jogador:** `Player.update()` usa velocidade-base de 250 e aceleração de 1800 unidades/s² para aproximar a velocidade atual da velocidade desejada; rotação, inclinação e propulsão visual são suavizadas separadamente. A câmera segue com suavização própria (`dt * 5.5`). A revisão deve distinguir a resposta física real dos efeitos visuais e do atraso da câmera.
+- **Auditoria dos inimigos:** a decisão de comportamento e o deslocamento ainda estão concentrados em ramificações de `Enemy.update()`. A atualização geral ocorre em `Game`, que também distribui formações dos Guardiões. Isso oferece um ponto claro para separar decisão tática, direção desejada e integração física.
+- **Auditoria das elites:** o construtor já limita `isElite` a `artillery`, `sentinel` e `guardian`; o Interceptador tem 1 ponto de integridade e não recebe variante Elite. Foi adicionado teste de regressão para manter essa regra.
+- **Estado:** auditoria estática inicial concluída; a implementação da nova arquitetura de movimentação ainda não começou. A próxima etapa é criar e testar a fundação de movimento sem alterar ainda os padrões de combate.
 
 ### DREADNOUGHT — proa limpa e redução de custo visual
 
