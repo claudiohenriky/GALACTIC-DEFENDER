@@ -20,7 +20,8 @@ export const BOSS_CINEMATIC_DIALOGUE = Object.freeze({
   ]),
   'anomaly-scan': Object.freeze([
     { at: 0.35, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Espera... isso não é interferência comum. Tem alguma coisa à nossa frente.' },
-    { at: 4.85, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'A assinatura está aumentando rápido. Central, estão recebendo esses dados?' }
+    { at: 2.65, speaker: 'SISTEMA // VANGUARD', actor: 'system', text: 'Interferência confirmada. Origem e classe da assinatura ainda desconhecidas.' },
+    { at: 5.45, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'A assinatura está aumentando rápido. Central, estão recebendo esses dados?' }
   ]),
   'distant-contact': Object.freeze([
     { at: 0.4, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Contato visual... pelos céus. Essa nave é gigantesca!' },
@@ -65,6 +66,12 @@ export function createBossCinematic() {
     cameraOwner: 'cinematic',
     boss: null,
     bossSpawned: false,
+    bossStartX: null,
+    bossStartY: null,
+    bossTargetX: null,
+    bossTargetY: null,
+    anomalyReactionShown: false,
+    bossReactionShown: false,
     handoffComplete: false
   };
 }
