@@ -1,5 +1,5 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
-import { Enemy } from '../enemies/enemy.js?v=0.45.0-common-reposition';
+import { Enemy } from '../enemies/enemy.js?v=0.45.0-boss-tactical-motion';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
@@ -1488,7 +1488,7 @@ export class Game {
       const enemy = this.enemies[index];
       const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
       const cameraTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
-      const shot = enemy.update(dt, this.player.x, this.player.y, this.worldWidth, this.worldHeight, this.projectiles, this.enemies, cameraTop);
+      const shot = enemy.update(dt, this.player.x, this.player.y, this.worldWidth, this.worldHeight, this.projectiles, this.enemies, cameraTop, this.player.velocityX, this.player.velocityY);
       if (enemy.type === 'boss' && enemy.bossDying) {
         if (enemy.bossDeathTimer >= enemy.bossDeathDuration) {
           enemy.active = false;
