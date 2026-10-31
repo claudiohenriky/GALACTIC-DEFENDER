@@ -2110,8 +2110,8 @@ export class Game {
     ctx.globalAlpha = 1;
     if (this.continuousLaserHeld && this.player.continuousLaserLevel > 0) { const dx=Math.cos(this.player.rotation),dy=Math.sin(this.player.rotation),sx=this.player.x+dx*18,sy=this.player.y+dy*18,ex=sx+dx*460,ey=sy+dy*460; ctx.save();ctx.lineCap='round';ctx.globalAlpha=.2;ctx.strokeStyle='#44dfff';ctx.lineWidth=13;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=.92;ctx.strokeStyle='#6eeeff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#eaffff';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore(); }
     for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
-    for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx);
-    for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx);
+    for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx, this.effectsScale);
+    for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx, this.effectsScale);
     if (this.bossCinematic?.boss) {
       const cinematic = this.bossCinematic;
       const revealAlpha = cinematic.phase === 'distant-contact'
@@ -2120,7 +2120,7 @@ export class Game {
       if (revealAlpha > 0) {
         ctx.save();
         ctx.globalAlpha = revealAlpha;
-        cinematic.boss.draw(ctx);
+        cinematic.boss.draw(ctx, this.effectsScale);
         ctx.restore();
       }
     }
