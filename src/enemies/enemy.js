@@ -337,7 +337,7 @@ export class Enemy {
           const muzzleY = this.y + localX * sinHull + localY * cosHull;
           const targetLocalX = (predictedTargetX - this.x) * cosHull + (predictedTargetY - this.y) * sinHull;
           const targetOnWeaponSide = module.region !== 'left' && module.region !== 'right'
-            || module.crossSide || Math.sign(targetLocalX) === Math.sign(module.x);
+            || module.crossSide || Math.abs(targetLocalX) <= this.radius * 0.08 || Math.sign(targetLocalX) === Math.sign(module.x);
           if (!targetOnWeaponSide) continue;
           const rawAngle = Math.atan2(predictedTargetY - muzzleY, predictedTargetX - muzzleX) - this.facingRotation;
           const desired = Math.atan2(Math.sin(rawAngle), Math.cos(rawAngle));
@@ -445,7 +445,7 @@ export class Enemy {
         const targetLocalX = (targetX - this.x) * Math.cos(shipRotation) + (targetY - this.y) * Math.sin(shipRotation);
         for (const module of modules) {
           const moduleSideAllowed = module.region !== 'left' && module.region !== 'right'
-            || module.crossSide || Math.sign(targetLocalX) === Math.sign(module.x);
+            || module.crossSide || Math.abs(targetLocalX) <= this.radius * 0.08 || Math.sign(targetLocalX) === Math.sign(module.x);
           if (!moduleSideAllowed) continue;
           const muzzleForRange = getMuzzle(module);
           const targetDistance = Math.hypot(targetX - muzzleForRange.x, targetY - muzzleForRange.y);
@@ -1096,7 +1096,7 @@ export class Enemy {
 
       // End DREADNOUGHT 3D pass ---------------------------------------------
 
-      // Ten independently damageable weapon modules are represented by visible sockets.
+      // Twelve independently damageable weapon modules are represented by visible sockets.
       if (systems) {
         const radius = this.radius;
         const damagePulse = Math.sin(this.phase * 8);
