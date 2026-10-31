@@ -89,7 +89,8 @@ test('danger and Elite indicators use the same cyan sensor language with stronge
   };
   const danger = render('❗');
   const elite = render('❓❗');
-  assert.ok(danger.some(([name]) => name === 'strokeRect'));
+  assert.ok(danger.some(([name]) => name === 'lineTo'));
+  assert.ok(danger.some(([name]) => name === 'stroke'));
   assert.ok(elite.some(([name]) => name === 'rotate'));
   assert.ok(elite.some(([name]) => name === 'strokeRect'));
   assert.equal(danger.some(([name]) => name === 'fillText'), false);
