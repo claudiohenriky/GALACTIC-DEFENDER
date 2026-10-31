@@ -25,6 +25,7 @@
 - [x] Selecionar uma família de armamento por salva conforme distância, alcance real, lado do alvo, estado do módulo e carga disponível; manter fallback quando uma família estiver indisponível.
 - [x] Completar o ciclo do canhão principal: carga, alinhamento acelerado, aviso de 1,8 s, feixe de 0,42 s e recuperação; o ângulo fica travado antes do aviso terminar.
 - [x] Renderizar o corredor de perigo e resolver colisão usando o mesmo segmento geométrico; permitir esquiva durante o aviso e limitar o impacto a um acerto por disparo.
+- [x] Reduzir saturação de mísseis: apenas um lançador por salva, alternância entre asas, cooldown dedicado e atributos escalonados por fase.
 - [ ] Calibrar dano, largura do feixe, frequência e legibilidade após teste manual.
 - [ ] Dar aos chefes padrões próprios; não reutilizar a perseguição simples das tropas como controlador principal.
 - [ ] Testar teclado e controles móveis, limites da arena, mudanças de direção, colisões e estabilidade em diferentes taxas de quadros.
