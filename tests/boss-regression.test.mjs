@@ -7,6 +7,7 @@ import { getGuardianProtectionPriority, selectGuardianProtectionTargets } from '
 import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
 import { advanceWaveTenTransition, createWaveTenTransition, finalizeWaveTenTransition, WAVE_TEN_TRANSITION_DURATION } from '../src/core/wave-ten-transition.js';
+import { getBossCameraFrame } from '../src/core/boss-camera.js';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat } from '../src/ui/pilot-reactions.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
@@ -367,4 +368,23 @@ test('Guardian does not abandon its formation to protect distant allies or doubl
  const distant=new Enemy(900,900,1,'artillery',true);
  assert.deepEqual(selectGuardianProtectionTargets(guardian,[nearby,distant],new Set(),250),[nearby]);
  assert.deepEqual(selectGuardianProtectionTargets(guardian,[nearby],new Set([nearby]),250),[]);
+});
+
+
+test('boss camera frames keep the pilot and DREADNOUGHT in a shared cinematic view',()=>{
+ const player={x:600,y:1100};
+ const boss={x:600,y:720};
+ const frame=getBossCameraFrame({phase:'boss-entry',player,boss,width:900,height:500,minZoom:1/2.4});
+ assert.equal(frame.x,150);
+ assert.equal(frame.y,660);
+ assert.equal(frame.zoom,0.52);
+ const loading=getBossCameraFrame({phase:'loading',player,width:900,height:500,minZoom:1/2.4});
+ assert.equal(loading.zoom,0.72);
+ assert.ok(loading.y>frame.y,'loading view should begin closer to the pilot before pulling out');
+});
+
+test('boss camera respects the calculated minimum zoom on narrow viewports',()=>{
+ const frame=getBossCameraFrame({phase:'boss-taunt',player:{x:180,y:500},boss:{x:180,y:200},width:360,height:740,minZoom:1/2.4});
+ assert.equal(frame.zoom,1/2.4);
+ assert.equal(frame.x,0);
 });
