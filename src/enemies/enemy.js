@@ -1160,8 +1160,8 @@ export class Enemy {
                   : renderKind.includes('missile') || renderKind.includes('rocket') ? '#aab6c2'
                     : renderKind.includes('plasma') ? '#ff653d'
                       : renderKind.includes('energy') || renderKind.includes('cannon') ? '#36d9ff' : '#8796a6';
-          const mountSize = radius * 0.105;
-          const moduleSize = mountSize * 2;
+          const mountSize = radius * 0.12;
+          const moduleSize = mountSize * 2.15;
           const moduleHalfSize = moduleSize / 2;
           ctx.save();
           ctx.translate(mx, my);
@@ -1202,43 +1202,155 @@ export class Enemy {
             ctx.save();
             ctx.translate(0, weaponOffsetY);
             ctx.globalAlpha *= weaponAlpha;
+            // Weapons are separate, readable mechanical assemblies drawn above the hull.
+            // Flat fills and short strokes keep the silhouettes crisp without adding blur,
+            // per-weapon gradients or shadow filters to the frame loop.
             ctx.fillStyle = moduleColor;
-            ctx.strokeStyle = '#e3f0f7';
-            ctx.lineWidth = 1.2;
+            ctx.strokeStyle = '#dce7ef';
+            ctx.lineWidth = 1.45;
+            ctx.lineJoin = 'round';
+
             if (renderKind.includes('machine-gun')) {
-              ctx.fillRect(-mountSize * 0.72, -mountSize * 0.55, mountSize * 1.44, mountSize * 1.1);
-              ctx.fillRect(-mountSize * 0.42, -mountSize * 1.75, mountSize * 0.25, mountSize * 1.55);
-              ctx.fillRect(mountSize * 0.17, -mountSize * 1.75, mountSize * 0.25, mountSize * 1.55);
-            } else if (renderKind.includes('missile') || renderKind.includes('rocket')) {
-              ctx.fillRect(-mountSize * 0.82, -mountSize * 0.7, mountSize * 1.64, mountSize * 1.35);
-              for (let tube = -1; tube <= 1; tube += 1) {
+              // Twin-barrel armored receiver.
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.82, mountSize * 0.42);
+              ctx.lineTo(mountSize * 0.82, mountSize * 0.42);
+              ctx.lineTo(mountSize * 0.70, -mountSize * 0.72);
+              ctx.lineTo(mountSize * 0.42, -mountSize * 1.08);
+              ctx.lineTo(-mountSize * 0.42, -mountSize * 1.08);
+              ctx.lineTo(-mountSize * 0.70, -mountSize * 0.72);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              for (let barrel = -1; barrel <= 1; barrel += 2) {
+                const barrelX = barrel * mountSize * 0.38;
+                ctx.fillStyle = '#202b36';
+                ctx.fillRect(barrelX - mountSize * 0.17, -mountSize * 2.22, mountSize * 0.34, mountSize * 1.30);
+                ctx.strokeRect(barrelX - mountSize * 0.17, -mountSize * 2.22, mountSize * 0.34, mountSize * 1.30);
+                ctx.fillStyle = '#aab8c5';
+                ctx.fillRect(barrelX - mountSize * 0.055, -mountSize * 2.08, mountSize * 0.11, mountSize * 0.98);
+                ctx.fillStyle = '#080e15';
                 ctx.beginPath();
-                ctx.arc(tube * mountSize * 0.48, -mountSize * 0.08, mountSize * 0.19, 0, Math.PI * 2);
-                ctx.fillStyle = '#172332';
+                ctx.arc(barrelX, -mountSize * 2.20, mountSize * 0.14, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.stroke();
               }
-            } else if (renderKind.includes('laser')) {
-              ctx.fillRect(-mountSize * 0.55, -mountSize * 0.65, mountSize * 1.1, mountSize * 1.2);
-              ctx.fillStyle = '#d8fbff';
-              ctx.fillRect(-mountSize * 0.16, -mountSize * 2.05, mountSize * 0.32, mountSize * 1.75);
-            } else if (renderKind.includes('plasma')) {
+              ctx.fillStyle = '#8796a6';
+              ctx.fillRect(-mountSize * 0.48, -mountSize * 0.18, mountSize * 0.96, mountSize * 0.10);
+            } else if (renderKind.includes('missile') || renderKind.includes('rocket')) {
+              // Three recessed launch tubes inside a visibly armored pod.
               ctx.beginPath();
-              ctx.arc(0, 0, mountSize * 0.72, 0, Math.PI * 2);
+              ctx.moveTo(-mountSize * 0.86, mountSize * 0.52);
+              ctx.lineTo(mountSize * 0.86, mountSize * 0.52);
+              ctx.lineTo(mountSize * 0.72, -mountSize * 0.86);
+              ctx.lineTo(mountSize * 0.48, -mountSize * 1.18);
+              ctx.lineTo(-mountSize * 0.48, -mountSize * 1.18);
+              ctx.lineTo(-mountSize * 0.72, -mountSize * 0.86);
+              ctx.closePath();
               ctx.fill();
-              ctx.fillRect(-mountSize * 0.24, -mountSize * 1.85, mountSize * 0.48, mountSize * 1.55);
-            } else if (renderKind.includes('energy') || renderKind.includes('cannon')) {
-              ctx.fillRect(-mountSize * 0.72, -mountSize * 0.7, mountSize * 1.44, mountSize * 1.35);
-              ctx.fillStyle = '#d8faff';
-              ctx.fillRect(-mountSize * 0.32, -mountSize * 2.5, mountSize * 0.64, mountSize * 2.35);
+              ctx.stroke();
+              for (let tube = -1; tube <= 1; tube += 1) {
+                const tubeX = tube * mountSize * 0.43;
+                ctx.fillStyle = '#0a1119';
+                ctx.beginPath();
+                ctx.arc(tubeX, -mountSize * 0.48, mountSize * 0.235, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#aab8c5';
+                ctx.lineWidth = 1.25;
+                ctx.stroke();
+                ctx.fillStyle = '#263544';
+                ctx.beginPath();
+                ctx.arc(tubeX, -mountSize * 0.48, mountSize * 0.115, 0, Math.PI * 2);
+                ctx.fill();
+              }
+              ctx.strokeStyle = '#dce7ef';
+              ctx.lineWidth = 1.45;
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.56, mountSize * 0.22);
+              ctx.lineTo(mountSize * 0.56, mountSize * 0.22);
+              ctx.stroke();
+            } else if (renderKind.includes('laser')) {
+              // Slim twin emitter rails make the light-laser distinct from a cannon.
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.70, mountSize * 0.48);
+              ctx.lineTo(mountSize * 0.70, mountSize * 0.48);
+              ctx.lineTo(mountSize * 0.48, -mountSize * 0.78);
+              ctx.lineTo(0, -mountSize * 1.10);
+              ctx.lineTo(-mountSize * 0.48, -mountSize * 0.78);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              for (let emitter = -1; emitter <= 1; emitter += 2) {
+                const emitterX = emitter * mountSize * 0.23;
+                ctx.fillStyle = '#202b36';
+                ctx.fillRect(emitterX - mountSize * 0.105, -mountSize * 2.10, mountSize * 0.21, mountSize * 1.35);
+                ctx.strokeRect(emitterX - mountSize * 0.105, -mountSize * 2.10, mountSize * 0.21, mountSize * 1.35);
+                ctx.fillStyle = '#d8fbff';
+                ctx.fillRect(emitterX - mountSize * 0.045, -mountSize * 1.94, mountSize * 0.09, mountSize * 1.08);
+              }
               ctx.fillStyle = '#36d9ff';
-              ctx.fillRect(-mountSize * 0.12, -mountSize * 2.35, mountSize * 0.24, mountSize * 2.1);
+              ctx.fillRect(-mountSize * 0.10, -mountSize * 0.40, mountSize * 0.20, mountSize * 0.62);
+            } else if (renderKind.includes('plasma')) {
+              // Heavy plasma weapon: armored breech, exposed coil and orange emitter.
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.88, mountSize * 0.48);
+              ctx.lineTo(mountSize * 0.88, mountSize * 0.48);
+              ctx.lineTo(mountSize * 0.72, -mountSize * 0.56);
+              ctx.lineTo(mountSize * 0.42, -mountSize * 0.94);
+              ctx.lineTo(-mountSize * 0.42, -mountSize * 0.94);
+              ctx.lineTo(-mountSize * 0.72, -mountSize * 0.56);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              ctx.fillStyle = '#202b36';
+              ctx.fillRect(-mountSize * 0.34, -mountSize * 2.02, mountSize * 0.68, mountSize * 1.28);
+              ctx.strokeRect(-mountSize * 0.34, -mountSize * 2.02, mountSize * 0.68, mountSize * 1.28);
+              ctx.fillStyle = '#ff9a55';
+              ctx.globalAlpha *= 0.86;
+              ctx.beginPath();
+              ctx.arc(0, -mountSize * 1.98, mountSize * 0.24, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.globalAlpha /= 0.86;
+              ctx.strokeStyle = '#ffd0a3';
+              ctx.lineWidth = 1.5;
+              ctx.beginPath();
+              ctx.arc(0, -mountSize * 1.98, mountSize * 0.31, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.strokeStyle = '#dce7ef';
+              ctx.lineWidth = 1.45;
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.60, -mountSize * 0.28);
+              ctx.lineTo(-mountSize * 0.60, mountSize * 0.20);
+              ctx.moveTo(mountSize * 0.60, -mountSize * 0.28);
+              ctx.lineTo(mountSize * 0.60, mountSize * 0.20);
+              ctx.stroke();
+            } else if (renderKind.includes('energy') || renderKind.includes('cannon')) {
+              // Generic heavy emitter used by future replacement variants.
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.82, mountSize * 0.52);
+              ctx.lineTo(mountSize * 0.82, mountSize * 0.52);
+              ctx.lineTo(mountSize * 0.62, -mountSize * 0.72);
+              ctx.lineTo(mountSize * 0.34, -mountSize * 1.04);
+              ctx.lineTo(-mountSize * 0.34, -mountSize * 1.04);
+              ctx.lineTo(-mountSize * 0.62, -mountSize * 0.72);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              ctx.fillStyle = '#202b36';
+              ctx.fillRect(-mountSize * 0.28, -mountSize * 2.24, mountSize * 0.56, mountSize * 1.48);
+              ctx.strokeRect(-mountSize * 0.28, -mountSize * 2.24, mountSize * 0.56, mountSize * 1.48);
+              ctx.fillStyle = '#d8faff';
+              ctx.fillRect(-mountSize * 0.09, -mountSize * 2.10, mountSize * 0.18, mountSize * 1.20);
+              ctx.fillStyle = '#36d9ff';
+              ctx.beginPath();
+              ctx.arc(0, -mountSize * 2.22, mountSize * 0.17, 0, Math.PI * 2);
+              ctx.fill();
             } else {
               ctx.beginPath();
               ctx.arc(0, 0, mountSize * 0.78, 0, Math.PI * 2);
               ctx.fill();
+              ctx.stroke();
             }
-            ctx.strokeRect(-mountSize * 0.72, -mountSize * 0.55, mountSize * 1.44, mountSize * 1.1);
             ctx.restore();
           } else if (module.id !== 'main-energy-cannon') {
             ctx.globalAlpha = 0.85;
