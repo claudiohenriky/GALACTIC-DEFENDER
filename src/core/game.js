@@ -14,7 +14,7 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity, wrapBossCinematicDialogue } from './boss-cinematic.js?v=0.54.3-dialogue-layout';
+import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity, wrapBossCinematicDialogue, getBossDialogueVisualState } from './boss-cinematic.js?v=0.54.4-dialogue-polish';
 import { getBossCinematicCameraFrame, prepareBossForCombatHandoff, BOSS_CINEMATIC_ARENA_ZOOM } from './boss-cinematic-camera.js?v=0.54.1-camera-rebuild';
 import { getBossCinematicSpawnPositions, preparePlayerForBossCinematic } from './boss-positioning.js?v=0.54.2-combat-aligned-entry';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.1-red-question';
@@ -1528,14 +1528,15 @@ export class Game {
     const age = Math.max(0, cinematic.phaseElapsed - (cue.at || 0));
     const enter = Math.min(1, age / 0.24);
     const eased = enter * enter * (3 - 2 * enter);
-    const accent = cue.actor === 'boss' ? '#ff829a' : isSystem ? '#9be8b8' : '#68e5f2';
+    const visual = getBossDialogueVisualState(cue.actor, cinematic?.elapsed ?? 0);
+    const accent = visual.accent;
     const shiftX = (sideLeft ? -1 : 1) * (1 - eased) * 14;
 
     ctx.globalAlpha = eased;
     ctx.translate(shiftX, 0);
     ctx.fillStyle = cue.actor === 'boss' ? 'rgba(25, 8, 18, 0.96)' : 'rgba(4, 13, 27, 0.96)';
     ctx.strokeStyle = accent;
-    ctx.lineWidth = cue.actor === 'boss' ? 1.7 : 1.2;
+    ctx.lineWidth = cue.actor === 'boss' ? 1.7 : isSystem ? 1.2 : 1.05 + visual.pulse * 0.12;
     const radius = 9;
     ctx.beginPath();
     ctx.moveTo(x + radius, y);
@@ -1551,21 +1552,39 @@ export class Game {
     ctx.fill();
     ctx.stroke();
     // A compact channel header separates speaker identity from the spoken line.
-    ctx.fillStyle = cue.actor === 'boss' ? 'rgba(255, 130, 154, 0.13)'
-      : isSystem ? 'rgba(155, 232, 184, 0.12)' : 'rgba(104, 229, 242, 0.12)';
+    ctx.fillStyle = visual.header;
     ctx.fillRect(x + 1, y + 1, boxWidth - 2, 27);
-    ctx.fillStyle = accent;
-    ctx.fillRect(x + 10, y + 8, 3, boxHeight - 16);
+    // Three compact signal bars animate gently beside the speaker identity.
+    const signalBaseY = y + 20;
+    for (let bar = 0; bar < 3; bar += 1) {
+      const barPulse = 0.5 + Math.sin((cinematic?.elapsed ?? 0) * 3.2 + bar * 1.35) * 0.5;
+      ctx.globalAlpha = eased * (0.38 + barPulse * 0.42);
+      ctx.fillStyle = accent;
+      ctx.fillRect(x + 9 + bar * 3.2, signalBaseY - (3 + barPulse * 5), 1.7, 3 + barPulse * 5);
+    }
+    ctx.globalAlpha = eased;
     ctx.textAlign = 'left';
     ctx.font = '900 8px ui-monospace, monospace';
-    ctx.fillText(cue.speaker, x + 19, y + 18);
+    ctx.fillText(cue.speaker, x + 23, y + 18);
     const channelTag = cue.actor === 'boss' ? 'SINAL HOSTIL' : isSystem ? 'DIAGNÓSTICO' : 'COMUNICAÇÃO';
     ctx.textAlign = 'right';
     ctx.font = '700 7px ui-monospace, monospace';
-    ctx.fillStyle = accent;
+    ctx.fillStyle = visual.tag;
     ctx.fillText(channelTag, x + boxWidth - 12, y + 18);
-    ctx.globalAlpha = eased * 0.34;
+    ctx.globalAlpha = eased * 0.3;
     ctx.fillRect(x + 14, y + 27, boxWidth - 28, 1);
+    // A faint scan glint travels across the header; it never crosses the dialogue text.
+    ctx.globalAlpha = eased * (0.12 + visual.pulse * 0.12);
+    ctx.fillStyle = accent;
+    ctx.fillRect(x + 14 + visual.scan * Math.max(0, boxWidth - 54), y + 2, 24, 1.2);
+    // Minimal corner traces add a technical frame without changing the card silhouette.
+    ctx.globalAlpha = eased * (0.28 + visual.pulse * 0.12);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x + boxWidth - 17, y + 1); ctx.lineTo(x + boxWidth - 9, y + 1); ctx.lineTo(x + boxWidth - 9, y + 7);
+    ctx.moveTo(x + 1, y + boxHeight - 8); ctx.lineTo(x + 1, y + boxHeight - 15);
+    ctx.stroke();
     ctx.globalAlpha = eased;
     ctx.textAlign = 'left';
     ctx.fillStyle = '#f0f5ff';
@@ -1579,9 +1598,9 @@ export class Game {
     }
     // Small side marker gives each voice a distinct visual signature.
     ctx.fillStyle = accent;
-    ctx.globalAlpha = eased * 0.75;
+    ctx.globalAlpha = eased * (0.42 + visual.pulse * 0.34);
     ctx.beginPath();
-    ctx.arc(sideLeft ? x + boxWidth - 9 : x + 9, y + boxHeight / 2, 2.2, 0, Math.PI * 2);
+    ctx.arc(sideLeft ? x + boxWidth - 9 : x + 9, y + boxHeight / 2, 1.9 + visual.pulse * 0.55, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
     this.cinematicDialogueRect = { x, y, width: boxWidth, height: boxHeight };
