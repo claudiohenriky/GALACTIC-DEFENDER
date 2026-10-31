@@ -35,6 +35,22 @@ export const BOSS_CINEMATIC_DIALOGUE = Object.freeze({
   ])
 });
 
+// Restrained motion values for the dialogue-card signal details.
+// The card remains readable and avoids expensive canvas blur/shadow animation.
+export function getBossDialogueVisualState(actor, elapsed = 0) {
+  const time = Math.max(0, Number(elapsed) || 0);
+  const palette = actor === 'boss'
+    ? { accent: '#ff829a', header: 'rgba(255, 130, 154, 0.13)', tag: '#ff9caf' }
+    : actor === 'system'
+      ? { accent: '#9be8b8', header: 'rgba(155, 232, 184, 0.12)', tag: '#a9eac2' }
+      : { accent: '#579eac', header: 'rgba(87, 158, 172, 0.075)', tag: '#8db8c0' };
+  return {
+    ...palette,
+    pulse: 0.5 + Math.sin(time * 3.2) * 0.5,
+    scan: (time * 0.22) % 1
+  };
+}
+
 // Wrap dialogue without silently discarding words on narrow mobile screens.
 export function wrapBossCinematicDialogue(text, measureText, maxWidth, maxRows = 4) {
   if (typeof measureText !== 'function' || !Number.isFinite(maxWidth) || maxWidth <= 0) return [];
