@@ -1,5 +1,5 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
-import { Enemy } from '../enemies/enemy.js?v=0.45.2-sentinel-balance';
+import { Enemy } from '../enemies/enemy.js?v=0.45.3-sentinel-balance';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
