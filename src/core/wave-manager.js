@@ -56,6 +56,15 @@ export class WaveManager {
     this.timer = 2.5;
   }
 
+  /** Start at wave nine and preserve the natural transition into the wave-ten boss. */
+  startBossTransitionTest() {
+    this.wave = 9;
+    this.enemyCount = Math.min(5 + (this.wave - 1) * 2, 18);
+    this.spawnedCount = 0;
+    this.state = 'spawning';
+    this.timer = 2.5;
+  }
+
   /** Start directly at the boss encounter for isolated preview validation only. */
   startBossTest() {
     this.wave = 10;
