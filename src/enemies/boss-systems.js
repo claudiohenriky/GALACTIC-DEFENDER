@@ -136,7 +136,8 @@ export function isBossPlasmaTelegraphActive(boss, module, targetX, targetY) {
   const dx = targetX - segment.startX, dy = targetY - segment.startY;
   if (dx * dx + dy * dy > (module.firingRange ?? 500) ** 2) return false;
   const hullRotation = boss.facingRotation + Math.PI / 2;
-  const targetLocalX = dx * Math.cos(hullRotation) + dy * Math.sin(hullRotation);
+  const targetDx = targetX - boss.x, targetDy = targetY - boss.y;
+  const targetLocalX = targetDx * Math.cos(hullRotation) + targetDy * Math.sin(hullRotation);
   return Math.abs(targetLocalX) <= boss.radius * 0.08 || Math.sign(targetLocalX) === Math.sign(module.x);
 }
 

@@ -426,6 +426,7 @@ test('DREADNOUGHT plasma telegraph matches the weapon muzzle and activates only 
  const segment=getBossPlasmaSegment(boss,module);
  assert.ok(Number.isFinite(segment.startX)&&Number.isFinite(segment.endY));
  assert.equal(isBossPlasmaTelegraphActive(boss,module,segment.startX+100,segment.startY+40),true);
+ assert.equal(isBossPlasmaTelegraphActive(boss,module,boss.x,boss.y),true,'a centered target should be inside both weapon wings');
  module.plasmaChargeTimer=2.1;
  assert.equal(isBossPlasmaTelegraphActive(boss,module,segment.startX+100,segment.startY+40),false);
  module.plasmaChargeTimer=0;
