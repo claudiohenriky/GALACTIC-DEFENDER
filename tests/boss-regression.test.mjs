@@ -293,14 +293,17 @@ test('DREADNOUGHT plasma telegraph matches the weapon muzzle and activates only 
  boss.fireCooldown=1.2;
  boss.facingRotation=Math.PI/2;
  const module=boss.bossSystems.getModule('plasma-cannon-left-forward');
- module.plasmaChargeTimer=1.1;
+ module.plasmaChargeTimer=0;
+ module.plasmaWarningActive=true;
+ module.plasmaWarningTimer=0.8;
  const segment=getBossPlasmaSegment(boss,module);
  assert.ok(Number.isFinite(segment.startX)&&Number.isFinite(segment.endY));
  assert.equal(isBossPlasmaTelegraphActive(boss,module,segment.startX+100,segment.startY+40),true);
  assert.equal(isBossPlasmaTelegraphActive(boss,module,boss.x,boss.y),true,'a centered target should be inside both weapon wings');
- module.plasmaChargeTimer=2.1;
+ module.plasmaWarningActive=false;
  assert.equal(isBossPlasmaTelegraphActive(boss,module,segment.startX+100,segment.startY+40),false);
- module.plasmaChargeTimer=0;
+ module.plasmaWarningActive=true;
+ module.plasmaWarningTimer=0;
  assert.equal(isBossPlasmaTelegraphActive(boss,module,segment.startX+100,segment.startY+40),true);
 });
 
@@ -338,7 +341,13 @@ test('DREADNOUGHT prioritizes guided missiles at long range in every phase', () 
 
 test('DREADNOUGHT plasma shots retain their high-speed heavy-impact profile', () => {
   const boss = new Enemy(500, 300, 10, 'boss'); boss.bossEntranceTimer = 0; boss.fireCooldown = 0; boss.facingRotation = Math.PI / 2;
-  for (const module of boss.bossSystems.modules) if (module.kind.includes('plasma')) module.plasmaChargeTimer = 0;
+  for (const module of boss.bossSystems.modules) {
+    if (module.kind.includes('plasma')) {
+      module.plasmaChargeTimer = 0;
+      module.plasmaWarningActive = true;
+      module.plasmaWarningTimer = 0;
+    }
+  }
   const volley = boss.update(1 / 60, 500, 700, 1000, 1200, [], [], 0, 0, 0);
   assert.ok(Array.isArray(volley)); assert.ok(volley.some(shot => shot.plasmaImpact && shot.speed === 760 && shot.damage === 68));
 });
