@@ -1,11 +1,12 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
-import { Enemy } from '../enemies/enemy.js?v=0.45.0-guardian-steering-cap';
+import { Enemy } from '../enemies/enemy.js?v=0.45.0-boss-tactics';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
+import { getBossBeamSegment } from '../enemies/boss-systems.js?v=0.45.0-boss-tactics';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.44.0-boss-test-first-wave';
@@ -1491,6 +1492,18 @@ export class Game {
       const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
       const cameraTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
       const shot = enemy.update(dt, this.player.x, this.player.y, this.worldWidth, this.worldHeight, this.projectiles, this.enemies, cameraTop, this.player.velocityX, this.player.velocityY);
+      if (enemy.type === 'boss' && !enemy.bossDying) {
+        const mainCannon = enemy.bossSystems?.getModule('main-energy-cannon');
+        if (mainCannon?.energyState === 'firing' && !enemy.bossBeamHit) {
+          const beam = getBossBeamSegment(enemy, mainCannon);
+          const hitRadius = (this.player.radius ?? 0) + beam.width / 2;
+          if (circleOverlapsSegment(this.player, beam.startX, beam.startY, beam.endX, beam.endY, hitRadius)) {
+            enemy.bossBeamHit = true;
+            this.resolveIncomingDamage(mainCannon.energyDamage ?? 34, beam.startX, beam.startY, true);
+            this.triggerSystemDisruption(0.65);
+          }
+        }
+      }
       if (enemy.type === 'boss' && enemy.bossDying) {
         if (enemy.bossDeathTimer >= enemy.bossDeathDuration) {
           enemy.active = false;
@@ -1728,6 +1741,45 @@ export class Game {
     for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
     for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx);
     for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx);
+    // Main-cannon telegraph and beam use the exact same world-space segment as collision.
+    for (const boss of this.enemies) {
+      if (!boss.active || boss.type !== 'boss' || boss.bossDying) continue;
+      const cannon = boss.bossSystems?.getModule('main-energy-cannon');
+      if (!cannon || (cannon.energyState !== 'warning' && cannon.energyState !== 'firing')) continue;
+      const beam = getBossBeamSegment(boss, cannon);
+      ctx.save();
+      ctx.lineCap = 'round';
+      if (cannon.energyState === 'warning') {
+        const pulse = 0.72 + Math.sin(boss.phase * 18) * 0.18;
+        ctx.globalAlpha = 0.12 * pulse;
+        ctx.strokeStyle = '#ff4d32';
+        ctx.lineWidth = beam.width * 0.72;
+        ctx.beginPath(); ctx.moveTo(beam.startX, beam.startY); ctx.lineTo(beam.endX, beam.endY); ctx.stroke();
+        ctx.globalAlpha = 0.82 * pulse;
+        ctx.strokeStyle = '#ff9a55';
+        ctx.lineWidth = 2.4;
+        ctx.setLineDash([18, 13]);
+        ctx.beginPath(); ctx.moveTo(beam.startX, beam.startY); ctx.lineTo(beam.endX, beam.endY); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 0.85;
+        ctx.fillStyle = '#ffb06a';
+        ctx.beginPath(); ctx.arc(beam.endX, beam.endY, 7, 0, Math.PI * 2); ctx.fill();
+      } else {
+        ctx.globalAlpha = 0.20;
+        ctx.strokeStyle = '#ff3d2e';
+        ctx.lineWidth = beam.width * 1.55;
+        ctx.beginPath(); ctx.moveTo(beam.startX, beam.startY); ctx.lineTo(beam.endX, beam.endY); ctx.stroke();
+        ctx.globalAlpha = 0.88;
+        ctx.strokeStyle = '#ff6a3d';
+        ctx.lineWidth = beam.width * 0.58;
+        ctx.beginPath(); ctx.moveTo(beam.startX, beam.startY); ctx.lineTo(beam.endX, beam.endY); ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = '#fff0c9';
+        ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(beam.startX, beam.startY); ctx.lineTo(beam.endX, beam.endY); ctx.stroke();
+      }
+      ctx.restore();
+    }
     // Elite Guardian's shared barrier is drawn around each of its assigned allies.
     for (const guardian of this.enemies) {
       if (!guardian.active || !guardian.isElite || guardian.type !== 'guardian' || guardian.guardianCoverShield <= 0) continue;
