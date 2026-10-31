@@ -1685,7 +1685,8 @@ export class Game {
           const warningActive = module.state !== 'destroyed' && module.state !== 'disabled' &&
             module.transitionTimer <= 0 && module.plasmaChargeTimer > 0 &&
             module.plasmaChargeTimer <= warningWindow && enemy.fireCooldown > 0 &&
-            module.plasmaChargeTimer <= enemy.fireCooldown;
+            module.plasmaChargeTimer <= enemy.fireCooldown &&
+            Math.hypot(this.player.x - enemy.x, this.player.y - enemy.y) <= 500;
           let threatensPilot = false;
           if (warningActive) {
             const hullRotation = enemy.facingRotation + Math.PI / 2;
