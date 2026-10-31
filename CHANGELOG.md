@@ -1,3 +1,12 @@
+## [Unreleased] — Nitidez da pixel art e propulsores do Encouraçado
+
+- Aumentada a resolução interna da arte de 80 × 104 para 100 × 144 pixels, com ampliação exata de 4× e suavização desativada para bordas mais definidas.
+- Ampliado o enquadramento vertical do sprite para acomodar os dois jatos traseiros sem cortar a chama.
+- Substituído o escape central genérico por dois propulsores independentes, com carcaças, bocais e chamas em blocos de pixels ciano, branco e laranja.
+- Reorganizados os bocais para evitar sobreposição visual entre a grelha traseira, a blindagem e as chamas.
+- **Escopo:** ajuste visual; IA, movimento, dano, cadência, colisões e sistemas de combate permanecem inalterados.
+- **Validação pendente:** verificar nitidez em diferentes escalas, alinhamento dos dois propulsores e desempenho em celular.
+
 ## [Unreleased] — Encouraçado em pixel art
 
 - Converte toda a renderização do Encouraçado para uma superfície pixelada reutilizável de baixa resolução, ampliada com amostragem nearest-neighbor para formar blocos de pixels nítidos.
