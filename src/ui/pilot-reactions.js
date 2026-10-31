@@ -123,7 +123,9 @@ function drawReactionMessage(ctx, state, x, y, alpha) {
   if (!state.message || !Number.isFinite(canvasWidth) || !Number.isFinite(canvasHeight)) return;
   const width = Math.min(224, canvasWidth - 12);
   const maxChars = Math.max(15, Math.floor((width - 20) / 5.6));
-  const lines = wrapReactionMessage(state.message, maxChars);
+  const elapsed = Math.max(0, state.duration - state.remaining);
+  const visibleMessage = state.message.slice(0, Math.max(0, Math.floor(elapsed * 30)));
+  const lines = wrapReactionMessage(visibleMessage, maxChars);
   const height = 42 + lines.length * 12;
   const left = x < canvasWidth * 0.62
     ? Math.max(6, Math.min(canvasWidth - width - 6, x + 14))
