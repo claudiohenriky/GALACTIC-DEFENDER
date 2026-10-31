@@ -257,3 +257,38 @@ test('test-only wave start sets the requested wave without changing normal reset
  assert.equal(waves.wave,1);
  assert.equal(waves.enemyCount,5);
 });
+
+
+test('combat rebalance lowers basic enemy mobility and keeps Elite variants distinct',()=>{
+ const sentinel=new Enemy(100,100,1,'sentinel');
+ const artillery=new Enemy(100,100,1,'artillery');
+ const artilleryElite=new Enemy(100,100,1,'artillery',true);
+ const guardian=new Enemy(100,100,1,'guardian');
+ const interceptor=new Enemy(100,100,1,'interceptor');
+ assert.equal(sentinel.speed,35.6);
+ assert.equal(ENEMY_MOTION_PROFILES.sentinel.maxSpeed,88);
+ assert.equal(ENEMY_MOTION_PROFILES.sentinel.acceleration,180);
+ assert.equal(artillery.speed,29.6);
+ assert.equal(ENEMY_MOTION_PROFILES.artillery.maxSpeed,88);
+ assert.equal(ENEMY_MOTION_PROFILES.artillery.acceleration,170);
+ assert.ok(ENEMY_MOTION_PROFILES.artilleryElite.maxSpeed>ENEMY_MOTION_PROFILES.artillery.maxSpeed);
+ assert.ok(ENEMY_MOTION_PROFILES.artilleryElite.acceleration>ENEMY_MOTION_PROFILES.artillery.acceleration);
+ assert.equal(ENEMY_MOTION_PROFILES.guardian.maxSpeed,90);
+ assert.ok(interceptor.speed<100);
+ assert.equal(guardian.isElite,false);
+});
+
+test('DREADNOUGHT does not trigger a lateral dodge in response to player projectiles',()=>{
+ const boss=new Enemy(300,250,10,'boss');
+ boss.bossEntranceTimer=0;
+ boss.facingRotation=Math.PI/2;
+ boss.update(0.1,300,650,1000,1000,[{active:true,x:300,y:400,vx:0,vy:-200,radius:3}],[],0,0,0);
+ assert.equal(boss.dodgeTimer,0);
+});
+
+test('DREADNOUGHT missile mounts retain a long-range firing lane',()=>{
+ const systems=new BossSystems();
+ const missile=systems.getModule('missile-left');
+ assert.equal(missile.firingRange,980);
+ assert.equal(selectBossAttack([missile],900,-120,8,1),'missile');
+});
