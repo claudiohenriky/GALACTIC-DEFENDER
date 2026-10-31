@@ -62,6 +62,28 @@ export function selectBossAttack(modules, targetDistance, targetLocalX, centerli
   return null;
 }
 
+// Missile performance rises slightly by phase, but launch cadence stays deliberate.
+export function getBossMissileProfile(phase = 1) {
+  if (phase >= 3) return { speed: 225, damage: 15, turnRate: 1.48, cooldown: 4.4 };
+  if (phase === 2) return { speed: 205, damage: 13, turnRate: 1.42, cooldown: 4.8 };
+  return { speed: 185, damage: 12, turnRate: 1.36, cooldown: 5.2 };
+}
+
+// Only one operational launcher may fire in a salvo. When both wings can reach
+// the target, alternate sides so a centered player does not receive paired rockets.
+export function selectBossMissileLauncher(modules, targetDistance, targetLocalX, centerlineTolerance = 8, preferredSide = -1) {
+  const candidates = modules.filter((module) => {
+    if (!module.kind.includes('missile') && !module.kind.includes('rocket')) return false;
+    if (module.state !== 'operational' && module.state !== 'damaged') return false;
+    if ((module.transitionTimer ?? 0) > 0 || targetDistance > (module.firingRange ?? 700)) return false;
+    return module.region !== 'left' && module.region !== 'right'
+      || module.crossSide
+      || Math.abs(targetLocalX) <= centerlineTolerance
+      || Math.sign(targetLocalX) === Math.sign(module.x);
+  });
+  return candidates.find((module) => Math.sign(module.x) === preferredSide) ?? candidates[0] ?? null;
+}
+
 // World-space line from the DREADNOUGHT's open bow aperture. The same geometry
 // drives both the warning renderer and collision, preventing visual/hitbox drift.
 export function getBossBeamSegment(boss, module) {
