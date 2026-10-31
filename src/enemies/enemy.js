@@ -581,15 +581,17 @@ export class Enemy {
     // allocation and no changes to simulation, weapons, shields or collision rules.
     if (!this.bossPixelCanvas) {
       this.bossPixelCanvas = document.createElement('canvas');
-      this.bossPixelCanvas.width = 80;
-      this.bossPixelCanvas.height = 104;
+      // 4x integer enlargement: a denser source grid keeps armor edges crisp
+      // while retaining a deliberately chunky pixel-art scale.
+      this.bossPixelCanvas.width = 100;
+      this.bossPixelCanvas.height = 144;
       this.bossPixelContext = this.bossPixelCanvas.getContext('2d', { alpha: true });
     }
 
     const pixelCanvas = this.bossPixelCanvas;
     const pixelCtx = this.bossPixelContext;
     if (!pixelCtx) return this.drawVector(ctx);
-    const pixelScale = 0.2;
+    const pixelScale = 0.25;
     pixelCtx.setTransform(1, 0, 0, 1, 0, 0);
     pixelCtx.clearRect(0, 0, pixelCanvas.width, pixelCanvas.height);
     pixelCtx.imageSmoothingEnabled = false;
@@ -602,7 +604,7 @@ export class Enemy {
 
     ctx.save();
     ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(pixelCanvas, this.x - 200, this.y - 260, 400, 520);
+    ctx.drawImage(pixelCanvas, this.x - 200, this.y - 288, 400, 576);
     ctx.restore();
   }
 
@@ -668,27 +670,45 @@ export class Enemy {
     // This is presentation-only: the existing combat hitbox remains untouched.
     if (boss) ctx.scale(0.82, 1);
 
-    // Small animated exhaust makes acceleration and direction changes visible without sprites.
+    // The Dreadnought has two independent rear engines. Their exhaust is
+    // built from hard-edged pixel blocks and kept separate from the center keel.
     const flame = 3 + Math.sin(this.phase * 10) * 0.65 + this.thrust * 4.5;
-    ctx.globalAlpha = 0.22 + this.thrust * 0.25;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.ellipse(0, this.radius * 0.88, 2 + this.thrust, 2.5 + flame * 0.45, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.beginPath();
-    ctx.moveTo(-2.2, this.radius * 0.72);
-    ctx.lineTo(0, this.radius * 0.72 + flame);
-    ctx.lineTo(2.2, this.radius * 0.72);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = '#fff2b5';
-    ctx.beginPath();
-    ctx.moveTo(-0.8, this.radius * 0.72);
-    ctx.lineTo(0, this.radius * 0.72 + flame * 0.58);
-    ctx.lineTo(0.8, this.radius * 0.72);
-    ctx.closePath();
-    ctx.fill();
+    if (boss) {
+      const pulse = 0.68 + Math.sin(this.phase * 11) * 0.12 + this.thrust * 0.18;
+      for (const side of [-1, 1]) {
+        const engineX = side * this.radius * 0.58;
+        ctx.globalAlpha = pulse;
+        ctx.fillStyle = '#087f9c';
+        ctx.fillRect(engineX - this.radius * 0.12, this.radius * 1.78, this.radius * 0.24, this.radius * 0.54);
+        ctx.fillStyle = '#36d9ff';
+        ctx.fillRect(engineX - this.radius * 0.075, this.radius * 1.82, this.radius * 0.15, this.radius * (0.32 + flame * 0.025));
+        ctx.fillStyle = '#b9f6ff';
+        ctx.fillRect(engineX - this.radius * 0.035, this.radius * 1.86, this.radius * 0.07, this.radius * 0.22);
+        ctx.fillStyle = '#ff653d';
+        ctx.fillRect(engineX - this.radius * 0.025, this.radius * 2.18, this.radius * 0.05, this.radius * 0.10);
+      }
+      ctx.globalAlpha = 1;
+    } else {
+      ctx.globalAlpha = 0.22 + this.thrust * 0.25;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(0, this.radius * 0.88, 2 + this.thrust, 2.5 + flame * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.moveTo(-2.2, this.radius * 0.72);
+      ctx.lineTo(0, this.radius * 0.72 + flame);
+      ctx.lineTo(2.2, this.radius * 0.72);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#fff2b5';
+      ctx.beginPath();
+      ctx.moveTo(-0.8, this.radius * 0.72);
+      ctx.lineTo(0, this.radius * 0.72 + flame * 0.58);
+      ctx.lineTo(0.8, this.radius * 0.72);
+      ctx.closePath();
+      ctx.fill();
+    }
 
     if (this.lateralThrust > 0.1) {
       ctx.globalAlpha = this.lateralThrust * 0.35;
@@ -834,13 +854,21 @@ export class Enemy {
         ctx.fillRect(vent * this.radius * 0.14 - this.radius * 0.04, this.radius * 1.51, this.radius * 0.08, this.radius * 0.16);
       }
 
-      // Reinforced stern and twin cyan engine banks.
+      // Reinforced stern and two clearly separated rear engine housings.
+      // The cyan nozzle is inset in each casing; no shared central thruster.
       ctx.fillStyle = '#111820'; ctx.strokeStyle = '#596574'; ctx.lineWidth = 2;
       for (const side of [-1, 1]) {
-        ctx.fillRect(side * this.radius * 0.58 - this.radius * 0.19, this.radius * 1.22, this.radius * 0.38, this.radius * 0.58);
-        ctx.strokeRect(side * this.radius * 0.58 - this.radius * 0.19, this.radius * 1.22, this.radius * 0.38, this.radius * 0.58);
-        ctx.globalAlpha = 0.82 + Math.sin(this.phase * 13 + side) * 0.12; ctx.fillStyle = '#36d9ff';
-        ctx.fillRect(side * this.radius * 0.58 - this.radius * 0.075, this.radius * 1.68, this.radius * 0.15, this.radius * 0.18); ctx.globalAlpha = 1;
+        const engineX = side * this.radius * 0.58;
+        ctx.fillRect(engineX - this.radius * 0.22, this.radius * 1.20, this.radius * 0.44, this.radius * 0.62);
+        ctx.strokeRect(engineX - this.radius * 0.22, this.radius * 1.20, this.radius * 0.44, this.radius * 0.62);
+        ctx.fillStyle = '#293542';
+        ctx.fillRect(engineX - this.radius * 0.15, this.radius * 1.30, this.radius * 0.30, this.radius * 0.34);
+        ctx.fillStyle = '#36d9ff';
+        ctx.globalAlpha = 0.82 + Math.sin(this.phase * 13 + side) * 0.12;
+        ctx.fillRect(engineX - this.radius * 0.105, this.radius * 1.62, this.radius * 0.21, this.radius * 0.16);
+        ctx.fillStyle = '#b9f6ff';
+        ctx.fillRect(engineX - this.radius * 0.045, this.radius * 1.65, this.radius * 0.09, this.radius * 0.09);
+        ctx.globalAlpha = 1;
       }
       // Permanent cyan core; phase III adds localized adaptive-green repair traces.
       const corePulse = 0.78 + Math.sin(this.phase * 9) * 0.12;
