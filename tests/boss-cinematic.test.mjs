@@ -94,6 +94,35 @@ test('boss identity appears only in the final identification phase', () => {
   assert.equal(getBossCinematicDialogue(state).actor, 'pilot');
 });
 
+
+test('pilot intro line completes before the phase advances', () => {
+  const state = createBossCinematic();
+  advance(state, 15.5);
+  advance(state, 8.8);
+  const dialogue = getBossCinematicDialogue(state);
+  assert.equal(state.phase, 'pilot-intro');
+  assert.match(dialogue.text, /parece tranquilo/i);
+  assert.equal(dialogue.typingComplete, true);
+});
+
+test('anomaly and system dialogue cues leave enough time for each complete line', () => {
+  const state = createBossCinematic();
+  advance(state, 24.5);
+  assert.equal(state.phase, 'anomaly-scan');
+  advance(state, 3.1);
+  const pilot = getBossCinematicDialogue(state);
+  assert.equal(pilot.actor, 'pilot');
+  assert.equal(pilot.typingComplete, true);
+  advance(state, 0.5);
+  const system = getBossCinematicDialogue(state);
+  assert.equal(system.actor, 'system');
+  assert.equal(system.typingComplete, false);
+  advance(state, 2.9);
+  const finalPilot = getBossCinematicDialogue(state);
+  assert.equal(finalPilot.actor, 'pilot');
+  assert.equal(finalPilot.typingComplete, true);
+});
+
 test('alert cues tolerate floating-point boundaries at the scheduled frame', () => {
   const state = createBossCinematic();
   advance(state, 25.8);
