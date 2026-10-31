@@ -4,9 +4,11 @@
 - Tropas comuns poderão buscar posições melhores e cooperar sem perder suas funções-base; o Interceptador permanece a unidade mais básica, com perseguição veloz e sem habilidade especial própria.
 - Flanqueamento coordenado e leitura tática avançada ficam reservados às tropas de Elite existentes: Sentinela, Guardião e Artilheiro. Não existe Interceptador de Elite.
 - O DREADNOUGHT terá controlador próprio, baseado em controle de distância, reposicionamento, proteção de ângulos de armamento e ataques antecipatórios com aviso e oportunidade de reação.
-- Auditoria inicial: jogador usa aceleração vetorial de 1800 unidades/s², com inclinação visual e câmera suavizadas separadamente; lógica de decisão e deslocamento dos inimigos ainda está concentrada em `Enemy.update()`.
-- Adiciona teste de regressão garantindo que somente Sentinela, Guardião e Artilheiro aceitam `isElite`; o Interceptador permanece básico.
-- **Estado:** escopo, arquitetura e auditoria registrados; nenhuma física ou IA de combate foi alterada nesta etapa.
+- Cria `src/movement/motion.js`, núcleo compartilhado sem alocações por quadro para aproximação de velocidade e integração de posição.
+- Migra a movimentação do jogador para o núcleo compartilhado; aceleração sobe de 1800 para 2400 unidades/s², mantendo a velocidade máxima de 250 e a normalização diagonal. A resposta de reversão fica mais rápida sem alterar velocidade de cruzeiro.
+- Adiciona testes para consistência em 30/60/120 FPS, reversão sem overshoot, delta inválido, movimento diagonal e limite de velocidade.
+- A inclinação visual, a rotação, os efeitos de propulsão e a câmera permanecem separados da integração física.
+- **Estado:** primeira etapa física do jogador implementada; tropas, flanqueamento de elites e controlador tático do DREADNOUGHT continuam pendentes. Teste manual de controle ainda não realizado.
 
 ## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
 
