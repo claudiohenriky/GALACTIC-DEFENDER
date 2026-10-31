@@ -1,3 +1,12 @@
+## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
+
+- Desativa o modo temporário que fazia o DREADNOUGHT surgir já na primeira onda; a partida volta a começar com cinco inimigos e segue a progressão normal.
+- Mantém o DREADNOUGHT programado para as ondas especiais a partir da onda 10, com recorrência a cada cinco ondas.
+- Adiciona teste de regressão para o início da partida e a transição entre as ondas 9, 10 e 11.
+- Inicia a auditoria da jogabilidade: preservar a movimentação orgânica do jogador e investigar separadamente aceleração, inércia, rotação, inclinação visual, câmera e deslocamento do encouraçado.
+- **Escopo:** ajuste do modo de teste e cobertura da progressão; nenhuma física ou parâmetro de movimentação foi alterado nesta etapa.
+- **Validação pendente:** executar a suíte automatizada e testar a progressão real no navegador antes de iniciar ajustes físicos.
+
 ## [Unreleased] — DREADNOUGHT · proa limpa e otimização de renderização
 
 - Remove a antiga passagem de desenho do casco que continuava sendo renderizada por baixo do novo modelo em camadas; o DREADNOUGHT passa a ter uma única passagem principal de casco.
