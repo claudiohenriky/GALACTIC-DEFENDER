@@ -147,3 +147,12 @@ O workflow em `.github/workflows/deploy.yml` publica o conteúdo do repositório
 ## Histórico completo de versões
 
 Consulte o [CHANGELOG.md](./CHANGELOG.md) para o histórico documentado desde os marcos v0.0.0 e v0.1.0. Quando não há registro verificável, isso é indicado explicitamente.
+
+
+## Progressão de habilidades — v0.59.0
+
+A progressão combina duas camadas:
+- **Árvore permanente:** cinco ramificações com 15 tecnologias, pontos de pesquisa persistentes e pré-requisitos.
+- **Especializações por partida:** escolhas de evolução para mísseis, escudos e disparos múltiplos, reiniciadas a cada nova partida.
+
+Os pontos de pesquisa são concedidos ao concluir missões, com bônus a cada três conclusões. A árvore permanente aplica seus atributos ao criar ou reiniciar a nave. O progresso fica salvo no armazenamento local do navegador.

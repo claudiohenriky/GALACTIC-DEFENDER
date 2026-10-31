@@ -11,6 +11,16 @@ export class Player {
     this.maxHealth = this.baseMaxHealth;
     this.health = this.maxHealth;
     this.weaponDamage = 1;
+    this.permanentFireRateBonus = 0;
+    this.permanentShieldBonus = 0;
+    this.shieldRechargeMultiplier = 1;
+    this.abilityCooldownMultiplier = 1;
+    this.xpMultiplier = 1;
+    this.missionResearchBonus = 0;
+    this.upgradeSpecializations = {
+      guidedMissileGuidance: 0, guidedMissilePayload: 0, guidedMissileFragmentation: 0,
+      shieldCapacity: 0, shieldRecharge: 0, doubleShotSpread: 0
+    };
     this.fireRateLevel = 0;
     this.projectileSpeedLevel = 0;
     this.propulsionControlLevel = 0;
@@ -134,7 +144,8 @@ export class Player {
 
   upgradeShield() {
     this.shieldLevel = Math.min(3, this.shieldLevel + 1);
-    this.shieldMaxHealth = 2 + this.shieldLevel;
+    this.shieldMaxHealth = 2 + this.shieldLevel + (this.permanentShieldBonus || 0) + (this.upgradeSpecializations?.shieldCapacity || 0);
+    this.shieldRechargeDuration = Math.max(3.5, 7 * (this.shieldRechargeMultiplier || 1) * (1 - 0.15 * (this.upgradeSpecializations?.shieldRecharge || 0)));
     this.shieldHealth = this.shieldMaxHealth;
     this.shieldRechargeTimer = 0;
   }

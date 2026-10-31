@@ -8,6 +8,7 @@ import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.58.0-elite-st
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
 import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.58.0-plasma-telegraph';
 import { Progression } from '../progression/progression.js?v=0.44.0';
+import { SkillTree } from '../progression/skill-tree.js?v=0.59.0-skill-tree';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.57.2-boss-wave-15';
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
@@ -41,6 +42,8 @@ export class Game {
     this.player.shipClass = this.selectedShip;
 
     this.progression = new Progression();
+    this.skillTree = new SkillTree();
+    this.applyPermanentSkillBonuses();
     this.achievements = new AchievementTracker();
     this.mission = new Mission();
     this.waveManager = new WaveManager();
@@ -178,6 +181,10 @@ export class Game {
     this.fpsSampleStartedAt = timestamp;
   }
 
+  applyPermanentSkillBonuses() {
+    this.skillTree?.applyToPlayer(this.player);
+  }
+
   bindOverlayElements() {
     this.startOverlay = document.querySelector('#start-overlay');
     this.pauseOverlay = document.querySelector('#pause-overlay');
@@ -285,6 +292,7 @@ export class Game {
     this.cameraY = 0;
     this.updateCamera(0, true);
     this.player.shipClass = this.selectedShip || 'vanguard';
+    this.applyPermanentSkillBonuses();
     this.progression = new Progression();
     this.mission = new Mission();
     this.waveManager.reset();
@@ -434,10 +442,29 @@ export class Game {
       { type: 'doubleShot', icon: '✣', title: 'Tiro múltiplo', description: 'Adiciona projéteis laterais', category: 'HABILIDADE ESPECIAL', rarity: 'common', weight: 60 },
       { type: 'shield', icon: '◈', title: 'Escudo de energia', description: 'Barreira regenerativa com explosão ao quebrar', category: 'HABILIDADE ESPECIAL', rarity: 'rare', weight: 30 },
       { type: 'repair', icon: '✚', title: 'Reparo de emergência', description: 'Recupera 30% da integridade máxima', category: 'HABILIDADE ESPECIAL', rarity: 'common', weight: 60 },
-      { type: 'guidedMissile', icon: '➤', title: 'Míssil teleguiado', description: 'Persegue inimigos ativos · máx. 3 níveis', category: 'HABILIDADE ESPECIAL', rarity: 'epic', weight: 12 }
+      { type: 'guidedMissile', icon: '➤', title: 'Míssil teleguiado', description: 'Persegue inimigos ativos · máx. 3 níveis', category: 'HABILIDADE ESPECIAL', rarity: 'epic', weight: 12 },
+      { type: 'missileGuidance', icon: '⌖', title: 'Rastreamento vetorial', description: 'Mísseis fazem curvas mais precisas', category: 'ESPECIALIZAÇÃO · MÍSSEIS', rarity: 'rare', weight: 24 },
+      { type: 'missilePayload', icon: '✹', title: 'Carga de impacto', description: '+8% de dano e área de explosão dos mísseis', category: 'ESPECIALIZAÇÃO · MÍSSEIS', rarity: 'rare', weight: 22 },
+      { type: 'missileFragmentation', icon: '✣', title: 'Fragmentação ampliada', description: 'Mísseis nível 3 liberam um fragmento adicional', category: 'ESPECIALIZAÇÃO · MÍSSEIS', rarity: 'epic', weight: 14 },
+      { type: 'shieldCapacity', icon: '◈', title: 'Matriz reforçada', description: '+1 ponto de capacidade do escudo', category: 'ESPECIALIZAÇÃO · ENERGIA', rarity: 'rare', weight: 22 },
+      { type: 'shieldRecharge', icon: '↻', title: 'Recarga de emergência', description: 'Reduz em 15% a recarga do escudo', category: 'ESPECIALIZAÇÃO · ENERGIA', rarity: 'rare', weight: 20 },
+      { type: 'doubleShotSpread', icon: '✥', title: 'Formação de disparo', description: 'Ajusta a abertura dos projéteis múltiplos', category: 'ESPECIALIZAÇÃO · ARSENAL', rarity: 'rare', weight: 18 }
     ];
     const availableOptions = current.category === 'special'
-      ? specials.filter((option) => option.type !== 'guidedMissile' || this.player.guidedMissileLevel < 3)
+      ? specials.filter((option) => {
+        if (option.type === 'guidedMissile') return this.player.guidedMissileLevel < 3;
+        if (option.type.startsWith('missile')) return this.player.guidedMissileLevel > 0
+          && (option.type !== 'missileFragmentation' || this.player.guidedMissileLevel >= 3)
+          && (option.type !== 'missileGuidance' || this.player.upgradeSpecializations.guidedMissileGuidance < 2)
+          && (option.type !== 'missilePayload' || this.player.upgradeSpecializations.guidedMissilePayload < 2)
+          && (option.type !== 'missileFragmentation' || this.player.upgradeSpecializations.guidedMissileFragmentation < 1);
+        if (option.type.startsWith('shield')) return this.player.shieldLevel > 0
+          && (option.type !== 'shieldCapacity' || this.player.upgradeSpecializations.shieldCapacity < 2)
+          && (option.type !== 'shieldRecharge' || this.player.upgradeSpecializations.shieldRecharge < 2);
+        if (option.type === 'doubleShotSpread') return this.player.doubleShotLevel > 0
+          && this.player.upgradeSpecializations.doubleShotSpread < 2;
+        return true;
+      })
       : attributes.filter((option) => {
         if (option.type === 'cadence') return this.player.fireRateLevel < 5;
         if (option.type === 'projectileSpeed') return this.player.projectileSpeedLevel < 3;
@@ -497,6 +524,19 @@ export class Game {
       this.updateGuidedMissileButton();
     }
     if (type === 'shield') this.player.upgradeShield();
+    if (type === 'missileGuidance') this.player.upgradeSpecializations.guidedMissileGuidance = Math.min(2, this.player.upgradeSpecializations.guidedMissileGuidance + 1);
+    if (type === 'missilePayload') this.player.upgradeSpecializations.guidedMissilePayload = Math.min(2, this.player.upgradeSpecializations.guidedMissilePayload + 1);
+    if (type === 'missileFragmentation') this.player.upgradeSpecializations.guidedMissileFragmentation = 1;
+    if (type === 'shieldCapacity') {
+      this.player.upgradeSpecializations.shieldCapacity = Math.min(2, this.player.upgradeSpecializations.shieldCapacity + 1);
+      this.player.shieldMaxHealth += 1;
+      this.player.shieldHealth = Math.min(this.player.shieldMaxHealth, this.player.shieldHealth + 1);
+    }
+    if (type === 'shieldRecharge') {
+      this.player.upgradeSpecializations.shieldRecharge = Math.min(2, this.player.upgradeSpecializations.shieldRecharge + 1);
+      this.player.shieldRechargeDuration = Math.max(3.5, this.player.shieldRechargeDuration * 0.85);
+    }
+    if (type === 'doubleShotSpread') this.player.upgradeSpecializations.doubleShotSpread = Math.min(2, this.player.upgradeSpecializations.doubleShotSpread + 1);
     if (type === 'repair') this.player.health = Math.min(this.player.maxHealth, this.player.health + this.player.maxHealth * 0.30);
     this.pendingUpgradeChoices.shift();
     updateHud(this);
@@ -522,18 +562,20 @@ export class Game {
   handleMissionCompletion(completion, killAchievements = []) {
     if (!completion) return;
     this.score += completion.score;
-    const levelsGained = this.progression.addXp(completion.xp);
+    const earnedXp = Math.round(completion.xp * (this.player.xpMultiplier || 1));
+    const levelsGained = this.progression.addXp(earnedXp);
+    const researchPoints = this.skillTree.awardMissionCompletion();
     if (levelsGained > 0) this.triggerLevelUp(levelsGained);
     let total = 0;
     try { total = Number(localStorage.getItem('gd-missions-completed') || 0) + 1; localStorage.setItem('gd-missions-completed', String(total)); } catch { total = completion.completionNumber; }
     const unlockedTitles = this.progression.recordMissionCompletion(total);
     const unlockedAchievements = [...killAchievements, ...this.achievements.record('missions')];
     const toast = document.querySelector('#mission-toast');
-    toast.textContent = `MISSÃO CONCLUÍDA · +${completion.xp} XP · +${completion.score} PTS`;
+    toast.textContent = `MISSÃO CONCLUÍDA · +${earnedXp} XP · +${completion.score} PTS · +${researchPoints} RP`;
     this.restartFeedbackAnimation(toast, 'mission-toast-active');
     const titleText = unlockedTitles.length ? ` · TÍTULO: ${unlockedTitles[unlockedTitles.length - 1].name}` : '';
     const achievementText = unlockedAchievements.length ? ` · CONQUISTA${unlockedAchievements.length > 1 ? 'S' : ''}: ${unlockedAchievements.map(item => item.name).join(', ')}` : '';
-    this.showRewardBanner('MISSÃO CONCLUÍDA', `${completion.name} · +${completion.xp} XP · +${completion.score} PTS${titleText}${achievementText}`);
+    this.showRewardBanner('MISSÃO CONCLUÍDA', `${completion.name} · +${earnedXp} XP · +${completion.score} PTS · +${researchPoints} RP${titleText}${achievementText}`);
     if (unlockedTitles.length) {
       document.querySelector('#title-unlock-label').textContent = `NOVO TÍTULO: ${unlockedTitles[unlockedTitles.length - 1].name}`;
       document.querySelector('#title-unlock-toast').classList.remove('hidden');
@@ -692,7 +734,7 @@ export class Game {
       life: 1.22, maxLife: 1.22, damage: (level >= 3 ? 5 : 3) * (overloaded ? 0.7 : 1),
       repulsion: 95 + level * 85, hitEnemies: new Set()
     };
-    this.shieldPulseCooldownMax = Math.max(15, 21 - level * 2);
+    this.shieldPulseCooldownMax = Math.max(15, 21 - level * 2) * (this.player.abilityCooldownMultiplier || 1);
     this.shieldPulseCooldown = this.shieldPulseCooldownMax;
     this.addOverload(28);
     this.updateShieldPulseButton();
@@ -815,6 +857,10 @@ export class Game {
     const fallbackAngle = Number.isFinite(this.player.rotation) ? this.player.rotation : -Math.PI / 2;
     const initialAngle = target && target.active ? Math.atan2(target.y - launchY, target.x - launchX) : fallbackAngle;
     const missile = new GuidedMissile(launchX, launchY, target, level, initialAngle, side);
+    missile.turnRate += this.player.upgradeSpecializations.guidedMissileGuidance * 0.65;
+    const payloadMultiplier = 1 + this.player.upgradeSpecializations.guidedMissilePayload * 0.08;
+    missile.damage *= payloadMultiplier;
+    missile.blastRadius *= payloadMultiplier;
     if (this.overload >= 70) missile.damage *= 0.72;
     this.guidedMissiles.push(missile);
   }
@@ -850,7 +896,7 @@ export class Game {
         level
       };
     }
-    this.guidedMissileCooldownMax = level >= 3 ? 9 : level >= 2 ? 10 : 12;
+    this.guidedMissileCooldownMax = (level >= 3 ? 9 : level >= 2 ? 10 : 12) * (this.player.abilityCooldownMultiplier || 1);
     this.guidedMissileCooldown = this.guidedMissileCooldownMax;
     this.addOverload(20);
     this.updateGuidedMissileButton();
@@ -893,6 +939,7 @@ export class Game {
 
     // Level 3 splits into three weaker, short-lived fragments; fragments cannot split again.
     if (missile.level >= 3 && this.guidedMissiles.length < 6) {
+      const fragmentCount = Math.min(4, 3 + this.player.upgradeSpecializations.guidedMissileFragmentation);
       const targets = [];
       for (const enemy of this.enemies) {
         if (!enemy.active) continue;
@@ -900,11 +947,11 @@ export class Game {
         const distance = dx * dx + dy * dy;
         let insertAt = targets.findIndex((item) => distance < item.distance);
         if (insertAt < 0) insertAt = targets.length;
-        if (insertAt < 3) targets.splice(insertAt, 0, { enemy, distance });
-        if (targets.length > 3) targets.pop();
+        if (insertAt < fragmentCount) targets.splice(insertAt, 0, { enemy, distance });
+        if (targets.length > fragmentCount) targets.pop();
       }
-      for (let index = 0; index < 3 && this.guidedMissiles.length < 6; index += 1) {
-        const angle = -Math.PI / 2 + index * (Math.PI * 2 / 3);
+      for (let index = 0; index < fragmentCount && this.guidedMissiles.length < 6; index += 1) {
+        const angle = -Math.PI / 2 + index * (Math.PI * 2 / fragmentCount);
         const target = targets[index]?.enemy || null;
         const fragment = new GuidedMissile(
           missile.x + Math.cos(angle) * 12,
@@ -1014,7 +1061,7 @@ export class Game {
     const newlyUnlocked = this.achievements.record('kills');
     if (enemy.type === 'boss') newlyUnlocked.push(...this.achievements.record('bosses'));
     const xpRewards = { chaser: 20, interceptor: 15, sentinel: 35, guardian: 45, artillery: 55, devastator: 80, boss: 180 };
-    const xpGained = xpRewards[enemy.type] ?? 20;
+    const xpGained = Math.round((xpRewards[enemy.type] ?? 20) * (this.player.xpMultiplier || 1));
     const levelsGained = this.progression.addXp(xpGained);
     if (enemy.type === 'boss') this.showRewardBanner('CHEFE DERROTADO', `+${xpGained} XP · +1.000 PTS`, 'boss');
     if (levelsGained > 0) this.triggerLevelUp(levelsGained);
@@ -1784,7 +1831,7 @@ export class Game {
       const angle = this.getAimAngle();
       const muzzleDistance = 17;
       const projectileCount = 1 + this.player.doubleShotLevel;
-      const spread = 0.14;
+      const spread = 0.14 + this.player.upgradeSpecializations.doubleShotSpread * 0.035;
       for (let index = 0; index < projectileCount; index += 1) {
         const offset = (index - (projectileCount - 1) / 2) * spread;
         const projectileAngle = angle + offset;
@@ -1801,7 +1848,7 @@ export class Game {
       }
       gameAudio.playPlayerShot();
       this.addOverload(0.15);
-      this.shotClock = .22 / (1 + this.player.fireRateLevel * 0.1);
+      this.shotClock = .22 / (1 + this.player.fireRateLevel * 0.1 + (this.player.permanentFireRateBonus || 0));
     }
 
     // The wave-9 clear is the only entry point for the experimental campaign transition.

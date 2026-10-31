@@ -624,3 +624,12 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Adicionar teste automatizado para o perfil básico/Elite e para o início de teste na onda 9.
 - [ ] Validar em gameplay se o Sentinela ficou acertável sem perder sua identidade tática; revisar Elite somente após esse teste.
 - Na branch de cutscene, o parâmetro testStartWave=9 inicia diretamente na onda 9; a branch normal permanece na onda 1.
+
+
+## v0.59.0 — Progressão de habilidades
+- [x] Criar árvore permanente com cinco ramificações e 15 nós conectados.
+- [x] Persistir pontos de pesquisa e tecnologias desbloqueadas no navegador.
+- [x] Conceder pontos por missões concluídas e bônus de marco.
+- [x] Aplicar bônus permanentes de integridade, mobilidade, arsenal, energia e tecnologia.
+- [x] Integrar especializações temporárias às cartas de evolução durante a partida.
+- [ ] Ampliar futuramente os caminhos de especialização com novas habilidades e efeitos exclusivos.
