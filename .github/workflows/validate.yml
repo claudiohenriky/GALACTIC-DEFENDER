@@ -3,7 +3,7 @@ name: Validate project
 on:
   pull_request:
   push:
-    branches: [main, feature/v0.44.0-boss-evolution, feature/v0.45.0-movement-and-tactical-ai, work/v0-48-quality-audit, fix/v0.55.1-cinematic-correction]
+    branches: [main, feature/v0.44.0-boss-evolution, feature/v0.45.0-movement-and-tactical-ai, work/v0-48-quality-audit, fix/v0.54.1-cinematic-correction]
 
 permissions:
   contents: read
