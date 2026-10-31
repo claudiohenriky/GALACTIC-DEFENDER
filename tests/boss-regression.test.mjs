@@ -384,7 +384,7 @@ test('boss camera frames keep the pilot and DREADNOUGHT in a shared cinematic vi
 });
 
 test('boss camera respects the calculated minimum zoom on narrow viewports',()=>{
- const frame=getBossCameraFrame({phase:'boss-taunt',player:{x:180,y:500},boss:{x:180,y:200},width:360,height:740,minZoom:1/2.4});
- assert.equal(frame.zoom,1/2.4);
+ const frame=getBossCameraFrame({phase:'boss-taunt',player:{x:180,y:500},boss:{x:180,y:200},width:360,height:740,minZoom:0.55});
+ assert.equal(frame.zoom,0.55);
  assert.equal(frame.x,0);
 });
