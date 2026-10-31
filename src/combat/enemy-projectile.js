@@ -35,12 +35,13 @@ export class EnemyProjectile {
     this.y += this.vy * dt;
   }
 
-  draw(ctx) {
+  draw(ctx, effectsScale = 1) {
     ctx.save();
-    ctx.globalAlpha = this.plasmaImpact ? 0.32 : 0.2;
+    const reducedEffects = effectsScale < 0.75;
+    ctx.globalAlpha = this.plasmaImpact ? (reducedEffects ? 0.16 : 0.32) : 0.2;
     ctx.fillStyle = this.glowColor;
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.radius * (this.plasmaImpact ? 2.5 : 1.9), 0, Math.PI * 2);
+    ctx.arc(this.x, this.y, this.radius * (this.plasmaImpact ? (reducedEffects ? 1.65 : 2.5) : 1.9), 0, Math.PI * 2);
     ctx.fill();
     ctx.globalAlpha = 1;
     ctx.fillStyle = this.color;
@@ -49,10 +50,12 @@ export class EnemyProjectile {
       const angle = Math.atan2(this.vy, this.vx);
       ctx.ellipse(this.x, this.y, this.radius * 1.55, this.radius * 0.78, angle, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = '#fff1d4';
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.radius * 0.48, 0, Math.PI * 2);
-      ctx.fill();
+      if (!reducedEffects) {
+        ctx.fillStyle = '#fff1d4';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius * 0.48, 0, Math.PI * 2);
+        ctx.fill();
+      }
     } else {
       ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
       ctx.fill();
