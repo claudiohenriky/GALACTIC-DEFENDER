@@ -11,10 +11,9 @@ export function getBossCinematicSpawnPositions(player, boss, viewportHeight, wor
   const radius = Math.max(1, boss?.radius || 100);
   const playerRadius = Math.max(1, player?.radius || 13);
   const margin = Math.max(1, boss?.collisionRadius || radius * 1.45);
-  const targetY = Math.max(
-    margin + 24,
-    Math.min(worldHeight - margin - 24, player.y - (radius * 2.1 + playerRadius + 80))
-  );
+  // Use the same vertical standoff as combat AI so the boss does not
+  // lurch closer/farther when cinematic control hands over to gameplay.
+  const targetY = getBossCombatTargetY(player.y, worldHeight, radius, margin);
   const targetX = Math.max(margin + 24, Math.min(worldWidth - margin - 24, player.x));
   return {
     startX: targetX,
