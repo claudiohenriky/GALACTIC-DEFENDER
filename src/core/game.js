@@ -1519,6 +1519,10 @@ export class Game {
       4
     );
     const boxHeight = Math.max(61, 39 + visibleRows.length * (fontSize + 4));
+    const preferredX = isPilot ? anchorX - boxWidth - 18
+      : isSystem ? anchorX + 18
+        : anchorX - boxWidth / 2;
+    const x = Math.max(12, Math.min(this.width - boxWidth - 12, preferredX));
     const preferredY = cue.actor === 'boss' ? anchorY + 30 : anchorY - boxHeight - 22;
     const y = Math.max(14, Math.min(this.height - boxHeight - 14, preferredY));
     const age = Math.max(0, cinematic.phaseElapsed - (cue.at || 0));
