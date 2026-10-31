@@ -6,7 +6,8 @@ import {
   advanceBossCinematic,
   createBossCinematic,
   getBossCinematicAlert,
-  getBossCinematicDialogue
+  getBossCinematicDialogue,
+  getBossCinematicBossOpacity
 } from '../src/core/boss-cinematic.js';
 
 function advance(state, seconds) {
@@ -25,7 +26,7 @@ test('new cinematic owns a deterministic sequence and lasts the planned duration
     'hud-fade', 'loading', 'pilot-intro', 'anomaly-scan',
     'distant-contact', 'boss-identification', 'handoff', 'complete'
   ]);
-  assert.equal(BOSS_CINEMATIC_TOTAL_DURATION, 56.5);
+  assert.equal(BOSS_CINEMATIC_TOTAL_DURATION, 60.5);
   advance(state, BOSS_CINEMATIC_TOTAL_DURATION);
   assert.equal(state.phase, 'complete');
   assert.equal(state.handoffComplete, true);
@@ -40,7 +41,7 @@ test('HUD fades out before loading and fades back only during combat handoff', (
   advance(state, 2.5);
   assert.equal(state.phase, 'loading');
   assert.equal(state.pilotHudOpacity, 0);
-  advance(state, 49);
+  advance(state, 53);
   assert.equal(state.phase, 'handoff');
   assert.ok(state.pilotHudOpacity < 0.001);
   advance(state, 1.25);
@@ -79,7 +80,7 @@ test('pilot and DREADNOUGHT have distinct alert identities', () => {
   const anomaly = getBossCinematicAlert(state);
   assert.equal(anomaly.kind, 'anomaly');
   assert.equal(anomaly.icon, '!');
-  advance(state, 24.45);
+  advance(state, 28.45);
   const identity = getBossCinematicAlert(state);
   assert.equal(identity.kind, 'boss');
   assert.equal(identity.icon, '◆');
@@ -87,7 +88,7 @@ test('pilot and DREADNOUGHT have distinct alert identities', () => {
 
 test('boss identity appears only in the final identification phase', () => {
   const state = createBossCinematic();
-  advance(state, 50.25);
+  advance(state, 54.25);
   assert.equal(state.phase, 'boss-identification');
   const alert = getBossCinematicAlert(state);
   assert.equal(alert.title, 'DREADNOUGHT');
@@ -124,6 +125,19 @@ test('anomaly and system dialogue cues leave enough time for each complete line'
   const finalPilot = getBossCinematicDialogue(state);
   assert.equal(finalPilot.actor, 'pilot');
   assert.equal(finalPilot.typingComplete, true);
+});
+
+test('DREADNOUGHT reveal fades in gradually and remains visible after confirmation', () => {
+  const state = createBossCinematic();
+  state.phase = 'distant-contact';
+  state.phaseElapsed = 0.45;
+  assert.equal(getBossCinematicBossOpacity(state), 0);
+  state.phaseElapsed = 4.2;
+  assert.ok(Math.abs(getBossCinematicBossOpacity(state) - 0.5) < 0.001);
+  state.phaseElapsed = 7.95;
+  assert.equal(getBossCinematicBossOpacity(state), 1);
+  state.phase = 'boss-identification';
+  assert.equal(getBossCinematicBossOpacity(state), 1);
 });
 
 test('alert cues tolerate floating-point boundaries at the scheduled frame', () => {
