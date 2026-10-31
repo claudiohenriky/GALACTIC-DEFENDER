@@ -14,8 +14,8 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert } from './boss-cinematic.js?v=0.54.0-clean-cinematic';
-import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.54.0-clean-cinematic';
+import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert } from './boss-cinematic.js?v=0.55.0-typewriter';
+import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.55.0-centered-framing';
 import { prepareBossForCombatHandoff } from './boss-cinematic-camera.js?v=0.54.0-clean-cinematic';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.53.2-reaction-polish';
 
