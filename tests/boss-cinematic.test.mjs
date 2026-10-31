@@ -24,9 +24,9 @@ test('new cinematic owns a deterministic sequence and lasts the planned duration
   assert.equal(state.phase, 'hud-fade');
   assert.deepEqual(BOSS_CINEMATIC_PHASES.map((phase) => phase.id), [
     'hud-fade', 'loading', 'pilot-intro', 'anomaly-scan',
-    'distant-contact', 'boss-identification', 'handoff', 'complete'
+    'distant-contact', 'boss-identification', 'arena-reveal', 'handoff', 'complete'
   ]);
-  assert.equal(BOSS_CINEMATIC_TOTAL_DURATION, 60.5);
+  assert.equal(BOSS_CINEMATIC_TOTAL_DURATION, 64);
   advance(state, BOSS_CINEMATIC_TOTAL_DURATION);
   assert.equal(state.phase, 'complete');
   assert.equal(state.handoffComplete, true);
@@ -41,7 +41,7 @@ test('HUD fades out before loading and fades back only during combat handoff', (
   advance(state, 2.5);
   assert.equal(state.phase, 'loading');
   assert.equal(state.pilotHudOpacity, 0);
-  advance(state, 53);
+  advance(state, 56.5);
   assert.equal(state.phase, 'handoff');
   assert.ok(state.pilotHudOpacity < 0.001);
   advance(state, 1.25);
@@ -137,6 +137,8 @@ test('DREADNOUGHT reveal fades in gradually and remains visible after confirmati
   state.phaseElapsed = 7.95;
   assert.equal(getBossCinematicBossOpacity(state), 1);
   state.phase = 'boss-identification';
+  assert.equal(getBossCinematicBossOpacity(state), 1);
+  state.phase = 'arena-reveal';
   assert.equal(getBossCinematicBossOpacity(state), 1);
 });
 
