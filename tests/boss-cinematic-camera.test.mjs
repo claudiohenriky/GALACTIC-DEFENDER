@@ -47,7 +47,7 @@ test('boss reveal widens progressively without horizontal camera drift', () => {
   assert.equal(start.x + 450, player.x);
   assert.ok(start.zoom > middle.zoom && middle.zoom > end.zoom);
   assert.equal(end.zoom, BOSS_CINEMATIC_REVEAL_ZOOM);
-  assert.ok(end.y > start.y, 'camera should move vertically only enough to frame the pair');
+  assert.ok(end.y < start.y, 'camera should shift upward in world space only enough to frame the pair');
 });
 
 test('arena reveal adds a small final zoom-out and combat handoff keeps that scale', () => {
