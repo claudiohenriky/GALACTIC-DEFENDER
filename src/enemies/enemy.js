@@ -43,7 +43,7 @@ export class Enemy {
     this.bossMissileNextSide = -1;
     this.bossBeamHit = false;
     this.rewardGranted = false;
-    this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
+    this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 38 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.motionProfile = type === 'artillery' ? (this.isElite ? ENEMY_MOTION_PROFILES.artilleryElite : ENEMY_MOTION_PROFILES.artillery)
       : type === 'sentinel' ? (this.isElite ? ENEMY_MOTION_PROFILES.sentinelElite : ENEMY_MOTION_PROFILES.sentinel)
         : type === 'guardian' ? (this.isElite ? ENEMY_MOTION_PROFILES.guardianElite : ENEMY_MOTION_PROFILES.guardian)
@@ -237,12 +237,12 @@ export class Enemy {
       }
       if (hasBestThreat && this.dodgeCooldown <= 0) {
         this.dodgeDirection = bestThreatX >= 0 ? -1 : 1;
-        this.dodgeTimer = this.type === 'boss' ? 0.26 : this.type === 'sentinel' ? (this.isElite ? 0.62 : 0.30) : 0.48;
-        this.dodgeCooldown = this.type === 'boss' ? 1.8 : this.type === 'sentinel' ? (this.isElite ? 0.72 : 1.45) : this.type === 'artillery' ? 1.25 : 0.95;
+        this.dodgeTimer = this.type === 'boss' ? 0.26 : this.type === 'sentinel' ? (this.isElite ? 0.62 : 0.22) : 0.48;
+        this.dodgeCooldown = this.type === 'boss' ? 1.8 : this.type === 'sentinel' ? (this.isElite ? 0.72 : 1.8) : this.type === 'artillery' ? 1.25 : 0.95;
       }
     }
     const dodgeStrength = this.dodgeTimer > 0
-      ? (this.type === 'sentinel' ? (this.isElite ? 168 : 68) : this.type === 'artillery' ? (this.isElite ? 122 : 76) : this.type === 'boss' ? 42 : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'boss' ? 0.26 : this.type === 'sentinel' && this.isElite ? 0.62 : this.type === 'sentinel' ? 0.30 : 0.48))
+      ? (this.type === 'sentinel' ? (this.isElite ? 168 : 42) : this.type === 'artillery' ? (this.isElite ? 122 : 76) : this.type === 'boss' ? 42 : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'boss' ? 0.26 : this.type === 'sentinel' && this.isElite ? 0.62 : this.type === 'sentinel' ? 0.30 : 0.48))
       : 0;
 
     if (this.type === 'boss') {
@@ -573,7 +573,7 @@ export class Enemy {
       }
     } else if (this.type === 'sentinel') {
       // Sentinels strafe around a moving firing lane instead of sliding directly toward the player.
-      const laneOffset = Math.sin(this.phase * (this.isElite ? 1.05 : 0.72)) * Math.min(this.isElite ? 125 : 70, width * (this.isElite ? 0.27 : 0.16));
+      const laneOffset = Math.sin(this.phase * (this.isElite ? 1.05 : 0.62)) * Math.min(this.isElite ? 125 : 52, width * (this.isElite ? 0.27 : 0.13));
       let desiredX = Math.max(this.radius, Math.min(width - this.radius, targetX + laneOffset + dodgeStrength));
       let desiredY = Math.max(42, targetY - Math.min(this.isElite ? 195 : 160, height * (this.isElite ? 0.34 : 0.28)));
       if (flankActive) {
