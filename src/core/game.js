@@ -14,7 +14,7 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity } from './boss-cinematic.js?v=0.54.1-arena-reveal';
+import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity, wrapBossCinematicDialogue } from './boss-cinematic.js?v=0.54.3-dialogue-layout';
 import { getBossCinematicCameraFrame, prepareBossForCombatHandoff, BOSS_CINEMATIC_ARENA_ZOOM } from './boss-cinematic-camera.js?v=0.54.1-camera-rebuild';
 import { getBossCinematicSpawnPositions, preparePlayerForBossCinematic } from './boss-positioning.js?v=0.54.2-combat-aligned-entry';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.1-red-question';
@@ -1507,29 +1507,18 @@ export class Game {
     const isPilot = cue.actor === 'pilot';
     const isSystem = cue.actor === 'system';
     const sideLeft = isPilot;
-    const boxWidth = Math.min(292, Math.max(164, this.width * 0.38), this.width - 24);
-    const fontSize = this.width < 520 ? 9 : 11;
-    const maxWidth = boxWidth - 24;
-    const words = (cue.visibleText ?? cue.text).split(' ');
-    const rows = [];
-    let row = '';
+    const boxWidth = Math.min(360, Math.max(248, this.width * 0.62), this.width - 24);
+    const fontSize = this.width < 520 ? 10 : 11;
+    const maxWidth = boxWidth - 38;
     ctx.save();
     ctx.font = `${fontSize}px ui-monospace, monospace`;
-    for (const word of words) {
-      const candidate = row ? `${row} ${word}` : word;
-      if (row && ctx.measureText(candidate).width > maxWidth) {
-        rows.push(row);
-        row = word;
-      } else row = candidate;
-    }
-    if (row) rows.push(row);
-    const visibleRows = rows.slice(0, 2);
-    const boxHeight = Math.max(57, 37 + visibleRows.length * (fontSize + 4));
-    // Pilot and ship-system cards flank the same ship anchor instead of living at opposite screen edges.
-    const preferredX = isPilot ? anchorX - boxWidth - 18
-      : isSystem ? anchorX + 18
-        : anchorX - boxWidth / 2;
-    const x = Math.max(12, Math.min(this.width - boxWidth - 12, preferredX));
+    const visibleRows = wrapBossCinematicDialogue(
+      cue.visibleText ?? cue.text,
+      (value) => ctx.measureText(value).width,
+      maxWidth,
+      4
+    );
+    const boxHeight = Math.max(61, 39 + visibleRows.length * (fontSize + 4));
     const preferredY = cue.actor === 'boss' ? anchorY + 30 : anchorY - boxHeight - 22;
     const y = Math.max(14, Math.min(this.height - boxHeight - 14, preferredY));
     const age = Math.max(0, cinematic.phaseElapsed - (cue.at || 0));
