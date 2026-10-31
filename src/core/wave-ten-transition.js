@@ -14,7 +14,7 @@ export function createWaveTenTransition() {
     phaseDuration: TRANSITION_PHASES[0].duration,
     phaseElapsed: 0,
     elapsed: 0,
-    cameraZoom: 1.18,
+    cameraZoom: 0.72,
     boss: null
   };
 }
