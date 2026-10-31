@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   BOSS_CINEMATIC_PHASES,
+  BOSS_CINEMATIC_DIALOGUE,
   BOSS_CINEMATIC_TOTAL_DURATION,
   advanceBossCinematic,
   createBossCinematic,
@@ -161,4 +162,14 @@ test('dialogue wrapping never exceeds the configured row count', () => {
   const rows = wrapBossCinematicDialogue(text, (value) => value.length * 6, 60, 4);
   assert.equal(rows.length, 4);
   assert.ok(rows.every((row) => row.length > 0));
+});
+
+test('every cinematic line fits the responsive mobile dialogue card without losing words', () => {
+  for (const cues of Object.values(BOSS_CINEMATIC_DIALOGUE)) {
+    for (const cue of cues) {
+      const rows = wrapBossCinematicDialogue(cue.text, (value) => value.length * 5.5, 210, 4);
+      assert.ok(rows.length > 0 && rows.length <= 4, cue.text);
+      assert.equal(rows.join(' '), cue.text, cue.text);
+    }
+  }
 });
