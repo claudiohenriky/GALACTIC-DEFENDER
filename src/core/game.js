@@ -1381,16 +1381,16 @@ export class Game {
     }
 
     if (!cinematic.bossSpawned && cinematic.phase === 'distant-contact') {
-      // The DREADNOUGHT enters from the upper-right and travels to a safe standoff.
-      // Its approach is owned by the cinematic; combat AI remains disabled until handoff.
+      // The DREADNOUGHT emerges from above, aligned with the pilot's forward axis.
+      // It remains distant throughout the approach; no lateral spawn or close-range pop-in.
       const boss = new Enemy(0, 0, 10, 'boss');
       const margin = boss.collisionRadius + 24;
       const clampX = (value) => Math.max(margin, Math.min(this.worldWidth - margin, value));
       const clampY = (value) => Math.max(margin, Math.min(this.worldHeight - margin, value));
-      cinematic.bossTargetX = clampX(this.player.x + this.width * 0.72);
-      cinematic.bossTargetY = clampY(this.player.y - this.height * 1.16);
-      cinematic.bossStartX = clampX(cinematic.bossTargetX + this.width * 0.22);
-      cinematic.bossStartY = clampY(cinematic.bossTargetY - this.height * 0.12);
+      cinematic.bossTargetX = clampX(this.player.x);
+      cinematic.bossTargetY = clampY(this.player.y - this.height * 1.28);
+      cinematic.bossStartX = cinematic.bossTargetX;
+      cinematic.bossStartY = cinematic.bossTargetY - this.height * 0.72;
       boss.x = cinematic.bossStartX;
       boss.y = cinematic.bossStartY;
       boss.bossEntranceTimer = 0;
@@ -1486,8 +1486,12 @@ export class Game {
     if (row) rows.push(row);
     const visibleRows = rows.slice(0, 2);
     const boxHeight = Math.max(57, 37 + visibleRows.length * (fontSize + 4));
-    const x = sideLeft ? 12 : this.width - boxWidth - 12;
-    const preferredY = isPilot ? anchorY - boxHeight - 24 : anchorY + 28;
+    // Pilot and ship-system cards flank the same ship anchor instead of living at opposite screen edges.
+    const preferredX = isPilot ? anchorX - boxWidth - 18
+      : isSystem ? anchorX + 18
+        : anchorX - boxWidth / 2;
+    const x = Math.max(12, Math.min(this.width - boxWidth - 12, preferredX));
+    const preferredY = cue.actor === 'boss' ? anchorY + 30 : anchorY - boxHeight - 22;
     const y = Math.max(14, Math.min(this.height - boxHeight - 14, preferredY));
     const age = Math.max(0, cinematic.phaseElapsed - (cue.at || 0));
     const enter = Math.min(1, age / 0.24);
@@ -1538,13 +1542,14 @@ export class Game {
     const duration = 3.8;
     const progress = Math.max(0, Math.min(1, elapsed / 0.62));
     const eased = progress * progress * (3 - 2 * progress);
-    const fadeOut = Math.max(0, Math.min(1, (duration - elapsed) / 0.55));
+    const fadeOut = Math.max(0, Math.min(1, (duration - elapsed) / 0.8));
+    const exitOffset = (1 - fadeOut) * 42;
     const alpha = eased * fadeOut;
     const width = Math.min(this.width - 24, Math.max(210, Math.min(alert.kind === 'boss' ? 420 : 360, this.width * 0.68)));
     const height = 68;
     const x = alert.kind === 'boss' ? (this.width - width) / 2 : this.width - width - 12;
     const targetY = this.height * 0.075;
-    const y = -height + (targetY + height) * eased;
+    const y = -height + (targetY + height) * eased - exitOffset;
     const accent = alert.accent || (alert.kind === 'boss' ? '#ff718d' : '#f2b85f');
     ctx.save();
     ctx.globalAlpha = alpha;
