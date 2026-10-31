@@ -1,6 +1,6 @@
-import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.53.0-stage-6-7';
+import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.57.1-plasma-cooldown';
 import { getBossCombatTargetY } from '../core/boss-positioning.js?v=0.54.0-clean-cinematic';
-import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.56.0-devastator-profiles';
+import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.57.1-boss-flank-movement';
 import { getGuardianProtectionPriority } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
 
 export class Enemy {
@@ -29,6 +29,7 @@ export class Enemy {
     this.bossMovementState = 'patrol';
     this.bossMovementTimer = 0;
     this.bossRepositionCooldown = 0;
+    this.bossPatrolTargetTimer = 0;
     this.bossMoveTargetX = x;
     this.bossMoveTargetY = y;
     this.bossPatrolSide = 1;
@@ -142,6 +143,7 @@ export class Enemy {
     this.repositionCooldown = Math.max(0, this.repositionCooldown - dt);
     this.bossMovementTimer = Math.max(0, this.bossMovementTimer - dt);
     this.bossRepositionCooldown = Math.max(0, this.bossRepositionCooldown - dt);
+    this.bossPatrolTargetTimer = Math.max(0, this.bossPatrolTargetTimer - dt);
     this.bossMissileCooldown = Math.max(0, this.bossMissileCooldown - dt);
     const repositionActive = this.type === 'chaser' && this.repositionTimer > 0;
     const flankActive = this.isElite && this.flankTimer > 0 && this.type !== 'guardian';
@@ -292,9 +294,10 @@ export class Enemy {
 
       if (this.bossMovementState === 'reposition' && this.bossMovementTimer <= 0) {
         this.bossMovementState = 'stabilize';
-        this.bossMovementTimer = 0.45;
+        this.bossMovementTimer = 0.7;
       } else if (this.bossMovementState === 'stabilize' && this.bossMovementTimer <= 0) {
         this.bossMovementState = 'patrol';
+        this.bossPatrolTargetTimer = 0;
       }
 
       if (this.bossEntranceTimer > 0) {
@@ -321,20 +324,23 @@ export class Enemy {
           const sideX = -toPlayerY / playerDistance;
           const sideY = toPlayerX / playerDistance;
           this.bossPatrolSide *= -1;
-          const sideOffset = Math.min(width * 0.10, 118) * this.bossPatrolSide;
+          const sideOffset = Math.min(width * 0.17, 190) * this.bossPatrolSide;
           this.bossMoveTargetX = Math.max(this.collisionRadius + 12, Math.min(width - this.collisionRadius - 12,
             predictedTargetX + sideX * sideOffset));
           this.bossMoveTargetY = Math.max(this.collisionRadius + 30, Math.min(height - this.collisionRadius - 36,
-            desiredY + sideY * sideOffset * 0.32));
+            desiredY + sideY * sideOffset * 0.42));
           this.bossMovementState = 'reposition';
-          this.bossMovementTimer = 1.45;
-          this.bossRepositionCooldown = 3.5;
+          this.bossMovementTimer = 2.25;
+          this.bossRepositionCooldown = 5.2;
         }
 
-        if (this.bossMovementState === 'patrol') {
+        if (this.bossMovementState === 'patrol' && this.bossPatrolTargetTimer <= 0) {
+          // Hold a broad patrol waypoint instead of chasing the pilot's position every frame.
+          // This gives the player a stable flank window while the battleship completes its turn.
           this.bossMoveTargetX = Math.max(this.collisionRadius + 4, Math.min(width - this.collisionRadius - 4,
             predictedTargetX + Math.sin(this.phase * (this.bossPhase === 3 ? 0.62 : 0.42)) * horizontalRange));
           this.bossMoveTargetY = desiredY;
+          this.bossPatrolTargetTimer = this.bossPhase === 3 ? 2.5 : 3.2;
         }
         const profile = this.bossPhase === 3
           ? ENEMY_MOTION_PROFILES.bossPhaseThree : ENEMY_MOTION_PROFILES.boss;
@@ -781,7 +787,9 @@ export class Enemy {
       } else {
         const desiredFacing = this.type === 'devastator' ? this.siegeAimAngle : Math.atan2(targetY + playerVelocityY * 0.32 - this.y, targetX + playerVelocityX * 0.32 - this.x);
         const facingDelta = Math.atan2(Math.sin(desiredFacing - this.facingRotation), Math.cos(desiredFacing - this.facingRotation));
-        const turnResponse = this.type === 'boss' ? (cannon?.energyState === 'aligning' ? 1.15 : 0.62) : this.type === 'devastator' ? 1.35 : 4.5;
+        const turnResponse = this.type === 'boss'
+          ? (cannon?.energyState === 'aligning' ? 0.78 : this.bossPhase === 3 ? 0.34 : 0.26)
+          : this.type === 'devastator' ? 1.35 : 4.5;
         this.facingRotation += facingDelta * Math.min(1, dt * turnResponse);
       }
     } else {
