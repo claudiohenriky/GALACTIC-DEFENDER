@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { circlesOverlap, orientedEllipseOverlapsCircle } from '../src/combat/collision.js';
-import { BossSystems } from '../src/enemies/boss-systems.js';
+import { BossSystems, getBossBeamSegment, selectBossAttack } from '../src/enemies/boss-systems.js';
 import { Enemy } from '../src/enemies/enemy.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
 
@@ -68,6 +68,62 @@ test('heavy boss enters, retains its expanded footprint and fires from surviving
  assert.ok(volley.every(s=>Number.isFinite(s.x)&&Number.isFinite(s.y)));
 });
 
+
+
+test('boss attack selection prefers the appropriate family and respects module state, range and side',()=>{
+ const systems=new BossSystems();
+ for(const module of systems.modules) if(module.kind.includes('plasma')) module.plasmaChargeTimer=0;
+ assert.equal(selectBossAttack(systems.modules,450,-32,8,2),'plasma');
+ assert.equal(selectBossAttack(systems.modules,680,32,8,2),'missile');
+ systems.getModule('missile-right').state='destroyed';
+ assert.equal(selectBossAttack(systems.modules,680,32,8,2),'machine-gun');
+ systems.getModule('machine-gun-right').state='disabled';
+ assert.equal(selectBossAttack(systems.modules,950,32,8,2),null);
+});
+
+test('main cannon beam geometry starts at the open bow and follows its locked angle',()=>{
+ const boss=new Enemy(500,400,10,'boss');
+ const cannon=boss.bossSystems.getModule('main-energy-cannon');
+ cannon.energyAimAngle=Math.PI/2;
+ const beam=getBossBeamSegment(boss,cannon);
+ assert.ok(Math.abs(beam.startX-boss.x-boss.radius*1.82)<1e-8);
+ assert.ok(Math.abs(beam.startY-boss.y)<1e-8);
+ assert.ok(Math.abs(beam.endX-beam.startX-1250)<1e-8);
+ assert.ok(Math.abs(beam.endY-beam.startY)<1e-8);
+ assert.equal(beam.width,46);
+});
+
+test('main cannon aligns, warns, fires briefly, locks aim and enters recovery',()=>{
+ const boss=new Enemy(500,300,10,'boss');
+ boss.health=boss.maxHealth*0.6;
+ boss.bossEntranceTimer=0;
+ const cannon=boss.bossSystems.getModule('main-energy-cannon');
+ cannon.energyState='charging';
+ cannon.energyChargeTimer=0;
+ const seen=new Set();
+ let lockedAngle=null;
+ for(let frame=0;frame<900;frame++){
+  const targetX=frame<180?760:250;
+  boss.update(1/60,targetX,900,1000,1200,[],[],0,0,0);
+  seen.add(cannon.energyState);
+  if(cannon.energyState==='warning'||cannon.energyState==='firing'){
+   if(lockedAngle===null) lockedAngle=cannon.energyAimAngle;
+   const delta=Math.atan2(Math.sin(boss.facingRotation-lockedAngle),Math.cos(boss.facingRotation-lockedAngle));
+   assert.ok(Math.abs(delta)<1e-8,'boss facing must remain locked through warning and firing');
+  }
+ }
+ for(const state of ['aligning','warning','firing','cooldown']) assert.ok(seen.has(state),`missing ${state} state`);
+});
+
+test('destroyed main cannon cannot enter the attack cycle',()=>{
+ const boss=new Enemy(500,300,10,'boss');
+ boss.health=boss.maxHealth*0.6;
+ boss.bossEntranceTimer=0;
+ const cannon=boss.bossSystems.getModule('main-energy-cannon');
+ boss.bossSystems.damageModule(cannon.id,999);
+ boss.update(1/60,500,900,1000,1200,[],[],0,0,0);
+ assert.equal(cannon.energyState,'offline');
+});
 
 test('normal wave progression starts with five enemies and reserves the Dreadnought for wave 10',()=>{
  assert.equal(BOSS_TEST_MODE,false);
