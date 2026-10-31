@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.45.0-boss-tactical-motion';
+import { Game } from './src/core/game.js?v=0.45.0-boss-reposition-ai';
 import { gameAudio } from './src/audio/game-audio.js?v=0.44.0';
 
 // Entry point: connect the game engine to the page UI.
