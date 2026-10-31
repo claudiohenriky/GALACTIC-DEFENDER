@@ -14,10 +14,10 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity } from './boss-cinematic.js?v=0.54.1-cinematic-correction';
+import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity } from './boss-cinematic.js?v=0.54.1-slow-reveal';
 import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.54.1-cinematic-correction';
 import { prepareBossForCombatHandoff } from './boss-cinematic-camera.js?v=0.55.0-centered-framing';
-import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.1-cinematic-correction';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.1-slow-reveal';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
