@@ -101,6 +101,10 @@ test('boss attack selection prefers the appropriate family and respects module s
  systems.getModule('missile-right').state='destroyed';
  assert.equal(selectBossAttack(systems.modules,680,32,8,2),'light-laser');
  systems.getModule('machine-gun-right').state='disabled';
+ assert.equal(selectBossAttack(systems.modules,950,32,8,2),'light-laser');
+ systems.getModule('light-laser-left').state='disabled';
+ systems.getModule('light-laser-right').state='disabled';
+ systems.getModule('long-range-ion-right').state='disabled';
  assert.equal(selectBossAttack(systems.modules,950,32,8,2),null);
 });
 
@@ -136,8 +140,10 @@ test('DREADNOUGHT launches only one missile per salvo and applies a dedicated co
  const first=boss.update(1/60,targetX,targetY,1000,1200,[],[],0,0,0);
  assert.ok(Array.isArray(first));
  assert.equal(first.length,1,'only one wing may launch in a salvo');
- assert.equal(first[0].speed,185);
- assert.equal(first[0].damage,12);
+ assert.equal(first[0].speed,280);
+ assert.equal(first[0].damage,10);
+ assert.equal(first[0].guidedStyle,true);
+ assert.equal(first[0].lifetime,4.2);
  assert.equal(boss.bossMissileCooldown,6.0);
  const next=boss.update(1/60,targetX,targetY,1000,1200,[],[],0,0,0);
  assert.equal(next,null,'missiles must not launch again during the dedicated cooldown');
