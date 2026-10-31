@@ -1634,7 +1634,7 @@ export class Game {
           width: this.width, height: this.height,
           radius: this.pilotReaction.symbol === '❓❗' ? 21 : 15, offset: 30
         });
-        if (reactionPosition) this.drawPilotReaction(ctx, reactionPosition.x, reactionPosition.y);
+        if (reactionPosition) drawPilotReaction(ctx, this.pilotReaction, reactionPosition.x, reactionPosition.y);
       }
     }
     ctx.restore();
@@ -2462,7 +2462,7 @@ export class Game {
         x: screenX, y: screenY, width: this.width, height: this.height,
         radius: 15, offset: 29
       });
-      if (reactionPosition) this.drawPilotReaction(ctx, reactionPosition.x, reactionPosition.y);
+      if (reactionPosition) drawPilotReaction(ctx, this.pilotReaction, reactionPosition.x, reactionPosition.y);
     }
     this.renderBossCinematic(ctx);
     this.renderRecurringBossDialogue(ctx);
