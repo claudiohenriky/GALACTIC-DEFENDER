@@ -1550,14 +1550,33 @@ export class Game {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+    // A compact channel header separates speaker identity from the spoken line.
+    ctx.fillStyle = cue.actor === 'boss' ? 'rgba(255, 130, 154, 0.13)'
+      : isSystem ? 'rgba(155, 232, 184, 0.12)' : 'rgba(104, 229, 242, 0.12)';
+    ctx.fillRect(x + 1, y + 1, boxWidth - 2, 27);
     ctx.fillStyle = accent;
     ctx.fillRect(x + 10, y + 8, 3, boxHeight - 16);
     ctx.textAlign = 'left';
     ctx.font = '900 8px ui-monospace, monospace';
     ctx.fillText(cue.speaker, x + 19, y + 18);
+    const channelTag = cue.actor === 'boss' ? 'SINAL HOSTIL' : isSystem ? 'DIAGNÓSTICO' : 'COMUNICAÇÃO';
+    ctx.textAlign = 'right';
+    ctx.font = '700 7px ui-monospace, monospace';
+    ctx.fillStyle = accent;
+    ctx.fillText(channelTag, x + boxWidth - 12, y + 18);
+    ctx.globalAlpha = eased * 0.34;
+    ctx.fillRect(x + 14, y + 27, boxWidth - 28, 1);
+    ctx.globalAlpha = eased;
+    ctx.textAlign = 'left';
     ctx.fillStyle = '#f0f5ff';
     ctx.font = `${fontSize}px ui-monospace, monospace`;
     visibleRows.forEach((line, index) => ctx.fillText(line, x + 19, y + 36 + index * (fontSize + 4), maxWidth - 5));
+    if (!cue.typingComplete && visibleRows.length) {
+      const cursorX = x + 20 + Math.min(maxWidth - 8, ctx.measureText(visibleRows[visibleRows.length - 1]).width);
+      const cursorY = y + 29 + visibleRows.length * (fontSize + 4) - 3;
+      ctx.fillStyle = accent;
+      ctx.fillRect(cursorX, cursorY, 1.5, fontSize + 1);
+    }
     // Small side marker gives each voice a distinct visual signature.
     ctx.fillStyle = accent;
     ctx.globalAlpha = eased * 0.75;
