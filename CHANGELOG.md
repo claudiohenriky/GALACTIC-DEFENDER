@@ -1,3 +1,11 @@
+## [Unreleased] — DREADNOUGHT · legibilidade do armamento
+
+- Redesenha as silhuetas visuais das metralhadoras, lançadores de mísseis, lasers leves e canhões de plasma, com receptores blindados, bocais/tubos rebaixados e detalhes de emissor próprios por família.
+- Amplia moderadamente os hardpoints e reforça o contraste entre a base mecânica e a arma instalada, mantendo os módulos desenhados acima do casco para evitar que a nova superestrutura os esconda.
+- Mantém posições, IDs, ângulos, arcos de mira, cadência, projéteis, dano, integridade dos módulos, transições e colisões. O canhão principal continua representado pela cavidade frontal aberta.
+- A renderização continua sendo Canvas 2D com geometria vetorial em camadas; não foram adicionadas malhas 3D, filtros de sombra ou gradientes por arma.
+- **Validação pendente:** conferir leitura à distância e em telas pequenas, possíveis sobreposições entre hardpoints, transições de substituição e desempenho real em celular/desktop.
+
 ## [Unreleased] — DREADNOUGHT · propulsores e canhão principal
 
 - Remove o núcleo quase branco dos propulsores, que podia parecer uma peça separada; os bocais passam a usar uma escala de cianos coerente com a identidade energética da nave.
