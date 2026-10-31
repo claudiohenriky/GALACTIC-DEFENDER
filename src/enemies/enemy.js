@@ -37,7 +37,8 @@ export class Enemy {
     this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.motionProfile = type === 'artillery' ? (this.isElite ? ENEMY_MOTION_PROFILES.artilleryElite : ENEMY_MOTION_PROFILES.artillery)
       : type === 'sentinel' ? (this.isElite ? ENEMY_MOTION_PROFILES.sentinelElite : ENEMY_MOTION_PROFILES.sentinel)
-        : type === 'guardian' ? (this.isElite ? ENEMY_MOTION_PROFILES.guardianElite : ENEMY_MOTION_PROFILES.guardian) : null;
+        : type === 'guardian' ? (this.isElite ? ENEMY_MOTION_PROFILES.guardianElite : ENEMY_MOTION_PROFILES.guardian)
+          : type === 'chaser' ? ENEMY_MOTION_PROFILES.chaser : null;
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'boss'
       ? 1.8
@@ -71,6 +72,10 @@ export class Enemy {
     this.flankTargetX = x;
     this.flankTargetY = y;
     this.flankSide = 0;
+    this.repositionTimer = 0;
+    this.repositionCooldown = 0;
+    this.repositionTargetX = x;
+    this.repositionTargetY = y;
   }
 
   applyDisruption(impulseX, impulseY, duration = 0.82) {
@@ -112,6 +117,9 @@ export class Enemy {
     this.dodgeTimer = Math.max(0, this.dodgeTimer - dt);
     this.flankCooldown = Math.max(0, this.flankCooldown - dt);
     this.flankTimer = Math.max(0, this.flankTimer - dt);
+    this.repositionTimer = Math.max(0, this.repositionTimer - dt);
+    this.repositionCooldown = Math.max(0, this.repositionCooldown - dt);
+    const repositionActive = this.type === 'chaser' && this.repositionTimer > 0;
     const flankActive = this.isElite && this.flankTimer > 0 && this.type !== 'guardian';
     this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? (this.isElite ? 1.25 : 0.9) : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
     this.eliteSpawnTimer = Math.max(0, this.eliteSpawnTimer - dt);
@@ -541,25 +549,32 @@ export class Enemy {
         this.y += (dy / distance) * this.speed * dt;
       }
     } else {
-      // Chasers pursue directly while weaving laterally, keeping their movement readable.
-      this.x += (dx / distance) * this.speed * dt + drift * dt;
-      this.y += (dy / distance) * this.speed * dt;
+      if (repositionActive) {
+        // Basic Chasers may take one short lateral lane when the group is crowded.
+        // Unlike Elite flanking, this is not predictive and does not attempt a rear approach.
+        steerToPoint(this, this.repositionTargetX, this.repositionTargetY, this.motionProfile, dt);
+        this.fireCooldown = Math.max(this.fireCooldown, 0.2);
+      } else {
+        // Chasers otherwise pursue directly while weaving laterally, keeping their movement readable.
+        this.x += (dx / distance) * this.speed * dt + drift * dt;
+        this.y += (dy / distance) * this.speed * dt;
 
-      this.fireCooldown -= dt;
-      if (this.level >= 2 && distance > Math.max(185, width * 0.31) && this.fireCooldown <= 0) {
-        this.fireCooldown = 3.2 + Math.random() * 1.0;
-        const damage = this.radius >= 12 ? 5 : this.radius >= 11 ? 4 : 3;
-        shot = {
-          x: this.x,
-          y: this.y + this.radius,
-          targetX,
-          targetY,
-          damage,
-          speed: 135,
-          radius: 3,
-          color: '#ff9ab0',
-          glowColor: '#ff718d'
-        };
+        this.fireCooldown -= dt;
+        if (this.level >= 2 && distance > Math.max(185, width * 0.31) && this.fireCooldown <= 0) {
+          this.fireCooldown = 3.2 + Math.random() * 1.0;
+          const damage = this.radius >= 12 ? 5 : this.radius >= 11 ? 4 : 3;
+          shot = {
+            x: this.x,
+            y: this.y + this.radius,
+            targetX,
+            targetY,
+            damage,
+            speed: 135,
+            radius: 3,
+            color: '#ff9ab0',
+            glowColor: '#ff718d'
+          };
+        }
       }
     }
 
