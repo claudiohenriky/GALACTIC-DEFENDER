@@ -1,3 +1,13 @@
+## [Unreleased] — DREADNOUGHT · proa limpa e otimização de renderização
+
+- Remove a antiga passagem de desenho do casco que continuava sendo renderizada por baixo do novo modelo em camadas; o DREADNOUGHT passa a ter uma única passagem principal de casco.
+- Remove a superestrutura central elevada e os detalhes cinza da ponte na proa, mantendo a linha central limpa e reta entre a cavidade aberta do emissor e a ponta da nave.
+- Preserva os detalhes laterais, os condutores de energia e a cavidade frontal; nenhum canhão físico ou peça central foi recolocada.
+- Substitui gradientes criados a cada quadro por preenchimentos sólidos controlados na carcaça, no reator e na cavidade. O contraste passa a vir principalmente da geometria e das placas.
+- Remove arrays temporários de coordenadas em loops do desenho do boss e mantém as armas como módulos independentes.
+- **Escopo:** renderização visual e eficiência do desenho; IA, posições dos módulos, mira, cadência, projéteis, dano, escudos, hitboxes e colisões permanecem inalterados.
+- **Validação pendente:** verificar a leitura da proa e das armas no jogo e medir FPS/tempo de quadro no mesmo aparelho. A redução de operações de desenho é verificável no código; ganho de FPS ainda não foi medido.
+
 ## [Unreleased] — DREADNOUGHT · legibilidade do armamento
 
 - Redesenha as silhuetas visuais das metralhadoras, lançadores de mísseis, lasers leves e canhões de plasma, com receptores blindados, bocais/tubos rebaixados e detalhes de emissor próprios por família.
