@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.59.0-skill-tree';
+import { Game } from './src/core/game.js?v=0.60.0-audiovisual';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual';
 
 // Entry point: connect the game engine to the page UI.
