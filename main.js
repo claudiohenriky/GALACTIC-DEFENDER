@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.54.4-dialogue-polish';
+import { Game } from './src/core/game.js?v=0.54.5-threat-redesign';
 import { gameAudio } from './src/audio/game-audio.js?v=0.54.0-cinematic-rebuild';
 
 // Entry point: connect the game engine to the page UI.
