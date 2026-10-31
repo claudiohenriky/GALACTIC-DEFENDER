@@ -791,10 +791,36 @@ export class Enemy {
       ctx.lineTo(this.radius * 0.17, this.radius * 0.92); ctx.lineTo(0, this.radius * 1.30);
       ctx.lineTo(-this.radius * 0.17, this.radius * 0.92); ctx.lineTo(-this.radius * 0.23, -this.radius * 1.68);
       ctx.closePath(); ctx.fill(); ctx.stroke();
-      // Cyan conduits lead through the channel to the fixed main energy cannon.
-      ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 3; ctx.globalAlpha = 0.78;
+      // The central channel stays physically open: these narrow rails frame it
+      // instead of filling it with a barrel or a solid weapon housing.
+      ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 2.4; ctx.globalAlpha = 0.72;
       ctx.beginPath(); ctx.moveTo(-this.radius * 0.12, this.radius * 0.82); ctx.lineTo(-this.radius * 0.10, -this.radius * 1.54); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(this.radius * 0.12, this.radius * 0.82); ctx.lineTo(this.radius * 0.10, -this.radius * 1.54); ctx.stroke(); ctx.globalAlpha = 1;
+      // Paired side energy manifolds: recessed housings, exposed conduits and
+      // small capacitor nodes make the future laser charge path readable.
+      for (const side of [-1, 1]) {
+        const railX = side * this.radius * 0.43;
+        ctx.fillStyle = '#0b141d'; ctx.strokeStyle = '#596574'; ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(railX - this.radius * 0.075, -this.radius * 1.42);
+        ctx.lineTo(railX + this.radius * 0.075, -this.radius * 1.42);
+        ctx.lineTo(railX + this.radius * 0.09, this.radius * 0.78);
+        ctx.lineTo(railX, this.radius * 0.94);
+        ctx.lineTo(railX - this.radius * 0.09, this.radius * 0.78);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = '#087f9c'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(railX, this.radius * 0.68); ctx.lineTo(railX, -this.radius * 1.28); ctx.stroke();
+        ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 1.8; ctx.globalAlpha = 0.78;
+        ctx.beginPath(); ctx.moveTo(railX, this.radius * 0.58); ctx.lineTo(railX, -this.radius * 1.20); ctx.stroke(); ctx.globalAlpha = 1;
+        for (const nodeY of [-1.08, -0.42, 0.30]) {
+          ctx.fillStyle = '#111d28'; ctx.strokeStyle = '#718091'; ctx.lineWidth = 1;
+          ctx.fillRect(railX - this.radius * 0.105, this.radius * nodeY - this.radius * 0.075, this.radius * 0.21, this.radius * 0.15);
+          ctx.strokeRect(railX - this.radius * 0.105, this.radius * nodeY - this.radius * 0.075, this.radius * 0.21, this.radius * 0.15);
+          ctx.fillStyle = '#36d9ff'; ctx.globalAlpha = 0.58 + Math.sin(this.phase * 8 + nodeY) * 0.12;
+          ctx.fillRect(railX - this.radius * 0.035, this.radius * nodeY - this.radius * 0.035, this.radius * 0.07, this.radius * 0.07);
+          ctx.globalAlpha = 1;
+        }
+      }
       // Broad side decks, layered armor and steel seams establish capital-ship scale.
       for (const side of [-1, 1]) {
         ctx.fillStyle = '#202833'; ctx.strokeStyle = '#8796a6'; ctx.lineWidth = 1.8;
@@ -846,7 +872,7 @@ export class Enemy {
         ctx.fillRect(engineX - this.radius * 0.105, this.radius * 1.62, this.radius * 0.21, this.radius * 0.16);
         // A restrained cyan highlight keeps the nozzle luminous without
         // reading as a detached white component.
-        ctx.fillStyle = '#78eaff';
+        ctx.fillStyle = '#087f9c';
         ctx.fillRect(engineX - this.radius * 0.035, this.radius * 1.65, this.radius * 0.07, this.radius * 0.07);
         ctx.globalAlpha = 1;
       }
@@ -1007,73 +1033,54 @@ export class Enemy {
       ctx.ellipse(0, hullR * 0.30, hullR * 0.25, hullR * 0.48, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Main energy cannon: a deep armored well with concentric containment
-      // rings, radial locking braces and a visible cyan emitter aperture.
-      // The functional cannon module is rendered afterward, seated in this mount.
-      const cannonY = -hullR * 1.82;
+      // Main energy emitter aperture: an intentionally hollow, open cavity.
+      // The laser will be charged and released from this opening in a later combat pass;
+      // no physical barrel or protruding cannon is mounted at the bow.
+      const apertureY = -hullR * 1.82;
       ctx.save();
-      ctx.translate(0, cannonY);
+      ctx.translate(0, apertureY);
       ctx.fillStyle = '#080e15';
       ctx.strokeStyle = '#8796a6';
       ctx.lineWidth = 2.2;
       ctx.beginPath();
-      ctx.moveTo(-hullR * 0.38, -hullR * 0.13);
-      ctx.lineTo(-hullR * 0.25, -hullR * 0.28);
-      ctx.lineTo(hullR * 0.25, -hullR * 0.28);
-      ctx.lineTo(hullR * 0.38, -hullR * 0.13);
-      ctx.lineTo(hullR * 0.38, hullR * 0.13);
-      ctx.lineTo(hullR * 0.25, hullR * 0.28);
-      ctx.lineTo(-hullR * 0.25, hullR * 0.28);
-      ctx.lineTo(-hullR * 0.38, hullR * 0.13);
-      ctx.closePath();
+      ctx.moveTo(-hullR * 0.39, -hullR * 0.12);
+      ctx.lineTo(-hullR * 0.30, -hullR * 0.25);
+      ctx.lineTo(hullR * 0.30, -hullR * 0.25);
+      ctx.lineTo(hullR * 0.39, -hullR * 0.12);
+      ctx.lineTo(hullR * 0.39, hullR * 0.12);
+      ctx.lineTo(hullR * 0.30, hullR * 0.25);
+      ctx.lineTo(-hullR * 0.30, hullR * 0.25);
+      ctx.lineTo(-hullR * 0.39, hullR * 0.12);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      // The center is deliberately kept dark and unobstructed to read as a void.
+      ctx.fillStyle = '#02070c';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, hullR * 0.285, hullR * 0.17, 0, 0, Math.PI * 2);
       ctx.fill();
+      const apertureDepth = ctx.createLinearGradient(0, -hullR * 0.16, 0, hullR * 0.16);
+      apertureDepth.addColorStop(0, 'rgba(8,127,156,0.16)');
+      apertureDepth.addColorStop(0.52, 'rgba(2,7,12,0.02)');
+      apertureDepth.addColorStop(1, 'rgba(8,127,156,0.22)');
+      ctx.fillStyle = apertureDepth;
+      ctx.fill();
+
+      // Segmented containment lips frame the opening without crossing its center.
+      ctx.strokeStyle = '#596574'; ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, hullR * 0.34, hullR * 0.22, 0, 0, Math.PI * 2);
       ctx.stroke();
-
-      // Recessed dark chamber gives the emitter a visible physical depth.
-      const apertureGlow = ctx.createRadialGradient(0, 0, hullR * 0.015, 0, 0, hullR * 0.23);
-      apertureGlow.addColorStop(0, 'rgba(54,217,255,0.34)');
-      apertureGlow.addColorStop(0.5, 'rgba(8,127,156,0.18)');
-      apertureGlow.addColorStop(1, 'rgba(8,127,156,0)');
-      ctx.fillStyle = '#050a10';
+      ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.62 + Math.sin(this.phase * 8) * 0.10;
       ctx.beginPath();
-      ctx.ellipse(0, 0, hullR * 0.27, hullR * 0.18, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = apertureGlow;
-      ctx.fillRect(-hullR * 0.28, -hullR * 0.19, hullR * 0.56, hullR * 0.38);
-
-      // Three steel rings and six locking teeth make the socket read as machinery.
-      for (const ring of [0.22, 0.16, 0.095]) {
-        ctx.strokeStyle = ring === 0.22 ? '#596574' : '#36d9ff';
-        ctx.globalAlpha = ring === 0.22 ? 0.95 : 0.58 + Math.sin(this.phase * 8) * 0.12;
-        ctx.lineWidth = ring === 0.22 ? 2.2 : 1.6;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, hullR * ring, hullR * ring * 0.68, 0, 0, Math.PI * 2);
-        ctx.stroke();
-      }
+      ctx.ellipse(0, 0, hullR * 0.25, hullR * 0.135, 0, 0, Math.PI * 2);
+      ctx.stroke();
       ctx.globalAlpha = 1;
-      for (let tooth = 0; tooth < 6; tooth += 1) {
-        const angle = tooth * Math.PI / 3;
-        const innerX = Math.cos(angle) * hullR * 0.25;
-        const innerY = Math.sin(angle) * hullR * 0.16;
-        const outerX = Math.cos(angle) * hullR * 0.34;
-        const outerY = Math.sin(angle) * hullR * 0.25;
-        ctx.strokeStyle = '#a0acb8';
-        ctx.lineWidth = 2.4;
-        ctx.beginPath();
-        ctx.moveTo(innerX, innerY);
-        ctx.lineTo(outerX, outerY);
-        ctx.stroke();
+      for (const side of [-1, 1]) {
+        ctx.fillStyle = '#293542'; ctx.strokeStyle = '#a0acb8'; ctx.lineWidth = 1.3;
+        ctx.fillRect(side * hullR * 0.30 - hullR * 0.045, -hullR * 0.075, hullR * 0.09, hullR * 0.15);
+        ctx.strokeRect(side * hullR * 0.30 - hullR * 0.045, -hullR * 0.075, hullR * 0.09, hullR * 0.15);
       }
-
-      // Visible emitter lens remains cyan rather than white; it pulses as the
-      // main cannon charges, while the weapon module supplies the barrel above it.
-      const emitterPulse = 0.56 + Math.sin(this.phase * 9) * 0.16;
-      ctx.fillStyle = '#36d9ff';
-      ctx.globalAlpha = emitterPulse;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, hullR * 0.065, hullR * 0.045, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalAlpha = 1;
       ctx.restore();
 
       // Armor segmentation, fasteners and heat vents add scale without noise.
@@ -1157,20 +1164,23 @@ export class Enemy {
           const moduleHalfSize = moduleSize / 2;
           ctx.save();
           ctx.translate(mx, my);
-          ctx.rotate(module.turretAngle ?? 0);
-          // Each module gets a visible armored hardpoint and a recognizable weapon silhouette.
-          ctx.fillStyle = '#111820';
-          ctx.strokeStyle = '#8796a6';
-          ctx.lineWidth = 1.6;
-          ctx.beginPath();
-          ctx.moveTo(-mountSize * 1.15, -mountSize * 0.75);
-          ctx.lineTo(mountSize * 0.75, -mountSize * 1.15);
-          ctx.lineTo(mountSize * 1.15, mountSize * 0.75);
-          ctx.lineTo(-mountSize * 0.75, mountSize * 1.15);
-          ctx.closePath();
-          ctx.fill();
-          ctx.stroke();
-          if (!module.catastrophic) {
+          if (module.id !== 'main-energy-cannon') ctx.rotate(module.turretAngle ?? 0);
+          // The main energy module is represented by the open bow aperture above,
+          // not by a turret, barrel or solid socket covering the cavity.
+          if (module.id !== 'main-energy-cannon') {
+            ctx.fillStyle = '#111820';
+            ctx.strokeStyle = '#8796a6';
+            ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            ctx.moveTo(-mountSize * 1.15, -mountSize * 0.75);
+            ctx.lineTo(mountSize * 0.75, -mountSize * 1.15);
+            ctx.lineTo(mountSize * 1.15, mountSize * 0.75);
+            ctx.lineTo(-mountSize * 0.75, mountSize * 1.15);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+          }
+          if (module.id !== 'main-energy-cannon' && !module.catastrophic) {
             // Replacement animation physically withdraws the old mount, then seats
             // the new weapon into the same hardpoint. Repair/rebuild uses a shorter lift.
             let weaponOffsetY = 0;
@@ -1229,7 +1239,7 @@ export class Enemy {
             }
             ctx.strokeRect(-mountSize * 0.72, -mountSize * 0.55, mountSize * 1.44, mountSize * 1.1);
             ctx.restore();
-          } else {
+          } else if (module.id !== 'main-energy-cannon') {
             ctx.globalAlpha = 0.85;
             ctx.strokeStyle = '#ff704e';
             ctx.lineWidth = 2;
