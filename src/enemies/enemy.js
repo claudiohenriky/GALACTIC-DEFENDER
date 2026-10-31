@@ -602,8 +602,8 @@ export class Enemy {
         steerToPoint(this, screenX, screenY, this.motionProfile, dt);
         this.x += drift * dt;
       } else {
-        this.x += (dx / distance) * this.speed * dt + drift * dt;
-        this.y += (dy / distance) * this.speed * dt;
+        steerToPoint(this, targetX, targetY, this.motionProfile, dt);
+        this.x += drift * dt;
       }
     } else {
       if (repositionActive) {
