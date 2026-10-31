@@ -81,8 +81,8 @@ test('ranged enemy profiles preserve distinct class and Elite movement capabilit
   const artillery = new Enemy(500, 200, 12, 'artillery', true);
   const interceptor = new Enemy(500, 200, 12, 'interceptor', true);
   const boss = new Enemy(500, 0, 10, 'boss');
-  assert.equal(sentinel.motionProfile, ENEMY_MOTION_PROFILES.sentinelElite);
-  assert.equal(artillery.motionProfile, ENEMY_MOTION_PROFILES.artilleryElite);
+  assert.deepEqual(sentinel.motionProfile, ENEMY_MOTION_PROFILES.sentinelElite);
+  assert.deepEqual(artillery.motionProfile, ENEMY_MOTION_PROFILES.artilleryElite);
   assert.equal(interceptor.motionProfile, null);
   assert.equal(boss.motionProfile, null);
 });
