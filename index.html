@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#070b18">
   <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.53.1-handoff-fix">
-  <link rel="stylesheet" href="./src/ui/version-history.css?v=0.53.1">
+  <link rel="stylesheet" href="./style.css?v=0.53.2-camera-handoff">
+  <link rel="stylesheet" href="./src/ui/version-history.css?v=0.53.2">
   <script type="module" src="./main.js?v=0.53.1-handoff-fix"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PRÉ-ALFA · 0.53.1</span>
+      <span class="build-tag">PRÉ-ALFA · 0.53.2</span>
     </header>
 
     <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
@@ -53,7 +53,7 @@
       <section id="about-panel" class="menu-panel hidden" aria-labelledby="about-title">
         <div class="panel-heading"><div><p class="eyebrow">SOBRE O PROJETO</p><h2 id="about-title">Construído para evoluir</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar informações">×</button></div>
         <p class="menu-description">GALACTIC-DEFENDER é um jogo de ação espacial para navegador, desenvolvido com HTML, CSS e JavaScript, sem frameworks externos.</p>
-        <p class="menu-note">Versão candidata 0.53.0 · campanha ampliada, IA tática, DREADNOUGHT com módulos e escudos independentes, apresentação cinematográfica, padrões de ataque por fase e telemetria de perigo. As etapas de revisão de combate e avisos estão integradas; a validação final de gameplay em dispositivos reais continua pendente.</p>
+        <p class="menu-note">Versão candidata 0.53.2 · correções de câmera e cutscene, campanha ampliada, IA tática, DREADNOUGHT com módulos e escudos independentes, apresentação cinematográfica, padrões de ataque por fase e telemetria de perigo. As etapas de revisão de combate e avisos estão integradas; a validação final de gameplay em dispositivos reais continua pendente.</p>
         <button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button>
       </section>
       <section id="achievements-panel" class="menu-panel achievements-panel hidden" aria-labelledby="achievements-title">
@@ -67,9 +67,11 @@
         <div class="panel-heading"><div><p class="eyebrow">REGISTRO DE DESENVOLVIMENTO</p><h2 id="version-history-title">Histórico de versões</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar histórico de versões">×</button></div>
         <p class="menu-description">Novidades, ajustes e correções do GALACTIC-DEFENDER, da versão mais recente para a mais antiga.</p>
         <div id="version-history-list" class="version-history-list">
+<article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.53.2</strong><span>CORREÇÃO DE BUGS · TRANSIÇÃO DA CUTSCENE</span></div><ul><li>Sincroniza o zoom e os limites da câmera cinematográfica com o enquadramento usado pelo combate, evitando o deslocamento aparente do piloto e do DREADNOUGHT ao terminar o diálogo.</li><li>Reposiciona os sinais de surpresa e perigo para que não cubram os balões; redesenha os ícones com contorno e símbolo vetorial próprio.</li><li>Reforça a rolagem do histórico no celular e inclui o registro da etapa de câmera cinematográfica v0.51.0.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.53.1</strong><span>CORREÇÃO DA TRANSIÇÃO · HISTÓRICO CONSOLIDADO</span></div><ul><li>Corrige a passagem da apresentação para o combate: o temporizador de entrada criado no construtor do DREADNOUGHT agora é encerrado antes do primeiro quadro de IA normal.</li><li>Evita que a IA repita a descida cinematográfica depois do diálogo final, causando o deslocamento do chefe e a impressão de que o jogador sobe.</li><li>Adiciona teste de regressão específico para o temporizador, posição, alvo e estado de movimento no handoff.</li><li>Atualiza o histórico do menu com as entregas consolidadas desde a v0.44.0. Esta é uma versão candidata; playtest visual ainda pendente.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.53.0</strong><span>DREADNOUGHT · PADRÕES DE ATAQUE E TELEMETRIA</span></div><ul><li>Revisa a rotação de famílias de ataque por fase, alternando plasma, mísseis, metralhadoras e lasers com prioridades diferentes.</li><li>Suaviza o ritmo das fases 2 e 3 e reduz a rajada de metralhadoras da fase final.</li><li>Adiciona telemetria visual para os canhões de plasma, usando o mesmo ponto de saída e direção dos disparos; alertas aparecem quando a trajetória ameaça o jogador.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.52.0</strong><span>CÂMERA · ENTRADA E FEEDBACK DE IMPACTO</span></div><ul><li>Afasta a aparição do DREADNOUGHT para dar mais espaço visual entre o chefe e o jogador.</li><li>Enquadra a silhueta completa do encouraçado durante o confronto, sem alterar hitboxes ou dimensões da arena.</li><li>Adiciona um pulso curto de impacto quando o jogador recebe dano e limpa o efeito ao reiniciar a partida.</li></ul></article>
+<article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.51.0</strong><span>CÂMERA CINEMATOGRÁFICA · TRANSIÇÃO DA ONDA 9→10</span></div><ul><li>Refina o enquadramento progressivo entre o piloto e o DREADNOUGHT durante a apresentação do chefe.</li><li>Integra carregamento, falas, alerta de contato e entrada gradual em uma sequência controlada por fases.</li><li>Preserva o estado da campanha e mantém a simulação de combate bloqueada até o encerramento do diálogo.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.50.0</strong><span>IA TÁTICA · PROTEÇÃO E BALANCEAMENTO</span></div><ul><li>Rebalanceia mobilidade, esquivas e cadência de Sentinelas e Artilheiros, mantendo a salva de três disparos do Artilheiro normal.</li><li>Organiza as prioridades de proteção dos Guardiões, favorecendo Sentinelas e Artilheiros e evitando duplicidade de alvos.</li><li>Refina os sinais de surpresa e perigo do piloto e integra alertas aos ataques que realmente ameaçam sua posição.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.49.0</strong><span>REAÇÕES DO PILOTO · ALERTAS DE AMEAÇA</span></div><ul><li>Adiciona os sinais ❓ e ❗ para surpresa e perigo, próximos à nave e com duração curta.</li><li>Conecta alertas às linhas de ataque do canhão principal e à janela final de carga dos canhões de plasma.</li><li>Evita alertas repetidos enquanto a mesma ameaça permanece ativa.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.48.0</strong><span>INTRODUÇÃO CINEMATOGRÁFICA DO DREADNOUGHT</span></div><ul><li>Adiciona carregamento antes do chefe, telemetria de sistema, falas do piloto e entrada gradual do DREADNOUGHT.</li><li>Bloqueia a simulação de combate durante a apresentação e libera a luta somente após o diálogo final.</li><li>Adapta os balões de diálogo e a câmera a diferentes proporções de tela.</li></ul></article>

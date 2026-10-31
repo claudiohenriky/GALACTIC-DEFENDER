@@ -8,7 +8,7 @@ import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
 import { advanceWaveTenTransition, createWaveTenTransition, finalizeWaveTenTransition, WAVE_TEN_TRANSITION_DURATION } from '../src/core/wave-ten-transition.js';
 import { getBossCameraFrame, getBossEntrancePositions, getBossCombatTargetY, prepareBossForCombatHandoff } from '../src/core/boss-camera.js';
-import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat } from '../src/ui/pilot-reactions.js';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, getPilotReactionPosition } from '../src/ui/pilot-reactions.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
  assert.equal(circlesOverlap({x:0,y:0,radius:5},{x:8,y:0,radius:4}),true);
@@ -319,6 +319,17 @@ test('DREADNOUGHT missile mounts retain a long-range firing lane',()=>{
 });
 
 
+test('pilot reaction badge avoids the dialogue bubble and stays inside the viewport',()=>{
+ const bubble={x:220,y:110,width:190,height:76};
+ const position=getPilotReactionPosition({x:210,y:150,bubble,width:420,height:300});
+ const radius=16;
+ const overlaps=position.x+radius>bubble.x-7 && position.x-radius<bubble.x+bubble.width+7 &&
+   position.y+radius>bubble.y-7 && position.y-radius<bubble.y+bubble.height+7;
+ assert.equal(overlaps,false);
+ assert.ok(position.x>=radius+5 && position.x<=420-radius-5);
+ assert.ok(position.y>=radius+5 && position.y<=300-radius-5);
+});
+
 test('pilot reactions display surprise and expire cleanly',()=>{
  const state=createPilotReactionState();
  assert.equal(triggerPilotReaction(state,'❓',1.5),true);
@@ -399,6 +410,16 @@ test('boss camera respects the calculated minimum zoom on narrow viewports',()=>
  assert.equal(frame.x,0);
 });
 
+
+test('cinematic handoff camera matches the normal combat frame without post-cutscene zoom or pan',()=>{
+ const width=900, height=720, worldWidth=width*2.4, worldHeight=height*2.4;
+ const player={x:worldWidth/2,y:worldHeight*0.78,radius:12};
+ const boss={x:player.x,y:player.y-height*0.92,collisionRadius:145};
+ const frame=getBossCameraFrame({phase:'complete',player,boss,width,height,minZoom:1/2.4,worldWidth,worldHeight});
+ assert.equal(frame.zoom,1/2.4);
+ assert.equal(frame.x,width*0.7);
+ assert.equal(frame.y,height*0.7);
+});
 
 test('DREADNOUGHT combat standoff matches its cinematic reveal and prevents a vertical handoff correction',()=>{
  const viewportHeight=720, worldHeight=viewportHeight*2.4, playerY=1400;

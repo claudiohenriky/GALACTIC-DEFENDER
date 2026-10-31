@@ -11,13 +11,13 @@ const PHASE_CAMERA = {
   'pilot-report': { zoom: 0.9, focusOffset: 0.08 },
   'pilot-warning': { zoom: 0.76, focusOffset: 0.22 },
   'boss-entry': { zoom: 0.52, focusOffset: 0.34 },
-  'boss-taunt': { zoom: 0.49, focusOffset: 0.34 },
-  complete: { zoom: 0.49, focusOffset: 0.34 }
+  'boss-taunt': { zoom: 0.4, focusOffset: 0.34 },
+  complete: { zoom: 0.4, focusOffset: 0.34 }
 };
 
 // Returns a camera target in the same offset coordinates used by Game.updateCamera.
 // The simulation world and collision geometry remain untouched.
-export function getBossCameraFrame({ phase, player, boss = null, width, height, minZoom = 0.4 }) {
+export function getBossCameraFrame({ phase, player, boss = null, width, height, minZoom = 0.4, worldWidth = width * 2.4, worldHeight = height * 2.4 }) {
   const profile = PHASE_CAMERA[phase] ?? PHASE_CAMERA.loading;
   const bossPhase = phase === 'boss-entry' || phase === 'boss-taunt' || phase === 'complete';
   const bossHalfHeight = boss
@@ -29,11 +29,25 @@ export function getBossCameraFrame({ phase, player, boss = null, width, height, 
   const focusY = boss && bossPhase
     ? (boss.y - bossHalfHeight + player.y + playerHalfHeight) / 2
     : player.y - height * profile.focusOffset;
-  return {
-    zoom: Math.max(minZoom, profile.zoom),
-    x: player.x - width / 2,
-    y: focusY - height / 2
-  };
+  const zoom = Math.max(minZoom, profile.zoom);
+  let x = player.x - width / 2;
+  let y = focusY - height / 2;
+
+  // The final cinematic frame must use the same world bounds as updateCamera().
+  // Otherwise the first combat frame clamps the camera and changes the apparent
+  // positions of the pilot and boss even though their world coordinates are stable.
+  if (phase === 'boss-taunt' || phase === 'complete') {
+    const halfViewWidth = width / (2 * zoom);
+    const halfViewHeight = height / (2 * zoom);
+    const minX = halfViewWidth - width / 2;
+    const minY = halfViewHeight - height / 2;
+    const maxX = Math.max(minX, worldWidth - halfViewWidth - width / 2);
+    const maxY = Math.max(minY, worldHeight - halfViewHeight - height / 2);
+    x = Math.max(minX, Math.min(maxX, x));
+    y = Math.max(minY, Math.min(maxY, y));
+  }
+
+  return { zoom, x, y };
 }
 
 

@@ -15,8 +15,8 @@ import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createWaveTenTransition, advanceWaveTenTransition, finalizeWaveTenTransition } from './wave-ten-transition.js?v=0.51.0-cinematic-camera';
-import { getBossCameraFrame, getBossEntrancePositions, prepareBossForCombatHandoff } from './boss-camera.js?v=0.53.1-handoff-fix';
-import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction } from '../ui/pilot-reactions.js?v=0.50.0-pilot-reactions';
+import { getBossCameraFrame, getBossEntrancePositions, prepareBossForCombatHandoff } from './boss-camera.js?v=0.53.2-camera-handoff';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction } from '../ui/pilot-reactions.js?v=0.53.2-reaction-polish';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1342,7 +1342,9 @@ export class Game {
       boss: transition.boss,
       width: this.width,
       height: this.height,
-      minZoom: this.cameraMinZoom
+      minZoom: this.cameraMinZoom,
+      worldWidth: this.worldWidth,
+      worldHeight: this.worldHeight
     });
     const cameraBlend = Math.min(1, Math.max(0, dt) * 2.8);
     transition.cameraZoom += (cameraFrame.zoom - transition.cameraZoom) * cameraBlend;
@@ -1443,6 +1445,7 @@ export class Game {
     if (currentLine) wrapped.push(currentLine);
     wrapped.slice(0, 3).forEach((text, index) => ctx.fillText(text, x + 11, y + 39 + index * (fontSize + 3)));
     ctx.restore();
+    return { x, y, width: boxWidth, height: boxHeight };
   }
 
   renderWaveTenTransition(ctx) {
@@ -1482,14 +1485,21 @@ export class Game {
       ctx.font = '10px ui-monospace, monospace';
       ctx.fillText('SINCRONIZANDO SISTEMAS', this.width / 2, barY + 24);
     } else {
-      this.renderTransitionDialogue(ctx, transition);
+      var dialogueBounds = this.renderTransitionDialogue(ctx, transition);
     }
     ctx.restore();
     if (this.pilotReaction.remaining > 0) {
       const zoom = Math.max(this.cameraMinZoom, transition.cameraZoom);
-      const screenX = (this.player.x - this.cameraX - this.width / 2) * zoom + this.width / 2 + 30;
-      const screenY = (this.player.y - this.cameraY - this.height / 2) * zoom + this.height / 2 - 34;
-      this.drawPilotReaction(ctx, screenX, screenY);
+      const playerScreenX = (this.player.x - this.cameraX - this.width / 2) * zoom + this.width / 2;
+      const playerScreenY = (this.player.y - this.cameraY - this.height / 2) * zoom + this.height / 2;
+      const reactionPosition = getPilotReactionPosition({
+        x: playerScreenX,
+        y: playerScreenY,
+        bubble: dialogueBounds ?? null,
+        width: this.width,
+        height: this.height
+      });
+      this.drawPilotReaction(ctx, reactionPosition.x, reactionPosition.y);
     }
   }
 

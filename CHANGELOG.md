@@ -1,3 +1,11 @@
+## [0.53.2] — correção de câmera no handoff e sinais da cutscene
+
+- Corrige a causa visual restante após a cutscene: o enquadramento cinematográfico terminava em zoom e posição de câmera diferentes dos limites usados por `updateCamera()`. A câmera agora converge para o mesmo zoom mínimo e para os mesmos limites durante o diálogo final, antes de liberar a simulação normal.
+- Mantém o temporizador interno de entrada do DREADNOUGHT encerrado no handoff, preservando a correção anterior.
+- Reposiciona os sinais de reação do piloto para evitar sobreposição com balões de diálogo e substitui os glifos de emoji por ícones vetoriais com moldura própria.
+- Reforça a rolagem vertical do histórico em dispositivos móveis e registra a etapa v0.51.0.
+- **Validação pendente:** testes automatizados e teste visual no navegador/celular ainda precisam ser executados.
+
 ## [0.53.1] — correção do handoff e histórico de versões
 
 - Corrige a causa do deslocamento após a cutscene: o DREADNOUGHT é construído antes de entrar na lista normal de inimigos, portanto seu temporizador interno de entrada continuava ativo ao terminar o diálogo. O primeiro quadro de IA repetia a descida cinematográfica. O handoff agora encerra esse temporizador explicitamente antes de liberar a IA.
