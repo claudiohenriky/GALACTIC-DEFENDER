@@ -5,7 +5,7 @@ import {
   BOSS_CINEMATIC_REVEAL_ZOOM,
   BOSS_CINEMATIC_ARENA_ZOOM
 } from '../src/core/boss-cinematic-camera.js';
-import { getBossCinematicSpawnPositions } from '../src/core/boss-positioning.js';
+import { getBossCinematicSpawnPositions, preparePlayerForBossCinematic } from '../src/core/boss-positioning.js';
 
 const player = { x: 1200, y: 1650, radius: 13 };
 const boss = { x: 1200, y: 1200, radius: 100, collisionRadius: 145 };
@@ -103,4 +103,34 @@ test('boss spawn stays in front of the player with a fixed hull clearance', () =
   assert.ok(position.startY < position.targetY);
   assert.equal(position.targetY, ship.y - (100 * 2.1 + 13 + 80));
   assert.ok(position.targetY - position.startY >= 420 * 0.9);
+});
+
+ 
+test('loading reset repositions and restores combat readiness without erasing progression', () => {
+  const ship = {
+    x: 12, y: 34, radius: 13, maxHealth: 120, health: 18,
+    shieldMaxHealth: 5, shieldHealth: 0, shieldRechargeTimer: 4,
+    invulnerabilityTimer: 0, rotation: 1, guidedMissileCooldown: 8,
+    velocityX: 50, velocityY: -30, knockbackX: 12, knockbackY: -8,
+    level: 7, xp: 420, weaponDamage: 3, laserLevel: 2, shieldLevel: 3,
+    score: 9000
+  };
+  preparePlayerForBossCinematic(ship, 2160, 1008);
+  assert.equal(ship.x, 1080);
+  assert.equal(ship.y, 705.6);
+  assert.equal(ship.health, 120);
+  assert.equal(ship.shieldHealth, 5);
+  assert.equal(ship.shieldRechargeTimer, 0);
+  assert.equal(ship.invulnerabilityTimer, 2.5);
+  assert.equal(ship.velocityX, 0);
+  assert.equal(ship.velocityY, 0);
+  assert.equal(ship.knockbackX, 0);
+  assert.equal(ship.knockbackY, 0);
+  assert.equal(ship.guidedMissileCooldown, 0);
+  assert.equal(ship.level, 7);
+  assert.equal(ship.xp, 420);
+  assert.equal(ship.weaponDamage, 3);
+  assert.equal(ship.laserLevel, 2);
+  assert.equal(ship.shieldLevel, 3);
+  assert.equal(ship.score, 9000);
 });
