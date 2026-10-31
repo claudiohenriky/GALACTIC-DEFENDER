@@ -1,6 +1,7 @@
 // Compact diegetic threat indicators stay near the pilot without covering the ship or HUD.
+import { drawDialoguePortrait, getDialogueActorLabel } from './dialogue-portraits.js?v=0.60.0-speaker-portraits';
 export function createPilotReactionState() {
-  return { symbol: '', remaining: 0, duration: 0, message: '' };
+  return { symbol: '', remaining: 0, duration: 0, message: '', actor: 'pilot' };
 }
 
 export function triggerPilotReaction(state, symbol, duration = 1.25, message = '') {
@@ -9,6 +10,7 @@ export function triggerPilotReaction(state, symbol, duration = 1.25, message = '
   state.duration = Math.max(0.1, Number(duration) || 1.25);
   state.remaining = state.duration;
   state.message = typeof message === 'string' ? message.trim().slice(0, 72) : '';
+  state.actor = 'pilot';
   return true;
 }
 
@@ -19,6 +21,7 @@ export function updatePilotReaction(state, dt) {
     state.symbol = '';
     state.duration = 0;
     state.message = '';
+    state.actor = 'pilot';
   }
 }
 
@@ -118,24 +121,34 @@ function wrapReactionMessage(message, maxChars = 26) {
 function drawReactionMessage(ctx, state, x, y, alpha) {
   const canvasWidth = ctx.canvas?.width, canvasHeight = ctx.canvas?.height;
   if (!state.message || !Number.isFinite(canvasWidth) || !Number.isFinite(canvasHeight)) return;
-  const lines = wrapReactionMessage(state.message), width = 184, height = 15 + lines.length * 12;
+  const width = Math.min(224, canvasWidth - 12);
+  const maxChars = Math.max(15, Math.floor((width - 20) / 5.6));
+  const lines = wrapReactionMessage(state.message, maxChars);
+  const height = 42 + lines.length * 12;
   const left = x < canvasWidth * 0.62
     ? Math.max(6, Math.min(canvasWidth - width - 6, x + 14))
     : Math.max(6, Math.min(canvasWidth - width - 6, x - width - 14));
   const top = Math.max(6, Math.min(canvasHeight - height - 6, y - height - 13));
+  const actor = state.actor || 'pilot';
   ctx.save();
-  ctx.globalAlpha = alpha * 0.96;
-  ctx.fillStyle = 'rgba(3, 13, 25, 0.94)';
-  ctx.strokeStyle = '#8fdcff'; ctx.lineWidth = 1;
+  ctx.globalAlpha = alpha * 0.97;
+  ctx.fillStyle = 'rgba(3, 13, 25, 0.96)';
+  ctx.strokeStyle = actor === 'boss' || actor === 'devastator' ? '#ff829a' : '#8fdcff';
+  ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(left + 6, top); ctx.lineTo(left + width - 6, top);
   ctx.lineTo(left + width, top + 6); ctx.lineTo(left + width, top + height - 6);
   ctx.lineTo(left + width - 6, top + height); ctx.lineTo(left + 6, top + height);
   ctx.lineTo(left, top + height - 6); ctx.lineTo(left, top + 6); ctx.closePath();
   ctx.fill(); ctx.stroke();
-  ctx.fillStyle = '#e4f6ff'; ctx.font = '600 9px ui-monospace, monospace';
+  drawDialoguePortrait(ctx, actor, left + 7, top + 6, 28, state.duration - state.remaining);
+  ctx.fillStyle = '#a8d8e8';
+  ctx.font = '800 7px ui-monospace, monospace';
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-  lines.forEach((line, index) => ctx.fillText(line, left + 9, top + 9 + index * 12));
+  ctx.fillText(getDialogueActorLabel(actor), left + 42, top + 14, width - 50);
+  ctx.fillStyle = '#e4f6ff';
+  ctx.font = '600 9px ui-monospace, monospace';
+  lines.forEach((line, index) => ctx.fillText(line, left + 9, top + 41 + index * 12, width - 18));
   ctx.restore();
 }
 
@@ -198,5 +211,7 @@ export function drawPilotReaction(ctx, state, x, y) {
 export function triggerElitePilotReaction(state, seenClasses, type, message, duration = 6) {
   if (!(seenClasses instanceof Set) || seenClasses.has(type)) return false;
   seenClasses.add(type);
-  return triggerPilotReaction(state, '❓❗', duration, message);
+  const triggered = triggerPilotReaction(state, '❓❗', duration, message);
+  if (triggered) state.actor = type;
+  return triggered;
 }
