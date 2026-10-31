@@ -1,4 +1,4 @@
-import { BossSystems, selectBossAttack } from './boss-systems.js?v=0.45.0-boss-tactics';
+import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.45.0-boss-tactics';
 import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.45.0-motion-core';
 
 export class Enemy {
@@ -39,6 +39,8 @@ export class Enemy {
     this.bossDeathDriftX = 0;
     this.bossDeathDriftY = 0;
     this.bossDeathSpin = 0;
+    this.bossMissileCooldown = 0;
+    this.bossMissileNextSide = -1;
     this.bossBeamHit = false;
     this.rewardGranted = false;
     this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
@@ -128,6 +130,7 @@ export class Enemy {
     this.repositionCooldown = Math.max(0, this.repositionCooldown - dt);
     this.bossMovementTimer = Math.max(0, this.bossMovementTimer - dt);
     this.bossRepositionCooldown = Math.max(0, this.bossRepositionCooldown - dt);
+    this.bossMissileCooldown = Math.max(0, this.bossMissileCooldown - dt);
     const repositionActive = this.type === 'chaser' && this.repositionTimer > 0;
     const flankActive = this.isElite && this.flankTimer > 0 && this.type !== 'guardian';
     this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? (this.isElite ? 1.25 : 0.9) : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
@@ -462,7 +465,13 @@ export class Enemy {
         // Destroying one weapon reduces that weapon family's actual output.
         const targetLocalX = (targetX - this.x) * Math.cos(shipRotation) + (targetY - this.y) * Math.sin(shipRotation);
         const targetDistance = Math.hypot(targetX - this.x, targetY - this.y);
-        const selectedAttack = selectBossAttack(modules, targetDistance, targetLocalX, this.radius * 0.08, this.bossPhase);
+        const attackModules = this.bossMissileCooldown > 0
+          ? modules.filter((module) => !module.kind.includes('missile') && !module.kind.includes('rocket'))
+          : modules;
+        const selectedAttack = selectBossAttack(attackModules, targetDistance, targetLocalX, this.radius * 0.08, this.bossPhase);
+        const selectedMissileLauncher = selectedAttack === 'missile'
+          ? selectBossMissileLauncher(modules, targetDistance, targetLocalX, this.radius * 0.08, this.bossMissileNextSide)
+          : null;
         for (const module of modules) {
           const moduleSideAllowed = module.region !== 'left' && module.region !== 'right'
             || module.crossSide || Math.abs(targetLocalX) <= this.radius * 0.08 || Math.sign(targetLocalX) === Math.sign(module.x);
@@ -472,6 +481,7 @@ export class Enemy {
               : module.kind.includes('machine-gun') ? 'machine-gun'
                 : module.kind.includes('light-laser') ? 'light-laser' : null;
           if (!family || family !== selectedAttack) continue;
+          if (family === 'missile' && module !== selectedMissileLauncher) continue;
           const muzzleForRange = getMuzzle(module);
           const targetDistance = Math.hypot(targetX - muzzleForRange.x, targetY - muzzleForRange.y);
           if (targetDistance > (module.firingRange ?? 700)) continue;
@@ -493,12 +503,16 @@ export class Enemy {
               }));
             }
           } else if (module.kind.includes('missile') || module.kind.includes('rocket')) {
-            const spread = this.bossPhase === 3 ? 0.12 : 0.19;
+            const profile = getBossMissileProfile(this.bossPhase);
+            const spread = this.bossPhase === 3 ? 0.09 : 0.14;
             shots.push(makeShot(module, {
-              damage: 9, speed: 118, radius: 7, homing: true, turnRate: 1.35,
+              damage: profile.damage, speed: profile.speed, radius: 7,
+              homing: true, turnRate: profile.turnRate,
               angleOffset: module.x < 0 ? -spread : spread,
               color: '#d7b6ff', glowColor: '#9d6cff'
             }));
+            this.bossMissileCooldown = profile.cooldown;
+            this.bossMissileNextSide = -Math.sign(module.x);
           } else if (module.kind.includes('plasma')) {
             if ((module.plasmaChargeTimer ?? 0) <= 0) {
               shots.push(makeShot(module, {
