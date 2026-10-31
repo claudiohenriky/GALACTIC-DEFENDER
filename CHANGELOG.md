@@ -1,3 +1,12 @@
+## [Unreleased] — DREADNOUGHT · propulsores e canhão principal
+
+- Remove o núcleo quase branco dos propulsores, que podia parecer uma peça separada; os bocais passam a usar uma escala de cianos coerente com a identidade energética da nave.
+- Substitui a chama rígida em blocos por plumas vetoriais cônicas e suaves, mantendo os dois motores principais visualmente independentes.
+- Refina os propulsores auxiliares com núcleo ciano e halo azul-petróleo, sem acrescentar novos elementos brancos.
+- Redesenha o encaixe do canhão principal com câmara rebaixada, blindagem octogonal, anéis de contenção, dentes de travamento e lente emissora ciano pulsante.
+- Preserva a posição e o módulo funcional do canhão, além de IA, dano, cadência, escudos, colisões e demais sistemas.
+- **Validação pendente:** conferir se o detalhe do canhão permanece legível sob o módulo de arma, se os propulsores estão equilibrados e se o brilho não satura em telas pequenas.
+
 ## [Unreleased] — DREADNOUGHT · COLOSSAL WARSHIP — redesign tridimensional
 
 - Retorna o boss à renderização vetorial suave do jogo; a experiência de pixel art permanece apenas como estudo visual e não é usada nesta implementação.
