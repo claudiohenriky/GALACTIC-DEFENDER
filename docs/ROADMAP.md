@@ -508,3 +508,16 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Aumentar visualmente plasma (28%), lançadores de mísseis (24%), canhão pesado (18%) e metralhadoras (10%), sem alterar colisões ou dano.
 - [ ] Validar em gameplay se o ponto de impacto coincide com a arma pretendida e se a taxa de dano aos módulos está justa.
 - [ ] Ajustar intensidade do escudo e escala das armas após observação em zoom tático mobile/desktop.
+
+
+## Transição de campanha da onda 9 para a onda 10 — candidata experimental (31/10/2026)
+- [x] Interceptar a progressão somente depois que todos os inimigos da onda 9 forem eliminados e o intervalo normal terminar.
+- [x] Isolar o fluxo em um controlador de estados, sem iniciar a onda 10 durante o carregamento/cinemática.
+- [x] Implementar carregamento de 10 segundos com mensagens rotativas de telemetria.
+- [x] Adicionar diálogos do piloto, alerta de assinatura desconhecida, entrada gradual do DREADNOUGHT e fala de ameaça.
+- [x] Manter o jogador, pontuação e progressão da partida; limpar apenas projéteis/entidades temporárias antes da apresentação do chefe.
+- [x] Restaurar a câmera e liberar o spawn normal do chefe ao fim da sequência.
+- [ ] Validar em navegador a sequência completa, enquadramento, leitura de diálogos e transição para o combate em celular/desktop.
+- [ ] Confirmar que pausas, redimensionamento e mudanças de orientação não interrompem nem duplicam a transição.
+- [ ] Refinar a posição das falas e a composição da câmera após o primeiro teste de gameplay.
+- Versão experimental: feature/wave10-transition-cutscene. A branch test/wave10-normal-gameplay mantém a progressão original até a onda 10 para comparação.
