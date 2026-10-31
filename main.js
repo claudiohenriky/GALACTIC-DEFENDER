@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.57.2-boss-weapon-pass';
+import { Game } from './src/core/game.js?v=0.58.0-elite-dialogue-once';
 import { gameAudio } from './src/audio/game-audio.js?v=0.54.0-cinematic-rebuild';
 
 // Entry point: connect the game engine to the page UI.
