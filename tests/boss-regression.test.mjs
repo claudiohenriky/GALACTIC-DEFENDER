@@ -84,12 +84,12 @@ test('boss attack selection prefers the appropriate family and respects module s
 test('main cannon beam geometry starts at the open bow and follows its locked angle',()=>{
  const boss=new Enemy(500,400,10,'boss');
  const cannon=boss.bossSystems.getModule('main-energy-cannon');
- cannon.energyAimAngle=0;
+ cannon.energyAimAngle=Math.PI/2;
  const beam=getBossBeamSegment(boss,cannon);
  assert.ok(Math.abs(beam.startX-boss.x)<1e-8);
- assert.ok(Math.abs(beam.startY-boss.y+boss.radius*1.82)<1e-8);
- assert.ok(Math.abs(beam.endX-beam.startX-1250)<1e-8);
- assert.ok(Math.abs(beam.endY-beam.startY)<1e-8);
+ assert.ok(Math.abs(beam.startY-boss.y-boss.radius*1.82)<1e-8);
+ assert.ok(Math.abs(beam.endX-beam.startX)<1e-8);
+ assert.ok(Math.abs(beam.endY-beam.startY-1250)<1e-8);
  assert.equal(beam.width,46);
 });
 
