@@ -924,7 +924,6 @@ export class Game {
           : localX < 0 ? 'left' : 'right';
       let nearestDistance = Infinity;
       for (const module of enemy.bossSystems.modules) {
-        if (module.state === 'destroyed') continue;
         const mx = module.x * radius;
         const my = module.y * radius;
         const distanceSquared = (localX - mx) ** 2 + (localY - my) ** 2;
@@ -933,7 +932,7 @@ export class Game {
           hitModule = module;
         }
       }
-      const directModuleHit = Boolean(hitModule && nearestDistance <= (radius * 0.42) ** 2);
+      const directModuleHit = Boolean(hitModule && hitModule.state !== 'destroyed' && nearestDistance <= (radius * 0.42) ** 2);
       // Precise hardpoint hits damage the weapon while the regional shield absorbs the rest.
       const moduleBypassRatio = directModuleHit ? 0.42 : 0;
       const shieldResult = enemy.bossSystems.damageShield(region, remainingDamage, moduleBypassRatio);
