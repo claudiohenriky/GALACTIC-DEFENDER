@@ -123,7 +123,9 @@ export class Game {
   }
 
   setEffectsMode(mode = 'auto') {
-    this.effectsMode = ['full', 'reduced', 'auto'].includes(mode) ? mode : 'auto';
+    const nextMode = ['full', 'reduced', 'auto'].includes(mode) ? mode : 'auto';
+    if (nextMode === this.effectsMode) return;
+    this.effectsMode = nextMode;
     this.effectsPressure = 0;
     this.effectsRecovery = 0;
     this.effectsScale = this.effectsMode === 'reduced' ? 0.55 : 1;
@@ -568,7 +570,7 @@ export class Game {
     // Sparks are reserved for low hull integrity, not every hit; cap them aggressively.
     const integrityRatio = this.player.health / Math.max(1, this.player.maxHealth);
     if (integrityRatio <= 0.35 && this.damageSparks.length < this.getEffectLimit(36)) {
-      for (let i = 0; i < this.getEffectLimit(2) && this.damageSparks.length < 36; i += 1) {
+      for (let i = 0; i < this.getEffectLimit(2) && this.damageSparks.length < this.getEffectLimit(36); i += 1) {
         const angle = rand(0, Math.PI * 2), speed = rand(22, 42), life = rand(0.16, 0.28);
         this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 9, y: this.player.y + Math.sin(angle) * 9, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, length: rand(3, 6), size: rand(1, 1.6), color: '#ff9d45' });
       }
@@ -2214,9 +2216,6 @@ export class Game {
       Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
     this.drawShield(ctx);
     this.player.draw(ctx, playerVisible);
-    if (!this.bossCinematic && this.pilotReaction.remaining > 0) {
-      this.drawPilotReaction(ctx, this.player.x + (this.player.radius ?? 12) + 18, this.player.y - (this.player.radius ?? 12) - 18);
-    }
     // Draw missiles after the ship so the hull cannot hide a launch from either wing.
     for (let index = 0; index < this.guidedMissiles.length; index += 1) this.guidedMissiles[index].draw(ctx);
 
@@ -2368,6 +2367,16 @@ export class Game {
       ctx.restore();
     }
     ctx.restore();
+    if (!this.bossCinematic && this.pilotReaction.remaining > 0) {
+      const zoom = Math.max(this.cameraMinZoom, Math.min(1, this.cameraZoom || 1));
+      const screenX = this.width / 2 + (this.player.x - this.width / 2 - this.cameraX) * zoom;
+      const screenY = this.height / 2 + (this.player.y - this.height / 2 - this.cameraY) * zoom;
+      const reactionPosition = getPilotReactionPosition({
+        x: screenX, y: screenY, width: this.width, height: this.height,
+        radius: 15, offset: 29
+      });
+      if (reactionPosition) this.drawPilotReaction(ctx, reactionPosition.x, reactionPosition.y);
+    }
     this.renderBossCinematic(ctx);
     this.renderRecurringBossDialogue(ctx);
   }
