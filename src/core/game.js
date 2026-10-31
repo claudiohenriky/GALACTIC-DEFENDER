@@ -1,11 +1,11 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
-import { Enemy } from '../enemies/enemy.js?v=0.54.6-combat-balance';
+import { Enemy } from '../enemies/enemy.js?v=0.56.0-devastator';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.56.0-siege-impact';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
 import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.53.0-stage-6-7';
 import { Progression } from '../progression/progression.js?v=0.44.0';
@@ -607,6 +607,29 @@ export class Game {
     this.triggerSystemDisruption(1.45);
   }
 
+  resolveSiegeImpact(shot) {
+    const player = this.player;
+    const shieldWasActive = player.shieldHealth > 0;
+    if (shieldWasActive) {
+      player.shieldHealth = Math.max(0, player.shieldHealth - 2);
+      if (player.shieldHealth === 0) {
+        player.shieldRechargeTimer = player.shieldRechargeDuration;
+        this.triggerShieldBreak();
+      }
+    } else if (player.invulnerabilityTimer <= 0 && player.health > 0) {
+      player.health = Math.max(0, player.health - shot.damage);
+      player.invulnerabilityTimer = player.invulnerabilityDuration;
+      this.triggerDamageFeedback(shot.damage);
+      gameAudio.playDamage();
+    }
+    const dx = player.x - shot.x, dy = player.y - shot.y;
+    const length = Math.hypot(dx, dy) || 1;
+    const impulse = shieldWasActive ? (shot.damage >= 40 ? 720 : 620) : (shot.damage >= 40 ? 900 : 780);
+    player.knockbackX += dx / length * impulse;
+    player.knockbackY += dy / length * impulse;
+    this.triggerSystemDisruption(0.85);
+  }
+
   resolveIncomingDamage(amount, sourceX = this.player.x, sourceY = this.player.y, heavyImpact = false) {
     const shieldBefore = this.player.shieldHealth;
     const tookDamage = this.player.takeDamage(amount);
@@ -990,7 +1013,7 @@ export class Game {
     this.destroyed += 1;
     const newlyUnlocked = this.achievements.record('kills');
     if (enemy.type === 'boss') newlyUnlocked.push(...this.achievements.record('bosses'));
-    const xpRewards = { chaser: 20, interceptor: 15, sentinel: 35, guardian: 45, artillery: 55, boss: 180 };
+    const xpRewards = { chaser: 20, interceptor: 15, sentinel: 35, guardian: 45, artillery: 55, devastator: 80, boss: 180 };
     const xpGained = xpRewards[enemy.type] ?? 20;
     const levelsGained = this.progression.addXp(xpGained);
     if (enemy.type === 'boss') this.showRewardBanner('CHEFE DERROTADO', `+${xpGained} XP · +1.000 PTS`, 'boss');
@@ -1800,16 +1823,18 @@ export class Game {
         : rand(viewLeft + margin, Math.max(viewLeft + margin, viewLeft + visibleWidth - margin));
       const roll = Math.random();
       const type = bossWave ? 'boss'
-        : this.waveManager.wave >= 4 && roll < 0.12 ? 'artillery'
-          : this.waveManager.wave >= 3 && roll < (this.waveManager.wave >= 4 ? 0.24 : 0.12) ? 'guardian'
-            : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.49 : this.waveManager.wave >= 3 ? 0.37 : 0.25) ? 'sentinel'
-              : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.67 : this.waveManager.wave >= 3 ? 0.55 : 0.43) ? 'interceptor'
-                : 'chaser';
+        : this.waveManager.wave >= 8 && roll < 0.06 ? 'devastator'
+          : this.waveManager.wave >= 4 && roll < (this.waveManager.wave >= 8 ? 0.18 : 0.12) ? 'artillery'
+            : this.waveManager.wave >= 3 && roll < (this.waveManager.wave >= 8 ? 0.30 : this.waveManager.wave >= 4 ? 0.24 : 0.12) ? 'guardian'
+              : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 8 ? 0.55 : this.waveManager.wave >= 4 ? 0.49 : this.waveManager.wave >= 3 ? 0.37 : 0.25) ? 'sentinel'
+                : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 8 ? 0.73 : this.waveManager.wave >= 4 ? 0.67 : this.waveManager.wave >= 3 ? 0.55 : 0.43) ? 'interceptor'
+                  : 'chaser';
       // Elite variants enter gradually; warn only when a class actually spawns for the first time in this run.
       const isElite = !bossWave && (
         (this.waveManager.wave >= 12 && type === 'artillery' && Math.random() < 0.45) ||
         (this.waveManager.wave >= 14 && type === 'sentinel' && Math.random() < 0.30) ||
-        (this.waveManager.wave >= 16 && type === 'guardian' && Math.random() < 0.24)
+        (this.waveManager.wave >= 16 && type === 'guardian' && Math.random() < 0.24) ||
+        (this.waveManager.wave >= 20 && type === 'devastator' && Math.random() < 0.18)
       );
       const spawnY = bossWave ? viewTop - 180 : viewTop + 20;
       this.enemies.push(new Enemy(spawnX, spawnY, this.waveManager.wave, type, isElite));
@@ -1833,7 +1858,8 @@ export class Game {
         const alerts = {
           artillery: ['AMEAÇA DE ARTILHARIA DETECTADA', 'A nave detectou um Artilheiro de Elite. Blindagem e poder de fogo acima do padrão.'],
           sentinel: ['AMEAÇA TÁTICA DETECTADA', 'A nave detectou uma Sentinela de Elite. Disparos de plasma em salva dupla.'],
-          guardian: ['UNIDADE DEFENSIVA DETECTADA', 'A nave detectou um Guardião de Elite. Blindagem reforçada e proteção de aliados.']
+          guardian: ['UNIDADE DEFENSIVA DETECTADA', 'A nave detectou um Guardião de Elite. Blindagem reforçada e proteção de aliados.'],
+          devastator: ['CANHÃO DE CERCO DETECTADO', 'Devastador de Elite identificado. Canhão de plasma de longo alcance; saia da linha de tiro.']
         };
         const [heading, detail] = alerts[type];
         this.showRewardBanner(heading, detail, 'elite');
@@ -2082,6 +2108,7 @@ export class Game {
       if (circlesOverlap(this.player, shot)) {
         shot.active = false;
         if (shot.plasmaImpact) this.resolvePlasmaImpact(shot);
+        else if (shot.siegeImpact) this.resolveSiegeImpact(shot);
         else this.resolveIncomingDamage(shot.damage, shot.x, shot.y, shot.heavyImpact || shot.damage >= 10);
       }
     }

@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.55.0-combat-foundation';
+import { Game } from './src/core/game.js?v=0.56.0-devastator';
 import { gameAudio } from './src/audio/game-audio.js?v=0.54.0-cinematic-rebuild';
 
 // Entry point: connect the game engine to the page UI.

@@ -202,11 +202,11 @@ test('normal wave progression reserves bosses for every tenth wave',()=>{
  assert.equal(waves.enemyCount,18);
 });
 
-test('elite variants are limited to Sentinel, Guardian and Artillery; Interceptor stays basic',()=>{
+test('elite variants are limited to Sentinel, Guardian, Artillery and Devastator; Interceptor stays basic',()=>{
  const interceptor=new Enemy(100,100,1,'interceptor',true);
  assert.equal(interceptor.isElite,false);
  assert.equal(interceptor.maxHealth,1);
- for(const type of ['sentinel','guardian','artillery']){
+ for(const type of ['sentinel','guardian','artillery','devastator']){
   const elite=new Enemy(100,100,12,type,true);
   assert.equal(elite.isElite,true,`${type} should support an Elite variant`);
  }

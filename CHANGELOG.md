@@ -1,3 +1,11 @@
+## [0.56.0] — nova tropa pesada: Devastador
+
+- Adiciona o Devastador a partir da onda 8: casco maior, mobilidade muito baixa e canhão de plasma integrado.
+- Implementa ciclo de carga, aquisição preditiva limitada, aviso visual da linha de tiro, disparo a 760 unidades/s e recuperação entre ataques.
+- O impacto causa dano alto, forte repulsão e desestabilização temporária; a variante Elite aparece a partir da onda 20, recebe escudo próprio, dano superior e aviso um pouco mais curto.
+- Adiciona recompensa de 80 XP para a unidade normal e alerta tático específico para a variante Elite.
+- **Validação:** testes de construção, perfil de movimento, ciclo de ataque e sinalizadores de impacto adicionados. Nenhum playtest manual ou ganho de desempenho foi declarado.
+
 ## [0.55.0] — fundação do combate e defesa direcional
 
 - Remove a carta de Laser Contínuo, seus controles, feixe, dano sustentado e tela de disputa.

@@ -1,6 +1,6 @@
 import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.53.0-stage-6-7';
 import { getBossCombatTargetY } from '../core/boss-positioning.js?v=0.54.0-clean-cinematic';
-import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.54.6-combat-balance';
+import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.56.0-devastator-profiles';
 import { getGuardianProtectionPriority } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
 
 export class Enemy {
@@ -9,20 +9,20 @@ export class Enemy {
     this.y = y;
     this.type = type;
     this.level = level;
-    this.isElite = Boolean(isElite && (type === 'artillery' || type === 'sentinel' || type === 'guardian'));
+    this.isElite = Boolean(isElite && (type === 'artillery' || type === 'sentinel' || type === 'guardian' || type === 'devastator'));
     // Artillery keeps its 8-point shield; Guardian Elite has a stronger defensive reserve.
-    this.eliteMaxShield = this.isElite ? (type === 'artillery' ? 8 : type === 'guardian' ? 12 : 0) : 0;
+    this.eliteMaxShield = this.isElite ? (type === 'artillery' ? 8 : type === 'guardian' || type === 'devastator' ? 12 : 0) : 0;
     this.eliteShield = this.eliteMaxShield;
     this.eliteShieldFlash = 0;
     this.protectedAllies = [];
     this.guardianCoverShieldMax = this.isElite && type === 'guardian' ? 18 : 0;
     this.guardianCoverShield = this.guardianCoverShieldMax;
     this.eliteSpawnTimer = this.isElite ? 1.65 : 0;
-    this.radius = type === 'boss' ? 100 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
+    this.radius = type === 'boss' ? 100 : type === 'devastator' ? 18 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
     // Keep the general movement/separation radius compact; the elongated boss hull
     // uses an oriented ellipse for projectile and pilot contact tests in Game.
     this.collisionRadius = type === 'boss' ? this.radius * 1.45 : this.radius;
-    this.maxHealth = type === 'boss' ? 360 + level * 12 : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 5 + Math.floor(level / 2) : type === 'sentinel' ? 4 : type === 'interceptor' ? 1 : 2;
+    this.maxHealth = type === 'boss' ? 360 + level * 12 : type === 'devastator' ? (this.isElite ? 22 + Math.floor(level / 2) : 16 + Math.floor(level / 2)) : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 5 + Math.floor(level / 2) : type === 'sentinel' ? 4 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
     this.bossSystems = type === 'boss' ? new BossSystems() : null;
     this.bossPhase = 1;
@@ -45,11 +45,12 @@ export class Enemy {
     this.bossMissileNextSide = -1;
     this.bossBeamHit = false;
     this.rewardGranted = false;
-    this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 23 : type === 'artillery' ? 25 : type === 'sentinel' ? 30 : type === 'interceptor' ? 70 + Math.random() * 14 : 38 + Math.random() * 17) + Math.min(level, 8) * (type === 'guardian' ? 0.8 : 1.35);
-    this.motionProfile = type === 'artillery' ? (this.isElite ? ENEMY_MOTION_PROFILES.artilleryElite : ENEMY_MOTION_PROFILES.artillery)
-      : type === 'sentinel' ? (this.isElite ? ENEMY_MOTION_PROFILES.sentinelElite : ENEMY_MOTION_PROFILES.sentinel)
-        : type === 'guardian' ? (this.isElite ? ENEMY_MOTION_PROFILES.guardianElite : ENEMY_MOTION_PROFILES.guardian)
-          : type === 'chaser' ? ENEMY_MOTION_PROFILES.chaser : null;
+    this.speed = (type === 'boss' ? 16 : type === 'devastator' ? 12 : type === 'guardian' ? 23 : type === 'artillery' ? 25 : type === 'sentinel' ? 30 : type === 'interceptor' ? 70 + Math.random() * 14 : 38 + Math.random() * 17) + Math.min(level, 8) * (type === 'guardian' ? 0.8 : type === 'devastator' ? 0.35 : 1.35);
+    this.motionProfile = type === 'devastator' ? (this.isElite ? ENEMY_MOTION_PROFILES.devastatorElite : ENEMY_MOTION_PROFILES.devastator)
+      : type === 'artillery' ? (this.isElite ? ENEMY_MOTION_PROFILES.artilleryElite : ENEMY_MOTION_PROFILES.artillery)
+        : type === 'sentinel' ? (this.isElite ? ENEMY_MOTION_PROFILES.sentinelElite : ENEMY_MOTION_PROFILES.sentinel)
+          : type === 'guardian' ? (this.isElite ? ENEMY_MOTION_PROFILES.guardianElite : ENEMY_MOTION_PROFILES.guardian)
+            : type === 'chaser' ? ENEMY_MOTION_PROFILES.chaser : null;
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'boss'
       ? 1.65
@@ -58,6 +59,13 @@ export class Enemy {
         : type === 'sentinel'
           ? (this.isElite ? 3.0 : 1.8 + Math.random() * 0.6)
           : 2.4 + Math.random() * 0.8;
+    this.siegeState = type === 'devastator' ? 'charging' : 'offline';
+    this.siegeChargeDuration = type === 'devastator' ? (this.isElite ? 2.45 : 2.85) : 0;
+    this.siegeChargeTimer = this.siegeChargeDuration;
+    this.siegeWarningDuration = this.isElite ? 0.82 : 1.05;
+    this.siegeWarningTimer = 0;
+    this.siegeRecoveryTimer = 0;
+    this.siegeAimAngle = this.rotation;
     this.active = true;
     this.contactCooldown = 0;
     // Threat response is deliberately limited: ranged units dodge predicted near-misses, not every shot.
@@ -137,7 +145,7 @@ export class Enemy {
     this.bossMissileCooldown = Math.max(0, this.bossMissileCooldown - dt);
     const repositionActive = this.type === 'chaser' && this.repositionTimer > 0;
     const flankActive = this.isElite && this.flankTimer > 0 && this.type !== 'guardian';
-    this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? (this.isElite ? 1.25 : 0.9) : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
+    this.phase += dt * (this.type === 'devastator' ? 0.62 : this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? (this.isElite ? 1.25 : 0.9) : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
     this.eliteSpawnTimer = Math.max(0, this.eliteSpawnTimer - dt);
     this.eliteShieldFlash = Math.max(0, this.eliteShieldFlash - dt);
 
@@ -552,6 +560,57 @@ export class Enemy {
       const weave = Math.sin(this.phase) * this.speed * 0.48;
       this.x += towardX * this.speed * 0.70 * dt - towardY * weave * dt;
       this.y += towardY * this.speed * 0.70 * dt + towardX * weave * dt;
+    } else if (this.type === 'devastator') {
+      // Siege positioning is deliberately slow: the unit holds a distant lane
+      // and makes small corrections instead of chasing the pilot around the arena.
+      const laneOffset = Math.sin(this.phase * 0.28) * Math.min(width * 0.045, this.isElite ? 28 : 20);
+      const desiredX = Math.max(this.radius * 1.5, Math.min(width - this.radius * 1.5, targetX + laneOffset));
+      const desiredY = Math.max(this.radius * 2.6, targetY - Math.min(300, height * 0.42));
+      steerToPoint(this, desiredX, desiredY, this.motionProfile, dt);
+
+      if (this.siegeState === 'charging') {
+        this.siegeChargeTimer = Math.max(0, this.siegeChargeTimer - dt);
+        const muzzleX = this.x + Math.cos(this.facingRotation) * this.radius * 1.72;
+        const muzzleY = this.y + Math.sin(this.facingRotation) * this.radius * 1.72;
+        const distanceToPilot = Math.hypot(targetX - muzzleX, targetY - muzzleY);
+        const leadTime = Math.min(this.isElite ? 0.95 : 0.78, distanceToPilot / 760);
+        const predictedX = targetX + playerVelocityX * leadTime;
+        const predictedY = targetY + playerVelocityY * leadTime;
+        this.siegeAimAngle = Math.atan2(predictedY - muzzleY, predictedX - muzzleX);
+        if (this.siegeChargeTimer <= 0) {
+          this.siegeState = 'warning';
+          this.siegeWarningTimer = this.siegeWarningDuration;
+        }
+      } else if (this.siegeState === 'warning') {
+        this.siegeWarningTimer = Math.max(0, this.siegeWarningTimer - dt);
+        if (this.siegeWarningTimer <= 0) {
+          const angle = this.siegeAimAngle;
+          const muzzleX = this.x + Math.cos(angle) * this.radius * 1.82;
+          const muzzleY = this.y + Math.sin(angle) * this.radius * 1.82;
+          const reach = Math.max(width, height) * 1.9;
+          shot = {
+            x: muzzleX,
+            y: muzzleY,
+            targetX: muzzleX + Math.cos(angle) * reach,
+            targetY: muzzleY + Math.sin(angle) * reach,
+            damage: this.isElite ? 44 : 36,
+            speed: 760,
+            radius: this.isElite ? 7.5 : 7,
+            heavyImpact: true,
+            siegeImpact: true,
+            color: this.isElite ? '#d6ffd9' : '#fff0d2',
+            glowColor: this.isElite ? '#65e99a' : '#ff9b55'
+          };
+          this.siegeState = 'recover';
+          this.siegeRecoveryTimer = this.isElite ? 1.25 : 1.55;
+        }
+      } else if (this.siegeState === 'recover') {
+        this.siegeRecoveryTimer = Math.max(0, this.siegeRecoveryTimer - dt);
+        if (this.siegeRecoveryTimer <= 0) {
+          this.siegeState = 'charging';
+          this.siegeChargeTimer = this.siegeChargeDuration;
+        }
+      }
     } else if (this.type === 'artillery') {
       // Artillery keeps a distant firing lane and uses a lighter two-shot fan.
       const eliteStrafe = this.isElite ? Math.sin(this.phase * 0.82) * Math.min(width * 0.12, 52) : 0;
@@ -713,19 +772,16 @@ export class Enemy {
 
     // Ranged classes keep their weapons oriented toward the pilot while repositioning.
     // Movement rotation still drives the motion feedback; facing rotation drives the hull.
-    if (this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') {
+    if (this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss' || this.type === 'devastator') {
       const cannon = this.type === 'boss' ? this.bossSystems?.getModule('main-energy-cannon') : null;
-      if (cannon && (cannon.energyState === 'warning' || cannon.energyState === 'firing')) {
+      if (this.type === 'devastator' && this.siegeState === 'warning') {
+        this.facingRotation = this.siegeAimAngle;
+      } else if (cannon && (cannon.energyState === 'warning' || cannon.energyState === 'firing')) {
         this.facingRotation = cannon.energyAimAngle;
       } else {
-        const desiredFacing = Math.atan2(targetY + playerVelocityY * 0.32 - this.y, targetX + playerVelocityX * 0.32 - this.x);
-        const facingDelta = Math.atan2(
-          Math.sin(desiredFacing - this.facingRotation),
-          Math.cos(desiredFacing - this.facingRotation)
-        );
-        const turnResponse = this.type === 'boss'
-          ? cannon?.energyState === 'aligning' ? 1.15 : 0.62
-          : 4.5;
+        const desiredFacing = this.type === 'devastator' ? this.siegeAimAngle : Math.atan2(targetY + playerVelocityY * 0.32 - this.y, targetX + playerVelocityX * 0.32 - this.x);
+        const facingDelta = Math.atan2(Math.sin(desiredFacing - this.facingRotation), Math.cos(desiredFacing - this.facingRotation));
+        const turnResponse = this.type === 'boss' ? (cannon?.energyState === 'aligning' ? 1.15 : 0.62) : this.type === 'devastator' ? 1.35 : 4.5;
         this.facingRotation += facingDelta * Math.min(1, dt * turnResponse);
       }
     } else {
@@ -743,12 +799,13 @@ export class Enemy {
   drawVector(ctx, effectsScale = 1) {
     const boss = this.type === 'boss';
     const guardian = this.type === 'guardian';
+    const devastator = this.type === 'devastator';
     const artillery = this.type === 'artillery';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
     const reducedEffects = effectsScale < 0.75;
-    const color = boss ? '#202833' : this.isElite ? (artillery ? '#171d24' : ranged ? '#59377f' : guardian ? '#245b4b' : '#7546a6') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
-    const edge = boss ? '#8796a6' : this.isElite ? (artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
+    const color = boss ? '#202833' : this.isElite ? (devastator ? '#25202e' : artillery ? '#171d24' : ranged ? '#59377f' : guardian ? '#245b4b' : '#7546a6') : devastator ? '#596d82' : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
+    const edge = boss ? '#8796a6' : this.isElite ? (devastator ? '#a7f2ce' : artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : devastator ? '#b7d2e6' : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
     // The death update already integrates wreck velocity into x/y; do not add a second visual drift offset here.
@@ -805,6 +862,21 @@ export class Enemy {
     // The capital ship reads as a long, narrow dreadnought rather than a bulky carrier.
     // This is presentation-only: the existing combat hitbox remains untouched.
     if (boss) ctx.scale(0.82, 1);
+
+    if (devastator && this.siegeState === 'warning') {
+      const pulse = 0.72 + Math.sin(this.phase * 18) * 0.18;
+      ctx.save();
+      ctx.globalAlpha = 0.12 * pulse;
+      ctx.strokeStyle = this.isElite ? '#74f0a2' : '#ff8d4f';
+      ctx.lineWidth = this.isElite ? 15 : 13;
+      ctx.beginPath(); ctx.moveTo(0, -this.radius * 2.05); ctx.lineTo(0, -1800); ctx.stroke();
+      ctx.globalAlpha = 0.88 * pulse;
+      ctx.lineWidth = 2.2;
+      ctx.setLineDash([18, 13]);
+      ctx.beginPath(); ctx.moveTo(0, -this.radius * 2.05); ctx.lineTo(0, -1800); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
 
     // The Dreadnought exhaust uses smooth tapered energy plumes rather than
     // the block-shaped flame style of the smaller ships.
@@ -895,6 +967,18 @@ export class Enemy {
       ctx.lineTo(-this.radius * 1.04, -this.radius * 1.12);
       ctx.lineTo(-this.radius * 0.62, -this.radius * 1.55);
       ctx.lineTo(-this.radius * 0.34, -this.radius * 2.02);
+    } else if (devastator) {
+      ctx.moveTo(0, -this.radius * 1.72);
+      ctx.lineTo(this.radius * 0.34, -this.radius * 1.36);
+      ctx.lineTo(this.radius * 0.62, -this.radius * 0.68);
+      ctx.lineTo(this.radius * 1.08, -this.radius * 0.28);
+      ctx.lineTo(this.radius * 0.94, this.radius * 0.72);
+      ctx.lineTo(this.radius * 0.56, this.radius * 1.08);
+      ctx.lineTo(-this.radius * 0.56, this.radius * 1.08);
+      ctx.lineTo(-this.radius * 0.94, this.radius * 0.72);
+      ctx.lineTo(-this.radius * 1.08, -this.radius * 0.28);
+      ctx.lineTo(-this.radius * 0.62, -this.radius * 0.68);
+      ctx.lineTo(-this.radius * 0.34, -this.radius * 1.36);
     } else if (guardian) {
       ctx.moveTo(-this.radius * 0.48, -this.radius * 1.15);
       ctx.lineTo(this.radius * 0.48, -this.radius * 1.15);
@@ -1577,6 +1661,51 @@ export class Enemy {
       }
     }
 
+    if (devastator) {
+      // The siege barrel is integrated into the hull rather than mounted as a turret.
+      ctx.save();
+      ctx.fillStyle = '#1a2633';
+      ctx.strokeStyle = edge;
+      ctx.lineWidth = 1.25;
+      ctx.fillRect(-this.radius * 0.23, -this.radius * 2.12, this.radius * 0.46, this.radius * 1.72);
+      ctx.strokeRect(-this.radius * 0.23, -this.radius * 2.12, this.radius * 0.46, this.radius * 1.72);
+      ctx.fillStyle = '#354657';
+      ctx.fillRect(-this.radius * 0.39, -this.radius * 0.92, this.radius * 0.78, this.radius * 0.28);
+      ctx.fillStyle = '#0a111a';
+      ctx.fillRect(-this.radius * 0.15, -this.radius * 2.18, this.radius * 0.30, this.radius * 0.20);
+      ctx.strokeStyle = this.isElite ? '#9df0b5' : '#ffbf78';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(-this.radius * 0.11, -this.radius * 1.88);
+      ctx.lineTo(-this.radius * 0.11, -this.radius * 0.65);
+      ctx.moveTo(this.radius * 0.11, -this.radius * 1.88);
+      ctx.lineTo(this.radius * 0.11, -this.radius * 0.65);
+      ctx.stroke();
+      for (let side = -1; side <= 1; side += 2) {
+        ctx.fillStyle = '#263646';
+        ctx.fillRect(side * this.radius * 0.53 - this.radius * 0.12, -this.radius * 0.55, this.radius * 0.24, this.radius * 0.82);
+        ctx.fillStyle = this.isElite ? '#5fd58a' : '#e7a05d';
+        ctx.fillRect(side * this.radius * 0.53 - this.radius * 0.035, -this.radius * 0.34, this.radius * 0.07, this.radius * 0.36);
+      }
+      if (this.siegeState === 'charging' || this.siegeState === 'warning') {
+        const charge = this.siegeState === 'warning' ? 1 : 1 - this.siegeChargeTimer / Math.max(0.01, this.siegeChargeDuration);
+        const pulse = 0.72 + Math.sin(this.phase * 14) * 0.16;
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = (0.22 + charge * 0.62) * pulse;
+        ctx.strokeStyle = this.isElite ? '#77f0a2' : '#ffad63';
+        ctx.lineWidth = 1.6 + charge * 1.8;
+        ctx.beginPath();
+        ctx.arc(0, -this.radius * 2.03, this.radius * (0.20 + charge * 0.18), 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = this.isElite ? '#d7ffe1' : '#fff0d2';
+        ctx.globalAlpha = (0.28 + charge * 0.62) * pulse;
+        ctx.beginPath();
+        ctx.arc(0, -this.radius * 2.03, this.radius * (0.07 + charge * 0.07), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
     if (artillery) {
       ctx.fillStyle = '#6d3b9d';
       ctx.fillRect(-this.radius * 0.78, -this.radius * 0.35, this.radius * 0.34, this.radius * 0.8);
@@ -1692,7 +1821,7 @@ export class Enemy {
       const flashProgress = this.eliteShieldFlash > 0 ? 1 - this.eliteShieldFlash / 0.42 : 1;
       const shieldRadius = this.radius + 3 + (this.eliteShieldFlash > 0 ? flashProgress * 5 : 2);
       ctx.globalAlpha = 0.28 + shieldRatio * 0.28 + (this.eliteShieldFlash > 0 ? this.eliteShieldFlash * 1.15 : 0);
-      ctx.strokeStyle = guardian ? '#a7f2ce' : '#82dca2';
+      ctx.strokeStyle = guardian ? '#a7f2ce' : devastator ? '#9df0b5' : '#82dca2';
       ctx.lineWidth = this.eliteShieldFlash > 0 ? 2.5 + this.eliteShieldFlash * 3 : 1.8;
       ctx.lineCap = 'round';
       ctx.beginPath();

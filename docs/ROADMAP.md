@@ -1,3 +1,16 @@
+## v0.56.0 — Nova tropa pesada: Devastador
+
+- [x] Criar a classe Devastador, maior que as tropas comuns e com mobilidade deliberadamente baixa.
+- [x] Integrar um canhão de plasma ao casco, com carga, previsão limitada do movimento, aviso de linha de tiro e projétil rápido.
+- [x] Criar impacto de cerco com dano elevado, repulsão forte e desestabilização temporária do jogador.
+- [x] Criar variante Elite com escudo próprio, maior dano e janela de aviso mais curta.
+- [x] Introduzir a unidade normal a partir da onda 8 e a Elite a partir da onda 20.
+- [x] Adicionar recompensa e alerta tático específicos.
+- [ ] Revisar o Guardião e o comportamento de proteção de formações.
+- [ ] Desenvolver diálogos contextuais de entrada para as classes Elite.
+- [ ] Validar a legibilidade do aviso, o tempo de reação, a dificuldade e o desempenho em gameplay real.
+- **Estado:** candidata em PR #81; a branch oficial permanece inalterada. Testes automatizados pendentes nesta etapa.
+
 ## v0.55.0 — Fundação do combate e defesa direcional
 
 - [x] Remover a carta de Laser Contínuo, o botão, a entrada por teclado, o feixe, o dano sustentado e a tela de disputa.
