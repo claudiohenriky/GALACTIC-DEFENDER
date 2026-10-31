@@ -32,9 +32,9 @@ export const ENEMY_MOTION_PROFILES = Object.freeze({
   boss: Object.freeze({ maxSpeed: 56, acceleration: 42 }),
   bossPhaseThree: Object.freeze({ maxSpeed: 68, acceleration: 52 }),
   artillery: Object.freeze({ maxSpeed: 68, acceleration: 135 }),
-  artilleryElite: Object.freeze({ maxSpeed: 132, acceleration: 270 }),
-  sentinel: Object.freeze({ maxSpeed: 88, acceleration: 180 }),
-  sentinelElite: Object.freeze({ maxSpeed: 165, acceleration: 350 }),
+  artilleryElite: Object.freeze({ maxSpeed: 108, acceleration: 210 }),
+  sentinel: Object.freeze({ maxSpeed: 76, acceleration: 155 }),
+  sentinelElite: Object.freeze({ maxSpeed: 130, acceleration: 260 }),
   guardian: Object.freeze({ maxSpeed: 90, acceleration: 165 }),
   guardianElite: Object.freeze({ maxSpeed: 112, acceleration: 215 })
 });
