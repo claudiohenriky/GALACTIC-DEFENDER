@@ -1,10 +1,11 @@
 ## [0.54.1] — correções de apresentação da cutscene do DREADNOUGHT
 
 - **Patch corretivo da v0.54.0:** preserva a sequência e a duração das fases; não representa uma nova versão minor de funcionalidades.
-- Corrige a entrada abrupta do DREADNOUGHT: a nave agora se aproxima gradualmente a partir de uma posição distante e termina em um ponto de espera com separação maior em relação ao piloto.
-- Suaviza o enquadramento da câmera nos eixos horizontal e vertical durante a revelação, com interpolação independente da taxa de quadros.
-- Redesenha os balões para ficarem mais compactos e animados, com identidades próprias: piloto à esquerda, sistema de bordo à direita e DREADNOUGHT com identidade visual distinta.
-- Inclui uma fala própria do sistema de bordo durante a análise da interferência.
+- Corrige o fluxo dos diálogos: cada fala recebe tempo suficiente para terminar antes da próxima, inclusive a frase “Parece tranquilo” e a resposta inicial do piloto à anomalia.
+- Aproxima os cartões existentes do jogador: piloto à esquerda e sistema de bordo à direita, ambos ancorados na posição da nave. O design aprovado dos cartões foi preservado.
+- Reposiciona a entrada do DREADNOUGHT no eixo central, vindo de cima e de uma distância segura; a nave surge gradualmente transparente e avança até o ponto de confronto, sem aparecer de repente ao lado do piloto.
+- Centraliza o aviso de identificação do chefe no alto da tela: ele surge com fade-in e sai deslizando para cima após a confirmação.
+- Simplifica apenas os indicadores ❓ e ❗, reduzindo ornamentos e posicionando-os junto à lateral da nave. Os cartões de diálogo não foram simplificados.
 - Reativa os sinais diegéticos na cutscene: ❓ para a anomalia, ❗ durante a revelação do chefe e ❓❗ para alertas de tropas de Elite.
 - Corrige a comparação temporal dos alertas para tolerar pequenas diferenças de ponto flutuante e adiciona testes de regressão.
 - Corrige o travamento da cutscene ao ativar os indicadores do piloto: o renderizador agora recebe explicitamente o estado da reação e as coordenadas de tela, tanto durante a cinemática quanto no combate.
