@@ -1,12 +1,12 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
-import { Enemy } from '../enemies/enemy.js?v=0.45.3-sentinel-balance';
+import { Enemy } from '../enemies/enemy.js?v=0.47.0-combat-rebalance';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
-import { getBossBeamSegment } from '../enemies/boss-systems.js?v=0.45.1-boss-readability';
+import { getBossBeamSegment } from '../enemies/boss-systems.js?v=0.47.0-combat-rebalance';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nine-test-start';
@@ -544,7 +544,7 @@ export class Game {
     const length = Math.hypot(dx, dy) || 1;
     // The DREADNOUGHT plasma lance is a heavy anti-ship hit: shields absorb
     // the hull damage but cannot prevent the powerful displacement.
-    const impulse = shieldWasActive ? 760 : 1180;
+    const impulse = shieldWasActive ? 1050 : 1450;
     player.knockbackX += dx / length * impulse;
     player.knockbackY += dy / length * impulse;
     this.triggerSystemDisruption(1.45);
