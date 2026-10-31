@@ -6,7 +6,7 @@ import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
-import { WaveManager } from './wave-manager.js?v=0.44.0';
+import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.44.0-boss-test-first-wave';
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
@@ -1337,7 +1337,7 @@ export class Game {
 
     // WaveManager decides when an enemy should spawn and when the next wave begins.
     if (this.waveManager.update(dt, this.enemies.length)) {
-      const bossWave = this.waveManager.wave >= 10 && this.waveManager.wave % 5 === 0;
+      const bossWave = (BOSS_TEST_MODE && this.waveManager.wave === 1) || (this.waveManager.wave >= 10 && this.waveManager.wave % 5 === 0);
       const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
       const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * zoom);
       const viewTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);

@@ -1,3 +1,10 @@
+## [0.44.0] — Modo temporário de teste do Encouraçado
+
+- Ativado o surgimento do Encouraçado já na onda 1, sozinho, para permitir testes imediatos do chefe durante o desenvolvimento.
+- As ondas seguintes mantêm a progressão normal; o calendário original de chefes nas ondas 10, 15, 20... continua ativo.
+- O modo fica centralizado em `BOSS_TEST_MODE` no gerenciador de ondas e deverá ser desativado quando o desenvolvimento do Encouraçado for concluído.
+- **Validação pendente:** confirmar início da partida, entrada do chefe na onda 1, derrota e avanço correto para a onda 2.
+
 ## [0.44.0] — Identidade visual do Encouraçado
 
 - Reconstruída a silhueta como nave capital completa, com casco largo, blindagem grafite fosca e reforços em aço escovado.

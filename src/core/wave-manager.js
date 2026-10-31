@@ -1,3 +1,6 @@
+// Temporary boss-development switch: spawn the Dreadnought in wave 1 until its development is complete.
+export const BOSS_TEST_MODE = true;
+
 // Controls enemy waves independently from the main game loop.
 export class WaveManager {
   constructor() {
@@ -7,7 +10,7 @@ export class WaveManager {
 
   reset() {
     this.wave = 1;
-    this.enemyCount = 5;
+    this.enemyCount = BOSS_TEST_MODE ? 1 : 5;
     this.spawnedCount = 0;
     this.state = 'spawning';
     // Give the pilot time to orient themselves before the first enemy appears.
@@ -19,7 +22,7 @@ export class WaveManager {
       this.timer -= dt;
       if (this.timer <= 0) {
         this.wave += 1;
-        const bossWave = this.wave >= 10 && this.wave % 5 === 0;
+        const bossWave = (BOSS_TEST_MODE && this.wave === 1) || (this.wave >= 10 && this.wave % 5 === 0);
         this.enemyCount = bossWave ? 1 : Math.min(5 + (this.wave - 1) * 2, 18);
         this.spawnedCount = 0;
         this.state = 'spawning';
