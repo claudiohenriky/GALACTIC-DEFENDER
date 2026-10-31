@@ -1,5 +1,5 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
-import { Enemy } from '../enemies/enemy.js?v=0.45.0-boss-tactics';
+import { Enemy } from '../enemies/enemy.js?v=0.45.2-sentinel-balance';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
@@ -9,7 +9,7 @@ import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } 
 import { getBossBeamSegment } from '../enemies/boss-systems.js?v=0.45.1-boss-readability';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
-import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.44.0-boss-test-first-wave';
+import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nine-test-start';
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
