@@ -1319,7 +1319,7 @@ export class Game {
     const transition = this.waveTenTransition;
     if (!transition) return;
     ctx.save();
-    ctx.fillStyle = 'rgba(3, 8, 20, 0.88)';
+    ctx.fillStyle = transition.phase === 'loading' ? 'rgba(3, 8, 20, 0.88)' : 'rgba(3, 8, 20, 0.38)';
     ctx.fillRect(0, 0, this.width, this.height);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
