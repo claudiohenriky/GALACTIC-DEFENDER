@@ -1,3 +1,12 @@
+## [0.57.1] — balanceamento do Encouraçado e flanqueamento
+
+- Aumenta a recarga dos quatro canhões de plasma de 5,4 s para 7,2 s; dano, velocidade do projétil, ruptura de escudo e repulsão permanecem inalterados.
+- Reduz a velocidade máxima e a aceleração do casco para 34/24 na fase 1–2 e 42/30 na fase 3.
+- Diminui a resposta de rotação do casco para que o Encouraçado não acompanhe instantaneamente cada mudança de direção do piloto.
+- Mantém waypoints de patrulha por 3,2 s (2,5 s na fase 3), em vez de recalculá-los continuamente com a posição do jogador.
+- Amplia o deslocamento lateral do reposicionamento e estende sua duração, criando janelas mais claras para atacar os módulos dos flancos e da traseira.
+- Adiciona testes automatizados para recarga dos canhões, perfis de movimento e retenção dos waypoints. A validação real de gameplay e a sensação de flanqueamento ainda dependem de playtest.
+
 ## [0.57.0] — reações contextuais das tropas Elite
 
 - Cada aparição de uma tropa Elite agora provoca uma fala curta e específica do piloto.
