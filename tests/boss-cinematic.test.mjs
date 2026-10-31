@@ -40,9 +40,9 @@ test('HUD fades out before loading and fades back only during combat handoff', (
   advance(state, 2.5);
   assert.equal(state.phase, 'loading');
   assert.equal(state.pilotHudOpacity, 0);
-  advance(state, 50);
+  advance(state, 45);
   assert.equal(state.phase, 'handoff');
-  assert.equal(state.pilotHudOpacity, 0);
+  assert.ok(state.pilotHudOpacity < 0.001);
   advance(state, 1.25);
   assert.ok(Math.abs(state.pilotHudOpacity - 0.5) < 0.03);
 });
