@@ -193,3 +193,10 @@ export function drawPilotReaction(ctx, state, x, y) {
   ctx.restore();
   drawReactionMessage(ctx, state, x, y, alpha);
 }
+
+// Elite dialogue is a first-contact callout: each class speaks once per run.
+export function triggerElitePilotReaction(state, seenClasses, type, message, duration = 6) {
+  if (!(seenClasses instanceof Set) || seenClasses.has(type)) return false;
+  seenClasses.add(type);
+  return triggerPilotReaction(state, '❓❗', duration, message);
+}
