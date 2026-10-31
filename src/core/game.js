@@ -17,7 +17,7 @@ import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity, wrapBossCinematicDialogue, getBossDialogueVisualState, getBossDialoguePlacement } from './boss-cinematic.js?v=0.54.5-dialogue-placement';
 import { getBossCinematicCameraFrame, prepareBossForCombatHandoff, BOSS_CINEMATIC_ARENA_ZOOM } from './boss-cinematic-camera.js?v=0.54.1-camera-rebuild';
 import { getBossCinematicSpawnPositions, preparePlayerForBossCinematic } from './boss-positioning.js?v=0.54.2-combat-aligned-entry';
-import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.5-threat-redesign';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.57.0-elite-callouts';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1329,6 +1329,7 @@ export class Game {
     this.pilotReaction.remaining = 0;
     this.pilotReaction.symbol = '';
     this.pilotReaction.duration = 0;
+    this.pilotReaction.message = '';
     this.waveManager.enemyCount = 1;
     this.waveManager.spawnedCount = 0;
     this.waveManager.state = 'spawning';
@@ -1852,17 +1853,25 @@ export class Game {
           this.bossEncounterDialogueTimer = this.bossEncounterDialogue.duration;
         }
       }
-      if (isElite && !this.eliteAlertsShown.has(type)) {
-        this.eliteAlertsShown.add(type);
-        triggerPilotReaction(this.pilotReaction, '❓❗', 2.2);
-        const alerts = {
-          artillery: ['AMEAÇA DE ARTILHARIA DETECTADA', 'A nave detectou um Artilheiro de Elite. Blindagem e poder de fogo acima do padrão.'],
-          sentinel: ['AMEAÇA TÁTICA DETECTADA', 'A nave detectou uma Sentinela de Elite. Disparos de plasma em salva dupla.'],
-          guardian: ['UNIDADE DEFENSIVA DETECTADA', 'A nave detectou um Guardião de Elite. Blindagem reforçada e proteção de aliados.'],
-          devastator: ['CANHÃO DE CERCO DETECTADO', 'Devastador de Elite identificado. Canhão de plasma de longo alcance; saia da linha de tiro.']
+      if (isElite) {
+        const reactions = {
+          artillery: 'Artilharia de elite. Não fique na linha de tiro.',
+          sentinel: 'Sentinela de elite detectada. Prepare-se para a salva dupla.',
+          guardian: 'Guardião de elite. Está protegendo as tropas próximas.',
+          devastator: 'Devastador de elite! Saia da linha do canhão.'
         };
-        const [heading, detail] = alerts[type];
-        this.showRewardBanner(heading, detail, 'elite');
+        triggerPilotReaction(this.pilotReaction, '❓❗', 3.4, reactions[type] || 'Unidade de elite detectada.');
+        if (!this.eliteAlertsShown.has(type)) {
+          this.eliteAlertsShown.add(type);
+          const alerts = {
+            artillery: ['AMEAÇA DE ARTILHARIA DETECTADA', 'A nave detectou um Artilheiro de Elite. Blindagem e poder de fogo acima do padrão.'],
+            sentinel: ['AMEAÇA TÁTICA DETECTADA', 'A nave detectou uma Sentinela de Elite. Disparos de plasma em salva dupla.'],
+            guardian: ['UNIDADE DEFENSIVA DETECTADA', 'A nave detectou um Guardião de Elite. Blindagem reforçada e proteção de aliados.'],
+            devastator: ['CANHÃO DE CERCO DETECTADO', 'Devastador de Elite identificado. Canhão de plasma de longo alcance; saia da linha de tiro.']
+          };
+          const [heading, detail] = alerts[type];
+          this.showRewardBanner(heading, detail, 'elite');
+        }
       }
     }
 

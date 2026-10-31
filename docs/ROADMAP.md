@@ -1,3 +1,13 @@
+## v0.57.0 — Reações táticas das tropas Elite
+
+- [x] Criar falas contextuais curtas para Artilheiro, Sentinela, Guardião e Devastador Elite.
+- [x] Exibir uma reação em cada aparição Elite, não apenas na primeira aparição da classe.
+- [x] Preservar o alerta de descoberta por classe e o design aprovado das notificações.
+- [x] Manter a fala próxima ao piloto, compacta e limitada à viewport.
+- [ ] Revisar o Guardião e suas táticas de proteção em formações.
+- [ ] Validar legibilidade e frequência das falas durante gameplay real.
+- **Estado:** candidata em PR #81; validação automatizada em andamento. Nenhum playtest manual foi realizado.
+
 ## v0.56.0 — Nova tropa pesada: Devastador
 
 - [x] Criar a classe Devastador, maior que as tropas comuns e com mobilidade deliberadamente baixa.

@@ -1,13 +1,14 @@
 // Compact diegetic threat indicators stay near the pilot without covering the ship or HUD.
 export function createPilotReactionState() {
-  return { symbol: '', remaining: 0, duration: 0 };
+  return { symbol: '', remaining: 0, duration: 0, message: '' };
 }
 
-export function triggerPilotReaction(state, symbol, duration = 1.25) {
+export function triggerPilotReaction(state, symbol, duration = 1.25, message = '') {
   if (!state || !['❓', '❗', '❓❗'].includes(symbol)) return false;
   state.symbol = symbol;
   state.duration = Math.max(0.1, Number(duration) || 1.25);
   state.remaining = state.duration;
+  state.message = typeof message === 'string' ? message.trim().slice(0, 72) : '';
   return true;
 }
 
@@ -17,6 +18,7 @@ export function updatePilotReaction(state, dt) {
   if (state.remaining === 0) {
     state.symbol = '';
     state.duration = 0;
+    state.message = '';
   }
 }
 
@@ -100,6 +102,43 @@ function drawEliteMark(ctx) {
   ctx.restore();
 }
 
+function wrapReactionMessage(message, maxChars = 26) {
+  const words = String(message || '').split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (candidate.length > maxChars && line) { lines.push(line); line = word; }
+    else line = candidate;
+  }
+  if (line) lines.push(line);
+  return lines.slice(0, 3);
+}
+
+function drawReactionMessage(ctx, state, x, y, alpha) {
+  const canvasWidth = ctx.canvas?.width, canvasHeight = ctx.canvas?.height;
+  if (!state.message || !Number.isFinite(canvasWidth) || !Number.isFinite(canvasHeight)) return;
+  const lines = wrapReactionMessage(state.message), width = 184, height = 15 + lines.length * 12;
+  const left = x < canvasWidth * 0.62
+    ? Math.max(6, Math.min(canvasWidth - width - 6, x + 14))
+    : Math.max(6, Math.min(canvasWidth - width - 6, x - width - 14));
+  const top = Math.max(6, Math.min(canvasHeight - height - 6, y - height - 13));
+  ctx.save();
+  ctx.globalAlpha = alpha * 0.96;
+  ctx.fillStyle = 'rgba(3, 13, 25, 0.94)';
+  ctx.strokeStyle = '#8fdcff'; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(left + 6, top); ctx.lineTo(left + width - 6, top);
+  ctx.lineTo(left + width, top + 6); ctx.lineTo(left + width, top + height - 6);
+  ctx.lineTo(left + width - 6, top + height); ctx.lineTo(left + 6, top + height);
+  ctx.lineTo(left, top + height - 6); ctx.lineTo(left, top + 6); ctx.closePath();
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#e4f6ff'; ctx.font = '600 9px ui-monospace, monospace';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  lines.forEach((line, index) => ctx.fillText(line, left + 9, top + 9 + index * 12));
+  ctx.restore();
+}
+
 export function drawPilotReaction(ctx, state, x, y) {
   if (!ctx || !state || state.remaining <= 0 || !state.symbol) return;
   const question = state.symbol === '❓';
@@ -152,4 +191,5 @@ export function drawPilotReaction(ctx, state, x, y) {
     drawEliteMark(ctx);
   }
   ctx.restore();
+  drawReactionMessage(ctx, state, x, y, alpha);
 }

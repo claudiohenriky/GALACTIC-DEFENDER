@@ -105,3 +105,24 @@ test('game renders pilot reactions through the imported renderer with the state 
     2
   );
 });
+
+test('Elite pilot reactions carry contextual text and clear it when the reaction expires', () => {
+  const state = createPilotReactionState();
+  assert.equal(triggerPilotReaction(state, '❓❗', 3.4, 'Guardião de elite. Protege as tropas.'), true);
+  assert.equal(state.message, 'Guardião de elite. Protege as tropas.');
+  updatePilotReaction(state, 3.4);
+  assert.equal(state.message, '');
+});
+
+test('pilot reaction renderer draws the contextual callout inside the viewport', () => {
+  const calls = [];
+  const context = new Proxy({ canvas: { width: 480, height: 270 } }, {
+    get: (target, property) => property in target ? target[property] : (...args) => calls.push([property, ...args]),
+    set: (target, property, value) => { target[property] = value; return true; }
+  });
+  const state = createPilotReactionState();
+  triggerPilotReaction(state, '❓❗', 3, 'Devastador de elite! Saia da linha do canhão.');
+  drawPilotReaction(context, state, 430, 220);
+  assert.ok(calls.some(([name]) => name === 'fillText'));
+  assert.ok(calls.some(([name]) => name === 'stroke'));
+});

@@ -1,3 +1,11 @@
+## [0.57.0] — reações contextuais das tropas Elite
+
+- Cada aparição de uma tropa Elite agora provoca uma fala curta e específica do piloto.
+- As falas distinguem Artilharia, Sentinela, Guardião e Devastador, com orientação tática imediata.
+- O alerta de descoberta por classe continua aparecendo apenas na primeira ocorrência; o design aprovado das notificações não foi alterado.
+- A caixa de fala é compacta, quebra o texto em linhas e limita sua posição à viewport.
+- Inclui cobertura automatizada para estado, expiração e renderização das falas.
+
 ## [0.56.0] — nova tropa pesada: Devastador
 
 - Adiciona o Devastador a partir da onda 8: casco maior, mobilidade muito baixa e canhão de plasma integrado.
