@@ -3,15 +3,15 @@
 - **Patch corretivo da v0.54.0:** preserva a sequência e a duração das fases; não representa uma nova versão minor de funcionalidades.
 - Corrige o fluxo dos diálogos: cada fala recebe tempo suficiente para terminar antes da próxima, inclusive a frase “Parece tranquilo” e a resposta inicial do piloto à anomalia.
 - Aproxima os cartões existentes do jogador: piloto à esquerda e sistema de bordo à direita, ambos ancorados na posição da nave. O design aprovado dos cartões foi preservado.
-- Reposiciona a entrada do DREADNOUGHT no eixo central, vindo de cima e de uma distância segura; a nave surge gradualmente transparente e avança até o ponto de confronto, sem aparecer de repente ao lado do piloto.
+- Reposiciona a entrada do DREADNOUGHT no eixo central, vindo de cima e de uma distância segura. A aparição agora leva 21 segundos, começa transparente e conclui o fade-in gradualmente durante os primeiros 7,5 segundos.
 - Centraliza o aviso de identificação do chefe no alto da tela: ele surge com fade-in e sai deslizando para cima após a confirmação.
-- Simplifica apenas os indicadores ❓ e ❗, reduzindo ornamentos e posicionando-os junto à lateral da nave. Os cartões de diálogo não foram simplificados.
+- Simplifica apenas os indicadores ❓ e ❗, mantendo o visual limpo com um halo pulsante discreto e posicionamento junto à lateral da nave. O ❓ permanece por 8,5 segundos e o ❗ por 26 segundos durante a revelação e a identificação do chefe. Os cartões de diálogo não foram simplificados.
 - Reativa os sinais diegéticos na cutscene: ❓ para a anomalia, ❗ durante a revelação do chefe e ❓❗ para alertas de tropas de Elite.
 - Corrige a comparação temporal dos alertas para tolerar pequenas diferenças de ponto flutuante e adiciona testes de regressão.
 - Corrige o travamento da cutscene ao ativar os indicadores do piloto: o renderizador agora recebe explicitamente o estado da reação e as coordenadas de tela, tanto durante a cinemática quanto no combate.
 - Preserva o sistema de reações introduzido na v0.49.0: alertas de perigo continuam ligados às telemetrias do canhão principal e dos canhões de plasma do DREADNOUGHT, com acionamento por transição para evitar piscadas repetidas.
 - Adiciona testes de regressão para o desenho dos indicadores, a transição de ameaça e a integração do renderizador.
-- **Validação automatizada:** sintaxe JavaScript, 59 testes, imports relativos e whitespace aprovados no GitHub Actions. A inspeção visual em celular/desktop ainda está pendente.
+- **Validação automatizada:** sintaxe JavaScript, 64 testes, imports relativos e whitespace aprovados no GitHub Actions. A inspeção visual em celular/desktop ainda está pendente.
 
 ## [0.54.0] — nova cinemática, chefes recorrentes e revisão de desempenho
 
