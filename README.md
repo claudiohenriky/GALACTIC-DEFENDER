@@ -4,6 +4,8 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
+**Candidata atual em desenvolvimento:** `0.57.2` — pacote de balanceamento do Encouraçado e correção da mira do Devastador na branch `fix/v0.54.1-cinematic-correction` ([PR #81](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/81)). Mantém o reposicionamento aprovado da v0.57.1, reduz os canhões de plasma para dois (um por lado), adiciona emissores iônicos de longo alcance, redesenha os mísseis guiados como dardos rápidos com curva limitada e vida útil finita, move os chefes para as ondas 15, 30, 45... e trava o ângulo/posição de mira do Devastador durante o aviso. Testes automatizados adicionados; gameplay real ainda não validado. Não mesclada em `main`.
+
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
 **Candidata em desenvolvimento:** `0.44.0` — evolução do primeiro chefe na branch `feature/v0.44.0-boss-evolution`. Inicia a nave de guerra pesada com casco ampliado, dez módulos de armamento, escudos regionais, dano direcionado a componentes, padrões de armas modulares e transformação de sobrecarga com recuperação parcial do casco. A primeira aparição passa para a onda 10 e a recorrência segue nas ondas 15, 20, 25... Implementação parcial; o HUD agora separa integridade do casco, quatro setores regionais de escudo e dez módulos de armamento, com estados e resumo de danos; os dez módulos aparecem em grade 5×2 com abreviações identificáveis, além da indicação de reconstrução da sobrecarga e destruição. Entrada cinematográfica, zoom dinâmico e expansão física do mundo (2,4× o viewport em cada eixo) já implementados em candidata, com câmera de acompanhamento e mira compensada por mouse/toque. A revisão estática da arena ampliada corrigiu a faixa do Artilheiro, tornou o encouraçado mais lento para reposicionar/girar e ampliou sua hitbox para corresponder à silhueta blindada. A destruição do chefe agora ocorre em etapas, com detonações locais, chamas, fumaça persistente e ondas de choque na explosão final; ele para de atacar e receber dano, e as recompensas só são concedidas ao fim da animação, uma única vez. Os checks automatizados de sintaxe, imports e whitespace passaram no HEAD `3336acc7ad0e350ac157b4a3db6004cd27b8b5ab` (run [41007479925](https://github.com/claudiohenriky/GALACTIC-DEFENDER/actions/runs/41007479925)); a HUD tática ainda aguarda validação visual e teste real de gameplay. Ainda pendem testes visuais em celular/desktop, estresse e perfilamento, arte e efeitos finais e balanceamento do HUD. Não mesclada em `main`.
@@ -18,7 +20,7 @@ Na v0.44.0, o canhão principal frontal também possui ciclo visual de carga e a
 
 **Candidata em teste:** `0.32.0` — chefe com três fases na branch `feature/v0.32.0-boss-phases`. O usuário gostou do combate, mas relatou uma queda pontual para cerca de 7 FPS / 146 ms ao derrotar o chefe; a causa ainda não foi identificada.
 
-**Candidata atual:** `0.34.0` — Attack Clash básico (tiros da nave neutralizam projéteis inimigos em colisão direta) e correção do contato com o chefe, na branch `feature/v0.34.0-attack-clash-boss-contact-fix`. Exige teste manual antes de qualquer integração à versão oficial.
+**Candidata histórica:** `0.34.0` — introduziu o Attack Clash entre projéteis, mecânica removida na v0.55.0 após revisão do combate.
 
 **Candidata anterior:** `0.33.0` — fundação compartilhada de colisões na branch `feature/v0.33.0-collision-foundation`.
 
@@ -37,7 +39,7 @@ Na v0.44.0, o canhão principal frontal também possui ciclo visual de carga e a
 
 - Mísseis teleguiados lançados pelas asas, com alvos e explosão em área.
 - Escudo de energia redesenhado; o Pulso de Ruptura é uma habilidade de emergência ativável por botão ou tecla Q somente enquanto o escudo estiver quebrado. A barreira avança à frente da nave, bloqueia projéteis e causa dano limitado.
-- Medidor compartilhado de sobrecarga: habilidades e lasers consomem energia; em sobrecarga, a potência e a velocidade diminuem; no limite, habilidades especiais são bloqueadas temporariamente. Na candidata v0.30.1, o medidor é vertical e independente da HUD principal.
+- Medidor compartilhado de sobrecarga: disparos e habilidades especiais acumulam energia; em sobrecarga, a potência e a velocidade diminuem; no limite, habilidades especiais são bloqueadas temporariamente. Na candidata v0.30.1, o medidor é vertical e independente da HUD principal.
 - Mísseis de nível 3 se fragmentam em até três projéteis mais fracos; a quantidade simultânea é limitada para conter o custo de combate.
 
 ## Lobby, preparação e plataforma

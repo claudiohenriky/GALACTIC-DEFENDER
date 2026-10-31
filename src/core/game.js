@@ -1,23 +1,23 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
-import { Enemy } from '../enemies/enemy.js?v=0.53.0-stage-6-7';
+import { Enemy } from '../enemies/enemy.js?v=0.57.2-boss-weapon-pass';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
-import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
-import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.53.0-stage-6-7';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.57.2-guided-darts';
+import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
+import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.57.2-boss-weapon-pass';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
-import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nine-test-start';
+import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.57.2-boss-wave-15';
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert } from './boss-cinematic.js?v=0.54.0-clean-cinematic';
-import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.54.0-clean-cinematic';
-import { prepareBossForCombatHandoff } from './boss-cinematic-camera.js?v=0.54.0-clean-cinematic';
-import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.53.2-reaction-polish';
+import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity, wrapBossCinematicDialogue, getBossDialogueVisualState, getBossDialoguePlacement } from './boss-cinematic.js?v=0.54.5-dialogue-placement';
+import { getBossCinematicCameraFrame, prepareBossForCombatHandoff, BOSS_CINEMATIC_ARENA_ZOOM } from './boss-cinematic-camera.js?v=0.54.1-camera-rebuild';
+import { getBossCinematicSpawnPositions, preparePlayerForBossCinematic } from './boss-positioning.js?v=0.54.2-combat-aligned-entry';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.57.0-elite-callouts';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -32,6 +32,7 @@ export class Game {
     // The simulation world is larger than the visible canvas; the camera follows the pilot.
     this.arenaScale = 2.4;
     this.cameraMinZoom = 1 / this.arenaScale;
+    this.bossCombatZoom = BOSS_CINEMATIC_ARENA_ZOOM;
     this.worldWidth = this.width * this.arenaScale;
     this.worldHeight = this.height * this.arenaScale;
     this.cameraX = 0;
@@ -56,7 +57,7 @@ export class Game {
     this.eliteAlertsShown = new Set();
     this.pilotReaction = createPilotReactionState();
     this.cinematicHudRoot = this.canvas.closest('.game-layout');
-    this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.side-panel, .arena-status, .arena-footer, .in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #continuous-laser-button, #reward-banner, #damage-feedback, #touch-controls, .fullscreen-button, .orientation-hint') ?? []);
+    this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.side-panel, .arena-status, .arena-footer, .in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #reward-banner, #damage-feedback, #touch-controls, .fullscreen-button, .orientation-hint') ?? []);
     this.guardianAssignmentTimer = 0;
     this.eliteTactics = new EliteTacticalCoordinator();
     this.enemyTactics = new EnemyTacticalCoordinator();
@@ -85,7 +86,6 @@ export class Game {
     this.score = 0;
     this.destroyed = 0;
     this.shotClock = 0;
-    this.continuousLaserHeld = false; this.continuousLaserCooldown = 0; this.continuousLaserDamageClock = 0; this.continuousLaserClash = null;
     this.lastTime = 0;
     this.animationId = 0;
     this.levelUpParticles = [];
@@ -105,6 +105,10 @@ export class Game {
     this.pendingUpgradeChoices = [];
     this.hudUpdateInterval = 0.1;
     this.hudUpdateTimer = 0;
+    this.effectsMode = 'auto';
+    this.effectsScale = 1;
+    this.effectsPressure = 0;
+    this.effectsRecovery = 0;
     // Profiling is opt-in so normal gameplay pays no per-frame timing cost.
     this.performanceProfileEnabled = new URLSearchParams(window.location.search).get('profile') === '1';
     this.performanceProfileSamples = [];
@@ -116,6 +120,42 @@ export class Game {
     this.fpsCounterElement = document.querySelector('#fps-counter');
     this.backgroundCanvas = document.createElement('canvas');
     this.bindOverlayElements();
+  }
+
+  setEffectsMode(mode = 'auto') {
+    const nextMode = ['full', 'reduced', 'auto'].includes(mode) ? mode : 'auto';
+    if (nextMode === this.effectsMode) return;
+    this.effectsMode = nextMode;
+    this.effectsPressure = 0;
+    this.effectsRecovery = 0;
+    this.effectsScale = this.effectsMode === 'reduced' ? 0.55 : 1;
+  }
+
+  getEffectLimit(baseLimit) {
+    return Math.max(1, Math.floor(baseLimit * this.effectsScale));
+  }
+
+  updateEffectsQuality(frameMs) {
+    if (this.effectsMode !== 'auto') return;
+    const elapsed = Math.max(0.001, Math.min(0.05, (Number(frameMs) || 16.67) / 1000));
+    if (frameMs > 30) this.effectsPressure += elapsed * 1.8;
+    else if (frameMs > 22) this.effectsPressure += elapsed;
+    else this.effectsPressure = Math.max(0, this.effectsPressure - elapsed * 0.8);
+
+    if (this.effectsPressure >= 0.85 && this.effectsScale > 0.72) {
+      this.effectsScale = 0.72;
+      this.effectsRecovery = 0;
+    } else if (this.effectsPressure >= 1.8 && this.effectsScale > 0.5) {
+      this.effectsScale = 0.5;
+      this.effectsRecovery = 0;
+    }
+
+    if (frameMs < 18) this.effectsRecovery += elapsed;
+    else this.effectsRecovery = Math.max(0, this.effectsRecovery - elapsed * 0.5);
+    if (this.effectsRecovery >= 4 && this.effectsPressure < 0.2 && this.effectsScale < 1) {
+      this.effectsScale = this.effectsScale < 0.65 ? 0.72 : 1;
+      this.effectsRecovery = 0;
+    }
   }
 
   setFpsDisplayEnabled(enabled) {
@@ -270,7 +310,6 @@ export class Game {
     this.score = 0;
     this.destroyed = 0;
     this.shotClock = 0;
-    this.continuousLaserHeld = false; this.continuousLaserCooldown = 0; this.continuousLaserDamageClock = 0; this.continuousLaserClash = null;
     this.levelUpParticles = [];
     this.damageSparks = [];
     this.damageImpactPulse = null;
@@ -318,7 +357,6 @@ export class Game {
     const key = this.normalizeKey(event.code, event.key);
     this.keys.add(key);
     if (event.repeat) return;
-    if (event.code === 'KeyL' && this.status === 'running') { this.continuousLaserHeld = true; return; }
     if (event.code === 'KeyE' && this.status === 'running') {
       this.activateGuidedMissile();
       return;
@@ -341,7 +379,6 @@ export class Game {
 
   handleKeyUp(event) {
     this.keys.delete(this.normalizeKey(event.code, event.key));
-    if (event.code === 'KeyL') this.continuousLaserHeld = false;
   }
 
   normalizeKey(code, key = '') {
@@ -371,7 +408,7 @@ export class Game {
     const toast = document.querySelector('#level-up-toast');
     toast.textContent = levelsGained > 1 ? `✦ NÍVEIS +${levelsGained}` : '✦ NÍVEL AUMENTADO';
     this.restartFeedbackAnimation(toast, 'level-up-active');
-    for (let i = 0; i < 22 && this.levelUpParticles.length < 66; i += 1) {
+    for (let i = 0; i < this.getEffectLimit(22) && this.levelUpParticles.length < this.getEffectLimit(66); i += 1) {
       const angle = (Math.PI * 2 * i) / 22 + rand(-0.15, 0.15);
       const speed = rand(32, 105);
       const life = rand(0.45, 0.95);
@@ -397,8 +434,6 @@ export class Game {
     ];
     const specials = [
       { type: 'doubleShot', icon: '✣', title: 'Tiro múltiplo', description: 'Adiciona projéteis laterais', category: 'HABILIDADE ESPECIAL', rarity: 'common', weight: 60 },
-      { type: 'continuousLaser', icon: 'ϟ', title: 'Laser Contínuo', description: 'Feixe sustentado para disputar Attack Clash · máx. 3 níveis', category: 'HABILIDADE ESPECIAL', rarity: 'epic', weight: 18 },
-      { type: 'laser', icon: 'ϟ', title: 'Tiros Perfurantes de Plasma', description: 'Disparos de plasma atravessam vários inimigos', category: 'HABILIDADE ESPECIAL', rarity: 'rare', weight: 30 },
       { type: 'shield', icon: '◈', title: 'Escudo de energia', description: 'Barreira regenerativa com explosão ao quebrar', category: 'HABILIDADE ESPECIAL', rarity: 'rare', weight: 30 },
       { type: 'repair', icon: '✚', title: 'Reparo de emergência', description: 'Recupera 30% da integridade máxima', category: 'HABILIDADE ESPECIAL', rarity: 'common', weight: 60 },
       { type: 'guidedMissile', icon: '➤', title: 'Míssil teleguiado', description: 'Persegue inimigos ativos · máx. 3 níveis', category: 'HABILIDADE ESPECIAL', rarity: 'epic', weight: 12 }
@@ -459,8 +494,6 @@ export class Game {
     if (type === 'projectileSpeed') this.player.projectileSpeedLevel = Math.min(3, this.player.projectileSpeedLevel + 1);
     if (type === 'propulsionControl') this.player.propulsionControlLevel = Math.min(3, this.player.propulsionControlLevel + 1);
     if (type === 'doubleShot') this.player.doubleShotLevel = Math.min(2, this.player.doubleShotLevel + 1);
-    if (type === 'laser') this.player.laserLevel = Math.min(3, this.player.laserLevel + 1);
-    if (type === 'continuousLaser') { this.player.continuousLaserLevel = Math.min(3, this.player.continuousLaserLevel + 1); this.updateContinuousLaserButton(); }
     if (type === 'guidedMissile') {
       this.player.guidedMissileLevel = Math.min(3, this.player.guidedMissileLevel + 1);
       this.updateGuidedMissileButton();
@@ -513,7 +546,7 @@ export class Game {
     this.damageFeedbackTimer = 0.48;
     this.damageImpactPulse = { x: this.player.x, y: this.player.y, life: 0.3, maxLife: 0.3 };
     // Brief red electrical sparks around the ship communicate a hit without obscuring play.
-    for (let i = 0; i < 9 && this.damageSparks.length < 36; i += 1) {
+    for (let i = 0; i < this.getEffectLimit(9) && this.damageSparks.length < this.getEffectLimit(36); i += 1) {
       const angle = rand(0, Math.PI * 2);
       const speed = rand(22, 68);
       const life = rand(0.32, 0.55);
@@ -529,8 +562,8 @@ export class Game {
     }
     // Sparks are reserved for low hull integrity, not every hit; cap them aggressively.
     const integrityRatio = this.player.health / Math.max(1, this.player.maxHealth);
-    if (integrityRatio <= 0.35 && this.damageSparks.length < 36) {
-      for (let i = 0; i < 2 && this.damageSparks.length < 36; i += 1) {
+    if (integrityRatio <= 0.35 && this.damageSparks.length < this.getEffectLimit(36)) {
+      for (let i = 0; i < this.getEffectLimit(2) && this.damageSparks.length < this.getEffectLimit(36); i += 1) {
         const angle = rand(0, Math.PI * 2), speed = rand(22, 42), life = rand(0.16, 0.28);
         this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 9, y: this.player.y + Math.sin(angle) * 9, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, length: rand(3, 6), size: rand(1, 1.6), color: '#ff9d45' });
       }
@@ -574,6 +607,29 @@ export class Game {
     this.triggerSystemDisruption(1.45);
   }
 
+  resolveSiegeImpact(shot) {
+    const player = this.player;
+    const shieldWasActive = player.shieldHealth > 0;
+    if (shieldWasActive) {
+      player.shieldHealth = Math.max(0, player.shieldHealth - 2);
+      if (player.shieldHealth === 0) {
+        player.shieldRechargeTimer = player.shieldRechargeDuration;
+        this.triggerShieldBreak();
+      }
+    } else if (player.invulnerabilityTimer <= 0 && player.health > 0) {
+      player.health = Math.max(0, player.health - shot.damage);
+      player.invulnerabilityTimer = player.invulnerabilityDuration;
+      this.triggerDamageFeedback(shot.damage);
+      gameAudio.playDamage();
+    }
+    const dx = player.x - shot.x, dy = player.y - shot.y;
+    const length = Math.hypot(dx, dy) || 1;
+    const impulse = shieldWasActive ? (shot.damage >= 40 ? 720 : 620) : (shot.damage >= 40 ? 900 : 780);
+    player.knockbackX += dx / length * impulse;
+    player.knockbackY += dy / length * impulse;
+    this.triggerSystemDisruption(0.85);
+  }
+
   resolveIncomingDamage(amount, sourceX = this.player.x, sourceY = this.player.y, heavyImpact = false) {
     const shieldBefore = this.player.shieldHealth;
     const tookDamage = this.player.takeDamage(amount);
@@ -606,7 +662,7 @@ export class Game {
     const y = this.player.y;
     const radius = 96;
     const life = 0.58;
-    if (this.shieldBreakEffects.length >= 4) this.shieldBreakEffects.shift();
+    if (this.shieldBreakEffects.length >= this.getEffectLimit(4)) this.shieldBreakEffects.shift();
     this.shieldBreakEffects.push({ x, y, radius, life, maxLife: life, kind: 'break' });
     // Compare squared distances to avoid square roots during area-damage checks.
     const radiusSquared = radius * radius;
@@ -715,67 +771,6 @@ export class Game {
       if (fill.style.width !== width) fill.style.width = width;
     }
     button.setAttribute('aria-label', ready && broken ? 'Ativar Pulso de Ruptura' : 'Pulso de Ruptura indisponível');
-  }
-
-  activateContinuousLaser() { if (this.status !== 'running' || this.player.continuousLaserLevel <= 0 || this.continuousLaserCooldown > 0 || this.overloadLockTimer > 0 || this.continuousLaserClash) return false; this.continuousLaserHeld = true; this.updateContinuousLaserButton(); return true; }
-  releaseContinuousLaser() { this.continuousLaserHeld = false; this.updateContinuousLaserButton(); }
-  updateContinuousLaserButton() {
-    const button = document.querySelector('#continuous-laser-button'); if (!button) return;
-    const unlocked = this.player.continuousLaserLevel > 0, ready = this.continuousLaserCooldown <= 0 && this.overloadLockTimer <= 0 && !this.continuousLaserClash;
-    button.classList.toggle('hidden', !unlocked); button.disabled = !unlocked || this.status !== 'running' || !ready;
-    const label = document.querySelector('#continuous-laser-status');
-    if (label) label.textContent = this.status !== 'running' ? 'DISPONÍVEL NA PARTIDA' : this.overloadLockTimer > 0 ? 'SISTEMA SOBRECARREGADO' : this.continuousLaserClash ? 'ATTACK CLASH · ESCOLHA' : this.continuousLaserCooldown > 0 ? 'RECARGA · ' + Math.ceil(this.continuousLaserCooldown) + 's' : this.continuousLaserHeld ? 'FEIXE ATIVO · SOLTE' : 'SEGURE · TECLA L';
-    button.setAttribute('aria-label', this.continuousLaserHeld ? 'Soltar laser contínuo' : 'Ativar laser contínuo');
-  }
-  resolveContinuousLaserClash(outcome) {
-    if (!this.continuousLaserClash) return;
-    document.querySelector('#laser-clash-overlay')?.classList.add('hidden'); this.continuousLaserClash = null; this.continuousLaserHeld = false;
-    if (outcome === 'victory') {
-      // Find the nearest live target in one pass without allocating, filtering or sorting arrays.
-      let target = null;
-      let nearestDistanceSquared = Infinity;
-      for (const enemy of this.enemies) {
-        if (!enemy.active) continue;
-        const dx = enemy.x - this.player.x;
-        const dy = enemy.y - this.player.y;
-        const distanceSquared = dx * dx + dy * dy;
-        if (distanceSquared < nearestDistanceSquared) {
-          nearestDistanceSquared = distanceSquared;
-          target = enemy;
-        }
-      }
-      if (target) this.damageEnemy(target, (target.type === 'boss' || target.type === 'megaboss' ? 16 : 5) + this.player.continuousLaserLevel * 3);
-      this.addOverload(18); this.continuousLaserCooldown = 2.5;
-    } else if (outcome === 'draw') { this.addOverload(8); this.continuousLaserCooldown = 1.2; } else this.continuousLaserCooldown = 4;
-    this.status = 'running'; this.lastTime = performance.now();
-    this.animationId = requestAnimationFrame((time) => this.loop(time));
-    this.updateContinuousLaserButton();
-  }
-  updateContinuousLaser(dt) {
-    this.continuousLaserCooldown = Math.max(0, this.continuousLaserCooldown - dt); this.continuousLaserDamageClock = Math.max(0, this.continuousLaserDamageClock - dt);
-    if (!this.continuousLaserHeld || this.player.continuousLaserLevel <= 0 || this.overloadLockTimer > 0 || this.continuousLaserClash) return;
-    const dx = Math.cos(this.player.rotation), dy = Math.sin(this.player.rotation), sx = this.player.x + dx * 18, sy = this.player.y + dy * 18, ex = sx + dx * 460, ey = sy + dy * 460;
-    for (const shot of this.enemyProjectiles) {
-      // The segment helper expects the full combined radius, not only the beam width.
-      const clashRadius = (shot.radius ?? 0) + 7;
-      if (!shot.active || !circleOverlapsSegment(shot, sx, sy, ex, ey, clashRadius)) continue;
-      shot.active = false; this.continuousLaserClash = { x: shot.x, y: shot.y }; this.continuousLaserHeld = false; this.status = 'paused';
-      document.querySelector('#laser-clash-overlay')?.classList.remove('hidden'); this.updateContinuousLaserButton(); return;
-    }
-    if (this.continuousLaserDamageClock <= 0) {
-      const weakened = this.overload >= 70;
-      for (const enemy of this.enemies) {
-        if (!enemy.active || enemy.bossDying) continue;
-        // Include both the target hit radius and the beam's half-width so visible
-        // edge intersections are not missed for large bosses or smaller enemies.
-        const hitRadius = (enemy.collisionRadius ?? enemy.radius ?? 0) + 13;
-        if (!circleOverlapsSegment(enemy, sx, sy, ex, ey, hitRadius)) continue;
-        const boss = enemy.type === 'boss' || enemy.type === 'megaboss';
-        this.damageEnemy(enemy, (boss ? 8 : 13) * (1 + this.player.continuousLaserLevel * .22) * (weakened ? .72 : 1));
-      }
-      this.continuousLaserDamageClock = .22;
-    }
-    this.addOverload((8 + this.player.continuousLaserLevel * 2) * dt); if (this.overloadLockTimer > 0) this.releaseContinuousLaser();
   }
 
   addOverload(amount) {
@@ -887,7 +882,7 @@ export class Game {
 
   explodeGuidedMissile(missile) {
     const radius = missile.blastRadius;
-    if (this.guidedMissileEffects.length >= 6) this.guidedMissileEffects.shift();
+    if (this.guidedMissileEffects.length >= this.getEffectLimit(6)) this.guidedMissileEffects.shift();
     this.guidedMissileEffects.push({ x: missile.x, y: missile.y, radius, life: 0.48, maxLife: 0.48 });
     const radiusSquared = radius * radius;
     for (const enemy of this.enemies) {
@@ -1018,7 +1013,7 @@ export class Game {
     this.destroyed += 1;
     const newlyUnlocked = this.achievements.record('kills');
     if (enemy.type === 'boss') newlyUnlocked.push(...this.achievements.record('bosses'));
-    const xpRewards = { chaser: 20, interceptor: 15, sentinel: 35, guardian: 45, artillery: 55, boss: 180 };
+    const xpRewards = { chaser: 20, interceptor: 15, sentinel: 35, guardian: 45, artillery: 55, devastator: 80, boss: 180 };
     const xpGained = xpRewards[enemy.type] ?? 20;
     const levelsGained = this.progression.addXp(xpGained);
     if (enemy.type === 'boss') this.showRewardBanner('CHEFE DERROTADO', `+${xpGained} XP · +1.000 PTS`, 'boss');
@@ -1035,27 +1030,13 @@ export class Game {
     this.shieldThreatScanTimer -= dt;
     if (this.shieldThreatScanTimer > 0) return;
     this.shieldThreatScanTimer = 0.08;
-
-    const px = this.player.x, py = this.player.y;
     const dangerRadius = this.player.radius + 18;
-    const dangerRadiusSquared = dangerRadius * dangerRadius;
     for (const shot of this.enemyProjectiles) {
-      if (!shot.active || !Number.isFinite(shot.vx) || !Number.isFinite(shot.vy)) continue;
-      const rx = shot.x - px, ry = shot.y - py;
-      const speedSquared = shot.vx * shot.vx + shot.vy * shot.vy;
-      if (speedSquared < 1) continue;
-      const closestTime = -(rx * shot.vx + ry * shot.vy) / speedSquared;
-      if (closestTime < 0 || closestTime > 0.55) continue;
-      const closestX = rx + shot.vx * closestTime;
-      const closestY = ry + shot.vy * closestTime;
-      if (closestX * closestX + closestY * closestY > dangerRadiusSquared) continue;
-
-      // Aim the visual response at the predicted contact point, not the projectile's
-      // current position. The defensive rule itself remains omnidirectional.
-      const angle = Math.atan2(closestY, closestX);
-      const sector = ((Math.round((angle + Math.PI) / (Math.PI / 4)) % 8) + 8) % 8;
-      const urgency = 1 - closestTime / 0.55;
-      arcs[sector] = Math.max(arcs[sector], 0.28 + urgency * 0.18);
+      if (!shot.active) continue;
+      const sector = getIncomingProjectileShieldSector(this.player, shot, dangerRadius, 0.55);
+      if (sector < 0) continue;
+      // One projectile maps to one stable impact sector; center-line hits use arrival direction.
+      arcs[sector] = Math.max(arcs[sector], 0.38);
     }
   }
 
@@ -1133,7 +1114,7 @@ export class Game {
     // During the DREADNOUGHT encounter, bias the camera toward the space between
     // the pilot and the boss so the long hull stays visible without changing the arena.
     const focusY = boss
-      ? (boss.y - boss.collisionRadius * 1.5 + this.player.y + (this.player.radius ?? 12)) / 2
+      ? (boss.y - (boss.radius || 100) * 2.1 + this.player.y) / 2
       : this.player.y;
     const targetX = Math.max(minX, Math.min(maxX, this.player.x - this.width / 2));
     const targetY = Math.max(minY, Math.min(maxY, focusY - this.height / 2));
@@ -1223,7 +1204,9 @@ export class Game {
     if (this.status !== 'running') return;
     const frameStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
     this.updateFpsCounter(time);
-    const dt = Math.min((time - this.lastTime) / 1000 || 0, .035);
+    const rawFrameMs = this.lastTime ? time - this.lastTime : 16.67;
+    const dt = Math.min(rawFrameMs / 1000 || 0, .035);
+    this.updateEffectsQuality(rawFrameMs);
     this.lastTime = time;
 
     const updateStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
@@ -1240,7 +1223,6 @@ export class Game {
       updateHud(this);
       this.updateGuidedMissileButton();
       this.updateShieldPulseButton();
-      this.updateContinuousLaserButton();
       this.updateOverloadHud();
       const runAchievements = this.achievements.checkRunMilestones(this.score, this.waveManager.wave);
       if (runAchievements.length) this.showRewardBanner('CONQUISTA DESBLOQUEADA', runAchievements.map(item => item.name).join(' · '), 'achievement');
@@ -1278,6 +1260,7 @@ export class Game {
       averageUpdateMs: Number(average('update').toFixed(2)),
       averageRenderMs: Number(average('render').toFixed(2)),
       averageGameWorkMs: Number(average('work').toFixed(2)),
+      effectsQuality: { mode: this.effectsMode, scale: this.effectsScale },
       entities: {
         enemies: this.enemies.length,
         playerProjectiles: this.projectiles.length,
@@ -1306,17 +1289,51 @@ export class Game {
     this.player.velocityY = 0;
     this.player.knockbackX = 0;
     this.player.knockbackY = 0;
-    this.continuousLaserHeld = false;
+
+    this.bossCinematic = createBossCinematic();
+    this.bossCinematic.cameraZoom = this.cameraZoom || 1;
+    this.bossCinematic.worldResetDone = false;
+    this.cinematicDialogueRect = null;
+    this.setCinematicHudOpacity(1, true);
+    this.bossEncounterDialogue = null;
+    this.bossEncounterDialogueTimer = 0;
+  }
+
+  prepareBossCinematicArena() {
+    // This runs only after the loading screen fully covers the arena.
+    // Keep progression, XP, score, ship class, and all acquired upgrades intact.
+    this.clearInput();
+    preparePlayerForBossCinematic(this.player, this.worldWidth, this.worldHeight);
+
     this.projectiles.length = 0;
     this.enemyProjectiles.length = 0;
     this.guidedMissiles.length = 0;
     this.guidedMissileEffects.length = 0;
     this.enemies.length = 0;
-    this.bossCinematic = createBossCinematic();
-    this.bossCinematic.cameraZoom = this.cameraZoom || 1;
-    this.setCinematicHudOpacity(1, true);
-    this.bossEncounterDialogue = null;
-    this.bossEncounterDialogueTimer = 0;
+    this.levelUpParticles.length = 0;
+    this.damageSparks.length = 0;
+    this.shieldBreakEffects.length = 0;
+    this.damageImpactPulse = null;
+    this.shieldPulseWave = null;
+    this.pendingGuidedMissileLaunch = null;
+    this.guidedMissileCooldown = 0;
+    this.shieldPulseCooldown = 0;
+    this.overload = 0;
+    this.overloadLockTimer = 0;
+
+    this.cameraZoom = 1;
+    this.cameraX = 0;
+    this.cameraY = 0;
+    this.updateCamera(0, true);
+    this.bossCinematic.cameraZoom = 1;
+    this.pilotReaction.remaining = 0;
+    this.pilotReaction.symbol = '';
+    this.pilotReaction.duration = 0;
+    this.pilotReaction.message = '';
+    this.waveManager.enemyCount = 1;
+    this.waveManager.spawnedCount = 0;
+    this.waveManager.state = 'spawning';
+    this.waveManager.timer = 0.75;
   }
 
   updateBossCinematic(dt) {
@@ -1325,15 +1342,51 @@ export class Game {
     const previousPhase = cinematic.phase;
     advanceBossCinematic(cinematic, dt);
 
+    if (cinematic.phase !== previousPhase) {
+      if (cinematic.phase === 'loading' && !cinematic.worldResetDone) {
+        this.prepareBossCinematicArena();
+        cinematic.worldResetDone = true;
+      }
+      if (cinematic.phase === 'anomaly-scan' && !cinematic.anomalyReactionShown) {
+        triggerPilotReaction(this.pilotReaction, '❓', 8.5);
+        cinematic.anomalyReactionShown = true;
+      }
+      if (cinematic.phase === 'distant-contact' && !cinematic.bossReactionShown) {
+        triggerPilotReaction(this.pilotReaction, '❗', 30);
+        cinematic.bossReactionShown = true;
+      }
+    }
+
     if (!cinematic.bossSpawned && cinematic.phase === 'distant-contact') {
-      // Spawn once at a fixed standoff. The boss is not updated by its AI until
-      // the explicit handoff, so no second entrance controller can move it.
-      const bossY = Math.max(160, this.player.y - this.height * 1.08);
-      cinematic.boss = new Enemy(this.player.x, bossY, 10, 'boss');
-      cinematic.boss.bossEntranceTimer = 0;
-      cinematic.boss.facingRotation = Math.PI / 2;
-      cinematic.boss.rotation = Math.PI / 2;
+      // The DREADNOUGHT descends on the pilot's vertical axis and stops with a hull-sized safety gap.
+      const boss = new Enemy(0, 0, 10, 'boss');
+      const spawn = getBossCinematicSpawnPositions(
+        this.player, boss, this.height, this.worldWidth, this.worldHeight
+      );
+      cinematic.bossStartX = spawn.startX;
+      cinematic.bossStartY = spawn.startY;
+      cinematic.bossTargetX = spawn.targetX;
+      cinematic.bossTargetY = spawn.targetY;
+      boss.x = cinematic.bossStartX;
+      boss.y = cinematic.bossStartY;
+      boss.bossEntranceTimer = 0;
+      boss.bossMoveTargetX = cinematic.bossTargetX;
+      boss.bossMoveTargetY = cinematic.bossTargetY;
+      boss.facingRotation = Math.PI / 2;
+      boss.rotation = Math.PI / 2;
+      cinematic.boss = boss;
       cinematic.bossSpawned = true;
+    }
+
+    if (cinematic.boss) {
+      const progress = cinematic.phase === 'distant-contact'
+        ? Math.max(0, Math.min(1, cinematic.phaseElapsed / Math.max(0.001, cinematic.phaseDuration)))
+        : ['boss-identification', 'arena-reveal', 'handoff', 'complete'].includes(cinematic.phase) ? 1 : 0;
+      const eased = progress * progress * (3 - 2 * progress);
+      cinematic.boss.x = cinematic.bossStartX + (cinematic.bossTargetX - cinematic.bossStartX) * eased;
+      cinematic.boss.y = cinematic.bossStartY + (cinematic.bossTargetY - cinematic.bossStartY) * eased;
+      cinematic.boss.velocityX = 0;
+      cinematic.boss.velocityY = 0;
     }
 
     const cameraFrame = getBossCinematicCameraFrame({
@@ -1348,7 +1401,8 @@ export class Game {
       worldWidth: this.worldWidth,
       worldHeight: this.worldHeight
     });
-    const cameraBlend = Math.min(1, Math.max(0, dt) * 3.2);
+    // Exponential smoothing is frame-rate independent and prevents camera snapping.
+    const cameraBlend = 1 - Math.exp(-Math.max(0, dt) * 3.4);
     cinematic.cameraZoom += (cameraFrame.zoom - cinematic.cameraZoom) * cameraBlend;
     this.cameraX += (cameraFrame.x - this.cameraX) * cameraBlend;
     this.cameraY += (cameraFrame.y - this.cameraY) * cameraBlend;
@@ -1369,91 +1423,182 @@ export class Game {
         this.waveManager.enemyCount = 1;
         this.waveManager.spawnedCount = 1;
       }
-      // Snap only once to the exact combat target. The camera helper uses the
-      // same bounds/focus equation as updateCamera, avoiding a handoff jump.
-      this.cameraZoom = this.cameraMinZoom;
+      this.cameraZoom = BOSS_CINEMATIC_ARENA_ZOOM;
+      this.bossCombatZoom = BOSS_CINEMATIC_ARENA_ZOOM;
       this.updateCamera(0, true);
+      this.waveManager.state = 'spawning';
       this.waveManager.timer = 1.0;
       this.clearInput();
       this.bossCinematic = null;
+      this.cinematicDialogueRect = null;
       this.setCinematicHudOpacity(1, false);
     }
   }
 
   drawCinematicDialogue(ctx, cue) {
+    this.cinematicDialogueRect = null;
     if (!cue) return;
     const cinematic = this.bossCinematic;
     const actor = cue.actor === 'boss' ? cinematic?.boss : this.player;
     const zoom = Math.max(this.cameraMinZoom, cinematic?.cameraZoom ?? this.cameraZoom);
     const anchorX = this.width / 2 + (actor.x - this.width / 2 - this.cameraX) * zoom;
     const anchorY = this.height / 2 + (actor.y - this.height / 2 - this.cameraY) * zoom;
-    const boxWidth = Math.min(340, Math.max(190, this.width * 0.48), this.width - 24);
-    const boxHeight = this.height < 390 ? 68 : 76;
-    const placeRight = anchorX < this.width * 0.5;
-    const x = Math.max(12, Math.min(this.width - boxWidth - 12,
-      placeRight ? anchorX + 24 : anchorX - boxWidth - 24));
-    const y = Math.max(12, Math.min(this.height - boxHeight - 14,
-      anchorY > this.height * 0.52 ? anchorY - boxHeight - 26 : anchorY + 26));
-    const accent = cue.actor === 'boss' ? '#ef829a' : '#68e5f2';
+    const isPilot = cue.actor === 'pilot';
+    const isSystem = cue.actor === 'system';
+    const isBossDialogue = cue.actor === 'boss';
+    const sideLeft = isPilot;
+    const boxWidth = isBossDialogue
+      ? Math.min(280, Math.max(220, this.width * 0.34), this.width - 24)
+      : Math.min(360, Math.max(248, this.width * 0.62), this.width - 24);
+    const fontSize = this.width < 520 ? 10 : 11;
+    const maxWidth = boxWidth - 38;
     ctx.save();
-    ctx.fillStyle = 'rgba(3, 10, 23, 0.94)';
-    ctx.fillRect(x, y, boxWidth, boxHeight);
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 1.4;
-    ctx.strokeRect(x + 0.7, y + 0.7, boxWidth - 1.4, boxHeight - 1.4);
-    ctx.fillStyle = accent;
-    ctx.textAlign = 'left';
-    ctx.font = '900 9px ui-monospace, monospace';
-    ctx.fillText(cue.speaker, x + 11, y + 17);
-    ctx.fillStyle = '#f0f5ff';
-    const fontSize = this.width < 520 ? 10 : 12;
     ctx.font = `${fontSize}px ui-monospace, monospace`;
-    const maxWidth = boxWidth - 22;
-    const words = cue.text.split(' ');
-    const rows = [];
-    let row = '';
-    for (const word of words) {
-      const candidate = row ? `${row} ${word}` : word;
-      if (row && ctx.measureText(candidate).width > maxWidth) {
-        rows.push(row);
-        row = word;
-      } else row = candidate;
+    const visibleRows = wrapBossCinematicDialogue(
+      cue.visibleText ?? cue.text,
+      (value) => ctx.measureText(value).width,
+      maxWidth,
+      4
+    );
+    const boxHeight = Math.max(61, 39 + visibleRows.length * (fontSize + 4));
+    const bossPlacement = isBossDialogue ? getBossDialoguePlacement({
+      anchorX, anchorY,
+      viewportWidth: this.width,
+      viewportHeight: this.height,
+      boxWidth,
+      boxHeight,
+      bossRadius: actor?.radius ?? 100,
+      zoom
+    }) : null;
+    const preferredX = isPilot ? anchorX - boxWidth - 18
+      : isSystem ? anchorX + 18
+        : anchorX - boxWidth / 2;
+    const x = bossPlacement?.x ?? Math.max(12, Math.min(this.width - boxWidth - 12, preferredX));
+    const preferredY = anchorY - boxHeight - 22;
+    const y = bossPlacement?.y ?? Math.max(14, Math.min(this.height - boxHeight - 14, preferredY));
+    const age = Math.max(0, cinematic.phaseElapsed - (cue.at || 0));
+    const enter = Math.min(1, age / 0.24);
+    const eased = enter * enter * (3 - 2 * enter);
+    const visual = getBossDialogueVisualState(cue.actor, cinematic?.elapsed ?? 0);
+    const accent = visual.accent;
+    const shiftX = (sideLeft ? -1 : 1) * (1 - eased) * 14;
+
+    ctx.globalAlpha = eased;
+    ctx.translate(shiftX, 0);
+    ctx.fillStyle = cue.actor === 'boss' ? 'rgba(25, 8, 18, 0.96)' : 'rgba(4, 13, 27, 0.96)';
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = cue.actor === 'boss' ? 1.7 : isSystem ? 1.2 : 1.05 + visual.pulse * 0.12;
+    const radius = 9;
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + boxWidth - radius, y);
+    ctx.quadraticCurveTo(x + boxWidth, y, x + boxWidth, y + radius);
+    ctx.lineTo(x + boxWidth, y + boxHeight - radius);
+    ctx.quadraticCurveTo(x + boxWidth, y + boxHeight, x + boxWidth - radius, y + boxHeight);
+    ctx.lineTo(x + radius, y + boxHeight);
+    ctx.quadraticCurveTo(x, y + boxHeight, x, y + boxHeight - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    // A compact channel header separates speaker identity from the spoken line.
+    ctx.fillStyle = visual.header;
+    ctx.fillRect(x + 1, y + 1, boxWidth - 2, 27);
+    // Three compact signal bars animate gently beside the speaker identity.
+    const signalBaseY = y + 20;
+    for (let bar = 0; bar < 3; bar += 1) {
+      const barPulse = 0.5 + Math.sin((cinematic?.elapsed ?? 0) * 3.2 + bar * 1.35) * 0.5;
+      ctx.globalAlpha = eased * (0.38 + barPulse * 0.42);
+      ctx.fillStyle = accent;
+      ctx.fillRect(x + 9 + bar * 3.2, signalBaseY - (3 + barPulse * 5), 1.7, 3 + barPulse * 5);
     }
-    if (row) rows.push(row);
-    rows.slice(0, 3).forEach((line, index) => ctx.fillText(line, x + 11, y + 39 + index * (fontSize + 3)));
+    ctx.globalAlpha = eased;
+    ctx.textAlign = 'left';
+    ctx.font = '900 8px ui-monospace, monospace';
+    ctx.fillText(cue.speaker, x + 23, y + 18);
+    const channelTag = cue.actor === 'boss' ? 'SINAL HOSTIL' : isSystem ? 'DIAGNÓSTICO' : 'COMUNICAÇÃO';
+    ctx.textAlign = 'right';
+    ctx.font = '700 7px ui-monospace, monospace';
+    ctx.fillStyle = visual.tag;
+    ctx.fillText(channelTag, x + boxWidth - 12, y + 18);
+    ctx.globalAlpha = eased * 0.3;
+    ctx.fillRect(x + 14, y + 27, boxWidth - 28, 1);
+    // A faint scan glint travels across the header; it never crosses the dialogue text.
+    ctx.globalAlpha = eased * (0.12 + visual.pulse * 0.12);
+    ctx.fillStyle = accent;
+    ctx.fillRect(x + 14 + visual.scan * Math.max(0, boxWidth - 54), y + 2, 24, 1.2);
+    // Minimal corner traces add a technical frame without changing the card silhouette.
+    ctx.globalAlpha = eased * (0.28 + visual.pulse * 0.12);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x + boxWidth - 17, y + 1); ctx.lineTo(x + boxWidth - 9, y + 1); ctx.lineTo(x + boxWidth - 9, y + 7);
+    ctx.moveTo(x + 1, y + boxHeight - 8); ctx.lineTo(x + 1, y + boxHeight - 15);
+    ctx.stroke();
+    ctx.globalAlpha = eased;
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#f0f5ff';
+    ctx.font = `${fontSize}px ui-monospace, monospace`;
+    visibleRows.forEach((line, index) => ctx.fillText(line, x + 19, y + 36 + index * (fontSize + 4), maxWidth - 5));
+    if (!cue.typingComplete && visibleRows.length) {
+      const cursorX = x + 20 + Math.min(maxWidth - 8, ctx.measureText(visibleRows[visibleRows.length - 1]).width);
+      const cursorY = y + 29 + visibleRows.length * (fontSize + 4) - 3;
+      ctx.fillStyle = accent;
+      ctx.fillRect(cursorX, cursorY, 1.5, fontSize + 1);
+    }
+    // Small side marker gives each voice a distinct visual signature.
+    ctx.fillStyle = accent;
+    ctx.globalAlpha = eased * (0.42 + visual.pulse * 0.34);
+    ctx.beginPath();
+    ctx.arc(sideLeft ? x + boxWidth - 9 : x + 9, y + boxHeight / 2, 1.9 + visual.pulse * 0.55, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
+    this.cinematicDialogueRect = { x, y, width: boxWidth, height: boxHeight };
   }
 
   drawCinematicAlert(ctx, alert) {
     if (!alert) return;
     const elapsed = this.bossCinematic.phaseElapsed - alert.at;
     const duration = 3.8;
-    const progress = Math.max(0, Math.min(1, elapsed / 0.7));
+    const progress = Math.max(0, Math.min(1, elapsed / 0.62));
     const eased = progress * progress * (3 - 2 * progress);
-    const fadeOut = Math.max(0, Math.min(1, (duration - elapsed) / 0.55));
+    const fadeOut = Math.max(0, Math.min(1, (duration - elapsed) / 0.8));
+    const exitOffset = (1 - fadeOut) * 42;
     const alpha = eased * fadeOut;
-    const width = Math.min(this.width - 24, Math.max(168, Math.min(380, this.width * 0.48)));
-    const height = 62;
-    const x = this.width - width - 12;
-    const y = -height + (this.height * 0.15 + height) * eased;
+    const width = Math.min(this.width - 24, Math.max(210, Math.min(alert.kind === 'boss' ? 420 : 360, this.width * 0.68)));
+    const height = 68;
+    const x = alert.kind === 'boss' ? (this.width - width) / 2 : this.width - width - 12;
+    const targetY = this.height * 0.075;
+    const y = -height + (targetY + height) * eased - exitOffset;
+    const accent = alert.accent || (alert.kind === 'boss' ? '#ff718d' : '#f2b85f');
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = 'rgba(4, 12, 25, 0.92)';
+    if (alert.kind === 'boss') {
+      const scale = 0.94 + eased * 0.06;
+      ctx.translate(this.width / 2, y + height / 2);
+      ctx.scale(scale, scale);
+      ctx.translate(-this.width / 2, -(y + height / 2));
+    }
+    ctx.fillStyle = 'rgba(4, 12, 25, 0.97)';
     ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = alert.title === 'DREADNOUGHT' ? '#ed8196' : '#efb45d';
-    ctx.lineWidth = 1.2;
-    ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, height - 1.2);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = alert.kind === 'boss' ? 1.8 : 1.2;
+    ctx.strokeRect(x + 0.7, y + 0.7, width - 1.4, height - 1.4);
+    ctx.fillStyle = accent;
     ctx.textAlign = 'center';
-    ctx.fillStyle = alert.title === 'DREADNOUGHT' ? '#ff9cac' : '#ffd18a';
-    ctx.font = '900 11px ui-monospace, monospace';
-    ctx.fillText(alert.title, x + width / 2, y + 20);
+    ctx.font = alert.kind === 'boss' ? '900 17px ui-monospace, monospace' : '900 14px ui-monospace, monospace';
+    ctx.fillText(alert.icon || '!', x + 22, y + 39);
+    ctx.textAlign = 'left';
+    ctx.font = '900 10px ui-monospace, monospace';
+    ctx.fillText(alert.title, x + 43, y + 23);
     ctx.fillStyle = '#d8e4f2';
-    const fontSize = this.width < 520 ? 6.5 : 8;
+    const fontSize = this.width < 520 ? 7 : 8;
     ctx.font = `900 ${fontSize}px ui-monospace, monospace`;
     const words = alert.detail.split(' ');
     const rows = [];
     let row = '';
-    const maxWidth = width - 18;
+    const maxWidth = width - 56;
     for (const word of words) {
       const candidate = row ? `${row} ${word}` : word;
       if (row && ctx.measureText(candidate).width > maxWidth) {
@@ -1462,7 +1607,7 @@ export class Game {
       } else row = candidate;
     }
     if (row) rows.push(row);
-    rows.slice(0, 2).forEach((line, index) => ctx.fillText(line, x + width / 2, y + 39 + index * (fontSize + 3), maxWidth));
+    rows.slice(0, 2).forEach((line, index) => ctx.fillText(line, x + 43, y + 43 + index * (fontSize + 3), maxWidth));
     ctx.restore();
   }
 
@@ -1471,7 +1616,7 @@ export class Game {
     if (!cinematic) return;
     ctx.save();
     if (cinematic.phase === 'loading') {
-      ctx.fillStyle = 'rgba(2, 7, 18, 0.965)';
+      ctx.fillStyle = '#020711';
       ctx.fillRect(0, 0, this.width, this.height);
       const facts = [
         'REGISTRO GALÁCTICO: a antiga rota comercial foi abandonada após sinais de combate.',
@@ -1506,6 +1651,17 @@ export class Game {
       const cue = getBossCinematicDialogue(cinematic);
       this.drawCinematicDialogue(ctx, cue);
       this.drawCinematicAlert(ctx, getBossCinematicAlert(cinematic));
+      if (this.pilotReaction.remaining > 0) {
+        const zoom = Math.max(this.cameraMinZoom, Math.min(1, cinematic.cameraZoom || this.cameraZoom));
+        const screenX = this.width / 2 + (this.player.x - this.width / 2 - this.cameraX) * zoom;
+        const screenY = this.height / 2 + (this.player.y - this.height / 2 - this.cameraY) * zoom;
+        const reactionPosition = getPilotReactionPosition({
+          x: screenX, y: screenY, bubble: this.cinematicDialogueRect,
+          width: this.width, height: this.height,
+          radius: this.pilotReaction.symbol === '❓❗' ? 14 : 11, offset: 27
+        });
+        if (reactionPosition) drawPilotReaction(ctx, this.pilotReaction, reactionPosition.x, reactionPosition.y);
+      }
     }
     ctx.restore();
   }
@@ -1514,24 +1670,39 @@ export class Game {
     if (!this.bossEncounterDialogue || this.bossEncounterDialogueTimer <= 0 || this.bossCinematic) return;
     const lines = this.bossEncounterDialogue.lines;
     const elapsed = this.bossEncounterDialogue.duration - this.bossEncounterDialogueTimer;
-    const cue = lines[elapsed < this.bossEncounterDialogue.lineInterval ? 0 : 1];
+    const lineIndex = elapsed < this.bossEncounterDialogue.lineInterval ? 0 : 1;
+    const cue = lines[lineIndex];
     if (!cue) return;
+    const lineElapsed = lineIndex === 0 ? elapsed : elapsed - this.bossEncounterDialogue.lineInterval;
+    const visibleCue = cue.slice(0, Math.max(0, Math.floor((lineElapsed - 0.35) * 36)));
     const width = Math.min(this.width - 24, 390);
+    const boxHeight = 78;
     const x = (this.width - width) / 2;
-    const y = Math.max(14, this.height - 112);
+    const y = Math.max(14, this.height - boxHeight - 18);
     ctx.save();
-    ctx.fillStyle = 'rgba(4, 12, 25, 0.92)';
-    ctx.fillRect(x, y, width, 66);
+    ctx.fillStyle = 'rgba(4, 12, 25, 0.96)';
+    ctx.fillRect(x, y, width, boxHeight);
     ctx.strokeStyle = '#68dfe9';
     ctx.lineWidth = 1.2;
-    ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, 64.8);
+    ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, boxHeight - 1.2);
     ctx.textAlign = 'left';
     ctx.fillStyle = '#68dfe9';
     ctx.font = '900 9px ui-monospace, monospace';
     ctx.fillText('PILOTO // VANGUARD', x + 11, y + 17);
     ctx.fillStyle = '#f0f5ff';
     ctx.font = `${this.width < 520 ? 10 : 12}px ui-monospace, monospace`;
-    ctx.fillText(cue, x + 11, y + 41, width - 22);
+    const rows = [];
+    let row = '';
+    const maxWidth = width - 22;
+    for (const word of visibleCue.split(' ')) {
+      const candidate = row ? `${row} ${word}` : word;
+      if (row && ctx.measureText(candidate).width > maxWidth) {
+        rows.push(row);
+        row = word;
+      } else row = candidate;
+    }
+    if (row) rows.push(row);
+    rows.slice(0, 2).forEach((line, index) => ctx.fillText(line, x + 11, y + 42 + index * 15));
     ctx.restore();
   }
 
@@ -1553,7 +1724,7 @@ export class Game {
     if (bossPresent) this.bossEncounterSeen = true;
     // The 2.4x world is fully visible at its calculated minimum zoom (1 / arenaScale).
     // Keep the tactical overview after the boss is defeated until the next run.
-    const targetCameraZoom = this.bossEncounterSeen ? this.cameraMinZoom : 1;
+    const targetCameraZoom = this.bossEncounterSeen ? this.bossCombatZoom : 1;
     this.cameraZoom += (targetCameraZoom - this.cameraZoom) * Math.min(1, dt * 1.65);
 
     for (let index = 0; index < this.stars.length; index += 1) {
@@ -1608,7 +1779,6 @@ export class Game {
     }
     this.levelUpParticles.length = writeIndex;
 
-    this.updateContinuousLaser(dt);
     this.shotClock -= dt;
     if (this.keys.has('space') && this.shotClock <= 0) {
       const angle = this.getAimAngle();
@@ -1626,12 +1796,11 @@ export class Game {
           projectileAngle,
           1 + this.player.projectileSpeedLevel * 0.15
         );
-        projectile.damage = this.player.weaponDamage * (1 + this.player.laserLevel * 0.25) * (this.overload >= 70 ? 0.72 : 1);
-        projectile.piercing = this.player.laserLevel > 0;
+        projectile.damage = this.player.weaponDamage * (this.overload >= 70 ? 0.72 : 1);
         this.projectiles.push(projectile);
       }
       gameAudio.playPlayerShot();
-      this.addOverload(this.player.laserLevel > 0 ? 2.8 + this.player.laserLevel * 0.8 : 0.15);
+      this.addOverload(0.15);
       this.shotClock = .22 / (1 + this.player.fireRateLevel * 0.1);
     }
 
@@ -1639,12 +1808,12 @@ export class Game {
     const previousWave = this.waveManager.wave;
     const previousWaveState = this.waveManager.state;
     const spawnRequested = this.waveManager.update(dt, this.enemies.length);
-    if (previousWave === 9 && previousWaveState === 'intermission' && this.waveManager.wave === 10 && this.waveManager.state === 'spawning') {
+    if (previousWave === 14 && previousWaveState === 'intermission' && this.waveManager.wave === 15 && this.waveManager.state === 'spawning') {
       this.beginBossCinematic();
       return;
     }
     if (spawnRequested) {
-      const bossWave = (BOSS_TEST_MODE && this.waveManager.wave === 1) || (this.waveManager.wave >= 10 && this.waveManager.wave % 10 === 0);
+      const bossWave = (BOSS_TEST_MODE && this.waveManager.wave === 1) || (this.waveManager.wave >= 15 && this.waveManager.wave % 15 === 0);
       const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
       const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * zoom);
       const viewTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
@@ -1655,23 +1824,25 @@ export class Game {
         : rand(viewLeft + margin, Math.max(viewLeft + margin, viewLeft + visibleWidth - margin));
       const roll = Math.random();
       const type = bossWave ? 'boss'
-        : this.waveManager.wave >= 4 && roll < 0.12 ? 'artillery'
-          : this.waveManager.wave >= 3 && roll < (this.waveManager.wave >= 4 ? 0.24 : 0.12) ? 'guardian'
-            : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.49 : this.waveManager.wave >= 3 ? 0.37 : 0.25) ? 'sentinel'
-              : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 4 ? 0.67 : this.waveManager.wave >= 3 ? 0.55 : 0.43) ? 'interceptor'
-                : 'chaser';
+        : this.waveManager.wave >= 8 && roll < 0.06 ? 'devastator'
+          : this.waveManager.wave >= 4 && roll < (this.waveManager.wave >= 8 ? 0.18 : 0.12) ? 'artillery'
+            : this.waveManager.wave >= 3 && roll < (this.waveManager.wave >= 8 ? 0.30 : this.waveManager.wave >= 4 ? 0.24 : 0.12) ? 'guardian'
+              : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 8 ? 0.55 : this.waveManager.wave >= 4 ? 0.49 : this.waveManager.wave >= 3 ? 0.37 : 0.25) ? 'sentinel'
+                : this.waveManager.wave >= 2 && roll < (this.waveManager.wave >= 8 ? 0.73 : this.waveManager.wave >= 4 ? 0.67 : this.waveManager.wave >= 3 ? 0.55 : 0.43) ? 'interceptor'
+                  : 'chaser';
       // Elite variants enter gradually; warn only when a class actually spawns for the first time in this run.
       const isElite = !bossWave && (
         (this.waveManager.wave >= 12 && type === 'artillery' && Math.random() < 0.45) ||
         (this.waveManager.wave >= 14 && type === 'sentinel' && Math.random() < 0.30) ||
-        (this.waveManager.wave >= 16 && type === 'guardian' && Math.random() < 0.24)
+        (this.waveManager.wave >= 16 && type === 'guardian' && Math.random() < 0.24) ||
+        (this.waveManager.wave >= 21 && type === 'devastator' && Math.random() < 0.18)
       );
       const spawnY = bossWave ? viewTop - 180 : viewTop + 20;
       this.enemies.push(new Enemy(spawnX, spawnY, this.waveManager.wave, type, isElite));
       if (bossWave) {
         this.bossEncounterCount += 1;
-        if (this.waveManager.wave >= 20) {
-          const firstReturn = this.waveManager.wave === 20;
+        if (this.waveManager.wave >= 30) {
+          const firstReturn = this.waveManager.wave === 30;
           this.bossEncounterDialogue = {
             duration: 9,
             lineInterval: 4.5,
@@ -1682,16 +1853,25 @@ export class Game {
           this.bossEncounterDialogueTimer = this.bossEncounterDialogue.duration;
         }
       }
-      if (isElite && !this.eliteAlertsShown.has(type)) {
-        this.eliteAlertsShown.add(type);
-        triggerPilotReaction(this.pilotReaction, '❓', 1.55);
-        const alerts = {
-          artillery: ['AMEAÇA DE ARTILHARIA DETECTADA', 'A nave detectou um Artilheiro de Elite. Blindagem e poder de fogo acima do padrão.'],
-          sentinel: ['AMEAÇA TÁTICA DETECTADA', 'A nave detectou uma Sentinela de Elite. Disparos de plasma em salva dupla.'],
-          guardian: ['UNIDADE DEFENSIVA DETECTADA', 'A nave detectou um Guardião de Elite. Blindagem reforçada e proteção de aliados.']
+      if (isElite) {
+        const reactions = {
+          artillery: 'Artilharia de elite. Não fique na linha de tiro.',
+          sentinel: 'Sentinela de elite detectada. Prepare-se para a salva dupla.',
+          guardian: 'Guardião de elite. Está protegendo as tropas próximas.',
+          devastator: 'Devastador de elite! Saia da linha do canhão.'
         };
-        const [heading, detail] = alerts[type];
-        this.showRewardBanner(heading, detail, 'elite');
+        triggerPilotReaction(this.pilotReaction, '❓❗', 3.4, reactions[type] || 'Unidade de elite detectada.');
+        if (!this.eliteAlertsShown.has(type)) {
+          this.eliteAlertsShown.add(type);
+          const alerts = {
+            artillery: ['AMEAÇA DE ARTILHARIA DETECTADA', 'A nave detectou um Artilheiro de Elite. Blindagem e poder de fogo acima do padrão.'],
+            sentinel: ['AMEAÇA TÁTICA DETECTADA', 'A nave detectou uma Sentinela de Elite. Disparos de plasma em salva dupla.'],
+            guardian: ['UNIDADE DEFENSIVA DETECTADA', 'A nave detectou um Guardião de Elite. Blindagem reforçada e proteção de aliados.'],
+            devastator: ['CANHÃO DE CERCO DETECTADO', 'Devastador de Elite identificado. Canhão de plasma de longo alcance; saia da linha de tiro.']
+          };
+          const [heading, detail] = alerts[type];
+          this.showRewardBanner(heading, detail, 'elite');
+        }
       }
     }
 
@@ -1710,7 +1890,7 @@ export class Game {
       this.overheatCriticalTimer = (this.overheatCriticalTimer || 0) + dt;
       this.overheatSparkTimer = (this.overheatSparkTimer || 0) - dt;
       // Smoke begins only after sustained critical heat; keep particle count and frequency low.
-      if (this.overheatCriticalTimer >= 1.5 && this.overheatSparkTimer <= 0 && this.damageSparks.length < 10) {
+      if (this.overheatCriticalTimer >= 1.5 && this.overheatSparkTimer <= 0 && this.damageSparks.length < this.getEffectLimit(10)) {
         this.overheatSparkTimer = 0.72;
         const angle = rand(0, Math.PI * 2), speed = rand(5, 12), life = rand(0.45, 0.7);
         this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 8, y: this.player.y + Math.sin(angle) * 8, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, size: rand(2, 3.5), length: 0, color: '#778391', kind: 'smoke' });
@@ -1890,28 +2070,6 @@ export class Game {
       }
     }
 
-    // Attack Clash: direct player-shot/enemy-shot overlaps neutralize both projectiles.
-    // This is intentionally separate from damage-to-enemy rules and requires no per-frame UI.
-    for (const playerShot of this.projectiles) {
-      if (!playerShot.active) continue;
-      for (const enemyShot of this.enemyProjectiles) {
-        if (!enemyShot.active) continue;
-        const combinedRadius = (playerShot.radius ?? 0) + (enemyShot.radius ?? 0);
-        if (Math.abs(playerShot.x - enemyShot.x) >= combinedRadius ||
-            Math.abs(playerShot.y - enemyShot.y) >= combinedRadius) continue;
-        if (circlesOverlap(playerShot, enemyShot)) {
-          const playerPower = Math.max(1, Math.floor((playerShot.damage ?? 1) / 4));
-          playerShot.active = false;
-          if (playerPower >= (enemyShot.clashResistance ?? 1)) {
-            enemyShot.active = false;
-          } else {
-            enemyShot.clashResistance -= playerPower;
-          }
-          break;
-        }
-      }
-    }
-
     // Each guided missile detonates once and deals area damage to nearby enemies.
     for (const missile of this.guidedMissiles) {
       if (!missile.active) continue;
@@ -1959,6 +2117,7 @@ export class Game {
       if (circlesOverlap(this.player, shot)) {
         shot.active = false;
         if (shot.plasmaImpact) this.resolvePlasmaImpact(shot);
+        else if (shot.siegeImpact) this.resolveSiegeImpact(shot);
         else this.resolveIncomingDamage(shot.damage, shot.x, shot.y, shot.heavyImpact || shot.damage >= 10);
       }
     }
@@ -2039,19 +2198,16 @@ export class Game {
     }
 
     ctx.globalAlpha = 1;
-    if (this.continuousLaserHeld && this.player.continuousLaserLevel > 0) { const dx=Math.cos(this.player.rotation),dy=Math.sin(this.player.rotation),sx=this.player.x+dx*18,sy=this.player.y+dy*18,ex=sx+dx*460,ey=sy+dy*460; ctx.save();ctx.lineCap='round';ctx.globalAlpha=.2;ctx.strokeStyle='#44dfff';ctx.lineWidth=13;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=.92;ctx.strokeStyle='#6eeeff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#eaffff';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore(); }
     for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
-    for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx);
-    for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx);
+    for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx, this.effectsScale);
+    for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx, this.effectsScale);
     if (this.bossCinematic?.boss) {
       const cinematic = this.bossCinematic;
-      const revealAlpha = cinematic.phase === 'distant-contact'
-        ? Math.max(0, Math.min(1, (cinematic.phaseElapsed - 0.35) / 2.1))
-        : cinematic.phase === 'boss-identification' || cinematic.phase === 'handoff' ? 1 : 0;
+      const revealAlpha = getBossCinematicBossOpacity(cinematic);
       if (revealAlpha > 0) {
         ctx.save();
         ctx.globalAlpha = revealAlpha;
-        cinematic.boss.draw(ctx);
+        cinematic.boss.draw(ctx, this.effectsScale);
         ctx.restore();
       }
     }
@@ -2138,6 +2294,7 @@ export class Game {
       ctx.restore();
     }
     for (let index = 0; index < this.guidedMissileEffects.length; index += 1) {
+      if (this.effectsScale < 0.75 && index % 2) continue;
       const effect = this.guidedMissileEffects[index];
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
@@ -2157,9 +2314,6 @@ export class Game {
       Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
     this.drawShield(ctx);
     this.player.draw(ctx, playerVisible);
-    if (!this.bossCinematic && this.pilotReaction.remaining > 0) {
-      this.drawPilotReaction(ctx, this.player.x + (this.player.radius ?? 12) + 18, this.player.y - (this.player.radius ?? 12) - 18);
-    }
     // Draw missiles after the ship so the hull cannot hide a launch from either wing.
     for (let index = 0; index < this.guidedMissiles.length; index += 1) this.guidedMissiles[index].draw(ctx);
 
@@ -2201,6 +2355,7 @@ export class Game {
 
     // Lightweight dual-ring shockwave without per-frame shadow blur.
     for (let index = 0; index < this.shieldBreakEffects.length; index += 1) {
+      if (this.effectsScale < 0.75 && index % 2) continue;
       const effect = this.shieldBreakEffects[index];
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
@@ -2217,6 +2372,7 @@ export class Game {
     // Red circuit sparks and a brief edge flash make incoming damage easier to notice.
     // Indexed iteration avoids allocating a callback on every rendered frame.
     for (let index = 0; index < this.damageSparks.length; index += 1) {
+      if (this.effectsScale < 0.75 && index % 2) continue;
       const spark = this.damageSparks[index];
       const fade = Math.max(0, spark.life / spark.maxLife);
       ctx.save();
@@ -2288,6 +2444,7 @@ export class Game {
 
     // Short-lived gold particles make level gains visible without blocking play.
     for (let index = 0; index < this.levelUpParticles.length; index += 1) {
+      if (this.effectsScale < 0.75 && index % 2) continue;
       const particle = this.levelUpParticles[index];
       ctx.save();
       ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
@@ -2308,6 +2465,16 @@ export class Game {
       ctx.restore();
     }
     ctx.restore();
+    if (!this.bossCinematic && this.pilotReaction.remaining > 0) {
+      const zoom = Math.max(this.cameraMinZoom, Math.min(1, this.cameraZoom || 1));
+      const screenX = this.width / 2 + (this.player.x - this.width / 2 - this.cameraX) * zoom;
+      const screenY = this.height / 2 + (this.player.y - this.height / 2 - this.cameraY) * zoom;
+      const reactionPosition = getPilotReactionPosition({
+        x: screenX, y: screenY, width: this.width, height: this.height,
+        radius: this.pilotReaction.symbol === '❓❗' ? 14 : 11, offset: 27
+      });
+      if (reactionPosition) drawPilotReaction(ctx, this.pilotReaction, reactionPosition.x, reactionPosition.y);
+    }
     this.renderBossCinematic(ctx);
     this.renderRecurringBossDialogue(ctx);
   }

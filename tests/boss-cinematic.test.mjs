@@ -2,11 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   BOSS_CINEMATIC_PHASES,
+  BOSS_CINEMATIC_DIALOGUE,
   BOSS_CINEMATIC_TOTAL_DURATION,
   advanceBossCinematic,
   createBossCinematic,
   getBossCinematicAlert,
-  getBossCinematicDialogue
+  getBossCinematicDialogue,
+  getBossCinematicBossOpacity,
+  wrapBossCinematicDialogue,
+  getBossDialogueVisualState,
+  getBossDialoguePlacement
 } from '../src/core/boss-cinematic.js';
 
 function advance(state, seconds) {
@@ -23,9 +28,9 @@ test('new cinematic owns a deterministic sequence and lasts the planned duration
   assert.equal(state.phase, 'hud-fade');
   assert.deepEqual(BOSS_CINEMATIC_PHASES.map((phase) => phase.id), [
     'hud-fade', 'loading', 'pilot-intro', 'anomaly-scan',
-    'distant-contact', 'boss-identification', 'handoff', 'complete'
+    'distant-contact', 'boss-identification', 'arena-reveal', 'handoff', 'complete'
   ]);
-  assert.equal(BOSS_CINEMATIC_TOTAL_DURATION, 56.5);
+  assert.equal(BOSS_CINEMATIC_TOTAL_DURATION, 64);
   advance(state, BOSS_CINEMATIC_TOTAL_DURATION);
   assert.equal(state.phase, 'complete');
   assert.equal(state.handoffComplete, true);
@@ -40,7 +45,7 @@ test('HUD fades out before loading and fades back only during combat handoff', (
   advance(state, 2.5);
   assert.equal(state.phase, 'loading');
   assert.equal(state.pilotHudOpacity, 0);
-  advance(state, 49);
+  advance(state, 56.5);
   assert.equal(state.phase, 'handoff');
   assert.ok(state.pilotHudOpacity < 0.001);
   advance(state, 1.25);
@@ -61,11 +66,149 @@ test('dialogue advances at deliberate intervals and anomaly alert does not revea
   assert.equal(alert.title.includes('DREADNOUGHT'), false);
 });
 
+test('dialogue uses a timed typewriter reveal and preserves the complete source line', () => {
+  const state = createBossCinematic();
+  advance(state, 15.6);
+  const early = getBossCinematicDialogue(state);
+  assert.ok(early.visibleText.length > 0);
+  assert.ok(early.visibleText.length < early.text.length);
+  assert.equal(early.typingComplete, false);
+  advance(state, 3.4);
+  const later = getBossCinematicDialogue(state);
+  assert.ok(later.visibleText.length > early.visibleText.length);
+});
+
+test('pilot and DREADNOUGHT have distinct alert identities', () => {
+  const state = createBossCinematic();
+  advance(state, 25.8);
+  const anomaly = getBossCinematicAlert(state);
+  assert.equal(anomaly.kind, 'anomaly');
+  assert.equal(anomaly.icon, '!');
+  advance(state, 28.45);
+  const identity = getBossCinematicAlert(state);
+  assert.equal(identity.kind, 'boss');
+  assert.equal(identity.icon, '◆');
+});
+
 test('boss identity appears only in the final identification phase', () => {
   const state = createBossCinematic();
-  advance(state, 50.25);
+  advance(state, 54.25);
   assert.equal(state.phase, 'boss-identification');
   const alert = getBossCinematicAlert(state);
   assert.equal(alert.title, 'DREADNOUGHT');
   assert.equal(getBossCinematicDialogue(state).actor, 'pilot');
+});
+
+
+test('pilot intro line completes before the phase advances', () => {
+  const state = createBossCinematic();
+  advance(state, 15.5);
+  advance(state, 8.3);
+  const dialogue = getBossCinematicDialogue(state);
+  assert.equal(state.phase, 'pilot-intro');
+  assert.match(dialogue.text, /parece tranquilo/i);
+  assert.equal(dialogue.typingComplete, true);
+});
+
+test('anomaly and system dialogue cues leave enough time for each complete line', () => {
+  const state = createBossCinematic();
+  advance(state, 24);
+  assert.equal(state.phase, 'anomaly-scan');
+  advance(state, 3.1);
+  const pilot = getBossCinematicDialogue(state);
+  assert.equal(pilot.actor, 'pilot');
+  assert.equal(pilot.typingComplete, true);
+  advance(state, 0.5);
+  const system = getBossCinematicDialogue(state);
+  assert.equal(system.actor, 'system');
+  assert.equal(system.typingComplete, false);
+  advance(state, 2.6);
+  assert.equal(getBossCinematicDialogue(state).actor, 'system');
+  assert.equal(getBossCinematicDialogue(state).typingComplete, true);
+  advance(state, 2.7);
+  const finalPilot = getBossCinematicDialogue(state);
+  assert.equal(finalPilot.actor, 'pilot');
+  assert.equal(finalPilot.typingComplete, true);
+});
+
+test('DREADNOUGHT reveal fades in gradually and remains visible after confirmation', () => {
+  const state = createBossCinematic();
+  state.phase = 'distant-contact';
+  state.phaseElapsed = 0.45;
+  assert.equal(getBossCinematicBossOpacity(state), 0);
+  state.phaseElapsed = 4.2;
+  assert.ok(Math.abs(getBossCinematicBossOpacity(state) - 0.5) < 0.001);
+  state.phaseElapsed = 7.95;
+  assert.equal(getBossCinematicBossOpacity(state), 1);
+  state.phase = 'boss-identification';
+  assert.equal(getBossCinematicBossOpacity(state), 1);
+  state.phase = 'arena-reveal';
+  assert.equal(getBossCinematicBossOpacity(state), 1);
+});
+
+test('alert cues tolerate floating-point boundaries at the scheduled frame', () => {
+  const state = createBossCinematic();
+  advance(state, 25.8);
+  assert.equal(getBossCinematicAlert(state)?.kind, 'anomaly');
+});
+
+test('mobile dialogue wrapping keeps all readable lines within the expanded card limit', () => {
+  const text = 'Leituras estáveis... vou recalcular a rota. Por enquanto, tudo parece tranquilo.';
+  const rows = wrapBossCinematicDialogue(text, (value) => value.length * 5.5, 210, 4);
+  assert.ok(rows.length >= 2 && rows.length <= 4);
+  assert.equal(rows.join(' '), text);
+});
+
+test('dialogue wrapping never exceeds the configured row count', () => {
+  const text = 'um dois três quatro cinco seis sete oito nove dez onze doze treze quatorze';
+  const rows = wrapBossCinematicDialogue(text, (value) => value.length * 6, 60, 4);
+  assert.equal(rows.length, 4);
+  assert.ok(rows.every((row) => row.length > 0));
+});
+
+test('every cinematic line fits the responsive mobile dialogue card without losing words', () => {
+  for (const cues of Object.values(BOSS_CINEMATIC_DIALOGUE)) {
+    for (const cue of cues) {
+      const rows = wrapBossCinematicDialogue(cue.text, (value) => value.length * 5.5, 210, 4);
+      assert.ok(rows.length > 0 && rows.length <= 4, cue.text);
+      assert.equal(rows.join(' '), cue.text, cue.text);
+    }
+  }
+});
+
+
+test('dialogue card visual state keeps communication muted and animation bounded', () => {
+  const pilot = getBossDialogueVisualState('pilot', 1.25);
+  const system = getBossDialogueVisualState('system', 1.25);
+  const boss = getBossDialogueVisualState('boss', 1.25);
+  assert.equal(pilot.accent, '#579eac');
+  assert.equal(pilot.tag, '#8db8c0');
+  assert.notEqual(pilot.accent, system.accent);
+  assert.notEqual(pilot.accent, boss.accent);
+  for (const visual of [pilot, system, boss]) {
+    assert.ok(visual.pulse >= 0 && visual.pulse <= 1);
+    assert.ok(visual.scan >= 0 && visual.scan < 1);
+  }
+});
+
+
+test('DREADNOUGHT dialogue card is placed beside the hull on landscape screens', () => {
+  const placement = getBossDialoguePlacement({
+    anchorX: 400, anchorY: 180, viewportWidth: 800, viewportHeight: 420,
+    boxWidth: 272, boxHeight: 76, bossRadius: 100, zoom: 0.54
+  });
+  assert.ok(['left', 'right'].includes(placement.side));
+  const hullHalfWidth = 100 * 1.52 * 0.82 * 0.54 + 8;
+  if (placement.side === 'left') assert.ok(placement.x + 272 < 400 - hullHalfWidth);
+  else assert.ok(placement.x > 400 + hullHalfWidth);
+});
+
+test('DREADNOUGHT dialogue placement stays inside narrow mobile viewport', () => {
+  const placement = getBossDialoguePlacement({
+    anchorX: 180, anchorY: 180, viewportWidth: 360, viewportHeight: 360,
+    boxWidth: 220, boxHeight: 76, bossRadius: 100, zoom: 0.54
+  });
+  assert.ok(placement.x >= 12 && placement.x + 220 <= 348);
+  assert.ok(placement.y >= 12 && placement.y + 76 <= 348);
+  assert.ok(['above', 'below', 'edge-fallback'].includes(placement.side));
 });

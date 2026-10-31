@@ -226,3 +226,43 @@ test('Guardian uses its class-specific steering profile with and without a prote
     }
   }
 });
+
+
+test('combat rebalance lowers basic troop mobility while keeping Elite variants stronger', () => {
+  assert.ok(ENEMY_MOTION_PROFILES.chaser.maxSpeed < 64);
+  assert.ok(ENEMY_MOTION_PROFILES.sentinel.maxSpeed < 76);
+  assert.ok(ENEMY_MOTION_PROFILES.artillery.maxSpeed < 68);
+  assert.ok(ENEMY_MOTION_PROFILES.guardian.maxSpeed < 90);
+  assert.ok(ENEMY_MOTION_PROFILES.sentinelElite.maxSpeed > ENEMY_MOTION_PROFILES.sentinel.maxSpeed);
+  assert.ok(ENEMY_MOTION_PROFILES.artilleryElite.maxSpeed > ENEMY_MOTION_PROFILES.artillery.maxSpeed);
+  assert.ok(ENEMY_MOTION_PROFILES.guardianElite.maxSpeed > ENEMY_MOTION_PROFILES.guardian.maxSpeed);
+  assert.equal(new Enemy(300, 200, 8, 'sentinel').maxHealth, 4);
+  assert.equal(new Enemy(300, 200, 12, 'artillery').maxHealth, 11);
+});
+
+test('basic Artillery now fires a two-projectile lighter salvo at a slower cadence', () => {
+  const artillery = new Enemy(500, 220, 12, 'artillery'); artillery.fireCooldown = 0.001;
+  const shots = artillery.update(0.02, 600, 800, 1200, 1600, [], [], 0);
+  assert.equal(shots.length, 2); assert.ok(shots.every(shot => shot.damage === 3 && shot.speed === 118)); assert.equal(artillery.fireCooldown, 5.2);
+});
+
+test('Elite Artillery keeps its stronger identity without restoring the old three-shot fan', () => {
+  const artillery = new Enemy(500, 220, 12, 'artillery', true); artillery.fireCooldown = 0.001;
+  const shots = artillery.update(0.02, 600, 800, 1200, 1600, [], [], 0);
+  assert.equal(shots.length, 2); assert.ok(shots.every(shot => shot.damage === 4.2 && shot.speed === 145)); assert.equal(artillery.fireCooldown, 4.2); assert.ok(artillery.eliteShield > 0);
+});
+
+test('Sentinel normal and Elite volleys have lower burst damage and more reaction time', () => {
+  const normal = new Enemy(500, 220, 12, 'sentinel'); normal.fireCooldown = 0.001;
+  const normalShot = normal.update(0.02, 600, 800, 1200, 1600, [], [], 0);
+  assert.equal(normalShot.damage, 6); assert.equal(normalShot.speed, 158); assert.equal(normal.fireCooldown, 3.2);
+  const elite = new Enemy(500, 220, 12, 'sentinel', true); elite.fireCooldown = 0.001;
+  const eliteShots = elite.update(0.02, 600, 800, 1200, 1600, [], [], 0);
+  assert.equal(eliteShots.length, 2); assert.ok(eliteShots.every(shot => shot.damage === 4.2 && shot.speed === 168)); assert.equal(elite.fireCooldown, 3.15);
+});
+
+test('basic Chaser ranged pressure is weaker and less frequent', () => {
+  const chaser = new Enemy(500, 220, 2, 'chaser'); chaser.fireCooldown = 0.001;
+  const shot = chaser.update(0.02, 850, 800, 1200, 1600, [], [], 0);
+  assert.ok(shot); assert.ok(shot.damage <= 3.8); assert.equal(shot.speed, 122); assert.ok(chaser.fireCooldown >= 4);
+});

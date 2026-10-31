@@ -1,3 +1,110 @@
+## [0.57.2] — balanceamento do Encouraçado, mísseis e mira do Devastador
+
+- Reduz o armamento de plasma do DREADNOUGHT de quatro para dois canhões, mantendo um módulo por lateral.
+- Substitui os dois módulos traseiros de plasma por emissores iônicos laterais de longo alcance (1.050 unidades), com disparos rápidos e dano individual reduzido.
+- Redesenha os mísseis guiados do chefe como dardos alongados roxos, com velocidade de 280/300/320 unidades/s por fase, correção de trajetória limitada e curvas discretas.
+- Reduz o dano dos mísseis para 10/11/12, amplia o intervalo entre lançamentos para 6,0/5,7/5,4 s e limita a vida útil a 4,2 s para impedir acúmulo indefinido.
+- Move a primeira aparição do Encouraçado para a onda 15 e mantém recorrência a cada 15 ondas (15, 30, 45...).
+- No Devastador, a direção é capturada ao fim da carga; durante o aviso o casco permanece estável e o disparo usa exatamente o ângulo travado.
+- Adiciona cobertura automatizada para quantidade e posição dos canhões, vida útil/curva dos mísseis, agenda de chefes e ângulo de disparo do Devastador.
+
+## [0.57.1] — balanceamento do Encouraçado e flanqueamento
+
+- Aumenta a recarga dos quatro canhões de plasma de 5,4 s para 7,2 s; dano, velocidade do projétil, ruptura de escudo e repulsão permanecem inalterados.
+- Reduz a velocidade máxima e a aceleração do casco para 34/24 na fase 1–2 e 42/30 na fase 3.
+- Diminui a resposta de rotação do casco para que o Encouraçado não acompanhe instantaneamente cada mudança de direção do piloto.
+- Mantém waypoints de patrulha por 3,2 s (2,5 s na fase 3), em vez de recalculá-los continuamente com a posição do jogador.
+- Amplia o deslocamento lateral do reposicionamento e estende sua duração, criando janelas mais claras para atacar os módulos dos flancos e da traseira.
+- Adiciona testes automatizados para recarga dos canhões, perfis de movimento e retenção dos waypoints. A validação real de gameplay e a sensação de flanqueamento ainda dependem de playtest.
+
+## [0.57.0] — reações contextuais das tropas Elite
+
+- Cada aparição de uma tropa Elite agora provoca uma fala curta e específica do piloto.
+- As falas distinguem Artilharia, Sentinela, Guardião e Devastador, com orientação tática imediata.
+- O alerta de descoberta por classe continua aparecendo apenas na primeira ocorrência; o design aprovado das notificações não foi alterado.
+- A caixa de fala é compacta, quebra o texto em linhas e limita sua posição à viewport.
+- Inclui cobertura automatizada para estado, expiração e renderização das falas.
+
+## [0.56.0] — nova tropa pesada: Devastador
+
+- Adiciona o Devastador a partir da onda 8: casco maior, mobilidade muito baixa e canhão de plasma integrado.
+- Implementa ciclo de carga, aquisição preditiva limitada, aviso visual da linha de tiro, disparo a 760 unidades/s e recuperação entre ataques.
+- O impacto causa dano alto, forte repulsão e desestabilização temporária; a variante Elite aparece a partir da onda 21, após a onda de chefe 20, recebe escudo próprio, dano superior e aviso um pouco mais curto.
+- Adiciona recompensa de 80 XP para a unidade normal e alerta tático específico para a variante Elite.
+- **Validação:** testes de construção, perfil de movimento, ciclo de ataque e sinalizadores de impacto adicionados. Nenhum playtest manual ou ganho de desempenho foi declarado.
+
+## [0.55.0] — fundação do combate e defesa direcional
+
+- Remove a carta de Laser Contínuo, seus controles, feixe, dano sustentado e tela de disputa.
+- Remove a carta de Tiros Perfurantes de Plasma: os disparos básicos voltam ao dano normal e deixam de atravessar inimigos por essa habilidade.
+- Remove o Attack Clash entre tiros do jogador e projéteis inimigos; cada projétil volta a seguir sua regra normal de colisão.
+- Corrige a previsão visual do escudo: cada projétil em rota de colisão ativa um único setor estável, usando a direção de chegada quando o ponto previsto fica praticamente no centro da nave.
+- Preserva o Pulso de Ruptura, mísseis, escudo regenerativo, escudos das tropas Elite, cutscene e notificações aprovadas.
+- **Validação:** regressões automatizadas para os quatro setores cardeais, impactos centrais, projéteis fora de rota e ausência das mecânicas removidas. Playtest real e validação visual ainda não realizados.
+
+## [0.54.6] — rebalanceamento de combate e IA do DREADNOUGHT
+
+- Reduz a pressão das tropas comuns: Interceptador, perseguidor e Guardião ficam menos velozes; Sentinela e Artilheiro recebem ajustes mais fortes de mobilidade, esquiva, vida, cadência e dano.
+- Sentinela básico dispara com menor dano e maior intervalo; a variante Elite continua com salva dupla, mas menos punitiva e com maior janela de reação.
+- Artilheiro passa de três para dois projéteis por salva, com dano e velocidade menores, intervalo maior e faixa de patrulha mais contida. A variante Elite mantém dois tiros mais fortes e o escudo próprio.
+- O DREADNOUGHT não usa esquiva de tropas contra tiros do jogador; reposicionamento lateral e estabilização ficam mais curtos, a rotação do casco responde melhor e a cadência de ataque aumenta gradualmente por fase.
+- Mísseis continuam sendo priorizados a longa distância; lançadores mantêm alcance de 980. O plasma mantém velocidade de 760 e repulsão pesada já definida.
+- O renderer do encouraçado agora respeita a escala adaptativa de efeitos: em qualidade reduzida, substitui o gradiente dos propulsores por preenchimento sólido, preservando a silhueta.
+- Corrige a propagação dos sinalizadores `heavyImpact` e `plasmaImpact` dos canhões para o sistema de colisão, garantindo que a ruptura e a repulsão próprias do plasma sejam acionadas.
+- **Validação automatizada:** testes de balanceamento, mobilidade, cadência, esquiva do boss e armamento adicionados. Playtest mobile/desktop e medição real de FPS continuam pendentes.
+
+## [0.54.5] — notificações táticas e posicionamento de diálogo
+
+- Substitui os emojis grandes de reação por indicadores vetoriais compactos, com moldura técnica azul/ciano e glifos desenhados em Canvas.
+- Diferencia suspeita, perigo e ameaça Elite por forma e intensidade, mantendo a mesma linguagem visual.
+- Adiciona entrada rápida, pulsação leve e desaparecimento suave; preserva os gatilhos de alerta e o disparo único por transição de ameaça.
+- Reposiciona o cartão de fala do DREADNOUGHT para uma lateral livre do casco em telas largas; em telas estreitas, escolhe uma posição vertical ou de borda adaptativa.
+- Preserva a cutscene, os diálogos, a câmera, a arena e a lógica de combate.
+- **Validação automatizada:** 72/72 testes aprovados, sintaxe JavaScript, imports relativos e whitespace aprovados. Validação visual em Android/desktop ainda pendente.
+
+## [0.54.4] — refinamento visual dos cartões de diálogo
+
+- Preserva o formato, o tamanho e a hierarquia dos cartões aprovados na v0.54.3.
+- Reduz a saturação e o brilho do azul usado na identificação “COMUNICAÇÃO”, mantendo uma assinatura visual própria para o piloto.
+- Adiciona três barras de sinal com pulsação suave, um brilho de varredura discreto no cabeçalho e pequenos traços técnicos nos cantos.
+- Mantém as animações leves, sem sombras desfocadas por quadro, sem alterar a legibilidade, o posicionamento ou o fluxo da cutscene.
+- Preserva as falas, a entrada, a distância aprovada, a câmera, a arena e o combate.
+- **Validação automatizada:** 69/69 testes aprovados, sintaxe JavaScript, imports relativos e whitespace aprovados. Validação visual em Android/desktop ainda pendente.
+
+## [0.54.3] — diálogos e cartões cinematográficos
+
+- Reescreve as falas do piloto, do sistema de bordo e do DREADNOUGHT para criar uma progressão mais natural: setor aparentemente limpo, anomalia, contato visual, ameaça e identificação.
+- Ajusta as frases para uma comunicação mais direta e coerente com a situação de cada personagem.
+- Amplia os cartões em telas pequenas e aumenta a tipografia mobile; agora o texto pode ocupar até quatro linhas em vez de ser cortado após duas.
+- Centraliza o cálculo de quebra de linhas em uma função testável e adiciona testes para preservar o texto completo e limitar o cartão.
+- Preserva a entrada, a distância aprovada, a câmera, a arena e a duração geral da cutscene.
+- **Validação automatizada:** 68/68 testes aprovados, sintaxe JavaScript, imports relativos e whitespace aprovados. Validação visual em Android/desktop ainda pendente.
+
+## [0.54.2] — ajuste de distância na entrada do DREADNOUGHT
+
+- Ajusta o ponto final da aproximação para usar exatamente o mesmo afastamento vertical definido pela IA de combate.
+- Aumenta o espaço visível entre o casco e a nave do piloto e evita uma mudança brusca de posição quando a cutscene entrega o controle ao combate.
+- Preserva a trajetória central, a duração da revelação, a câmera, os diálogos e a arena aprovados.
+- Adiciona teste de regressão para garantir que a posição final cinematográfica corresponda ao alvo de combate.
+- **Validação automatizada:** 65/65 testes aprovados, sintaxe JavaScript, imports relativos e whitespace aprovados. Validação visual em Android/desktop ainda pendente; não há alteração de balanceamento ou armamentos.
+
+## [0.54.1] — correções de apresentação da cutscene do DREADNOUGHT
+
+- **Patch corretivo da v0.54.0:** preserva a sequência e a duração das fases; não representa uma nova versão minor de funcionalidades.
+- Corrige o fluxo dos diálogos: cada fala recebe tempo suficiente para terminar antes da próxima, inclusive a frase “Parece tranquilo” e a resposta inicial do piloto à anomalia.
+- Aproxima os cartões existentes do jogador: piloto à esquerda e sistema de bordo à direita, ambos ancorados na posição da nave. O design aprovado dos cartões foi preservado.
+- Reestrutura a apresentação da câmera: mantém o piloto centralizado nos diálogos, trava o eixo horizontal durante a revelação e abre o enquadramento progressivamente para mostrar chefe e jogador. Uma fase final amplia discretamente a visão da arena; o zoom de combate permanece em 0,54, sem reduzir o piloto a um ponto.
+- Centraliza o aviso de identificação do chefe no alto da tela: ele surge com fade-in e sai deslizando para cima após a confirmação.
+- Simplifica apenas os indicadores: o ❓ agora é um símbolo vermelho sem círculo azul; o ❗ mantém o destaque vermelho. O ❓ permanece por 8,5 segundos e o ❗ por 30 segundos. Os cartões de diálogo não foram simplificados.
+- Reativa os sinais diegéticos na cutscene: ❓ para a anomalia, ❗ durante a revelação do chefe e ❓❗ para alertas de tropas de Elite.
+- Corrige a comparação temporal dos alertas para tolerar pequenas diferenças de ponto flutuante e adiciona testes de regressão.
+- Corrige o travamento da cutscene ao ativar os indicadores do piloto: o renderizador agora recebe explicitamente o estado da reação e as coordenadas de tela, tanto durante a cinemática quanto no combate.
+- Ao cobrir a tela com o loading, reposiciona o jogador, restaura vida/escudo e limpa projéteis e entidades do confronto anterior, sem substituir a nave nem apagar XP, nível, pontuação, classe ou melhorias adquiridas.
+- Garante uma distância de segurança entre o casco do DREADNOUGHT e o jogador; o chefe desce pelo eixo central e não atravessa a nave do jogador.
+- Preserva o sistema de reações introduzido na v0.49.0: alertas de perigo continuam ligados às telemetrias do canhão principal e dos canhões de plasma do DREADNOUGHT, com acionamento por transição para evitar piscadas repetidas.
+- Adiciona testes de regressão para o desenho dos indicadores, a transição de ameaça e a integração do renderizador.
+- **Validação automatizada:** sintaxe JavaScript, 65 testes, imports relativos e whitespace aprovados no GitHub Actions. A inspeção visual em celular/desktop ainda está pendente.
+
 ## [0.54.0] — nova cinemática, chefes recorrentes e revisão de desempenho
 
 - Substitui o controlador antigo da transição da onda 9 para 10 por uma sequência independente, com fade do HUD, carregamento de 10 segundos, diálogos com intervalos definidos, alerta anônimo, revelação distante e identificação final do DREADNOUGHT.

@@ -1,14 +1,80 @@
-## [Unreleased] — Rebalanceamento de combate e IA do DREADNOUGHT
+## v0.57.2 — Balanceamento do Encouraçado e correção de mira
 
-- Reduz a pressão geral das tropas comuns: deslocamento do Interceptador e do perseguidor mais contido, Guardião menos veloz e perfis básicos de Sentinela/Artilheiro revistos.
-- Sentinela básico recebe novo ajuste de velocidade, esquiva, faixa lateral, cadência e dano; Elite continua superior, mas com mobilidade ligeiramente reduzida.
-- Artilheiro recebe nerf mais forte: menor velocidade/aceleração, faixa de patrulha menor, salva reduzida de três para dois projéteis, cadência mais lenta e projéteis menos rápidos/danosos.
-- Corrige a esquiva involuntária do DREADNOUGHT: projéteis do jogador deixam de acionar deslocamento evasivo lateral do boss.
-- Reposicionamento do encouraçado passa a ser lateral, sem vetor de afastamento do jogador; estabilização mais curta, cooldown menor e rotação do casco mais responsiva.
-- DREADNOUGHT acelera a cadência de combate e prioriza mísseis teleguiados em distâncias maiores; alcance dos lançadores ampliado para 980 unidades.
-- Canhões de plasma acelerados de 620 para 760 unidades/s; repulsão do impacto aumentada para 1.050 com escudo ativo e 1.450 sem escudo.
-- Testes de regressão adicionados para mobilidade das tropas, ausência de esquiva do boss e armamento de longo alcance.
-- **Validação pendente:** testes automatizados e playtest real no navegador; valores de dificuldade ainda são candidatos até a confirmação do usuário.
+- [x] Reduzir os canhões de plasma do chefe de quatro para dois, um em cada lateral.
+- [x] Substituir os módulos traseiros removidos por emissores iônicos laterais de longo alcance e dano moderado.
+- [x] Redesenhar os mísseis guiados como dardos roxos alongados, mais rápidos e legíveis, com correção de trajetória suave.
+- [x] Limitar a vida útil dos mísseis e espaçar lançamentos para evitar acúmulo de projéteis.
+- [x] Mover o Encouraçado para a onda 15, com recorrência a cada 15 ondas.
+- [x] Travar ângulo e posição de mira do Devastador durante o aviso e usar o mesmo ângulo no disparo.
+- [x] Adicionar testes automatizados para armas, mísseis, ondas e mira fixa.
+- [ ] Validar em gameplay real o equilíbrio dos emissores iônicos e a legibilidade dos novos mísseis.
+- [ ] Confirmar que os projéteis do boss não acumulam nem provocam quedas de FPS em celular.
+- [ ] Confirmar que o Devastador dispara exatamente na linha visual indicada em diferentes velocidades do jogador.
+- **Estado:** candidata em PR #81; `main` preservada. Validação automatizada pendente; nenhum playtest manual foi realizado.
+
+## v0.57.1 — Balanceamento do Encouraçado e flanqueamento
+
+- [x] Aumentar a recarga dos canhões de plasma de 5,4 s para 7,2 s, preservando dano e impacto.
+- [x] Reduzir velocidade máxima e aceleração do casco, inclusive na fase 3.
+- [x] Reduzir a resposta de rotação para impedir que o casco acompanhe instantaneamente o piloto.
+- [x] Manter waypoints de patrulha estáveis por alguns segundos, sem perseguição recalculada a cada quadro.
+- [x] Ampliar o deslocamento lateral e a duração do reposicionamento para abrir janelas de ataque aos flancos e à traseira.
+- [x] Adicionar testes automatizados de recarga, perfis de movimento e retenção de waypoint.
+- [ ] Validar em gameplay real se o jogador consegue alcançar e danificar módulos laterais e traseiros sem tornar o chefe passivo.
+- [ ] Confirmar o ritmo de combate e o desempenho em celular e desktop.
+- **Estado:** candidata em PR #81; `main` preservada. Checks automatizados ainda serão executados pelo GitHub Actions; nenhum playtest manual foi realizado.
+
+## v0.57.0 — Reações táticas das tropas Elite
+
+- [x] Criar falas contextuais curtas para Artilheiro, Sentinela, Guardião e Devastador Elite.
+- [x] Exibir uma reação em cada aparição Elite, não apenas na primeira aparição da classe.
+- [x] Preservar o alerta de descoberta por classe e o design aprovado das notificações.
+- [x] Manter a fala próxima ao piloto, compacta e limitada à viewport.
+- [ ] Revisar o Guardião e suas táticas de proteção em formações.
+- [ ] Validar legibilidade e frequência das falas durante gameplay real.
+- **Estado:** candidata em PR #81; validação automatizada em andamento. Nenhum playtest manual foi realizado.
+
+## v0.56.0 — Nova tropa pesada: Devastador
+
+- [x] Criar a classe Devastador, maior que as tropas comuns e com mobilidade deliberadamente baixa.
+- [x] Integrar um canhão de plasma ao casco, com carga, previsão limitada do movimento, aviso de linha de tiro e projétil rápido.
+- [x] Criar impacto de cerco com dano elevado, repulsão forte e desestabilização temporária do jogador.
+- [x] Criar variante Elite com escudo próprio, maior dano e janela de aviso mais curta.
+- [x] Introduzir a unidade normal a partir da onda 8 e a Elite a partir da onda 21, depois da onda de chefe 20.
+- [x] Adicionar recompensa e alerta tático específicos.
+- [ ] Revisar o Guardião e o comportamento de proteção de formações.
+- [ ] Desenvolver diálogos contextuais de entrada para as classes Elite.
+- [ ] Validar a legibilidade do aviso, o tempo de reação, a dificuldade e o desempenho em gameplay real.
+- **Estado:** candidata em PR #81; a branch oficial permanece inalterada. Testes automatizados pendentes nesta etapa.
+
+## v0.55.0 — Fundação do combate e defesa direcional
+
+- [x] Remover a carta de Laser Contínuo, o botão, a entrada por teclado, o feixe, o dano sustentado e a tela de disputa.
+- [x] Remover a carta de Tiros Perfurantes de Plasma e o bônus de dano/perfuração que ela aplicava aos disparos básicos.
+- [x] Remover o Attack Clash que neutralizava projéteis inimigos por colisão com tiros do jogador.
+- [x] Prever o setor de escudo pela posição real de aproximação do projétil; em impactos quase centrais, usar a direção de chegada para evitar seleção instável.
+- [x] Preservar tiros básicos, mísseis, Pulso de Ruptura, escudos Elite, cutscene e notificações aprovadas.
+- [ ] Validar os quatro quadrantes do escudo em gameplay real e confirmar que apenas os setores ameaçados aparecem.
+- [ ] Continuar a revisão do Guardião e preparar a nova classe de artilharia pesada (Devastador).
+- **Estado:** candidata em PR #81; a branch oficial permanece inalterada. A remoção foi coberta por testes automatizados; playtest manual ainda não realizado.
+
+> Os registros históricos das versões 0.34.0 e 0.35.0 abaixo descrevem mecânicas que foram retiradas na v0.55.0; não representam funcionalidades atuais ou planejadas.
+
+## v0.54.6 — Rebalanceamento de combate e IA do DREADNOUGHT
+
+- [x] Reduzir a velocidade e aceleração das tropas básicas, preservando vantagem de mobilidade das variantes Elite.
+- [x] Ajustar vida, esquiva, patrulha, cadência e dano do Sentinela básico; reduzir moderadamente a mobilidade da Sentinela Elite sem remover sua salva dupla.
+- [x] Aplicar nerf mais forte ao Artilheiro: menor mobilidade, faixa de patrulha reduzida, salva de dois projéteis, cadência mais lenta e munição menos rápida/danosa.
+- [x] Reduzir o dano e a frequência dos disparos à distância do perseguidor básico.
+- [x] Garantir por regressão que o DREADNOUGHT não ativa esquiva de tropas diante dos tiros do jogador.
+- [x] Encurtar reposicionamento e estabilização do encouraçado, melhorar a resposta de rotação e acelerar sua cadência por fase.
+- [x] Confirmar prioridade de mísseis teleguiados a longa distância, alcance de 980 unidades, plasma a 760 unidades/s e repulsão já configurada.
+- [x] Fazer o renderer do boss respeitar a escala adaptativa de efeitos, removendo o gradiente dos propulsores apenas quando a qualidade é reduzida.
+- [x] Adicionar testes de regressão para dano, cadência, mobilidade, esquiva, reposicionamento e armas.
+- [ ] Validar em gameplay se as tropas ficaram mais justas sem perder identidade tática; observar especialmente Artilheiro, Sentinela e formações com Guardião.
+- [ ] Validar a frequência dos ataques do DREADNOUGHT, janelas de reação ao plasma e possibilidade de flanqueamento.
+- [ ] Medir FPS e tempo de quadro em celular e desktop, comparando o mesmo cenário e a mesma duração. Checks automatizados não comprovam ganho de desempenho.
+- **Estado:** candidata em PR #81; `main` permanece inalterada. A v0.54.5 e o desenho das notificações aprovados foram preservados.
 
 ## v0.45.0 — Reestruturação da movimentação e IA tática
 

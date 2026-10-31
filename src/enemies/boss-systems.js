@@ -10,9 +10,9 @@ const MODULE_TEMPLATES = [
   { id: 'light-laser-left', kind: 'light-laser', region: 'front', x: -0.42, y: -1.50, maxHealth: 28, replacement: 'light-laser', firingRange: 620 },
   { id: 'light-laser-right', kind: 'light-laser', region: 'front', x: 0.42, y: -1.50, maxHealth: 28, replacement: 'light-laser', firingRange: 620 },
   { id: 'plasma-cannon-left-forward', kind: 'plasma-cannon', region: 'left', x: -1.34, y: -0.02, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 },
-  { id: 'plasma-cannon-left-rear', kind: 'plasma-cannon', region: 'left', x: -1.42, y: 0.52, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 },
+  { id: 'long-range-ion-left', kind: 'light-laser', region: 'left', x: -1.42, y: 0.52, maxHealth: 38, replacement: 'light-laser', firingRange: 1050 },
   { id: 'plasma-cannon-right-forward', kind: 'plasma-cannon', region: 'right', x: 1.34, y: -0.02, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 },
-  { id: 'plasma-cannon-right-rear', kind: 'plasma-cannon', region: 'right', x: 1.42, y: 0.52, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 }, 
+  { id: 'long-range-ion-right', kind: 'light-laser', region: 'right', x: 1.42, y: 0.52, maxHealth: 38, replacement: 'light-laser', firingRange: 1050 },
   { id: 'main-energy-cannon', kind: 'energy-cannon', region: 'front', x: 0, y: -1.84, maxHealth: 58, replacement: 'overload-cannon', firingRange: 1250, energyState: 'standby', energyChargeDuration: 7.2, energyChargeTimer: 7.2, energyAlignDuration: 1.35, energyAlignTimer: 0, energyWarningDuration: 1.8, energyWarningTimer: 0, energyFireDuration: 0.42, energyFireTimer: 0, energyCooldownDuration: 5.5, energyCooldownTimer: 0, energyAimAngle: 0, energyBeamRange: 1250, energyBeamWidth: 46, energyDamage: 34 },
   { id: 'auxiliary-system', kind: 'support-system', region: 'core', x: 0, y: 1.04, maxHealth: 42, replacement: 'adaptive-system' }
 ];
@@ -42,14 +42,14 @@ export function selectBossAttack(modules, targetDistance, targetLocalX, centerli
   const priorities = phase >= 3
     ? (targetDistance <= 500
       ? ['missile', 'plasma', 'machine-gun', 'light-laser']
-      : ['missile', 'machine-gun', 'light-laser', 'plasma'])
+      : ['missile', 'light-laser', 'machine-gun', 'plasma'])
     : phase === 2
       ? (targetDistance <= 500
         ? ['plasma', 'missile', 'machine-gun', 'light-laser']
         : ['missile', 'light-laser', 'machine-gun', 'plasma'])
       : (targetDistance <= 500
         ? ['plasma', 'machine-gun', 'light-laser', 'missile']
-        : ['missile', 'machine-gun', 'light-laser', 'plasma']);
+        : ['missile', 'light-laser', 'machine-gun', 'plasma']);
 
   for (const family of priorities) {
     const available = modules.some((module) => {
@@ -70,9 +70,9 @@ export function selectBossAttack(modules, targetDistance, targetLocalX, centerli
 
 // Missile performance rises slightly by phase, but launch cadence stays deliberate.
 export function getBossMissileProfile(phase = 1) {
-  if (phase >= 3) return { speed: 225, damage: 15, turnRate: 1.48, cooldown: 4.4 };
-  if (phase === 2) return { speed: 205, damage: 13, turnRate: 1.42, cooldown: 4.8 };
-  return { speed: 185, damage: 12, turnRate: 1.36, cooldown: 5.2 };
+  if (phase >= 3) return { speed: 320, damage: 12, turnRate: 0.46, cooldown: 5.4, lifetime: 4.2, curveAmplitude: 0.10, curveFrequency: 2.8 };
+  if (phase === 2) return { speed: 300, damage: 11, turnRate: 0.42, cooldown: 5.7, lifetime: 4.2, curveAmplitude: 0.09, curveFrequency: 2.6 };
+  return { speed: 280, damage: 10, turnRate: 0.38, cooldown: 6.0, lifetime: 4.2, curveAmplitude: 0.08, curveFrequency: 2.4 };
 }
 
 // Only one operational launcher may fire in a salvo. When both wings can reach
@@ -157,9 +157,9 @@ export class BossSystems {
       catastrophic: false,
       originalKind: module.kind,
       turretAngle: 0,
-      plasmaChargeDuration: 5.4,
+      plasmaChargeDuration: 7.2,
       plasmaWarningDuration: 1.5,
-      plasmaChargeTimer: module.kind.includes('plasma') ? 5.4 : 0
+      plasmaChargeTimer: module.kind.includes('plasma') ? 7.2 : 0
     }));
     this.shields = SHIELD_TEMPLATES.map((shield) => ({
       ...shield,

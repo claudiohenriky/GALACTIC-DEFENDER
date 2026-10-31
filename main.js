@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.54.0-cinematic-rebuild';
+import { Game } from './src/core/game.js?v=0.57.2-boss-weapon-pass';
 import { gameAudio } from './src/audio/game-audio.js?v=0.54.0-cinematic-rebuild';
 
 // Entry point: connect the game engine to the page UI.
@@ -24,13 +24,6 @@ guidedMissileButton?.addEventListener('click', (event) => {
   else { event.preventDefault(); event.stopPropagation(); }
 });
 
-const continuousLaserButton = document.querySelector('#continuous-laser-button');
-function laserDown(event) { event.preventDefault(); event.stopPropagation(); if (event.type === 'pointerdown' && event.pointerType === 'mouse' && event.button !== 0) return; game.activateContinuousLaser(); }
-function laserUp(event) { if (event) { event.preventDefault(); event.stopPropagation(); } game.releaseContinuousLaser(); }
-continuousLaserButton?.addEventListener('pointerdown', laserDown, { passive: false });
-['pointerup','pointercancel','lostpointercapture'].forEach(type => continuousLaserButton?.addEventListener(type, laserUp));
-continuousLaserButton?.addEventListener('click', event => { if (event.detail === 0) laserDown(event); else { event.preventDefault(); event.stopPropagation(); } });
-document.querySelectorAll('[data-laser-clash]').forEach(button => button.addEventListener('click', () => game.resolveContinuousLaserClash(button.dataset.laserClash)));
 const shieldPulseButton = document.querySelector('#shield-pulse-button');
 function activateShieldPulseFromControl(event) {
   event.preventDefault();
@@ -182,13 +175,14 @@ function returnToMainMenu() {
 document.querySelector('#pause-menu-button').addEventListener('click', returnToMainMenu);
 document.querySelector('#gameover-menu-button').addEventListener('click', returnToMainMenu);
 
-const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'effects-setting': 'full', 'fps-setting': 'off', 'sound-setting': 'on', 'sound-volume-setting': '75' };
+const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'effects-setting': 'auto', 'fps-setting': 'off', 'sound-setting': 'on', 'sound-volume-setting': '75' };
 function applySettings() {
   const scale = Number(document.querySelector('#hud-scale-setting').value) / 100;
   const opacity = Number(document.querySelector('#hud-opacity-setting').value) / 100;
   document.documentElement.style.setProperty('--hud-scale', String(scale));
   document.documentElement.style.setProperty('--hud-opacity', String(opacity));
   document.documentElement.dataset.effects = document.querySelector('#effects-setting').value;
+  game.setEffectsMode(document.querySelector('#effects-setting').value);
   game.setFpsDisplayEnabled(document.querySelector('#fps-setting').value === 'on');
   document.documentElement.dataset.sound = document.querySelector('#sound-setting').value;
   gameAudio.setVolume(Number(document.querySelector('#sound-volume-setting').value) / 100);
@@ -253,7 +247,6 @@ window.addEventListener('keydown', (event) => {
 });
 window.addEventListener('keyup', (event) => game.handleKeyUp(event));
 window.addEventListener('blur', () => {
-  game.releaseContinuousLaser();
   game.clearInput();
   document.querySelectorAll('.touch-button.is-pressed').forEach((button) => button.classList.remove('is-pressed'));
 });
