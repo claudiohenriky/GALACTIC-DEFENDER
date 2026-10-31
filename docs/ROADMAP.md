@@ -18,7 +18,11 @@
 - [x] Fazer Sentinelas e Artilheiros Elite suspenderem disparos durante a janela de reposicionamento; Guardião Elite só pode flanquear quando não tiver aliados vivos sob proteção.
 - [ ] Refinar os critérios de oportunidade de flanqueamento, feedback visual e balanceamento após teste manual.
 - [ ] Manter Interceptadores comuns simples: perseguição veloz e pressão direta; não recebem papel de flanqueador nem IA avançada exclusiva.
-- [ ] Criar controlador tático próprio para o DREADNOUGHT: controle de distância, reposicionamento para proteger ângulos vulneráveis, previsão imperfeita de trajetórias e estabilização antes de ataques importantes.
+- [x] Criar a primeira camada do controlador tático do DREADNOUGHT: patrulha, reposicionamento oblíquo, estabilização e antecipação limitada do movimento do jogador.
+- [x] Dar aos módulos de armamento alcances próprios e envelopes de disparo por região; armas laterais não atravessam o eixo da nave para mirar no lado oposto, com exceção das metralhadoras de longo alcance.
+- [x] Expandir a bateria de plasma de dois para quatro canhões (dois por lateral), com ciclo de carga, aviso visual de 1,5 s e disparo de alta velocidade.
+- [x] Tornar o impacto de plasma uma ameaça pesada: dano elevado, destruição imediata do escudo ativo e forte impulso de repulsão, menor quando o escudo absorve o impacto.
+- [ ] Completar seleção tática de ataques por estado dos módulos, cobertura de ângulos e zonas de perigo antecipadas; calibrar após teste manual.
 - [ ] Dar aos chefes padrões próprios; não reutilizar a perseguição simples das tropas como controlador principal.
 - [ ] Testar teclado e controles móveis, limites da arena, mudanças de direção, colisões e estabilidade em diferentes taxas de quadros.
 - **Princípio de dificuldade:** os inimigos devem ganhar vantagem por posicionamento, cooperação e controle de áreas — não por conhecer perfeitamente o futuro ou reagir instantaneamente.
