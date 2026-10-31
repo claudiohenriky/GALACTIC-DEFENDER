@@ -269,6 +269,7 @@ export class Game {
     this.continuousLaserHeld = false; this.continuousLaserCooldown = 0; this.continuousLaserDamageClock = 0; this.continuousLaserClash = null;
     this.levelUpParticles = [];
     this.damageSparks = [];
+    this.damageImpactPulse = null;
     this.shieldBreakEffects = [];
     this.shieldThreatScanTimer = 0;
     this.shieldThreatArcs.fill(0);
