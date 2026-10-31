@@ -13,7 +13,7 @@ const MODULE_TEMPLATES = [
   { id: 'plasma-cannon-left-rear', kind: 'plasma-cannon', region: 'left', x: -1.42, y: 0.52, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 },
   { id: 'plasma-cannon-right-forward', kind: 'plasma-cannon', region: 'right', x: 1.34, y: -0.02, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 },
   { id: 'plasma-cannon-right-rear', kind: 'plasma-cannon', region: 'right', x: 1.42, y: 0.52, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 }, 
-  { id: 'main-energy-cannon', kind: 'energy-cannon', region: 'front', x: 0, y: -1.84, maxHealth: 58, replacement: 'overload-cannon', firingRange: 1250, energyState: 'standby', energyChargeDuration: 7.2, energyChargeTimer: 7.2, energyWarningDuration: 2.4, energyWarningTimer: 0, energyCooldownDuration: 5.5, energyCooldownTimer: 0 },
+  { id: 'main-energy-cannon', kind: 'energy-cannon', region: 'front', x: 0, y: -1.84, maxHealth: 58, replacement: 'overload-cannon', firingRange: 1250, energyState: 'standby', energyChargeDuration: 7.2, energyChargeTimer: 7.2, energyAlignDuration: 1.35, energyAlignTimer: 0, energyWarningDuration: 1.8, energyWarningTimer: 0, energyFireDuration: 0.42, energyFireTimer: 0, energyCooldownDuration: 5.5, energyCooldownTimer: 0, energyAimAngle: 0, energyBeamRange: 1250, energyBeamWidth: 46, energyDamage: 34 },
   { id: 'auxiliary-system', kind: 'support-system', region: 'core', x: 0, y: 1.04, maxHealth: 42, replacement: 'adaptive-system' }
 ];
 
@@ -25,6 +25,60 @@ const SHIELD_TEMPLATES = [
 ];
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+const getWeaponFamily = (kind = '') => {
+  if (kind.includes('plasma')) return 'plasma';
+  if (kind.includes('missile') || kind.includes('rocket')) return 'missile';
+  if (kind.includes('machine-gun')) return 'machine-gun';
+  if (kind.includes('light-laser')) return 'light-laser';
+  return null;
+};
+
+// Select one readable weapon family per volley. Selection considers live modules,
+// target range, the side envelope and whether a plasma mount has actually charged.
+export function selectBossAttack(modules, targetDistance, targetLocalX, centerlineTolerance = 8, phase = 1) {
+  const priorities = targetDistance <= 500
+    ? ['plasma', 'machine-gun', 'light-laser', 'missile']
+    : targetDistance <= 720
+      ? ['missile', 'machine-gun', 'light-laser', 'plasma']
+      : phase >= 3
+        ? ['missile', 'light-laser', 'machine-gun', 'plasma']
+        : ['light-laser', 'machine-gun', 'missile', 'plasma'];
+
+  for (const family of priorities) {
+    const available = modules.some((module) => {
+      if (getWeaponFamily(module.kind) !== family) return false;
+      if (module.state === 'destroyed' || module.state === 'disabled' || (module.transitionTimer ?? 0) > 0) return false;
+      if (targetDistance > (module.firingRange ?? 700)) return false;
+      const sideAllowed = module.region !== 'left' && module.region !== 'right'
+        || module.crossSide
+        || Math.abs(targetLocalX) <= centerlineTolerance
+        || Math.sign(targetLocalX) === Math.sign(module.x);
+      if (!sideAllowed) return false;
+      return family !== 'plasma' || (module.plasmaChargeTimer ?? 0) <= 0;
+    });
+    if (available) return family;
+  }
+  return null;
+}
+
+// World-space line from the DREADNOUGHT's open bow aperture. The same geometry
+// drives both the warning renderer and collision, preventing visual/hitbox drift.
+export function getBossBeamSegment(boss, module) {
+  const angle = module.energyAimAngle ?? boss.facingRotation;
+  const range = module.energyBeamRange ?? module.firingRange ?? 1250;
+  const apertureOffset = boss.radius * 1.82;
+  const startX = boss.x + Math.sin(angle) * apertureOffset;
+  const startY = boss.y - Math.cos(angle) * apertureOffset;
+  return {
+    startX, startY,
+    endX: startX + Math.cos(angle) * range,
+    endY: startY + Math.sin(angle) * range,
+    angle,
+    range,
+    width: module.energyBeamWidth ?? 46
+  };
+}
 
 export class BossSystems {
   constructor() {
