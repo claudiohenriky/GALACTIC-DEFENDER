@@ -755,6 +755,11 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Attack Clash agora considera resistência dos projéteis inimigos, evitando que ataques pesados sejam neutralizados por um único disparo leve.
 
 
+## [Unreleased] — Balanceamento dos mísseis do DREADNOUGHT
+
+- Mísseis roxos confirmados como projéteis teleguiados dos lançadores laterais. A salva agora dispara apenas um míssil, alternando a asa quando ambos os lados têm linha de tiro.
+- Cadência separada por cooldown: 5,2 s na fase 1, 4,8 s na fase 2 e 4,4 s na fase 3. Velocidade/dano sobem gradualmente de 185/12 para 225/15, com curva de perseguição moderada.
+
 ## [Unreleased] — IA tática e canhão principal do DREADNOUGHT
 
 - Cada salva agora escolhe uma família de armas com base na distância, alcance real, lado do jogador, integridade dos módulos e disponibilidade de carga; armas indisponíveis não participam da seleção.
