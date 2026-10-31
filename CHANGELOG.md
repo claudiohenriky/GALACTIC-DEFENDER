@@ -1,3 +1,12 @@
+## [0.44.0] — Identidade visual do Encouraçado
+
+- Reconstruída a silhueta como nave capital completa, com casco largo, blindagem grafite fosca e reforços em aço escovado.
+- Integrado ao casco um canal longitudinal de energia ciano, conduzindo visualmente ao canhão principal fixo.
+- Reposicionados os dez hardpoints para distribuir armamentos pelas laterais, proa e região central.
+- Diferenciadas as identidades cromáticas: energia ciano, plasma laranja-avermelhado e traços verdes localizados durante a reconstrução adaptativa da fase III.
+- Preservadas as rotinas de combate, estados dos módulos, escudos, sobrecarga, dano e IA; as coordenadas dos hardpoints foram atualizadas junto à disposição física.
+- **Validação pendente:** teste visual e de combate em navegador, incluindo hardpoints, colisões dos módulos e enquadramento em celular.
+
 ## [0.44.0] — Primeiro chefe: nave de guerra pesada (em desenvolvimento)
 
 - Corrige a geometria de colisão do laser contínuo: o teste agora considera o raio real de projéteis inimigos e entidades (incluindo a hitbox ampliada do boss), somado à largura do feixe. Isso evita falsos negativos em interseções visíveis sem alterar dano, cadência ou alcance.

@@ -577,8 +577,8 @@ export class Enemy {
     const artillery = this.type === 'artillery';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
-    const color = this.isElite ? (artillery ? '#171d24' : ranged ? '#59377f' : guardian ? '#245b4b' : '#7546a6') : boss ? (this.bossPhase === 3 ? '#ff6d8f' : this.bossPhase === 2 ? '#ffb36b' : '#d59bff') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
-    const edge = this.isElite ? (artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
+    const color = boss ? '#202833' : this.isElite ? (artillery ? '#171d24' : ranged ? '#59377f' : guardian ? '#245b4b' : '#7546a6') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
+    const edge = boss ? '#8796a6' : this.isElite ? (artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
     // The death update already integrates wreck velocity into x/y; do not add a second visual drift offset here.
@@ -663,33 +663,34 @@ export class Enemy {
     }
 
     // Angular plating and dark insets distinguish the hostile faction from the player hull.
-    ctx.fillStyle = '#130d20';
+    ctx.fillStyle = boss ? '#111820' : '#130d20';
     ctx.beginPath();
-    ctx.ellipse(0, 2, this.radius * 1.05, this.radius * 0.82, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 2, this.radius * (boss ? 1.48 : 1.05), this.radius * (boss ? 1.78 : 0.82), 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = color;
     ctx.strokeStyle = edge;
     ctx.lineWidth = boss || guardian ? 2 : 1.2;
     ctx.beginPath();
     if (boss) {
-      // Broad armored dreadnought silhouette: the long axis is the ship's forward direction.
-      // Long, narrow armored keel: the silhouette reads as a battleship rather than a compact fighter.
-      ctx.moveTo(0, -this.radius * 2.18);
-      ctx.lineTo(this.radius * 0.22, -this.radius * 1.92);
-      ctx.lineTo(this.radius * 0.34, -this.radius * 1.38);
-      ctx.lineTo(this.radius * 0.58, -this.radius * 0.98);
-      ctx.lineTo(this.radius * 0.72, -this.radius * 0.35);
-      ctx.lineTo(this.radius * 0.78, this.radius * 0.62);
-      ctx.lineTo(this.radius * 0.62, this.radius * 1.28);
-      ctx.lineTo(this.radius * 0.38, this.radius * 1.68);
-      ctx.lineTo(0, this.radius * 1.86);
-      ctx.lineTo(-this.radius * 0.38, this.radius * 1.68);
-      ctx.lineTo(-this.radius * 0.62, this.radius * 1.28);
-      ctx.lineTo(-this.radius * 0.78, this.radius * 0.62);
-      ctx.lineTo(-this.radius * 0.72, -this.radius * 0.35);
-      ctx.lineTo(-this.radius * 0.58, -this.radius * 0.98);
-      ctx.lineTo(-this.radius * 0.34, -this.radius * 1.38);
-      ctx.lineTo(-this.radius * 0.22, -this.radius * 1.92);
+      // Full capital-ship hull: broad shoulders, armored decks and a reinforced stern.
+      ctx.moveTo(0, -this.radius * 2.22);
+      ctx.lineTo(this.radius * 0.34, -this.radius * 2.02);
+      ctx.lineTo(this.radius * 0.62, -this.radius * 1.55);
+      ctx.lineTo(this.radius * 1.04, -this.radius * 1.12);
+      ctx.lineTo(this.radius * 1.34, -this.radius * 0.56);
+      ctx.lineTo(this.radius * 1.46, this.radius * 0.24);
+      ctx.lineTo(this.radius * 1.32, this.radius * 1.02);
+      ctx.lineTo(this.radius * 0.94, this.radius * 1.54);
+      ctx.lineTo(this.radius * 0.56, this.radius * 1.86);
+      ctx.lineTo(0, this.radius * 2.02);
+      ctx.lineTo(-this.radius * 0.56, this.radius * 1.86);
+      ctx.lineTo(-this.radius * 0.94, this.radius * 1.54);
+      ctx.lineTo(-this.radius * 1.32, this.radius * 1.02);
+      ctx.lineTo(-this.radius * 1.46, this.radius * 0.24);
+      ctx.lineTo(-this.radius * 1.34, -this.radius * 0.56);
+      ctx.lineTo(-this.radius * 1.04, -this.radius * 1.12);
+      ctx.lineTo(-this.radius * 0.62, -this.radius * 1.55);
+      ctx.lineTo(-this.radius * 0.34, -this.radius * 2.02);
     } else if (guardian) {
       ctx.moveTo(-this.radius * 0.48, -this.radius * 1.15);
       ctx.lineTo(this.radius * 0.48, -this.radius * 1.15);
@@ -738,49 +739,58 @@ export class Enemy {
 
     if (boss) {
       const systems = this.bossSystems;
-      // Layered armor plates and engine housings keep the large silhouette readable.
-      ctx.fillStyle = '#182638';
-      ctx.strokeStyle = '#91b9d6';
-      ctx.lineWidth = 2;
-      ctx.fillRect(-this.radius * 0.82, -this.radius * 0.34, this.radius * 1.64, this.radius * 1.18);
-      ctx.strokeRect(-this.radius * 0.82, -this.radius * 0.34, this.radius * 1.64, this.radius * 1.18);
-      ctx.fillStyle = '#263d53';
-      ctx.fillRect(-this.radius * 1.14, -this.radius * 0.18, this.radius * 0.34, this.radius * 0.86);
-      ctx.fillRect(this.radius * 0.80, -this.radius * 0.18, this.radius * 0.34, this.radius * 0.86);
-      // Broad side sponsons give the dreadnought a visible flight deck and heavy broadside.
+      // Matte graphite armor with brushed-steel structural ribs.
+      ctx.fillStyle = '#293542'; ctx.strokeStyle = '#718091'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-this.radius * 1.18, -this.radius * 0.82); ctx.lineTo(-this.radius * 0.78, -this.radius * 1.42);
+      ctx.lineTo(-this.radius * 0.30, -this.radius * 1.70); ctx.lineTo(this.radius * 0.30, -this.radius * 1.70);
+      ctx.lineTo(this.radius * 0.78, -this.radius * 1.42); ctx.lineTo(this.radius * 1.18, -this.radius * 0.82);
+      ctx.lineTo(this.radius * 1.28, this.radius * 0.66); ctx.lineTo(this.radius * 0.72, this.radius * 1.48);
+      ctx.lineTo(0, this.radius * 1.82); ctx.lineTo(-this.radius * 0.72, this.radius * 1.48);
+      ctx.lineTo(-this.radius * 1.28, this.radius * 0.66); ctx.closePath(); ctx.fill(); ctx.stroke();
+      // Recessed longitudinal energy channel is integrated into the hull, not a separate module.
+      ctx.fillStyle = '#111820'; ctx.strokeStyle = '#596574'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(0, -this.radius * 2.02); ctx.lineTo(this.radius * 0.23, -this.radius * 1.68);
+      ctx.lineTo(this.radius * 0.17, this.radius * 0.92); ctx.lineTo(0, this.radius * 1.30);
+      ctx.lineTo(-this.radius * 0.17, this.radius * 0.92); ctx.lineTo(-this.radius * 0.23, -this.radius * 1.68);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      // Cyan conduits lead through the channel to the fixed main energy cannon.
+      ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 3; ctx.globalAlpha = 0.78;
+      ctx.beginPath(); ctx.moveTo(-this.radius * 0.12, this.radius * 0.82); ctx.lineTo(-this.radius * 0.10, -this.radius * 1.54); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(this.radius * 0.12, this.radius * 0.82); ctx.lineTo(this.radius * 0.10, -this.radius * 1.54); ctx.stroke(); ctx.globalAlpha = 1;
+      // Broad side decks, layered armor and steel seams establish capital-ship scale.
       for (const side of [-1, 1]) {
-        ctx.fillStyle = '#1b3044'; ctx.strokeStyle = '#7898b2'; ctx.lineWidth = 1.6;
-        ctx.beginPath();
-        ctx.moveTo(side * this.radius * 0.55, -this.radius * 0.42);
-        ctx.lineTo(side * this.radius * 1.18, -this.radius * 0.22);
-        ctx.lineTo(side * this.radius * 1.42, this.radius * 0.28);
-        ctx.lineTo(side * this.radius * 1.32, this.radius * 0.88);
-        ctx.lineTo(side * this.radius * 0.86, this.radius * 1.08);
-        ctx.lineTo(side * this.radius * 0.62, this.radius * 0.62);
+        ctx.fillStyle = '#202833'; ctx.strokeStyle = '#8796a6'; ctx.lineWidth = 1.8;
+        ctx.beginPath(); ctx.moveTo(side * this.radius * 0.56, -this.radius * 0.92); ctx.lineTo(side * this.radius * 1.26, -this.radius * 0.70);
+        ctx.lineTo(side * this.radius * 1.48, -this.radius * 0.12); ctx.lineTo(side * this.radius * 1.42, this.radius * 0.78);
+        ctx.lineTo(side * this.radius * 1.08, this.radius * 1.28); ctx.lineTo(side * this.radius * 0.68, this.radius * 0.92);
         ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#49677e'; ctx.globalAlpha = 0.8;
-        ctx.fillRect(side * this.radius * 1.12 - this.radius * 0.035, -this.radius * 0.05, this.radius * 0.07, this.radius * 0.66);
-        ctx.globalAlpha = 1;
+        ctx.strokeStyle = '#596574'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(side * this.radius * 1.30, -this.radius * 0.42); ctx.lineTo(side * this.radius * 1.34, this.radius * 0.72); ctx.stroke();
+        ctx.strokeStyle = '#a0acb8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(side * this.radius * 0.82, -this.radius * 0.66); ctx.lineTo(side * this.radius * 1.14, -this.radius * 0.48); ctx.stroke();
       }
-      // Twin stern engines reinforce the ship's scale and make propulsion direction readable.
+      // Reinforced stern and twin cyan engine banks.
+      ctx.fillStyle = '#111820'; ctx.strokeStyle = '#596574'; ctx.lineWidth = 2;
       for (const side of [-1, 1]) {
-        ctx.fillStyle = '#101e30'; ctx.strokeStyle = '#7799b5'; ctx.lineWidth = 1.4;
-        ctx.fillRect(side * this.radius * 0.48 - this.radius * 0.16, this.radius * 1.28, this.radius * 0.32, this.radius * 0.42);
-        ctx.strokeRect(side * this.radius * 0.48 - this.radius * 0.16, this.radius * 1.28, this.radius * 0.32, this.radius * 0.42);
-        ctx.globalAlpha = 0.72 + Math.sin(this.phase * 13 + side) * 0.16;
-        ctx.fillStyle = this.bossPhase === 3 ? '#ff704e' : '#65dfff';
-        ctx.fillRect(side * this.radius * 0.48 - this.radius * 0.07, this.radius * 1.62, this.radius * 0.14, this.radius * 0.18);
+        ctx.fillRect(side * this.radius * 0.58 - this.radius * 0.19, this.radius * 1.22, this.radius * 0.38, this.radius * 0.58);
+        ctx.strokeRect(side * this.radius * 0.58 - this.radius * 0.19, this.radius * 1.22, this.radius * 0.38, this.radius * 0.58);
+        ctx.globalAlpha = 0.82 + Math.sin(this.phase * 13 + side) * 0.12; ctx.fillStyle = '#36d9ff';
+        ctx.fillRect(side * this.radius * 0.58 - this.radius * 0.075, this.radius * 1.68, this.radius * 0.15, this.radius * 0.18); ctx.globalAlpha = 1;
+      }
+      // Permanent cyan core; phase III adds localized adaptive-green repair traces.
+      const corePulse = 0.78 + Math.sin(this.phase * 9) * 0.12;
+      ctx.fillStyle = '#36d9ff'; ctx.globalAlpha = this.bossPhase === 3 ? 0.34 : 0.20;
+      ctx.fillRect(-this.radius * 0.16, -this.radius * 0.12, this.radius * 0.32, this.radius * 0.78);
+      ctx.globalAlpha = corePulse; ctx.fillRect(-this.radius * 0.075, -this.radius * 0.06, this.radius * 0.15, this.radius * 0.64); ctx.globalAlpha = 1;
+      if (this.bossPhase === 3) {
+        ctx.strokeStyle = '#66e69a'; ctx.lineWidth = 2; ctx.globalAlpha = 0.72;
+        for (const side of [-1, 1]) { ctx.beginPath(); ctx.moveTo(side * this.radius * 0.42, this.radius * 0.92); ctx.lineTo(side * this.radius * 0.30, this.radius * 0.62); ctx.lineTo(side * this.radius * 0.18, this.radius * 0.48); ctx.stroke(); }
         ctx.globalAlpha = 1;
       }
-      const coreColor = this.bossPhase === 3 ? '#ff704e' : '#55c9ed';
-      // Layered solid rectangles replace Canvas shadow blur, which is costly on mobile GPUs.
-      ctx.globalAlpha = 0.14;
-      ctx.fillStyle = coreColor;
-      ctx.fillRect(-this.radius * 0.29, -this.radius * 0.21, this.radius * 0.58, this.radius * 0.74);
-      ctx.globalAlpha = 0.28;
-      ctx.fillRect(-this.radius * 0.24, -this.radius * 0.16, this.radius * 0.48, this.radius * 0.66);
-      ctx.globalAlpha = 1;
-      ctx.fillRect(-this.radius * 0.20, -this.radius * 0.12, this.radius * 0.40, this.radius * 0.56);
+      ctx.strokeStyle = '#596574'; ctx.lineWidth = 1.4;
+      for (const side of [-1, 1]) {
+        ctx.beginPath(); ctx.moveTo(side * this.radius * 0.42, -this.radius * 1.28); ctx.lineTo(side * this.radius * 0.88, -this.radius * 0.94); ctx.lineTo(side * this.radius * 1.02, -this.radius * 0.40); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(side * this.radius * 0.82, this.radius * 0.88); ctx.lineTo(side * this.radius * 0.62, this.radius * 1.24); ctx.stroke();
+      }
 
       // Ten independently damageable weapon modules are represented by visible sockets.
       if (systems) {
@@ -801,10 +811,10 @@ export class Enemy {
           const moduleColor = module.state === 'destroyed' ? '#343b45'
             : module.state === 'disabled' ? '#713d32'
               : module.state === 'damaged' ? '#b86a37'
-                : renderKind.includes('laser') ? '#64e5ff'
-                  : renderKind.includes('missile') || renderKind.includes('rocket') ? '#c7a6ff'
-                    : renderKind.includes('plasma') ? '#ffb56b'
-                      : renderKind.includes('energy') || renderKind.includes('cannon') ? '#ff8cae' : '#9ab7ca';
+                : renderKind.includes('laser') ? '#36d9ff'
+                  : renderKind.includes('missile') || renderKind.includes('rocket') ? '#aab6c2'
+                    : renderKind.includes('plasma') ? '#ff653d'
+                      : renderKind.includes('energy') || renderKind.includes('cannon') ? '#36d9ff' : '#8796a6';
           const mountSize = radius * 0.105;
           const moduleSize = mountSize * 2;
           const moduleHalfSize = moduleSize / 2;
@@ -812,8 +822,8 @@ export class Enemy {
           ctx.translate(mx, my);
           ctx.rotate(module.turretAngle ?? 0);
           // Each module gets a visible armored hardpoint and a recognizable weapon silhouette.
-          ctx.fillStyle = '#101d2a';
-          ctx.strokeStyle = '#9ebbd0';
+          ctx.fillStyle = '#111820';
+          ctx.strokeStyle = '#8796a6';
           ctx.lineWidth = 1.6;
           ctx.beginPath();
           ctx.moveTo(-mountSize * 1.15, -mountSize * 0.75);
@@ -871,9 +881,9 @@ export class Enemy {
               ctx.fillRect(-mountSize * 0.24, -mountSize * 1.85, mountSize * 0.48, mountSize * 1.55);
             } else if (renderKind.includes('energy') || renderKind.includes('cannon')) {
               ctx.fillRect(-mountSize * 0.72, -mountSize * 0.7, mountSize * 1.44, mountSize * 1.35);
-              ctx.fillStyle = '#ffe0ed';
+              ctx.fillStyle = '#d8faff';
               ctx.fillRect(-mountSize * 0.32, -mountSize * 2.5, mountSize * 0.64, mountSize * 2.35);
-              ctx.fillStyle = '#ff83b0';
+              ctx.fillStyle = '#36d9ff';
               ctx.fillRect(-mountSize * 0.12, -mountSize * 2.35, mountSize * 0.24, mountSize * 2.1);
             } else {
               ctx.beginPath();
