@@ -16,10 +16,18 @@ test('oriented hull collision follows the long axis and ship rotation',()=>{
  assert.equal(orientedEllipseOverlapsCircle(hull,{x:205,y:0,radius:3},142,218,Math.PI/2),true);
  assert.equal(orientedEllipseOverlapsCircle(hull,{x:0,y:205,radius:3},142,218,Math.PI/2),false);
 });
-test('boss owns ten unique weapon modules and four regional shields',()=>{
+test('boss owns twelve unique weapon modules, including four plasma cannons, and four regional shields',()=>{
  const systems=new BossSystems();
- assert.equal(systems.modules.length,10);
- assert.equal(new Set(systems.modules.map(m=>m.id)).size,10);
+ assert.equal(systems.modules.length,12);
+ assert.equal(new Set(systems.modules.map(m=>m.id)).size,12);
+ const plasma=systems.modules.filter(m=>m.kind.includes('plasma'));
+ assert.equal(plasma.length,4);
+ assert.equal(plasma.filter(m=>m.region==='left').length,2);
+ assert.equal(plasma.filter(m=>m.region==='right').length,2);
+ assert.ok(plasma.every(m=>m.firingRange===500 && m.plasmaWarningDuration===1.5));
+ assert.equal(systems.getModule('machine-gun-left').crossSide,true);
+ assert.equal(systems.getModule('machine-gun-right').crossSide,true);
+ assert.ok(systems.modules.filter(m=>m.region==='left'||m.region==='right').every(m=>m.firingRange>0));
  assert.deepEqual(systems.shields.map(s=>s.id),['front','left','right','rear']);
 });
 test('regional shield absorbs damage and becomes disabled at zero',()=>{
