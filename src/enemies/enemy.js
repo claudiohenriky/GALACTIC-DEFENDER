@@ -294,7 +294,7 @@ export class Enemy {
 
       if (this.bossMovementState === 'reposition' && this.bossMovementTimer <= 0) {
         this.bossMovementState = 'stabilize';
-        this.bossMovementTimer = 0.7;
+        this.bossMovementTimer = 0.45;
       } else if (this.bossMovementState === 'stabilize' && this.bossMovementTimer <= 0) {
         this.bossMovementState = 'patrol';
         this.bossPatrolTargetTimer = 0;
