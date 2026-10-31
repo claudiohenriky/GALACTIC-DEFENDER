@@ -143,7 +143,10 @@ test('DREADNOUGHT launches only one missile per salvo and applies a dedicated co
  assert.equal(first[0].speed,280);
  assert.equal(first[0].damage,10);
  assert.equal(first[0].guidedStyle,true);
+ assert.equal(first[0].turnRate,0.38);
  assert.equal(first[0].lifetime,4.2);
+ assert.equal(first[0].curveAmplitude,0.08);
+ assert.equal(first[0].curveFrequency,2.4);
  assert.equal(boss.bossMissileCooldown,6.0);
  const next=boss.update(1/60,targetX,targetY,1000,1200,[],[],0,0,0);
  assert.equal(next,null,'missiles must not launch again during the dedicated cooldown');
