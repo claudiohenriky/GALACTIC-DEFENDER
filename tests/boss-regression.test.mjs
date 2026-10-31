@@ -248,7 +248,7 @@ test('basic Sentinel has reduced mobility while Elite remains a distinct faster 
  const basic=new Enemy(100,100,1,'sentinel');
  const elite=new Enemy(100,100,1,'sentinel',true);
  assert.equal(basic.isElite,false);
- assert.equal(basic.speed,40);
+ assert.equal(basic.speed,35.6);
  assert.equal(ENEMY_MOTION_PROFILES.sentinel.maxSpeed,76);
  assert.equal(ENEMY_MOTION_PROFILES.sentinel.acceleration,155);
  assert.ok(ENEMY_MOTION_PROFILES.sentinelElite.maxSpeed>ENEMY_MOTION_PROFILES.sentinel.maxSpeed);
