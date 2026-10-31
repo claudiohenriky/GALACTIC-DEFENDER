@@ -21,7 +21,7 @@ export class WaveManager {
   startAtWaveForTesting(wave) {
     const targetWave = Math.max(1, Math.floor(Number(wave) || 1));
     this.wave = targetWave;
-    const bossWave = targetWave >= 10 && targetWave % 5 === 0;
+    const bossWave = targetWave >= 10 && targetWave % 10 === 0;
     this.enemyCount = bossWave ? 1 : Math.min(5 + (targetWave - 1) * 2, 18);
     this.spawnedCount = 0;
     this.state = 'spawning';
@@ -33,7 +33,7 @@ export class WaveManager {
       this.timer -= dt;
       if (this.timer <= 0) {
         this.wave += 1;
-        const bossWave = (BOSS_TEST_MODE && this.wave === 1) || (this.wave >= 10 && this.wave % 5 === 0);
+        const bossWave = (BOSS_TEST_MODE && this.wave === 1) || (this.wave >= 10 && this.wave % 10 === 0);
         this.enemyCount = bossWave ? 1 : Math.min(5 + (this.wave - 1) * 2, 18);
         this.spawnedCount = 0;
         this.state = 'spawning';

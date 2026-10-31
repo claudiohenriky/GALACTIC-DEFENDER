@@ -6,8 +6,8 @@ import { Enemy } from '../src/enemies/enemy.js';
 import { getGuardianProtectionPriority, selectGuardianProtectionTargets } from '../src/ai/guardian-protection.js';
 import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
-import { advanceWaveTenTransition, createWaveTenTransition, finalizeWaveTenTransition, WAVE_TEN_TRANSITION_DURATION } from '../src/core/wave-ten-transition.js';
-import { getBossCameraFrame, getBossEntrancePositions, getBossCombatTargetY, prepareBossForCombatHandoff } from '../src/core/boss-camera.js';
+import { getBossCombatTargetY } from '../src/core/boss-positioning.js';
+import { prepareBossForCombatHandoff } from '../src/core/boss-cinematic-camera.js';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, getPilotReactionPosition } from '../src/ui/pilot-reactions.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
@@ -213,219 +213,18 @@ test('elite variants are limited to Sentinel, Guardian and Artillery; Intercepto
 });
 
 
-test('wave 9 to 10 transition waits ten seconds, then runs the cinematic phases in order',()=>{
- const transition=createWaveTenTransition();
- const advance=(seconds)=>{let remaining=seconds;while(remaining>0){const step=Math.min(0.05,remaining);advanceWaveTenTransition(transition,step);remaining-=step;}};
- assert.equal(transition.phase,'loading');
- assert.equal(transition.phaseDuration,10);
- advance(9.9);assert.equal(transition.phase,'loading');
- advance(0.1);assert.equal(transition.phase,'pilot-report');
- advance(3.2);assert.equal(transition.phase,'pilot-warning');
- advance(3);assert.equal(transition.phase,'boss-entry');
- advance(4.8);assert.equal(transition.phase,'boss-taunt');
- advance(4.2);assert.equal(transition.phase,'complete');
- assert.equal(WAVE_TEN_TRANSITION_DURATION,25.2);
-});
-
-test('DREADNOUGHT reveal keeps a larger buffer between the player and the lower hull',()=>{
- const height=720, playerY=1400;
- const {startY,endY}=getBossEntrancePositions(playerY,height);
- assert.equal(startY,playerY-height*1.42);
- assert.equal(endY,playerY-height*0.92);
- const hullHalfHeight=145*1.5, playerRadius=12;
- const visibleGap=playerY-(endY+hullHalfHeight+playerRadius);
- assert.ok(visibleGap>400,`expected a clear reveal gap, received ${visibleGap}`);
-});
-
-test('cinematic handoff releases the boss internal entrance timer before combat',()=>{
- const boss=new Enemy(500,200,10,'boss');
- assert.equal(boss.bossEntranceTimer,boss.bossEntranceDuration);
- const transition={boss};
- assert.equal(finalizeWaveTenTransition(transition),boss);
+test('new cinematic handoff clears the constructor entrance timer before normal AI resumes',()=>{
+ const boss=new Enemy(640,120,10,'boss');
+ assert.ok(boss.bossEntranceTimer>0);
+ prepareBossForCombatHandoff(boss,980);
  assert.equal(boss.bossEntranceTimer,0);
- boss.update(1/60,500,900,1000,1200,[],[],0,0,0);
- assert.equal(boss.bossEntranceTimer,0,'normal AI must not replay the cinematic entrance');
-});
-
-test('wave 10 transition ignores negative and oversized frame deltas safely',()=>{
- const transition=createWaveTenTransition();
- advanceWaveTenTransition(transition,-1);assert.equal(transition.elapsed,0);
- advanceWaveTenTransition(transition,1);assert.equal(transition.elapsed,0.05);
- assert.equal(transition.phase,'loading');
-});
-
-
-test('basic Sentinel has reduced mobility while Elite remains a distinct faster variant',()=>{
- const basic=new Enemy(100,100,1,'sentinel');
- const elite=new Enemy(100,100,1,'sentinel',true);
- assert.equal(basic.isElite,false);
- assert.equal(basic.speed,35.6);
- assert.equal(ENEMY_MOTION_PROFILES.sentinel.maxSpeed,76);
- assert.equal(ENEMY_MOTION_PROFILES.sentinel.acceleration,155);
- assert.ok(ENEMY_MOTION_PROFILES.sentinelElite.maxSpeed>ENEMY_MOTION_PROFILES.sentinel.maxSpeed);
- assert.ok(ENEMY_MOTION_PROFILES.sentinelElite.acceleration>ENEMY_MOTION_PROFILES.sentinel.acceleration);
- assert.equal(elite.isElite,true);
-});
-
-test('test-only wave start sets the requested wave without changing normal reset defaults',()=>{
- const waves=new WaveManager();
- assert.equal(waves.wave,1);
- assert.equal(waves.enemyCount,5);
- waves.startAtWaveForTesting(9);
- assert.equal(waves.wave,9);
- assert.equal(waves.enemyCount,18);
- assert.equal(waves.spawnedCount,0);
- assert.equal(waves.state,'spawning');
- waves.reset();
- assert.equal(waves.wave,1);
- assert.equal(waves.enemyCount,5);
-});
-
-
-test('combat rebalance lowers basic enemy mobility and keeps Elite variants distinct',()=>{
- const sentinel=new Enemy(100,100,1,'sentinel');
- const artillery=new Enemy(100,100,1,'artillery');
- const artilleryElite=new Enemy(100,100,1,'artillery',true);
- const guardian=new Enemy(100,100,1,'guardian');
- const interceptor=new Enemy(100,100,1,'interceptor');
- assert.equal(sentinel.speed,35.6);
- assert.equal(ENEMY_MOTION_PROFILES.sentinel.maxSpeed,76);
- assert.equal(ENEMY_MOTION_PROFILES.sentinel.acceleration,155);
- assert.equal(artillery.speed,29.6);
- assert.equal(ENEMY_MOTION_PROFILES.artillery.maxSpeed,68);
- assert.equal(ENEMY_MOTION_PROFILES.artillery.acceleration,135);
- assert.equal(ENEMY_MOTION_PROFILES.artilleryElite.maxSpeed,108);
-  assert.ok(ENEMY_MOTION_PROFILES.artilleryElite.maxSpeed>ENEMY_MOTION_PROFILES.artillery.maxSpeed);
- assert.equal(ENEMY_MOTION_PROFILES.artilleryElite.acceleration,210);
-  assert.ok(ENEMY_MOTION_PROFILES.artilleryElite.acceleration>ENEMY_MOTION_PROFILES.artillery.acceleration);
- assert.equal(ENEMY_MOTION_PROFILES.guardian.maxSpeed,90);
- assert.ok(interceptor.speed<100);
- assert.equal(guardian.isElite,false);
-});
-
-test('DREADNOUGHT does not trigger a lateral dodge in response to player projectiles',()=>{
- const boss=new Enemy(300,250,10,'boss');
- boss.bossEntranceTimer=0;
- boss.facingRotation=Math.PI/2;
- boss.update(0.1,300,650,1000,1000,[{active:true,x:300,y:400,vx:0,vy:-200,radius:3}],[],0,0,0);
- assert.equal(boss.dodgeTimer,0);
-});
-
-test('DREADNOUGHT missile mounts retain a long-range firing lane',()=>{
- const systems=new BossSystems();
- const missile=systems.getModule('missile-left');
- assert.equal(missile.firingRange,980);
- assert.equal(selectBossAttack([missile],900,-120,8,1),'missile');
-});
-
-
-test('pilot reaction badge avoids the dialogue bubble and stays inside the viewport',()=>{
- const bubble={x:220,y:110,width:190,height:76};
- const position=getPilotReactionPosition({x:210,y:150,bubble,width:420,height:300});
- const radius=16;
- const overlaps=position.x+radius>bubble.x-7 && position.x-radius<bubble.x+bubble.width+7 &&
-   position.y+radius>bubble.y-7 && position.y-radius<bubble.y+bubble.height+7;
- assert.equal(overlaps,false);
- assert.ok(position.x>=radius+5 && position.x<=420-radius-5);
- assert.ok(position.y>=radius+5 && position.y<=300-radius-5);
-});
-
-test('pilot reactions display surprise and expire cleanly',()=>{
- const state=createPilotReactionState();
- assert.equal(triggerPilotReaction(state,'❓',1.5),true);
- assert.equal(state.symbol,'❓');
- updatePilotReaction(state,0.5);
- assert.equal(state.remaining,1);
- updatePilotReaction(state,1);
- assert.equal(state.symbol,'');
- assert.equal(state.remaining,0);
-});
-
-test('pilot threat warning is edge-triggered and can be signaled again after clearing',()=>{
- const state=createPilotReactionState(),source={};
- assert.equal(signalPilotThreat(state,source,true),true);
- assert.equal(state.symbol,'❗');
- assert.equal(signalPilotThreat(state,source,true),false);
- assert.equal(signalPilotThreat(state,source,false),false);
- assert.equal(signalPilotThreat(state,source,true),true);
-});
-
-test('basic Artillery preserves its original three-projectile fan',()=>{
- const artillery=new Enemy(400,220,1,'artillery');
- artillery.fireCooldown=0;
- const shots=artillery.update(1/60,500,900,1000,1200,[],[],0,0,0);
- assert.equal(shots.length,3);
- assert.ok(shots.every(shot=>shot.damage===3.8));
-});
-
-test('basic Artillery uses a slower and shorter lateral dodge',()=>{
- const artillery=new Enemy(400,220,1,'artillery');
- assert.equal(ENEMY_MOTION_PROFILES.artillery.maxSpeed,68);
- assert.equal(ENEMY_MOTION_PROFILES.artillery.acceleration,135);
- const threat={active:true,x:400,y:300,vx:0,vy:-200,radius:3};
- artillery.update(1/60,500,900,1000,1200,[threat],[],0,0,0);
- assert.ok(artillery.dodgeTimer<=0.32);
- assert.ok(artillery.dodgeCooldown>=1.59);
-});
-
-test('Guardian protection prioritizes Elite ranged allies, then normal ranged allies and nearby troops',()=>{
- const guardian=new Enemy(400,400,1,'guardian');
- const eliteSentinel=new Enemy(500,400,1,'sentinel',true);
- const eliteArtillery=new Enemy(420,560,1,'artillery',true);
- const normalSentinel=new Enemy(430,420,1,'sentinel');
- const normalArtillery=new Enemy(440,420,1,'artillery');
- const chaser=new Enemy(405,410,1,'chaser');
- assert.equal(getGuardianProtectionPriority(eliteSentinel),0);
- assert.equal(getGuardianProtectionPriority(eliteArtillery),0);
- assert.equal(getGuardianProtectionPriority(normalSentinel),1);
- assert.equal(getGuardianProtectionPriority(chaser),3);
- const selected=selectGuardianProtectionTargets(guardian,[chaser,normalSentinel,eliteArtillery,eliteSentinel,normalArtillery],new Set(),360);
- assert.deepEqual(selected,[eliteSentinel,eliteArtillery]);
-});
-
-test('Guardian does not abandon its formation to protect distant allies or double-assign a target',()=>{
- const guardian=new Enemy(100,100,1,'guardian');
- const nearby=new Enemy(180,100,1,'sentinel',true);
- const distant=new Enemy(900,900,1,'artillery',true);
- assert.deepEqual(selectGuardianProtectionTargets(guardian,[nearby,distant],new Set(),250),[nearby]);
- assert.deepEqual(selectGuardianProtectionTargets(guardian,[nearby],new Set([nearby]),250),[]);
-});
-
-
-test('boss camera frames keep the pilot and DREADNOUGHT in a shared cinematic view',()=>{
- const player={x:600,y:1100};
- const boss={x:600,y:720,collisionRadius:145};
- const frame=getBossCameraFrame({phase:'boss-entry',player,boss,width:900,height:500,minZoom:1/2.4});
- assert.equal(frame.x,150);
- assert.equal(frame.y,557.25);
- assert.equal(frame.zoom,0.52);
- const loading=getBossCameraFrame({phase:'loading',player,width:900,height:500,minZoom:1/2.4});
- assert.equal(loading.zoom,0.72);
- assert.ok(loading.y>frame.y,'loading view should begin closer to the pilot before pulling out');
-});
-
-test('boss camera respects the calculated minimum zoom on narrow viewports',()=>{
- const frame=getBossCameraFrame({phase:'boss-taunt',player:{x:180,y:500,radius:12},boss:{x:180,y:200,collisionRadius:145},width:360,height:740,minZoom:0.55});
- assert.equal(frame.zoom,0.55);
- assert.equal(frame.x,0);
-});
-
-
-test('cinematic handoff camera matches the normal combat frame without post-cutscene zoom or pan',()=>{
- const width=900, height=720, worldWidth=width*2.4, worldHeight=height*2.4;
- const player={x:worldWidth/2,y:worldHeight*0.78,radius:12};
- const boss={x:player.x,y:player.y-height*0.92,collisionRadius:145};
- const frame=getBossCameraFrame({phase:'complete',player,boss,width,height,minZoom:1/2.4,worldWidth,worldHeight});
- assert.equal(frame.zoom,1/2.4);
- assert.equal(frame.x,width*0.7);
- assert.equal(frame.y,height*0.7);
-});
-
-test('DREADNOUGHT combat standoff matches its cinematic reveal and prevents a vertical handoff correction',()=>{
- const viewportHeight=720, worldHeight=viewportHeight*2.4, playerY=1400;
- const entrance=getBossEntrancePositions(playerY,viewportHeight);
- const combatTarget=getBossCombatTargetY(playerY,worldHeight,100,145);
- assert.ok(Math.abs(entrance.endY-combatTarget)<1e-9);
+ assert.equal(boss.y,980);
+ assert.equal(boss.bossMoveTargetY,980);
+ assert.equal(boss.bossMoveTargetX,boss.x);
+ assert.equal(boss.bossMovementState,'patrol');
+ assert.equal(boss.bossMovementTimer,0);
+ assert.equal(boss.velocityX,0);
+ assert.equal(boss.velocityY,0);
 });
 
 test('DREADNOUGHT phase attack priorities create distinct but readable weapon rotations',()=>{

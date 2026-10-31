@@ -30,3 +30,16 @@ export function getBossCinematicCameraFrame({
   const y = Math.max(minY, Math.min(maxY, focusY - height / 2));
   return { zoom, x, y };
 }
+
+export function prepareBossForCombatHandoff(boss, targetY = boss?.y) {
+  if (!boss) return null;
+  boss.y = targetY;
+  boss.bossMoveTargetY = targetY;
+  boss.bossMoveTargetX = boss.x;
+  boss.bossMovementState = 'patrol';
+  boss.bossMovementTimer = 0;
+  boss.bossEntranceTimer = 0;
+  boss.velocityX = 0;
+  boss.velocityY = 0;
+  return boss;
+}

@@ -1,5 +1,5 @@
 import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.53.0-stage-6-7';
-import { getBossCombatTargetY } from '../core/boss-camera.js?v=0.53.0-stage-6-7';
+import { getBossCombatTargetY } from '../core/boss-positioning.js?v=0.54.0-clean-cinematic';
 import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.50.0-ai-balance';
 import { getGuardianProtectionPriority } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
 
@@ -62,6 +62,7 @@ export class Enemy {
     this.contactCooldown = 0;
     // Threat response is deliberately limited: ranged units dodge predicted near-misses, not every shot.
     this.dodgeCooldown = 0;
+    this.dodgeScanTimer = 0;
     this.dodgeTimer = 0;
     this.dodgeDirection = 0;
     this.disruptionTimer = 0;
@@ -125,6 +126,7 @@ export class Enemy {
     const previousY = this.y;
     this.contactCooldown = Math.max(0, this.contactCooldown - dt);
     this.dodgeCooldown = Math.max(0, this.dodgeCooldown - dt);
+    this.dodgeScanTimer = Math.max(0, this.dodgeScanTimer - dt);
     this.dodgeTimer = Math.max(0, this.dodgeTimer - dt);
     this.flankCooldown = Math.max(0, this.flankCooldown - dt);
     this.flankTimer = Math.max(0, this.flankTimer - dt);
@@ -216,7 +218,10 @@ export class Enemy {
 
     // Estimate closest approach over a short horizon using relative velocity.
     // Only Sentinel, Artillery and Boss react in this first pass; each has a different response strength.
-    if ((this.type === 'sentinel' || this.type === 'artillery') && this.dodgeCooldown <= 0) {
+    if ((this.type === 'sentinel' || this.type === 'artillery') && this.dodgeCooldown <= 0 && this.dodgeScanTimer <= 0) {
+      // No threat is usually present. Re-scan projectile trajectories at 6.25 Hz
+      // instead of repeating the full projectile pass on every rendered frame.
+      this.dodgeScanTimer = 0.16;
       let hasBestThreat = false;
       let bestThreatX = 0;
       let bestClearanceSquared = Infinity;

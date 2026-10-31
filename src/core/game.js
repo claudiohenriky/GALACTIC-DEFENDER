@@ -16,7 +16,7 @@ import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert } from './boss-cinematic.js?v=0.54.0-clean-cinematic';
 import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.54.0-clean-cinematic';
-import { prepareBossForCombatHandoff } from './boss-camera.js?v=0.54.0-clean-cinematic';
+import { prepareBossForCombatHandoff } from './boss-cinematic-camera.js?v=0.54.0-clean-cinematic';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.53.2-reaction-polish';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
@@ -168,8 +168,10 @@ export class Game {
     this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     this.pixelRatio = ratio;
     this.cacheBackground();
-    this.player.fitToArena(this.worldWidth, this.worldHeight);
-    if (!this.bossCinematic) this.updateCamera(0, true);
+    if (!this.bossCinematic) {
+      this.player.fitToArena(this.worldWidth, this.worldHeight);
+      this.updateCamera(0, true);
+    }
     this.renderFrame(0);
   }
 
@@ -239,6 +241,8 @@ export class Game {
     this.player = new Player(this.worldWidth, this.worldHeight);
     this.cameraZoom = 1;
     this.bossEncounterSeen = false;
+    this.bossCinematic = null;
+    this.setCinematicHudOpacity(1, false);
     this.cameraX = 0;
     this.cameraY = 0;
     this.updateCamera(0, true);
@@ -367,7 +371,7 @@ export class Game {
     const toast = document.querySelector('#level-up-toast');
     toast.textContent = levelsGained > 1 ? `✦ NÍVEIS +${levelsGained}` : '✦ NÍVEL AUMENTADO';
     this.restartFeedbackAnimation(toast, 'level-up-active');
-    for (let i = 0; i < 22; i += 1) {
+    for (let i = 0; i < 22 && this.levelUpParticles.length < 66; i += 1) {
       const angle = (Math.PI * 2 * i) / 22 + rand(-0.15, 0.15);
       const speed = rand(32, 105);
       const life = rand(0.45, 0.95);
@@ -509,7 +513,7 @@ export class Game {
     this.damageFeedbackTimer = 0.48;
     this.damageImpactPulse = { x: this.player.x, y: this.player.y, life: 0.3, maxLife: 0.3 };
     // Brief red electrical sparks around the ship communicate a hit without obscuring play.
-    for (let i = 0; i < 9; i += 1) {
+    for (let i = 0; i < 9 && this.damageSparks.length < 36; i += 1) {
       const angle = rand(0, Math.PI * 2);
       const speed = rand(22, 68);
       const life = rand(0.32, 0.55);
@@ -525,8 +529,8 @@ export class Game {
     }
     // Sparks are reserved for low hull integrity, not every hit; cap them aggressively.
     const integrityRatio = this.player.health / Math.max(1, this.player.maxHealth);
-    if (integrityRatio <= 0.35 && this.damageSparks.length < 12) {
-      for (let i = 0; i < 2 && this.damageSparks.length < 12; i += 1) {
+    if (integrityRatio <= 0.35 && this.damageSparks.length < 36) {
+      for (let i = 0; i < 2 && this.damageSparks.length < 36; i += 1) {
         const angle = rand(0, Math.PI * 2), speed = rand(22, 42), life = rand(0.16, 0.28);
         this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 9, y: this.player.y + Math.sin(angle) * 9, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, length: rand(3, 6), size: rand(1, 1.6), color: '#ff9d45' });
       }
