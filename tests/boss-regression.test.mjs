@@ -111,9 +111,10 @@ test('DREADNOUGHT launches only one missile per salvo and applies a dedicated co
  boss.facingRotation=Math.PI/2;
  const targetX=500,targetY=900;
  const first=boss.update(1/60,targetX,targetY,1000,1200,[],[],0,0,0);
- assert.ok(first && !Array.isArray(first));
- assert.equal(first.speed,185);
- assert.equal(first.damage,12);
+ assert.ok(Array.isArray(first));
+ assert.equal(first.length,1,'only one wing may launch in a salvo');
+ assert.equal(first[0].speed,185);
+ assert.equal(first[0].damage,12);
  assert.equal(boss.bossMissileCooldown,5.2);
  const next=boss.update(1/60,targetX,targetY,1000,1200,[],[],0,0,0);
  assert.equal(next,null,'missiles must not launch again during the dedicated cooldown');
