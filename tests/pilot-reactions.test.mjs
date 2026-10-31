@@ -6,7 +6,8 @@ import {
   triggerPilotReaction,
   updatePilotReaction,
   signalPilotThreat,
-  drawPilotReaction
+  drawPilotReaction,
+  getPilotReactionPosition
 } from '../src/ui/pilot-reactions.js';
 
 test('pilot threat warning triggers once per attack telegraph transition', () => {
@@ -34,6 +35,17 @@ test('pilot reactions preserve question, danger, and combined Elite indicators',
   updatePilotReaction(state, 2.2);
   assert.equal(state.remaining, 0);
   assert.equal(state.symbol, '');
+});
+
+
+test('pilot reaction stays close to the side of the ship and clear of its dialogue card', () => {
+  const position = getPilotReactionPosition({
+    x: 400, y: 300, width: 900, height: 420,
+    bubble: { x: 180, y: 230, width: 190, height: 70 }
+  });
+  assert.ok(position);
+  assert.ok(Math.abs(position.x - 423) < 1e-9);
+  assert.ok(Math.abs(position.y - 298) < 1e-9);
 });
 
 test('pilot reaction renderer accepts the state and screen position without throwing', () => {
