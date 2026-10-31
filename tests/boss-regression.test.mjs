@@ -211,28 +211,21 @@ test('elite variants are limited to Sentinel, Guardian and Artillery; Intercepto
 
 test('wave 9 to 10 transition waits ten seconds, then runs the cinematic phases in order',()=>{
  const transition=createWaveTenTransition();
+ const advance=(seconds)=>{let remaining=seconds;while(remaining>0){const step=Math.min(0.05,remaining);advanceWaveTenTransition(transition,step);remaining-=step;}};
  assert.equal(transition.phase,'loading');
  assert.equal(transition.phaseDuration,10);
- advanceWaveTenTransition(transition,9.9);
- assert.equal(transition.phase,'loading');
- advanceWaveTenTransition(transition,0.1);
- assert.equal(transition.phase,'pilot-report');
- advanceWaveTenTransition(transition,3.2);
- assert.equal(transition.phase,'pilot-warning');
- advanceWaveTenTransition(transition,3);
- assert.equal(transition.phase,'boss-entry');
- advanceWaveTenTransition(transition,4.8);
- assert.equal(transition.phase,'boss-taunt');
- advanceWaveTenTransition(transition,4.2);
- assert.equal(transition.phase,'complete');
+ advance(9.9);assert.equal(transition.phase,'loading');
+ advance(0.1);assert.equal(transition.phase,'pilot-report');
+ advance(3.2);assert.equal(transition.phase,'pilot-warning');
+ advance(3);assert.equal(transition.phase,'boss-entry');
+ advance(4.8);assert.equal(transition.phase,'boss-taunt');
+ advance(4.2);assert.equal(transition.phase,'complete');
  assert.equal(WAVE_TEN_TRANSITION_DURATION,25.2);
 });
 
 test('wave 10 transition ignores negative and oversized frame deltas safely',()=>{
  const transition=createWaveTenTransition();
- advanceWaveTenTransition(transition,-1);
- assert.equal(transition.elapsed,0);
- advanceWaveTenTransition(transition,1);
- assert.equal(transition.elapsed,0.05);
+ advanceWaveTenTransition(transition,-1);assert.equal(transition.elapsed,0);
+ advanceWaveTenTransition(transition,1);assert.equal(transition.elapsed,0.05);
  assert.equal(transition.phase,'loading');
 });
