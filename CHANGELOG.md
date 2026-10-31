@@ -12,8 +12,10 @@
 - Perfis Elite têm capacidades de reposicionamento superiores às versões comuns. O Interceptador continua usando perseguição simples, sem perfil de flanqueamento ou variante Elite.
 - Adiciona coordenador tático dedicado que escolhe uma única Elite por vez, prioriza Sentinelas, seleciona o corredor traseiro menos congestionado e respeita intervalo entre manobras.
 - Sentinelas e Artilheiros Elite suspendem os disparos durante o reposicionamento; Guardião Elite não abandona aliados vivos que estejam sob sua proteção.
-- Adiciona testes de convergência em 30/60/120 FPS, perfis distintos, estabilidade prolongada, seleção única de flanqueador, prioridade da Sentinela, proteção do Guardião e suspensão de disparos.
-- **Estado:** primeira fundação integrada ao jogador, Sentinelas, Artilheiros e coordenação Elite. A autonomia das tropas comuns, a integração completa do Guardião à física compartilhada e o controlador próprio do DREADNOUGHT continuam pendentes. Teste manual ainda não realizado.
+- Tropas comuns recebem uma segunda camada mais simples: um Chaser por vez pode procurar uma posição lateral menos congestionada, sem previsão de trajetória ou manobra traseira; ele também segura o disparo durante a reposição.
+- A coordenação comum aguarda quando um flanqueamento Elite está ativo. Interceptadores não entram em nenhuma dessas decisões e mantêm perseguição direta.
+- Adiciona testes de convergência em 30/60/120 FPS, perfis distintos, estabilidade prolongada, seleção única de flanqueador, proteção do Guardião, suspensão de disparos e reposicionamento comum.
+- **Estado:** primeira fundação integrada ao jogador e aos comportamentos de Sentinelas, Artilheiros, Chasers e coordenação Elite. A integração completa do Guardião à física compartilhada e o controlador próprio do DREADNOUGHT continuam pendentes. Teste manual ainda não realizado.
 
 ## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
 
