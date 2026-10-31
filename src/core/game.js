@@ -1353,19 +1353,19 @@ export class Game {
 
     if (transition.phase === 'complete') {
       const revealedBoss = finalizeWaveTenTransition(transition);
-      // Keep the cinematic camera frame through handoff; normal boss tracking
-      // takes over on the next simulation tick without a one-frame zoom snap.
+      // The final cinematic phase has already converged to the combat camera.
+      // Snap to that exact bounded frame before the first normal simulation tick.
       this.waveTenTransition = null;
       if (revealedBoss) {
-        // Stop the constructor's entrance timer before normal AI runs. Without
-        // this, Enemy.update() restarts its own descent and shifts the boss down.
         prepareBossForCombatHandoff(revealedBoss, transition.bossEndY);
-        this.cameraZoom = transition.cameraZoom;
         this.player.velocityX = 0;
         this.player.velocityY = 0;
         this.player.knockbackX = 0;
         this.player.knockbackY = 0;
         this.enemies = [revealedBoss];
+        this.bossEncounterSeen = true;
+        this.cameraZoom = this.cameraMinZoom;
+        this.updateCamera(0, true);
         this.waveManager.enemyCount = 1;
         this.waveManager.spawnedCount = 1;
       }
@@ -1452,6 +1452,7 @@ export class Game {
     const transition = this.waveTenTransition;
     if (!transition) return;
     ctx.save();
+    let dialogueBounds = null;
     ctx.fillStyle = transition.phase === 'loading' ? 'rgba(3, 8, 20, 0.88)' : 'rgba(3, 8, 20, 0.24)';
     ctx.fillRect(0, 0, this.width, this.height);
     ctx.textAlign = 'center';
@@ -1485,7 +1486,7 @@ export class Game {
       ctx.font = '10px ui-monospace, monospace';
       ctx.fillText('SINCRONIZANDO SISTEMAS', this.width / 2, barY + 24);
     } else {
-      var dialogueBounds = this.renderTransitionDialogue(ctx, transition);
+      dialogueBounds = this.renderTransitionDialogue(ctx, transition);
     }
     ctx.restore();
     if (this.pilotReaction.remaining > 0) {

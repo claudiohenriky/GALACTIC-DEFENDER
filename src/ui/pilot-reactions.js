@@ -53,10 +53,11 @@ export function getPilotReactionPosition({ x, y, bubble = null, width, height, r
     point.y >= radius + 5 && point.y <= height - radius - 5;
   const chosen = candidates.find((point) => insideViewport(point) && !overlapsBubble(point));
   if (chosen) return chosen;
-  return {
+  const fallback = {
     x: Math.max(radius + 5, Math.min(width - radius - 5, x + horizontal * offset)),
     y: Math.max(radius + 5, Math.min(height - radius - 5, y - vertical * offset))
   };
+  return overlapsBubble(fallback) ? null : fallback;
 }
 
 export function drawPilotReaction(ctx, state, x, y) {
