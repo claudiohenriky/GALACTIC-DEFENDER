@@ -1,3 +1,12 @@
+## [0.54.5] — notificações táticas e posicionamento de diálogo
+
+- Substitui os emojis grandes de reação por indicadores vetoriais compactos, com moldura técnica azul/ciano e glifos desenhados em Canvas.
+- Diferencia suspeita, perigo e ameaça Elite por forma e intensidade, mantendo a mesma linguagem visual.
+- Adiciona entrada rápida, pulsação leve e desaparecimento suave; preserva os gatilhos de alerta e o disparo único por transição de ameaça.
+- Reposiciona o cartão de fala do DREADNOUGHT para uma lateral livre do casco em telas largas; em telas estreitas, escolhe uma posição vertical ou de borda adaptativa.
+- Preserva a cutscene, os diálogos, a câmera, a arena e a lógica de combate.
+- Validação automatizada e visual desta etapa pendentes.
+
 ## [0.54.4] — refinamento visual dos cartões de diálogo
 
 - Preserva o formato, o tamanho e a hierarquia dos cartões aprovados na v0.54.3.
