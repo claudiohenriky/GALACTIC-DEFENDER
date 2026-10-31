@@ -6,7 +6,7 @@ import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
-import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
+import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
 import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.53.0-stage-6-7';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
@@ -57,7 +57,7 @@ export class Game {
     this.eliteAlertsShown = new Set();
     this.pilotReaction = createPilotReactionState();
     this.cinematicHudRoot = this.canvas.closest('.game-layout');
-    this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.side-panel, .arena-status, .arena-footer, .in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #continuous-laser-button, #reward-banner, #damage-feedback, #touch-controls, .fullscreen-button, .orientation-hint') ?? []);
+    this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.side-panel, .arena-status, .arena-footer, .in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #reward-banner, #damage-feedback, #touch-controls, .fullscreen-button, .orientation-hint') ?? []);
     this.guardianAssignmentTimer = 0;
     this.eliteTactics = new EliteTacticalCoordinator();
     this.enemyTactics = new EnemyTacticalCoordinator();
@@ -86,7 +86,6 @@ export class Game {
     this.score = 0;
     this.destroyed = 0;
     this.shotClock = 0;
-    this.continuousLaserHeld = false; this.continuousLaserCooldown = 0; this.continuousLaserDamageClock = 0; this.continuousLaserClash = null;
     this.lastTime = 0;
     this.animationId = 0;
     this.levelUpParticles = [];
@@ -311,7 +310,6 @@ export class Game {
     this.score = 0;
     this.destroyed = 0;
     this.shotClock = 0;
-    this.continuousLaserHeld = false; this.continuousLaserCooldown = 0; this.continuousLaserDamageClock = 0; this.continuousLaserClash = null;
     this.levelUpParticles = [];
     this.damageSparks = [];
     this.damageImpactPulse = null;
@@ -359,7 +357,6 @@ export class Game {
     const key = this.normalizeKey(event.code, event.key);
     this.keys.add(key);
     if (event.repeat) return;
-    if (event.code === 'KeyL' && this.status === 'running') { this.continuousLaserHeld = true; return; }
     if (event.code === 'KeyE' && this.status === 'running') {
       this.activateGuidedMissile();
       return;
@@ -382,7 +379,6 @@ export class Game {
 
   handleKeyUp(event) {
     this.keys.delete(this.normalizeKey(event.code, event.key));
-    if (event.code === 'KeyL') this.continuousLaserHeld = false;
   }
 
   normalizeKey(code, key = '') {
@@ -438,8 +434,6 @@ export class Game {
     ];
     const specials = [
       { type: 'doubleShot', icon: '✣', title: 'Tiro múltiplo', description: 'Adiciona projéteis laterais', category: 'HABILIDADE ESPECIAL', rarity: 'common', weight: 60 },
-      { type: 'continuousLaser', icon: 'ϟ', title: 'Laser Contínuo', description: 'Feixe sustentado para disputar Attack Clash · máx. 3 níveis', category: 'HABILIDADE ESPECIAL', rarity: 'epic', weight: 18 },
-      { type: 'laser', icon: 'ϟ', title: 'Tiros Perfurantes de Plasma', description: 'Disparos de plasma atravessam vários inimigos', category: 'HABILIDADE ESPECIAL', rarity: 'rare', weight: 30 },
       { type: 'shield', icon: '◈', title: 'Escudo de energia', description: 'Barreira regenerativa com explosão ao quebrar', category: 'HABILIDADE ESPECIAL', rarity: 'rare', weight: 30 },
       { type: 'repair', icon: '✚', title: 'Reparo de emergência', description: 'Recupera 30% da integridade máxima', category: 'HABILIDADE ESPECIAL', rarity: 'common', weight: 60 },
       { type: 'guidedMissile', icon: '➤', title: 'Míssil teleguiado', description: 'Persegue inimigos ativos · máx. 3 níveis', category: 'HABILIDADE ESPECIAL', rarity: 'epic', weight: 12 }
@@ -500,8 +494,6 @@ export class Game {
     if (type === 'projectileSpeed') this.player.projectileSpeedLevel = Math.min(3, this.player.projectileSpeedLevel + 1);
     if (type === 'propulsionControl') this.player.propulsionControlLevel = Math.min(3, this.player.propulsionControlLevel + 1);
     if (type === 'doubleShot') this.player.doubleShotLevel = Math.min(2, this.player.doubleShotLevel + 1);
-    if (type === 'laser') this.player.laserLevel = Math.min(3, this.player.laserLevel + 1);
-    if (type === 'continuousLaser') { this.player.continuousLaserLevel = Math.min(3, this.player.continuousLaserLevel + 1); this.updateContinuousLaserButton(); }
     if (type === 'guidedMissile') {
       this.player.guidedMissileLevel = Math.min(3, this.player.guidedMissileLevel + 1);
       this.updateGuidedMissileButton();
@@ -756,67 +748,6 @@ export class Game {
       if (fill.style.width !== width) fill.style.width = width;
     }
     button.setAttribute('aria-label', ready && broken ? 'Ativar Pulso de Ruptura' : 'Pulso de Ruptura indisponível');
-  }
-
-  activateContinuousLaser() { if (this.status !== 'running' || this.player.continuousLaserLevel <= 0 || this.continuousLaserCooldown > 0 || this.overloadLockTimer > 0 || this.continuousLaserClash) return false; this.continuousLaserHeld = true; this.updateContinuousLaserButton(); return true; }
-  releaseContinuousLaser() { this.continuousLaserHeld = false; this.updateContinuousLaserButton(); }
-  updateContinuousLaserButton() {
-    const button = document.querySelector('#continuous-laser-button'); if (!button) return;
-    const unlocked = this.player.continuousLaserLevel > 0, ready = this.continuousLaserCooldown <= 0 && this.overloadLockTimer <= 0 && !this.continuousLaserClash;
-    button.classList.toggle('hidden', !unlocked); button.disabled = !unlocked || this.status !== 'running' || !ready;
-    const label = document.querySelector('#continuous-laser-status');
-    if (label) label.textContent = this.status !== 'running' ? 'DISPONÍVEL NA PARTIDA' : this.overloadLockTimer > 0 ? 'SISTEMA SOBRECARREGADO' : this.continuousLaserClash ? 'ATTACK CLASH · ESCOLHA' : this.continuousLaserCooldown > 0 ? 'RECARGA · ' + Math.ceil(this.continuousLaserCooldown) + 's' : this.continuousLaserHeld ? 'FEIXE ATIVO · SOLTE' : 'SEGURE · TECLA L';
-    button.setAttribute('aria-label', this.continuousLaserHeld ? 'Soltar laser contínuo' : 'Ativar laser contínuo');
-  }
-  resolveContinuousLaserClash(outcome) {
-    if (!this.continuousLaserClash) return;
-    document.querySelector('#laser-clash-overlay')?.classList.add('hidden'); this.continuousLaserClash = null; this.continuousLaserHeld = false;
-    if (outcome === 'victory') {
-      // Find the nearest live target in one pass without allocating, filtering or sorting arrays.
-      let target = null;
-      let nearestDistanceSquared = Infinity;
-      for (const enemy of this.enemies) {
-        if (!enemy.active) continue;
-        const dx = enemy.x - this.player.x;
-        const dy = enemy.y - this.player.y;
-        const distanceSquared = dx * dx + dy * dy;
-        if (distanceSquared < nearestDistanceSquared) {
-          nearestDistanceSquared = distanceSquared;
-          target = enemy;
-        }
-      }
-      if (target) this.damageEnemy(target, (target.type === 'boss' || target.type === 'megaboss' ? 16 : 5) + this.player.continuousLaserLevel * 3);
-      this.addOverload(18); this.continuousLaserCooldown = 2.5;
-    } else if (outcome === 'draw') { this.addOverload(8); this.continuousLaserCooldown = 1.2; } else this.continuousLaserCooldown = 4;
-    this.status = 'running'; this.lastTime = performance.now();
-    this.animationId = requestAnimationFrame((time) => this.loop(time));
-    this.updateContinuousLaserButton();
-  }
-  updateContinuousLaser(dt) {
-    this.continuousLaserCooldown = Math.max(0, this.continuousLaserCooldown - dt); this.continuousLaserDamageClock = Math.max(0, this.continuousLaserDamageClock - dt);
-    if (!this.continuousLaserHeld || this.player.continuousLaserLevel <= 0 || this.overloadLockTimer > 0 || this.continuousLaserClash) return;
-    const dx = Math.cos(this.player.rotation), dy = Math.sin(this.player.rotation), sx = this.player.x + dx * 18, sy = this.player.y + dy * 18, ex = sx + dx * 460, ey = sy + dy * 460;
-    for (const shot of this.enemyProjectiles) {
-      // The segment helper expects the full combined radius, not only the beam width.
-      const clashRadius = (shot.radius ?? 0) + 7;
-      if (!shot.active || !circleOverlapsSegment(shot, sx, sy, ex, ey, clashRadius)) continue;
-      shot.active = false; this.continuousLaserClash = { x: shot.x, y: shot.y }; this.continuousLaserHeld = false; this.status = 'paused';
-      document.querySelector('#laser-clash-overlay')?.classList.remove('hidden'); this.updateContinuousLaserButton(); return;
-    }
-    if (this.continuousLaserDamageClock <= 0) {
-      const weakened = this.overload >= 70;
-      for (const enemy of this.enemies) {
-        if (!enemy.active || enemy.bossDying) continue;
-        // Include both the target hit radius and the beam's half-width so visible
-        // edge intersections are not missed for large bosses or smaller enemies.
-        const hitRadius = (enemy.collisionRadius ?? enemy.radius ?? 0) + 13;
-        if (!circleOverlapsSegment(enemy, sx, sy, ex, ey, hitRadius)) continue;
-        const boss = enemy.type === 'boss' || enemy.type === 'megaboss';
-        this.damageEnemy(enemy, (boss ? 8 : 13) * (1 + this.player.continuousLaserLevel * .22) * (weakened ? .72 : 1));
-      }
-      this.continuousLaserDamageClock = .22;
-    }
-    this.addOverload((8 + this.player.continuousLaserLevel * 2) * dt); if (this.overloadLockTimer > 0) this.releaseContinuousLaser();
   }
 
   addOverload(amount) {
@@ -1076,27 +1007,13 @@ export class Game {
     this.shieldThreatScanTimer -= dt;
     if (this.shieldThreatScanTimer > 0) return;
     this.shieldThreatScanTimer = 0.08;
-
-    const px = this.player.x, py = this.player.y;
     const dangerRadius = this.player.radius + 18;
-    const dangerRadiusSquared = dangerRadius * dangerRadius;
     for (const shot of this.enemyProjectiles) {
-      if (!shot.active || !Number.isFinite(shot.vx) || !Number.isFinite(shot.vy)) continue;
-      const rx = shot.x - px, ry = shot.y - py;
-      const speedSquared = shot.vx * shot.vx + shot.vy * shot.vy;
-      if (speedSquared < 1) continue;
-      const closestTime = -(rx * shot.vx + ry * shot.vy) / speedSquared;
-      if (closestTime < 0 || closestTime > 0.55) continue;
-      const closestX = rx + shot.vx * closestTime;
-      const closestY = ry + shot.vy * closestTime;
-      if (closestX * closestX + closestY * closestY > dangerRadiusSquared) continue;
-
-      // Aim the visual response at the predicted contact point, not the projectile's
-      // current position. The defensive rule itself remains omnidirectional.
-      const angle = Math.atan2(closestY, closestX);
-      const sector = ((Math.round((angle + Math.PI) / (Math.PI / 4)) % 8) + 8) % 8;
-      const urgency = 1 - closestTime / 0.55;
-      arcs[sector] = Math.max(arcs[sector], 0.28 + urgency * 0.18);
+      if (!shot.active) continue;
+      const sector = getIncomingProjectileShieldSector(this.player, shot, dangerRadius, 0.55);
+      if (sector < 0) continue;
+      // One projectile maps to one stable impact sector; center-line hits use arrival direction.
+      arcs[sector] = Math.max(arcs[sector], 0.38);
     }
   }
 
@@ -1283,7 +1200,6 @@ export class Game {
       updateHud(this);
       this.updateGuidedMissileButton();
       this.updateShieldPulseButton();
-      this.updateContinuousLaserButton();
       this.updateOverloadHud();
       const runAchievements = this.achievements.checkRunMilestones(this.score, this.waveManager.wave);
       if (runAchievements.length) this.showRewardBanner('CONQUISTA DESBLOQUEADA', runAchievements.map(item => item.name).join(' · '), 'achievement');
@@ -1350,7 +1266,7 @@ export class Game {
     this.player.velocityY = 0;
     this.player.knockbackX = 0;
     this.player.knockbackY = 0;
-    this.continuousLaserHeld = false;
+
     this.bossCinematic = createBossCinematic();
     this.bossCinematic.cameraZoom = this.cameraZoom || 1;
     this.bossCinematic.worldResetDone = false;
@@ -1365,7 +1281,6 @@ export class Game {
     // Keep progression, XP, score, ship class, and all acquired upgrades intact.
     this.clearInput();
     preparePlayerForBossCinematic(this.player, this.worldWidth, this.worldHeight);
-    this.continuousLaserHeld = false;
 
     this.projectiles.length = 0;
     this.enemyProjectiles.length = 0;
@@ -1840,7 +1755,6 @@ export class Game {
     }
     this.levelUpParticles.length = writeIndex;
 
-    this.updateContinuousLaser(dt);
     this.shotClock -= dt;
     if (this.keys.has('space') && this.shotClock <= 0) {
       const angle = this.getAimAngle();
@@ -1858,12 +1772,11 @@ export class Game {
           projectileAngle,
           1 + this.player.projectileSpeedLevel * 0.15
         );
-        projectile.damage = this.player.weaponDamage * (1 + this.player.laserLevel * 0.25) * (this.overload >= 70 ? 0.72 : 1);
-        projectile.piercing = this.player.laserLevel > 0;
+        projectile.damage = this.player.weaponDamage * (this.overload >= 70 ? 0.72 : 1);
         this.projectiles.push(projectile);
       }
       gameAudio.playPlayerShot();
-      this.addOverload(this.player.laserLevel > 0 ? 2.8 + this.player.laserLevel * 0.8 : 0.15);
+      this.addOverload(0.15);
       this.shotClock = .22 / (1 + this.player.fireRateLevel * 0.1);
     }
 
@@ -2122,28 +2035,6 @@ export class Game {
       }
     }
 
-    // Attack Clash: direct player-shot/enemy-shot overlaps neutralize both projectiles.
-    // This is intentionally separate from damage-to-enemy rules and requires no per-frame UI.
-    for (const playerShot of this.projectiles) {
-      if (!playerShot.active) continue;
-      for (const enemyShot of this.enemyProjectiles) {
-        if (!enemyShot.active) continue;
-        const combinedRadius = (playerShot.radius ?? 0) + (enemyShot.radius ?? 0);
-        if (Math.abs(playerShot.x - enemyShot.x) >= combinedRadius ||
-            Math.abs(playerShot.y - enemyShot.y) >= combinedRadius) continue;
-        if (circlesOverlap(playerShot, enemyShot)) {
-          const playerPower = Math.max(1, Math.floor((playerShot.damage ?? 1) / 4));
-          playerShot.active = false;
-          if (playerPower >= (enemyShot.clashResistance ?? 1)) {
-            enemyShot.active = false;
-          } else {
-            enemyShot.clashResistance -= playerPower;
-          }
-          break;
-        }
-      }
-    }
-
     // Each guided missile detonates once and deals area damage to nearby enemies.
     for (const missile of this.guidedMissiles) {
       if (!missile.active) continue;
@@ -2271,7 +2162,6 @@ export class Game {
     }
 
     ctx.globalAlpha = 1;
-    if (this.continuousLaserHeld && this.player.continuousLaserLevel > 0) { const dx=Math.cos(this.player.rotation),dy=Math.sin(this.player.rotation),sx=this.player.x+dx*18,sy=this.player.y+dy*18,ex=sx+dx*460,ey=sy+dy*460; ctx.save();ctx.lineCap='round';ctx.globalAlpha=.2;ctx.strokeStyle='#44dfff';ctx.lineWidth=13;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=.92;ctx.strokeStyle='#6eeeff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#eaffff';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore(); }
     for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
     for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx, this.effectsScale);
     for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx, this.effectsScale);

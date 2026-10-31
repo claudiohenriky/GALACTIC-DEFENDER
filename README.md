@@ -4,7 +4,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Candidata atual em desenvolvimento:** `0.54.6` — rebalanceamento de combate e IA do DREADNOUGHT na branch `fix/v0.54.1-cinematic-correction` ([PR #81](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/81)). Reduz a pressão das tropas, com ajuste mais forte no Artilheiro e novo ajuste no Sentinela; mantém as variantes Elite diferenciadas. O DREADNOUGHT recebe cadência de ataque mais rápida, reposicionamento lateral mais responsivo e não reage a tiros do jogador com esquiva de tropas. O renderer do encouraçado respeita a qualidade adaptativa de efeitos. Testes automatizados adicionados; playtest e medição real de FPS ainda pendentes. Não mesclada em `main`.
+**Candidata atual em desenvolvimento:** `0.55.0` — fundação do combate na branch `fix/v0.54.1-cinematic-correction` ([PR #81](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/81)). Remove o Laser Contínuo, os Tiros Perfurantes de Plasma e o Attack Clash; corrige a previsão do setor de impacto do escudo do jogador. Preserva as habilidades de mísseis e Pulso de Ruptura, as tropas Elite, a cutscene e as notificações aprovadas. Validação automatizada em andamento; nenhum playtest manual foi realizado. Não mesclada em `main`.
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
@@ -20,7 +20,7 @@ Na v0.44.0, o canhão principal frontal também possui ciclo visual de carga e a
 
 **Candidata em teste:** `0.32.0` — chefe com três fases na branch `feature/v0.32.0-boss-phases`. O usuário gostou do combate, mas relatou uma queda pontual para cerca de 7 FPS / 146 ms ao derrotar o chefe; a causa ainda não foi identificada.
 
-**Candidata atual:** `0.34.0` — Attack Clash básico (tiros da nave neutralizam projéteis inimigos em colisão direta) e correção do contato com o chefe, na branch `feature/v0.34.0-attack-clash-boss-contact-fix`. Exige teste manual antes de qualquer integração à versão oficial.
+**Candidata histórica:** `0.34.0` — introduziu o Attack Clash entre projéteis, mecânica removida na v0.55.0 após revisão do combate.
 
 **Candidata anterior:** `0.33.0` — fundação compartilhada de colisões na branch `feature/v0.33.0-collision-foundation`.
 
@@ -39,7 +39,7 @@ Na v0.44.0, o canhão principal frontal também possui ciclo visual de carga e a
 
 - Mísseis teleguiados lançados pelas asas, com alvos e explosão em área.
 - Escudo de energia redesenhado; o Pulso de Ruptura é uma habilidade de emergência ativável por botão ou tecla Q somente enquanto o escudo estiver quebrado. A barreira avança à frente da nave, bloqueia projéteis e causa dano limitado.
-- Medidor compartilhado de sobrecarga: habilidades e lasers consomem energia; em sobrecarga, a potência e a velocidade diminuem; no limite, habilidades especiais são bloqueadas temporariamente. Na candidata v0.30.1, o medidor é vertical e independente da HUD principal.
+- Medidor compartilhado de sobrecarga: disparos e habilidades especiais acumulam energia; em sobrecarga, a potência e a velocidade diminuem; no limite, habilidades especiais são bloqueadas temporariamente. Na candidata v0.30.1, o medidor é vertical e independente da HUD principal.
 - Mísseis de nível 3 se fragmentam em até três projéteis mais fracos; a quantidade simultânea é limitada para conter o custo de combate.
 
 ## Lobby, preparação e plataforma

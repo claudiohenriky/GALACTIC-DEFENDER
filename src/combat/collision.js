@@ -45,3 +45,26 @@ export function orientedEllipseOverlapsCircle(ellipse, circle, radiusX, radiusY,
   if (Math.abs(localX) > expandedX || Math.abs(localY) > expandedY) return false;
   return (localX * localX) / (expandedX * expandedX) + (localY * localY) / (expandedY * expandedY) <= 1;
 }
+
+
+/** Predict the single shield sector threatened by an incoming projectile. */
+export function getIncomingProjectileShieldSector(player, projectile, dangerRadius = (player?.radius ?? 13) + 18, maxTime = 0.55) {
+  if (!player || !projectile || !projectile.active ||
+      !Number.isFinite(projectile.x) || !Number.isFinite(projectile.y) ||
+      !Number.isFinite(projectile.vx) || !Number.isFinite(projectile.vy) ||
+      !Number.isFinite(dangerRadius) || dangerRadius < 0 ||
+      !Number.isFinite(maxTime) || maxTime < 0) return -1;
+  const relativeX = projectile.x - player.x, relativeY = projectile.y - player.y;
+  const speedSquared = projectile.vx * projectile.vx + projectile.vy * projectile.vy;
+  if (speedSquared < 1) return -1;
+  const impactTime = -(relativeX * projectile.vx + relativeY * projectile.vy) / speedSquared;
+  if (impactTime < 0 || impactTime > maxTime) return -1;
+  const impactX = relativeX + projectile.vx * impactTime, impactY = relativeY + projectile.vy * impactTime;
+  const impactDistanceSquared = impactX * impactX + impactY * impactY;
+  if (impactDistanceSquared > dangerRadius * dangerRadius) return -1;
+  const directionX = impactDistanceSquared > 4 ? impactX : -projectile.vx;
+  const directionY = impactDistanceSquared > 4 ? impactY : -projectile.vy;
+  const angle = Math.atan2(directionY, directionX);
+  const sector = Math.round((angle + Math.PI) / (Math.PI / 4));
+  return ((sector % 8) + 8) % 8;
+}

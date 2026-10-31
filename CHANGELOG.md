@@ -1,3 +1,12 @@
+## [0.55.0] — fundação do combate e defesa direcional
+
+- Remove a carta de Laser Contínuo, seus controles, feixe, dano sustentado e tela de disputa.
+- Remove a carta de Tiros Perfurantes de Plasma: os disparos básicos voltam ao dano normal e deixam de atravessar inimigos por essa habilidade.
+- Remove o Attack Clash entre tiros do jogador e projéteis inimigos; cada projétil volta a seguir sua regra normal de colisão.
+- Corrige a previsão visual do escudo: cada projétil em rota de colisão ativa um único setor estável, usando a direção de chegada quando o ponto previsto fica praticamente no centro da nave.
+- Preserva o Pulso de Ruptura, mísseis, escudo regenerativo, escudos das tropas Elite, cutscene e notificações aprovadas.
+- **Validação:** regressões automatizadas para os quatro setores cardeais, impactos centrais, projéteis fora de rota e ausência das mecânicas removidas. Playtest real e validação visual ainda não realizados.
+
 ## [0.54.6] — rebalanceamento de combate e IA do DREADNOUGHT
 
 - Reduz a pressão das tropas comuns: Interceptador, perseguidor e Guardião ficam menos velozes; Sentinela e Artilheiro recebem ajustes mais fortes de mobilidade, esquiva, vida, cadência e dano.

@@ -1,3 +1,16 @@
+## v0.55.0 — Fundação do combate e defesa direcional
+
+- [x] Remover a carta de Laser Contínuo, o botão, a entrada por teclado, o feixe, o dano sustentado e a tela de disputa.
+- [x] Remover a carta de Tiros Perfurantes de Plasma e o bônus de dano/perfuração que ela aplicava aos disparos básicos.
+- [x] Remover o Attack Clash que neutralizava projéteis inimigos por colisão com tiros do jogador.
+- [x] Prever o setor de escudo pela posição real de aproximação do projétil; em impactos quase centrais, usar a direção de chegada para evitar seleção instável.
+- [x] Preservar tiros básicos, mísseis, Pulso de Ruptura, escudos Elite, cutscene e notificações aprovadas.
+- [ ] Validar os quatro quadrantes do escudo em gameplay real e confirmar que apenas os setores ameaçados aparecem.
+- [ ] Continuar a revisão do Guardião e preparar a nova classe de artilharia pesada (Devastador).
+- **Estado:** candidata em PR #81; a branch oficial permanece inalterada. A remoção foi coberta por testes automatizados; playtest manual ainda não realizado.
+
+> Os registros históricos das versões 0.34.0 e 0.35.0 abaixo descrevem mecânicas que foram retiradas na v0.55.0; não representam funcionalidades atuais ou planejadas.
+
 ## v0.54.6 — Rebalanceamento de combate e IA do DREADNOUGHT
 
 - [x] Reduzir a velocidade e aceleração das tropas básicas, preservando vantagem de mobilidade das variantes Elite.

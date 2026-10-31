@@ -12,7 +12,6 @@ export class EnemyProjectile {
     this.homing = Boolean(options.homing && options.target);
     this.target = this.homing ? options.target : null;
     this.turnRate = options.turnRate ?? 1.8;
-    this.clashResistance = options.clashResistance ?? (this.damage >= 15 ? 3 : this.damage >= 8 ? 2 : 1);
     this.active = true;
 
     const dx = targetX - x;
