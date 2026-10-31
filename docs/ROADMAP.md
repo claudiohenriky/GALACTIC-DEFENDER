@@ -1,3 +1,12 @@
+### Revisão visual do DREADNOUGHT — armamentos e integração do casco
+
+- [x] Preservar o casco vetorial em camadas e redesenhar as armas para recuperar silhuetas reconhecíveis sobre a nova superestrutura.
+- [x] Diferenciar metralhadoras duplas, lançadores de três tubos, lasers leves de emissores duplos e canhões de plasma com câmara/emissor próprio.
+- [x] Manter a cavidade frontal aberta e o canhão principal sem torre/barrel físico.
+- [ ] Validar a legibilidade dos módulos em escala de gameplay, celular e desktop; conferir sobreposição nos hardpoints e animações de substituição.
+- [ ] Medir FPS/tempo de quadro no mesmo dispositivo e cenário antes/depois. A revisão visual não comprova ganho de desempenho.
+- [ ] Se alguma arma continuar encoberta, ajustar apenas a camada/posição visual correspondente antes de considerar reverter qualquer parte do casco.
+
 ## Candidata v0.44.0 — Primeiro chefe: nave de guerra pesada
 
 - Branch: `feature/v0.44.0-boss-evolution`, baseada na candidata v0.43.0; PR #78 e `main` permanecem sem merge.
