@@ -310,7 +310,8 @@ export class Enemy {
         }
 
         if (this.bossMovementState === 'patrol') {
-          this.bossMoveTargetX = predictedTargetX + Math.sin(this.phase * (this.bossPhase === 3 ? 0.62 : 0.42)) * horizontalRange;
+          this.bossMoveTargetX = Math.max(this.collisionRadius + 4, Math.min(width - this.collisionRadius - 4,
+            predictedTargetX + Math.sin(this.phase * (this.bossPhase === 3 ? 0.62 : 0.42)) * horizontalRange));
           this.bossMoveTargetY = desiredY;
         }
         const profile = this.bossPhase === 3
