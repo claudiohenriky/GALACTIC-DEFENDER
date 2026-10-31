@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main, feature/v0.43.0-enemy-ai-evolution]
   push:
-    branches: [main, feature/v0.44.0-boss-evolution, feature/v0.45.0-movement-and-tactical-ai, work/v0-48-quality-audit]
+    branches: [main, feature/v0.44.0-boss-evolution, feature/v0.45.0-movement-and-tactical-ai, work/v0-48-quality-audit, fix/v0.55.1-cinematic-correction]
 
 permissions:
   contents: read
