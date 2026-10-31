@@ -7,6 +7,7 @@ export const BOSS_CINEMATIC_PHASES = Object.freeze([
   { id: 'anomaly-scan', duration: 9 },
   { id: 'distant-contact', duration: 21 },
   { id: 'boss-identification', duration: 4 },
+  { id: 'arena-reveal', duration: 3.5 },
   { id: 'handoff', duration: 2.5 },
   { id: 'complete', duration: 0 }
 ]);
@@ -61,7 +62,7 @@ export function getBossCinematicBossOpacity(state) {
   if (state.phase === 'distant-contact') {
     return Math.max(0, Math.min(1, (state.phaseElapsed - 0.45) / 7.5));
   }
-  return ['boss-identification', 'handoff', 'complete'].includes(state.phase) ? 1 : 0;
+  return ['boss-identification', 'arena-reveal', 'handoff', 'complete'].includes(state.phase) ? 1 : 0;
 }
 
 export function createBossCinematic() {
