@@ -1,5 +1,5 @@
 import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.45.1-boss-readability';
-import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.45.0-motion-core';
+import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.45.2-sentinel-balance';
 
 export class Enemy {
   constructor(x, y, level = 1, type = 'chaser', isElite = false) {
