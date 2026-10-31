@@ -1,3 +1,13 @@
+## [Unreleased] — DREADNOUGHT · IA tática e revisão do arsenal
+
+- Define alcances operacionais por módulo e restringe a mira/disparo dos armamentos laterais ao respectivo lado do casco; metralhadoras mantêm capacidade de cobertura cruzada por serem armas de longo alcance.
+- Amplia a bateria de plasma para quatro canhões independentes, dois em cada lateral, mantendo IDs e integridade individual por hardpoint.
+- Cada canhão de plasma possui ciclo de carga de 5,4 s, com telemetria visual intensa nos 1,5 s finais para indicar a preparação do disparo.
+- O projétil de plasma passa a viajar em alta velocidade (620 unidades/s), com 68 pontos de dano e impacto pesado.
+- Ao acertar, o plasma remove imediatamente o escudo ativo; sem escudo, aplica dano elevado. O impacto também arremessa o jogador, com impulso reduzido quando o escudo absorve o golpe.
+- Adiciona cobertura de teste para a quantidade de módulos, distribuição dos quatro canhões e configuração de alcance/telemetria.
+- **Validação pendente:** verificar alinhamento visual dos quatro novos hardpoints, legibilidade da carga, tempo real de reação, colisão do projétil, impacto/knockback e equilíbrio em gameplay. Não houve teste manual de navegador nesta etapa.
+
 ## [Unreleased] — v0.45.0 · movimentação precisa e IA tática
 
 - Define a substituição da movimentação excessivamente orgânica por controles mais precisos e previsíveis, com física, decisão tática e animação visual separadas.
