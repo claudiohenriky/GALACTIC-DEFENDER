@@ -1299,10 +1299,18 @@ export class Game {
       transition.boss.y = transition.bossStartY + (transition.bossEndY - transition.bossStartY) * eased;
     }
     if (transition.phase === 'complete') {
+      const revealedBoss = transition.boss;
       this.waveTenTransition = null;
       this.cameraZoom = 1;
       this.updateCamera(0, true);
+      if (revealedBoss) {
+        revealedBoss.y = transition.bossEndY;
+        this.enemies = [revealedBoss];
+        this.waveManager.enemyCount = 1;
+        this.waveManager.spawnedCount = 1;
+      }
       this.waveManager.timer = 1.0;
+      this.showRewardBanner('ALERTA MÁXIMA · DREADNOUGHT DETECTADO', 'COLOSSAL WARSHIP · SISTEMAS DE COMBATE IDENTIFICADOS', 'boss');
       this.clearInput();
     }
   }
