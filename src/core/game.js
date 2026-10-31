@@ -1,13 +1,12 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
-import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
-import { Enemy } from '../enemies/enemy.js?v=0.57.2-boss-weapon-pass';
-import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
+import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
+import { Enemy } from '../enemies/enemy.js?v=0.58.0-elite-standardization';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.57.2-guided-darts';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.58.0-elite-standardization';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
-import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.57.2-boss-weapon-pass';
+import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.58.0-plasma-telegraph';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.57.2-boss-wave-15';
@@ -59,7 +58,6 @@ export class Game {
     this.cinematicHudRoot = this.canvas.closest('.game-layout');
     this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.side-panel, .arena-status, .arena-footer, .in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #reward-banner, #damage-feedback, #touch-controls, .fullscreen-button, .orientation-hint') ?? []);
     this.guardianAssignmentTimer = 0;
-    this.eliteTactics = new EliteTacticalCoordinator();
     this.enemyTactics = new EnemyTacticalCoordinator();
     this.projectiles = [];
     this.guidedMissiles = [];
@@ -889,7 +887,7 @@ export class Game {
       if (!enemy.active) continue;
       const dx = enemy.x - missile.x, dy = enemy.y - missile.y;
       if (dx * dx + dy * dy <= radiusSquared) {
-        this.damageEnemy(enemy, enemy === missile.target ? missile.damage : missile.damage * 0.7);
+        this.damageEnemy(enemy, enemy === missile.target ? missile.damage : missile.damage * 0.55, null, null, true);
       }
     }
 
@@ -913,7 +911,7 @@ export class Game {
           missile.y + Math.sin(angle) * 12,
           target, 1, angle, index - 1
         );
-        fragment.damage = missile.damage * 0.38;
+        fragment.damage = missile.damage * 0.32;
         fragment.blastRadius = 28;
         fragment.speed = 275;
         fragment.life = 2.2;
@@ -922,7 +920,7 @@ export class Game {
     }
   }
 
-  damageEnemy(enemy, amount, impactX = null, impactY = null) {
+  damageEnemy(enemy, amount, impactX = null, impactY = null, shieldGate = false) {
     if (!enemy.active || enemy.bossDying || amount <= 0) return;
 
     // The dreadnought resolves regional shields and independent weapon modules before hull damage.
@@ -969,6 +967,7 @@ export class Game {
       if (!guardian.active || !guardian.isElite || guardian.type !== 'guardian' || guardian.guardianCoverShield <= 0 || !(guardian.protectedAllies || []).includes(enemy)) continue;
       const absorbed = Math.min(guardian.guardianCoverShield, amount);
       guardian.guardianCoverShield -= absorbed;
+      if (shieldGate) return;
       amount -= absorbed;
       if (amount <= 0) return;
       break;
@@ -978,6 +977,7 @@ export class Game {
       const absorbed = Math.min(enemy.eliteShield, amount);
       enemy.eliteShield -= absorbed;
       if (absorbed > 0) enemy.eliteShieldFlash = 0.42;
+      if (shieldGate) return;
       amount -= absorbed;
       if (amount <= 0) return;
     }
@@ -1946,9 +1946,9 @@ export class Game {
       }
     }
 
-    this.eliteTactics.update(dt, this.enemies, this.player, this.worldWidth, this.worldHeight);
-    const eliteFlankActive = Boolean(this.eliteTactics.activeFlanker?.active && this.eliteTactics.activeFlanker.flankTimer > 0);
-    this.enemyTactics.update(dt, this.enemies, this.player, this.worldWidth, this.worldHeight, eliteFlankActive);
+    // Elite units inherit their class's normal movement pattern; their advantage
+    // comes from modest stat premiums and distinct combat abilities.
+    this.enemyTactics.update(dt, this.enemies, this.player, this.worldWidth, this.worldHeight, false);
 
     for (let index = 0; index < this.enemies.length; index += 1) {
       const enemy = this.enemies[index];
@@ -2287,6 +2287,10 @@ export class Game {
       ctx.globalAlpha = 0.18 + ratio * 0.38;
       for (const ally of guardian.protectedAllies || []) {
         if (!ally.active) continue;
+        ctx.beginPath();
+        ctx.moveTo(guardian.x, guardian.y);
+        ctx.lineTo(ally.x, ally.y);
+        ctx.stroke();
         ctx.beginPath();
         ctx.arc(ally.x, ally.y, ally.radius + 11, 0, Math.PI * 2);
         ctx.stroke();
