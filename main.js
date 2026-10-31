@@ -4,6 +4,12 @@ import { gameAudio } from './src/audio/game-audio.js?v=0.44.0';
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
 const game = new Game(canvas);
+// Test-only query switch. The normal game remains wave 1 unless a test URL opts in.
+const requestedTestWave = Number(new URLSearchParams(window.location.search).get('testStartWave'));
+if (requestedTestWave === 9) {
+  game.testStartWave = 9;
+  game.waveManager.startAtWaveForTesting(9);
+}
 const guidedMissileButton = document.querySelector('#guided-missile-button');
 function activateMissileFromControl(event) {
   event.preventDefault();
