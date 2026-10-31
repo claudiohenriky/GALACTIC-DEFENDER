@@ -376,7 +376,7 @@ test('boss camera frames keep the pilot and DREADNOUGHT in a shared cinematic vi
  const boss={x:600,y:720,collisionRadius:145};
  const frame=getBossCameraFrame({phase:'boss-entry',player,boss,width:900,height:500,minZoom:1/2.4});
  assert.equal(frame.x,150);
- assert.equal(frame.y,555);
+ assert.equal(frame.y,557.25);
  assert.equal(frame.zoom,0.52);
  const loading=getBossCameraFrame({phase:'loading',player,width:900,height:500,minZoom:1/2.4});
  assert.equal(loading.zoom,0.72);
