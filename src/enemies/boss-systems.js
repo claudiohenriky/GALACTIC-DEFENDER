@@ -127,11 +127,9 @@ export function getBossPlasmaSegment(boss, module) {
 // the pilot, and its wing is allowed to engage that side.
 export function isBossPlasmaTelegraphActive(boss, module, targetX, targetY) {
   if (!boss || !module || !module.kind.includes('plasma')) return false;
-  if (boss.bossEntranceTimer > 0 || boss.bossPhaseTransition > 0 || boss.fireCooldown <= 0) return false;
+  if (boss.bossEntranceTimer > 0 || boss.bossPhaseTransition > 0) return false;
   if (module.state === 'destroyed' || module.state === 'disabled' || (module.transitionTimer ?? 0) > 0) return false;
-  const charge = module.plasmaChargeTimer ?? 0;
-  const warningWindow = module.plasmaWarningDuration ?? 1.5;
-  if (charge > warningWindow || charge > boss.fireCooldown) return false;
+  if (!module.plasmaWarningActive) return false;
   const segment = getBossPlasmaSegment(boss, module);
   const dx = targetX - segment.startX, dy = targetY - segment.startY;
   if (dx * dx + dy * dy > (module.firingRange ?? 500) ** 2) return false;
@@ -159,6 +157,8 @@ export class BossSystems {
       turretAngle: 0,
       plasmaChargeDuration: 7.2,
       plasmaWarningDuration: 1.5,
+      plasmaWarningTimer: module.kind.includes('plasma') ? 1.5 : 0,
+      plasmaWarningActive: false,
       plasmaChargeTimer: module.kind.includes('plasma') ? 7.2 : 0
     }));
     this.shields = SHIELD_TEMPLATES.map((shield) => ({
@@ -301,6 +301,8 @@ export class BossSystems {
         module.kind = module.replacement;
         // Newly installed plasma mounts must complete a visible charge cycle before firing.
         module.plasmaChargeTimer = module.kind.includes('plasma') ? module.plasmaChargeDuration : 0;
+        module.plasmaWarningTimer = module.plasmaWarningDuration;
+        module.plasmaWarningActive = false;
         module.repairGlow = 1;
         module.state = 'damaged';
         module.health = module.maxHealth * 0.58;
@@ -316,6 +318,8 @@ export class BossSystems {
         module.kind = module.originalKind;
         // Rebuilt plasma mounts restart their charge cycle instead of firing immediately.
         module.plasmaChargeTimer = module.kind.includes('plasma') ? module.plasmaChargeDuration : 0;
+        module.plasmaWarningTimer = module.plasmaWarningDuration;
+        module.plasmaWarningActive = false;
         module.state = 'damaged';
         module.health = module.maxHealth * 0.5;
         module.smoke = 0.45;
