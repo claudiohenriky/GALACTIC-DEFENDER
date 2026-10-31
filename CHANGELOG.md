@@ -14,8 +14,10 @@
 - Sentinelas e Artilheiros Elite suspendem os disparos durante o reposicionamento; Guardião Elite não abandona aliados vivos que estejam sob sua proteção.
 - Tropas comuns recebem uma segunda camada mais simples: um Chaser por vez pode procurar uma posição lateral menos congestionada, sem previsão de trajetória ou manobra traseira; ele também segura o disparo durante a reposição.
 - A coordenação comum aguarda quando um flanqueamento Elite está ativo. Interceptadores não entram em nenhuma dessas decisões e mantêm perseguição direta.
-- Adiciona testes de convergência em 30/60/120 FPS, perfis distintos, estabilidade prolongada, seleção única de flanqueador, proteção do Guardião, suspensão de disparos e reposicionamento comum.
-- **Estado:** primeira fundação integrada ao jogador e aos comportamentos de Sentinelas, Artilheiros, Chasers e coordenação Elite. A integração completa do Guardião à física compartilhada e o controlador próprio do DREADNOUGHT continuam pendentes. Teste manual ainda não realizado.
+- DREADNOUGHT recebe estados de patrulha, reposicionamento pesado e estabilização. Ao detectar o jogador fora de seu arco frontal ou próximo demais, escolhe uma posição lateral/oblíqua em vez de tentar persegui-lo diretamente.
+- O chefe usa perfil de aceleração e velocidade máxima próprios e antecipa moderadamente a posição do jogador ao orientar as torres, usando sua velocidade atual como estimativa limitada.
+- Adiciona testes para movimento pesado, limite de velocidade, reposicionamento quando o jogador sai do arco frontal e diferença de mira contra um alvo em movimento.
+- **Estado:** primeira fundação integrada ao jogador, Sentinelas, Artilheiros, Chasers, coordenação Elite e movimento inicial do DREADNOUGHT. A integração completa do Guardião à física compartilhada e a lógica avançada de controle de áreas/ataques antecipatórios continuam pendentes. Teste manual ainda não realizado.
 
 ## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
 
