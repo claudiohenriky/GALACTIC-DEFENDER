@@ -1330,6 +1330,7 @@ export class Game {
       // the explicit handoff, so no second entrance controller can move it.
       const bossY = Math.max(160, this.player.y - this.height * 1.08);
       cinematic.boss = new Enemy(this.player.x, bossY, 10, 'boss');
+      cinematic.boss.bossEntranceTimer = 0;
       cinematic.boss.facingRotation = Math.PI / 2;
       cinematic.boss.rotation = Math.PI / 2;
       cinematic.bossSpawned = true;
