@@ -7,7 +7,10 @@
 - Inclui uma fala própria do sistema de bordo durante a análise da interferência.
 - Reativa os sinais diegéticos na cutscene: ❓ para a anomalia, ❗ durante a revelação do chefe e ❓❗ para alertas de tropas de Elite.
 - Corrige a comparação temporal dos alertas para tolerar pequenas diferenças de ponto flutuante e adiciona testes de regressão.
-- **Validação automatizada:** sintaxe JavaScript, 55 testes, imports relativos e whitespace aprovados no GitHub Actions. A inspeção visual em celular/desktop ainda está pendente.
+- Corrige o travamento da cutscene ao ativar os indicadores do piloto: o renderizador agora recebe explicitamente o estado da reação e as coordenadas de tela, tanto durante a cinemática quanto no combate.
+- Preserva o sistema de reações introduzido na v0.49.0: alertas de perigo continuam ligados às telemetrias do canhão principal e dos canhões de plasma do DREADNOUGHT, com acionamento por transição para evitar piscadas repetidas.
+- Adiciona testes de regressão para o desenho dos indicadores, a transição de ameaça e a integração do renderizador.
+- **Validação automatizada:** sintaxe JavaScript, 59 testes, imports relativos e whitespace aprovados no GitHub Actions. A inspeção visual em celular/desktop ainda está pendente.
 
 ## [0.54.0] — nova cinemática, chefes recorrentes e revisão de desempenho
 
