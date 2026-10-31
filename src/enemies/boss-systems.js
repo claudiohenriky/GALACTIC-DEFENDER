@@ -5,8 +5,8 @@
 const MODULE_TEMPLATES = [
   { id: 'machine-gun-left', kind: 'machine-gun', region: 'left', x: -1.02, y: -0.30, maxHealth: 34, replacement: 'plasma-turret', firingRange: 920, crossSide: true },
   { id: 'machine-gun-right', kind: 'machine-gun', region: 'right', x: 1.02, y: -0.30, maxHealth: 34, replacement: 'plasma-turret', firingRange: 920, crossSide: true },
-  { id: 'missile-left', kind: 'missile', region: 'left', x: -1.16, y: 0.82, maxHealth: 38, replacement: 'rocket-pod', firingRange: 720 },
-  { id: 'missile-right', kind: 'missile', region: 'right', x: 1.16, y: 0.82, maxHealth: 38, replacement: 'rocket-pod', firingRange: 720 },
+  { id: 'missile-left', kind: 'missile', region: 'left', x: -1.16, y: 0.82, maxHealth: 38, replacement: 'rocket-pod', firingRange: 980 },
+  { id: 'missile-right', kind: 'missile', region: 'right', x: 1.16, y: 0.82, maxHealth: 38, replacement: 'rocket-pod', firingRange: 980 },
   { id: 'light-laser-left', kind: 'light-laser', region: 'front', x: -0.42, y: -1.50, maxHealth: 28, replacement: 'light-laser', firingRange: 620 },
   { id: 'light-laser-right', kind: 'light-laser', region: 'front', x: 0.42, y: -1.50, maxHealth: 28, replacement: 'light-laser', firingRange: 620 },
   { id: 'plasma-cannon-left-forward', kind: 'plasma-cannon', region: 'left', x: -1.34, y: -0.02, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 },
@@ -39,11 +39,9 @@ const getWeaponFamily = (kind = '') => {
 export function selectBossAttack(modules, targetDistance, targetLocalX, centerlineTolerance = 8, phase = 1) {
   const priorities = targetDistance <= 500
     ? ['plasma', 'machine-gun', 'light-laser', 'missile']
-    : targetDistance <= 720
+    : targetDistance <= 760
       ? ['missile', 'machine-gun', 'light-laser', 'plasma']
-      : phase >= 3
-        ? ['missile', 'light-laser', 'machine-gun', 'plasma']
-        : ['light-laser', 'machine-gun', 'missile', 'plasma'];
+      : ['missile', 'machine-gun', 'light-laser', 'plasma'];
 
   for (const family of priorities) {
     const available = modules.some((module) => {
