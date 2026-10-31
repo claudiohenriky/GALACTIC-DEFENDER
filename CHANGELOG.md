@@ -1,3 +1,12 @@
+## [Unreleased] — DREADNOUGHT · escudos e legibilidade dos módulos
+
+- Reduz a integridade dos quatro setores regionais e alonga suas janelas de recarga para tornar o combate contra as defesas mais legível.
+- Disparos que atingem diretamente um hardpoint transferem 42% do dano ao módulo mesmo com o escudo regional ativo; impactos no casco continuam sendo absorvidos normalmente.
+- Reforça a leitura dos quatro arcos de escudo com camadas ciano mais visíveis, mantendo a geometria segmentada.
+- Amplia visualmente plasma, lançadores de mísseis, canhão pesado e metralhadoras em proporções diferentes. As alterações são exclusivamente visuais e não modificam alcance, dano, cadência ou colisões.
+- Adiciona testes de regressão para penetração controlada em hardpoints e absorção integral de impactos comuns no casco.
+- **Validação pendente:** confirmar em gameplay real a precisão do ponto de impacto, a taxa de destruição dos módulos e a legibilidade das armas no zoom tático.
+
 ## [Unreleased] — DREADNOUGHT · IA tática e revisão do arsenal
 
 - Define alcances operacionais por módulo e restringe a mira/disparo dos armamentos laterais ao respectivo lado do casco; metralhadoras mantêm capacidade de cobertura cruzada por serem armas de longo alcance.

@@ -32,8 +32,21 @@ test('boss owns twelve unique weapon modules, including four plasma cannons, and
 });
 test('regional shield absorbs damage and becomes disabled at zero',()=>{
  const systems=new BossSystems(), result=systems.damageShield('front',140);
- assert.equal(result.absorbed,110);assert.equal(result.remaining,30);
+ assert.equal(result.absorbed,88);assert.equal(result.remaining,52);
  assert.equal(systems.shieldById.get('front').disabled,true);
+});
+test('precise hardpoint hits leak a controlled portion through active regional shields',()=>{
+ const systems=new BossSystems();
+ const result=systems.damageShield('front',10,0.42);
+ assert.ok(Math.abs(result.absorbed-5.8)<1e-9);
+ assert.ok(Math.abs(result.remaining-4.2)<1e-9);
+ assert.ok(Math.abs(systems.shieldById.get('front').health-82.2)<1e-9);
+});
+test('ordinary hull hits remain fully absorbed while a regional shield is active',()=>{
+ const systems=new BossSystems();
+ const result=systems.damageShield('front',10);
+ assert.equal(result.absorbed,10);assert.equal(result.remaining,0);
+ assert.equal(systems.shieldById.get('front').health,78);
 });
 test('modules transition from damaged to disabled and destroyed',()=>{
  const systems=new BossSystems(),m=systems.getModule('machine-gun-left');
@@ -51,9 +64,9 @@ test('overload replaces catastrophic mounts and rebuilds recoverable wreckage on
  systems.update(4.6);assert.equal(systems.rebuildComplete,true);assert.equal(a.transitionType,'');
 });
 test('regional shields recharge when auxiliary system is operational',()=>{
- const systems=new BossSystems();systems.damageShield('front',110);systems.update(13);
+ const systems=new BossSystems();systems.damageShield('front',88);systems.update(16);
  assert.equal(systems.shieldById.get('front').disabled,false);
- assert.ok(Math.abs(systems.shieldById.get('front').health - 60.5) < 1e-9);
+ assert.ok(Math.abs(systems.shieldById.get('front').health - 48.4) < 1e-9);
 });
 test('destroyed auxiliary system prevents regional shield regeneration',()=>{
  const systems=new BossSystems();systems.damageShield('front',110);

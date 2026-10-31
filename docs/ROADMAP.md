@@ -499,3 +499,12 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [ ] Validar leitura dos condutores laterais em celular e desktop, sem competir visualmente com as dez armas.
 - [ ] Em etapa futura, animar a carga percorrendo os condutores e culminando na emissão do laser diretamente pela abertura; não adicionar barrel retrátil nem fechar a cavidade.
 - [ ] Manter o laser principal sem projétil/dano até que telegraph, janela de reação e contra-jogo sejam implementados e testados.
+
+
+## DREADNOUGHT — vulnerabilidade dos módulos e legibilidade do arsenal (31/10/2026)
+- [x] Reduzir a reserva dos quatro setores de escudo (frontal 88, laterais 64, traseiro 54) e ampliar os intervalos de recarga.
+- [x] Permitir que impactos precisamente posicionados sobre um hardpoint transfiram 42% do dano ao módulo enquanto o escudo regional absorve o restante; impactos no casco continuam totalmente protegidos.
+- [x] Reforçar a leitura dos arcos de escudo com contorno ciano mais amplo e camada interna clara, mantendo quatro setores independentes.
+- [x] Aumentar visualmente plasma (28%), lançadores de mísseis (24%), canhão pesado (18%) e metralhadoras (10%), sem alterar colisões ou dano.
+- [ ] Validar em gameplay se o ponto de impacto coincide com a arma pretendida e se a taxa de dano aos módulos está justa.
+- [ ] Ajustar intensidade do escudo e escala das armas após observação em zoom tático mobile/desktop.

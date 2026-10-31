@@ -1,4 +1,4 @@
-import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.45.0-boss-tactics';
+import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.45.1-boss-readability';
 import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.45.0-motion-core';
 
 export class Enemy {
@@ -1166,8 +1166,12 @@ export class Enemy {
                   : renderKind.includes('missile') || renderKind.includes('rocket') ? '#aab6c2'
                     : renderKind.includes('plasma') ? '#ff653d'
                       : renderKind.includes('energy') || renderKind.includes('cannon') ? '#36d9ff' : '#8796a6';
+          const weaponScale = renderKind.includes('plasma') ? 1.28
+            : renderKind.includes('missile') || renderKind.includes('rocket') ? 1.24
+              : renderKind.includes('energy') || renderKind.includes('cannon') ? 1.18
+                : renderKind.includes('machine-gun') ? 1.10 : 1;
           const mountSize = radius * 0.12;
-          const moduleSize = mountSize * 2.15;
+          const moduleSize = mountSize * 2.15 * weaponScale;
           const moduleHalfSize = moduleSize / 2;
           ctx.save();
           ctx.translate(mx, my);
@@ -1189,6 +1193,7 @@ export class Enemy {
             ctx.globalAlpha = 1;
           }
           if (module.id !== 'main-energy-cannon') ctx.rotate(module.turretAngle ?? 0);
+          ctx.scale(weaponScale, weaponScale);
           // The main energy module is represented by the open bow aperture above,
           // not by a turret, barrel or solid socket covering the cavity.
           if (module.id !== 'main-energy-cannon') {
@@ -1509,11 +1514,19 @@ export class Enemy {
             arcStart = 0.42;
             arcEnd = 2.72;
           }
-          ctx.globalAlpha = 0.07 + 0.13 * (shield.health / shield.maxHealth);
-          ctx.strokeStyle = '#67dcff';
-          ctx.lineWidth = 5;
+          const shieldRatio = shield.health / Math.max(1, shield.maxHealth);
+          // A broad, segmented cyan barrier echoes the player's shield language at the dreadnought's scale.
+          ctx.globalAlpha = 0.13 + shieldRatio * 0.20;
+          ctx.strokeStyle = '#36d9ff';
+          ctx.lineWidth = 10;
           ctx.beginPath();
-          ctx.arc(0, 0, radius * 1.38, arcStart, arcEnd);
+          ctx.arc(0, 0, radius * 1.40, arcStart, arcEnd);
+          ctx.stroke();
+          ctx.globalAlpha = 0.24 + shieldRatio * 0.24;
+          ctx.strokeStyle = '#b8f7ff';
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.arc(0, 0, radius * 1.40, arcStart, arcEnd);
           ctx.stroke();
           if (shield.impactFlash > 0) {
             const impactProgress = 1 - shield.impactFlash / 0.46;
@@ -1536,7 +1549,7 @@ export class Enemy {
             ctx.strokeStyle = '#b4f8ff';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(0, 0, radius * 1.48, arcStart, arcEnd);
+            ctx.arc(0, 0, radius * 1.52, arcStart, arcEnd);
             ctx.stroke();
           }
           ctx.globalAlpha = 1;

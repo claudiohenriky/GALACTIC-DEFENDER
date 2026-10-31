@@ -6,7 +6,7 @@ import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
-import { getBossBeamSegment } from '../enemies/boss-systems.js?v=0.45.0-boss-tactics';
+import { getBossBeamSegment } from '../enemies/boss-systems.js?v=0.45.1-boss-readability';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.44.0-boss-test-first-wave';
@@ -922,9 +922,6 @@ export class Game {
       const region = localY < -radius * 0.34 ? 'front'
         : localY > radius * 0.48 ? 'rear'
           : localX < 0 ? 'left' : 'right';
-      const shieldResult = enemy.bossSystems.damageShield(region, remainingDamage);
-      remainingDamage = shieldResult.remaining;
-
       let nearestDistance = Infinity;
       for (const module of enemy.bossSystems.modules) {
         if (module.state === 'destroyed') continue;
@@ -936,7 +933,12 @@ export class Game {
           hitModule = module;
         }
       }
-      if (remainingDamage > 0 && hitModule && nearestDistance <= (radius * 0.42) ** 2) {
+      const directModuleHit = Boolean(hitModule && nearestDistance <= (radius * 0.42) ** 2);
+      // Precise hardpoint hits damage the weapon while the regional shield absorbs the rest.
+      const moduleBypassRatio = directModuleHit ? 0.42 : 0;
+      const shieldResult = enemy.bossSystems.damageShield(region, remainingDamage, moduleBypassRatio);
+      remainingDamage = shieldResult.remaining;
+      if (remainingDamage > 0 && directModuleHit) {
         enemy.bossSystems.damageModule(hitModule.id, remainingDamage);
       }
       if (remainingDamage <= 0) return;

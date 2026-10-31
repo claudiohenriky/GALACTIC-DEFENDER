@@ -18,10 +18,10 @@ const MODULE_TEMPLATES = [
 ];
 
 const SHIELD_TEMPLATES = [
-  { id: 'front', maxHealth: 110, rechargeDelay: 13 },
-  { id: 'left', maxHealth: 82, rechargeDelay: 11 },
-  { id: 'right', maxHealth: 82, rechargeDelay: 11 },
-  { id: 'rear', maxHealth: 72, rechargeDelay: 9 }
+  { id: 'front', maxHealth: 88, rechargeDelay: 16 },
+  { id: 'left', maxHealth: 64, rechargeDelay: 14 },
+  { id: 'right', maxHealth: 64, rechargeDelay: 14 },
+  { id: 'rear', maxHealth: 54, rechargeDelay: 12 }
 ];
 
 const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
@@ -176,11 +176,14 @@ export class BossSystems {
     return module;
   }
 
-  damageShield(region, amount) {
+  damageShield(region, amount, moduleBypassRatio = 0) {
     const shield = this.shieldById.get(region) || null;
     if (!shield || amount <= 0 || shield.health <= 0) return { absorbed: 0, remaining: amount };
 
-    const absorbed = Math.min(shield.health, amount);
+    // Precise hits on exposed weapon hardpoints can transfer part of their energy through the regional barrier.
+    const bypassRatio = clamp(moduleBypassRatio, 0, 0.65);
+    const shieldDamage = amount * (1 - bypassRatio);
+    const absorbed = Math.min(shield.health, shieldDamage);
     shield.health -= absorbed;
     if (absorbed > 0) {
       shield.impactFlash = 0.46;
