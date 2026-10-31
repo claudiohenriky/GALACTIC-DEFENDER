@@ -1637,7 +1637,7 @@ export class Game {
         const reactionPosition = getPilotReactionPosition({
           x: screenX, y: screenY, bubble: this.cinematicDialogueRect,
           width: this.width, height: this.height,
-          radius: this.pilotReaction.symbol === '❓❗' ? 21 : 15, offset: 30
+          radius: this.pilotReaction.symbol === '❓❗' ? 14 : 11, offset: 23
         });
         if (reactionPosition) drawPilotReaction(ctx, this.pilotReaction, reactionPosition.x, reactionPosition.y);
       }
@@ -2465,7 +2465,7 @@ export class Game {
       const screenY = this.height / 2 + (this.player.y - this.height / 2 - this.cameraY) * zoom;
       const reactionPosition = getPilotReactionPosition({
         x: screenX, y: screenY, width: this.width, height: this.height,
-        radius: 15, offset: 29
+        radius: this.pilotReaction.symbol === '❓❗' ? 14 : 11, offset: 23
       });
       if (reactionPosition) drawPilotReaction(ctx, this.pilotReaction, reactionPosition.x, reactionPosition.y);
     }
