@@ -647,7 +647,7 @@ export class Enemy {
     const flame = 3 + Math.sin(this.phase * 10) * 0.65 + this.thrust * 4.5;
     if (boss) {
       const pulse = 0.34 + Math.sin(this.phase * 11) * 0.06 + this.thrust * 0.12;
-      for (const side of [-1, 1]) {
+      for (let side = -1; side <= 1; side += 2) {
         const engineX = side * this.radius * 0.58;
         const plumeLength = this.radius * (0.58 + this.thrust * 0.16 + Math.sin(this.phase * 10 + side) * 0.035);
         const plume = ctx.createLinearGradient(0, this.radius * 1.72, 0, this.radius * 1.72 + plumeLength);
@@ -776,106 +776,12 @@ export class Enemy {
     if (boss) {
       const systems = this.bossSystems;
 
-      // Matte graphite armor with brushed-steel structural ribs.
-      ctx.fillStyle = '#293542'; ctx.strokeStyle = '#718091'; ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(-this.radius * 1.18, -this.radius * 0.82); ctx.lineTo(-this.radius * 0.78, -this.radius * 1.42);
-      ctx.lineTo(-this.radius * 0.30, -this.radius * 1.70); ctx.lineTo(this.radius * 0.30, -this.radius * 1.70);
-      ctx.lineTo(this.radius * 0.78, -this.radius * 1.42); ctx.lineTo(this.radius * 1.18, -this.radius * 0.82);
-      ctx.lineTo(this.radius * 1.28, this.radius * 0.66); ctx.lineTo(this.radius * 0.72, this.radius * 1.48);
-      ctx.lineTo(0, this.radius * 1.82); ctx.lineTo(-this.radius * 0.72, this.radius * 1.48);
-      ctx.lineTo(-this.radius * 1.28, this.radius * 0.66); ctx.closePath(); ctx.fill(); ctx.stroke();
-      // Recessed longitudinal energy channel is integrated into the hull, not a separate module.
-      ctx.fillStyle = '#111820'; ctx.strokeStyle = '#596574'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(0, -this.radius * 2.02); ctx.lineTo(this.radius * 0.23, -this.radius * 1.68);
-      ctx.lineTo(this.radius * 0.17, this.radius * 0.92); ctx.lineTo(0, this.radius * 1.30);
-      ctx.lineTo(-this.radius * 0.17, this.radius * 0.92); ctx.lineTo(-this.radius * 0.23, -this.radius * 1.68);
-      ctx.closePath(); ctx.fill(); ctx.stroke();
-      // The central channel stays physically open: these narrow rails frame it
-      // instead of filling it with a barrel or a solid weapon housing.
-      ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 2.4; ctx.globalAlpha = 0.72;
-      ctx.beginPath(); ctx.moveTo(-this.radius * 0.12, this.radius * 0.82); ctx.lineTo(-this.radius * 0.10, -this.radius * 1.54); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(this.radius * 0.12, this.radius * 0.82); ctx.lineTo(this.radius * 0.10, -this.radius * 1.54); ctx.stroke(); ctx.globalAlpha = 1;
-      // Broad side decks, layered armor and steel seams establish capital-ship scale.
-      for (const side of [-1, 1]) {
-        ctx.fillStyle = '#202833'; ctx.strokeStyle = '#8796a6'; ctx.lineWidth = 1.8;
-        ctx.beginPath(); ctx.moveTo(side * this.radius * 0.56, -this.radius * 0.92); ctx.lineTo(side * this.radius * 1.26, -this.radius * 0.70);
-        ctx.lineTo(side * this.radius * 1.48, -this.radius * 0.12); ctx.lineTo(side * this.radius * 1.42, this.radius * 0.78);
-        ctx.lineTo(side * this.radius * 1.08, this.radius * 1.28); ctx.lineTo(side * this.radius * 0.68, this.radius * 0.92);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.strokeStyle = '#596574'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(side * this.radius * 1.30, -this.radius * 0.42); ctx.lineTo(side * this.radius * 1.34, this.radius * 0.72); ctx.stroke();
-        ctx.strokeStyle = '#a0acb8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(side * this.radius * 0.82, -this.radius * 0.66); ctx.lineTo(side * this.radius * 1.14, -this.radius * 0.48); ctx.stroke();
-      }
-
-      // Exposed stepped armor teeth sit above the deck plating, so their
-      // serrated silhouette remains visible instead of being covered by it.
-      for (const side of [-1, 1]) {
-        ctx.fillStyle = '#111820';
-        ctx.beginPath();
-        ctx.moveTo(side * this.radius * 1.18, -this.radius * 0.72);
-        ctx.lineTo(side * this.radius * 1.58, -this.radius * 0.92);
-        ctx.lineTo(side * this.radius * 1.42, -this.radius * 0.30);
-        ctx.lineTo(side * this.radius * 1.58, this.radius * 0.12);
-        ctx.lineTo(side * this.radius * 1.26, this.radius * 0.34);
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = '#596574';
-        ctx.fillRect(side < 0 ? -this.radius * 1.43 : this.radius * 1.31, -this.radius * 0.42, this.radius * 0.08, this.radius * 0.54);
-        ctx.fillStyle = '#ff653d';
-        ctx.fillRect(side < 0 ? -this.radius * 1.50 : this.radius * 1.42, -this.radius * 0.02, this.radius * 0.07, this.radius * 0.18);
-      }
-
-      // Rear cooling grille: chunky metal ribs with a single cyan power channel.
-      ctx.fillStyle = '#111820';
-      ctx.fillRect(-this.radius * 0.40, this.radius * 1.48, this.radius * 0.80, this.radius * 0.24);
-      for (let vent = -2; vent <= 2; vent += 1) {
-        ctx.fillStyle = vent === 0 ? '#36d9ff' : '#596574';
-        ctx.fillRect(vent * this.radius * 0.14 - this.radius * 0.04, this.radius * 1.51, this.radius * 0.08, this.radius * 0.16);
-      }
-
-      // Reinforced stern and two clearly separated rear engine housings.
-      // The cyan nozzle is inset in each casing; no shared central thruster.
-      ctx.fillStyle = '#111820'; ctx.strokeStyle = '#596574'; ctx.lineWidth = 2;
-      for (const side of [-1, 1]) {
-        const engineX = side * this.radius * 0.58;
-        ctx.fillRect(engineX - this.radius * 0.22, this.radius * 1.20, this.radius * 0.44, this.radius * 0.62);
-        ctx.strokeRect(engineX - this.radius * 0.22, this.radius * 1.20, this.radius * 0.44, this.radius * 0.62);
-        ctx.fillStyle = '#293542';
-        ctx.fillRect(engineX - this.radius * 0.15, this.radius * 1.30, this.radius * 0.30, this.radius * 0.34);
-        ctx.fillStyle = '#36d9ff';
-        ctx.globalAlpha = 0.82 + Math.sin(this.phase * 13 + side) * 0.12;
-        ctx.fillRect(engineX - this.radius * 0.105, this.radius * 1.62, this.radius * 0.21, this.radius * 0.16);
-        // A restrained cyan highlight keeps the nozzle luminous without
-        // reading as a detached white component.
-        ctx.fillStyle = '#087f9c';
-        ctx.fillRect(engineX - this.radius * 0.035, this.radius * 1.65, this.radius * 0.07, this.radius * 0.07);
-        ctx.globalAlpha = 1;
-      }
-      // Permanent cyan core; phase III adds localized adaptive-green repair traces.
-      const corePulse = 0.78 + Math.sin(this.phase * 9) * 0.12;
-      ctx.fillStyle = '#36d9ff'; ctx.globalAlpha = this.bossPhase === 3 ? 0.34 : 0.20;
-      ctx.fillRect(-this.radius * 0.16, -this.radius * 0.12, this.radius * 0.32, this.radius * 0.78);
-      ctx.globalAlpha = corePulse; ctx.fillRect(-this.radius * 0.075, -this.radius * 0.06, this.radius * 0.15, this.radius * 0.64); ctx.globalAlpha = 1;
-      if (this.bossPhase === 3) {
-        ctx.strokeStyle = '#66e69a'; ctx.lineWidth = 2; ctx.globalAlpha = 0.72;
-        for (const side of [-1, 1]) { ctx.beginPath(); ctx.moveTo(side * this.radius * 0.42, this.radius * 0.92); ctx.lineTo(side * this.radius * 0.30, this.radius * 0.62); ctx.lineTo(side * this.radius * 0.18, this.radius * 0.48); ctx.stroke(); }
-        ctx.globalAlpha = 1;
-      }
-      ctx.strokeStyle = '#596574'; ctx.lineWidth = 1.4;
-      for (const side of [-1, 1]) {
-        ctx.beginPath(); ctx.moveTo(side * this.radius * 0.42, -this.radius * 1.28); ctx.lineTo(side * this.radius * 0.88, -this.radius * 0.94); ctx.lineTo(side * this.radius * 1.02, -this.radius * 0.40); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(side * this.radius * 0.82, this.radius * 0.88); ctx.lineTo(side * this.radius * 0.62, this.radius * 1.24); ctx.stroke();
-      }
-
+      // The layered DREADNOUGHT hull below is the sole boss-body render pass.
       // DREADNOUGHT 3D pass -------------------------------------------------
       // The game remains top-down 2D. Layered silhouettes, offset sidewalls,
       // bevel highlights and directional gradients create a raised 3D hull.
       const hullR = this.radius;
-      const deckLight = ctx.createLinearGradient(-hullR * 1.2, -hullR * 1.5, hullR * 1.1, hullR * 1.5);
-      deckLight.addColorStop(0, '#647486');
-      deckLight.addColorStop(0.22, '#354351');
-      deckLight.addColorStop(0.58, '#202a35');
-      deckLight.addColorStop(1, '#111820');
+      const deckLight = '#354351';
 
       // Deep cast shadow and lower armor lip make the upper deck appear elevated.
       ctx.save();
@@ -898,7 +804,7 @@ export class Enemy {
 
       // Angled port and starboard armor walls: darker lower facets sit beneath
       // the brighter top plates, giving the ship visible thickness from above.
-      for (const side of [-1, 1]) {
+      for (let side = -1; side <= 1; side += 2) {
         ctx.save();
         ctx.fillStyle = side < 0 ? '#111a23' : '#151f2a';
         ctx.strokeStyle = '#0b1118';
@@ -914,11 +820,7 @@ export class Enemy {
         ctx.fill();
         ctx.stroke();
 
-        const sideFace = ctx.createLinearGradient(side * hullR * 0.9, 0, side * hullR * 1.55, 0);
-        sideFace.addColorStop(0, '#3a4857');
-        sideFace.addColorStop(0.42, '#202b36');
-        sideFace.addColorStop(1, '#0e151d');
-        ctx.fillStyle = sideFace;
+        ctx.fillStyle = '#202b36';
         ctx.beginPath();
         ctx.moveTo(side * hullR * 1.22, -hullR * 0.48);
         ctx.lineTo(side * hullR * 1.50, -hullR * 0.30);
@@ -940,68 +842,23 @@ export class Enemy {
         ctx.restore();
       }
 
-      // Raised central command deck. Its offset shadow and two visible bevel
-      // faces create a stepped superstructure instead of a flat polygon.
-      ctx.fillStyle = '#0b121a';
-      ctx.beginPath();
-      ctx.moveTo(0, -hullR * 1.70);
-      ctx.lineTo(hullR * 0.43, -hullR * 1.30);
-      ctx.lineTo(hullR * 0.38, -hullR * 0.48);
-      ctx.lineTo(0, -hullR * 0.20);
-      ctx.lineTo(-hullR * 0.38, -hullR * 0.48);
-      ctx.lineTo(-hullR * 0.43, -hullR * 1.30);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.fillStyle = deckLight;
-      ctx.strokeStyle = '#8796a6';
-      ctx.lineWidth = 1.8;
-      ctx.beginPath();
-      ctx.moveTo(0, -hullR * 1.82);
-      ctx.lineTo(hullR * 0.34, -hullR * 1.48);
-      ctx.lineTo(hullR * 0.29, -hullR * 0.62);
-      ctx.lineTo(0, -hullR * 0.38);
-      ctx.lineTo(-hullR * 0.29, -hullR * 0.62);
-      ctx.lineTo(-hullR * 0.34, -hullR * 1.48);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-
-      // Command bridge roof and its front-facing bevel.
-      ctx.fillStyle = '#596574';
-      ctx.beginPath();
-      ctx.moveTo(0, -hullR * 1.60);
-      ctx.lineTo(hullR * 0.22, -hullR * 1.38);
-      ctx.lineTo(hullR * 0.18, -hullR * 1.02);
-      ctx.lineTo(0, -hullR * 0.90);
-      ctx.lineTo(-hullR * 0.18, -hullR * 1.02);
-      ctx.lineTo(-hullR * 0.22, -hullR * 1.38);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillStyle = '#202833';
-      ctx.beginPath();
-      ctx.moveTo(-hullR * 0.18, -hullR * 1.02);
-      ctx.lineTo(0, -hullR * 0.90);
-      ctx.lineTo(hullR * 0.18, -hullR * 1.02);
-      ctx.lineTo(hullR * 0.18, -hullR * 0.88);
-      ctx.lineTo(0, -hullR * 0.75);
-      ctx.lineTo(-hullR * 0.18, -hullR * 0.88);
-      ctx.closePath();
-      ctx.fill();
+      // Keep the bow centerline clear: no raised bridge or gray superstructure
+      // between the open energy aperture and the pointed front of the hull.
 
       // Recessed reactor well: radial light sits inside a dark armored socket.
-      const reactorGlow = ctx.createRadialGradient(0, hullR * 0.30, hullR * 0.025, 0, hullR * 0.30, hullR * 0.38);
-      reactorGlow.addColorStop(0, this.bossPhase === 3 ? 'rgba(190,255,255,0.95)' : 'rgba(54,217,255,0.72)');
-      reactorGlow.addColorStop(0.28, 'rgba(54,217,255,0.34)');
-      reactorGlow.addColorStop(1, 'rgba(54,217,255,0)');
+      const reactorCoreColor = this.bossPhase === 3 ? '#baffff' : '#36d9ff';
       ctx.fillStyle = '#0b131b';
       ctx.beginPath();
       ctx.ellipse(0, hullR * 0.30, hullR * 0.25, hullR * 0.48, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.fillStyle = reactorGlow;
-      ctx.fillRect(-hullR * 0.42, -hullR * 0.12, hullR * 0.84, hullR * 0.88);
-      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = reactorCoreColor;
+      ctx.globalAlpha = 0.18;
+      ctx.beginPath();
+      ctx.ellipse(0, hullR * 0.30, hullR * 0.20, hullR * 0.38, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#36d9ff';
+      ctx.fillRect(-hullR * 0.045, hullR * 0.02, hullR * 0.09, hullR * 0.54);
       ctx.strokeStyle = '#596574';
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -1033,11 +890,7 @@ export class Enemy {
       ctx.beginPath();
       ctx.ellipse(0, 0, hullR * 0.285, hullR * 0.17, 0, 0, Math.PI * 2);
       ctx.fill();
-      const apertureDepth = ctx.createLinearGradient(0, -hullR * 0.16, 0, hullR * 0.16);
-      apertureDepth.addColorStop(0, 'rgba(8,127,156,0.16)');
-      apertureDepth.addColorStop(0.52, 'rgba(2,7,12,0.02)');
-      apertureDepth.addColorStop(1, 'rgba(8,127,156,0.22)');
-      ctx.fillStyle = apertureDepth;
+      ctx.fillStyle = '#06121a';
       ctx.fill();
 
       // Segmented containment lips frame the opening without crossing its center.
@@ -1051,7 +904,7 @@ export class Enemy {
       ctx.ellipse(0, 0, hullR * 0.25, hullR * 0.135, 0, 0, Math.PI * 2);
       ctx.stroke();
       ctx.globalAlpha = 1;
-      for (const side of [-1, 1]) {
+      for (let side = -1; side <= 1; side += 2) {
         ctx.fillStyle = '#293542'; ctx.strokeStyle = '#a0acb8'; ctx.lineWidth = 1.3;
         ctx.fillRect(side * hullR * 0.30 - hullR * 0.045, -hullR * 0.075, hullR * 0.09, hullR * 0.15);
         ctx.strokeRect(side * hullR * 0.30 - hullR * 0.045, -hullR * 0.075, hullR * 0.09, hullR * 0.15);
@@ -1059,7 +912,7 @@ export class Enemy {
       ctx.restore();
 
       // Armor segmentation, fasteners and heat vents add scale without noise.
-      for (const side of [-1, 1]) {
+      for (let side = -1; side <= 1; side += 2) {
         ctx.strokeStyle = '#a0acb8';
         ctx.globalAlpha = 0.72;
         ctx.lineWidth = 1;
@@ -1070,7 +923,8 @@ export class Enemy {
         ctx.stroke();
         ctx.globalAlpha = 1;
 
-        for (const boltY of [-0.42, 0.38, 0.92]) {
+        for (let boltIndex = 0; boltIndex < 3; boltIndex += 1) {
+          const boltY = boltIndex === 0 ? -0.42 : boltIndex === 1 ? 0.38 : 0.92;
           ctx.fillStyle = '#aab5c0';
           ctx.beginPath();
           ctx.arc(side * hullR * 1.16, hullR * boltY, hullR * 0.018, 0, Math.PI * 2);
@@ -1087,7 +941,7 @@ export class Enemy {
 
       // Rear auxiliary thrusters reinforce the twin main engines and give the
       // stern a wider mechanical footprint; their exhaust remains presentation-only.
-      for (const side of [-1, 1]) {
+      for (let side = -1; side <= 1; side += 2) {
         const auxX = side * hullR * 1.02;
         ctx.fillStyle = '#0b121a';
         ctx.strokeStyle = '#596574';
@@ -1111,7 +965,7 @@ export class Enemy {
       }
       // Paired side energy manifolds: recessed housings, exposed conduits and
       // small capacitor nodes make the future laser charge path readable.
-      for (const side of [-1, 1]) {
+      for (let side = -1; side <= 1; side += 2) {
         const railX = side * this.radius * 0.43;
         ctx.fillStyle = '#0b141d'; ctx.strokeStyle = '#596574'; ctx.lineWidth = 1.4;
         ctx.beginPath();
@@ -1125,7 +979,8 @@ export class Enemy {
         ctx.beginPath(); ctx.moveTo(railX, this.radius * 0.68); ctx.lineTo(railX, -this.radius * 1.28); ctx.stroke();
         ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 1.8; ctx.globalAlpha = 0.78;
         ctx.beginPath(); ctx.moveTo(railX, this.radius * 0.58); ctx.lineTo(railX, -this.radius * 1.20); ctx.stroke(); ctx.globalAlpha = 1;
-        for (const nodeY of [-1.08, -0.42, 0.30]) {
+        for (let nodeIndex = 0; nodeIndex < 3; nodeIndex += 1) {
+          const nodeY = nodeIndex === 0 ? -1.08 : nodeIndex === 1 ? -0.42 : 0.30;
           ctx.fillStyle = '#111d28'; ctx.strokeStyle = '#718091'; ctx.lineWidth = 1;
           ctx.fillRect(railX - this.radius * 0.105, this.radius * nodeY - this.radius * 0.075, this.radius * 0.21, this.radius * 0.15);
           ctx.strokeRect(railX - this.radius * 0.105, this.radius * nodeY - this.radius * 0.075, this.radius * 0.21, this.radius * 0.15);
