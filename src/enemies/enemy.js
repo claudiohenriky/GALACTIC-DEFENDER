@@ -24,6 +24,12 @@ export class Enemy {
     this.health = this.maxHealth;
     this.bossSystems = type === 'boss' ? new BossSystems() : null;
     this.bossPhase = 1;
+    this.bossMovementState = 'patrol';
+    this.bossMovementTimer = 0;
+    this.bossRepositionCooldown = 0;
+    this.bossMoveTargetX = x;
+    this.bossMoveTargetY = y;
+    this.bossPatrolSide = 1;
     this.bossPhaseTransition = 0;
     this.bossEntranceDuration = type === 'boss' ? 5.2 : 0;
     this.bossEntranceTimer = this.bossEntranceDuration;
@@ -109,7 +115,7 @@ export class Enemy {
     this.bank += (targetBank - this.bank) * Math.min(1, dt * 8);
   }
 
-  update(dt, targetX, targetY, width, height, playerProjectiles = [], allies = [], cameraTop = 0) {
+  update(dt, targetX, targetY, width, height, playerProjectiles = [], allies = [], cameraTop = 0, playerVelocityX = 0, playerVelocityY = 0) {
     const previousX = this.x;
     const previousY = this.y;
     this.contactCooldown = Math.max(0, this.contactCooldown - dt);
@@ -119,6 +125,8 @@ export class Enemy {
     this.flankTimer = Math.max(0, this.flankTimer - dt);
     this.repositionTimer = Math.max(0, this.repositionTimer - dt);
     this.repositionCooldown = Math.max(0, this.repositionCooldown - dt);
+    this.bossMovementTimer = Math.max(0, this.bossMovementTimer - dt);
+    this.bossRepositionCooldown = Math.max(0, this.bossRepositionCooldown - dt);
     const repositionActive = this.type === 'chaser' && this.repositionTimer > 0;
     const flankActive = this.isElite && this.flankTimer > 0 && this.type !== 'guardian';
     this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? (this.isElite ? 1.25 : 0.9) : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
@@ -250,17 +258,65 @@ export class Enemy {
       const entranceProgress = 1 - this.bossEntranceTimer / Math.max(0.001, this.bossEntranceDuration);
       const entranceEase = entranceProgress * entranceProgress * (3 - 2 * entranceProgress);
       const horizontalRange = Math.min(width * (this.bossPhase === 3 ? 0.22 : 0.17), this.bossPhase === 3 ? 260 : 210);
-      // The battleship repositions around the encounter instead of mirroring every player movement.
-      // Its slow drift leaves room for the pilot to circle and attack different shield sectors.
-      const patrolX = targetX + Math.sin(this.phase * (this.bossPhase === 3 ? 0.62 : 0.42)) * horizontalRange;
-      // Keep the long bow clear of the pilot after the camera widens to the full arena.
       const bowClearance = this.radius * 2.18 + 38;
-      const desiredY = Math.max(this.collisionRadius + 24, Math.min(targetY - Math.max(bowClearance, height * 0.28), height - this.collisionRadius - 30));
+      const playerSpeed = Math.hypot(playerVelocityX, playerVelocityY);
+      const predictionHorizon = this.bossPhase === 3 ? 0.5 : 0.38;
+      const predictedTargetX = Math.max(this.radius, Math.min(width - this.radius, targetX + playerVelocityX * predictionHorizon));
+      const predictedTargetY = Math.max(this.radius, Math.min(height - this.radius, targetY + playerVelocityY * predictionHorizon));
+      const desiredY = Math.max(this.collisionRadius + 24, Math.min(predictedTargetY - Math.max(bowClearance, height * 0.28), height - this.collisionRadius - 30));
       const entryStartY = cameraTop - this.radius * 1.9;
-      const entryY = entryStartY + (desiredY - entryStartY) * entranceEase;
-      const desiredX = targetX + (patrolX - targetX) * entranceEase;
-      this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 0.18 : 0.14));
-      this.y += (entryY - this.y) * Math.min(1, dt * (this.bossEntranceTimer > 0 ? 1.8 : this.bossPhase === 3 ? 0.16 : 0.12));
+
+      if (this.bossMovementState === 'reposition' && this.bossMovementTimer <= 0) {
+        this.bossMovementState = 'stabilize';
+        this.bossMovementTimer = 1.15;
+      } else if (this.bossMovementState === 'stabilize' && this.bossMovementTimer <= 0) {
+        this.bossMovementState = 'patrol';
+      }
+
+      if (this.bossEntranceTimer > 0) {
+        // Keep the cinematic entrance deterministic; tactical steering begins after arrival.
+        const patrolX = targetX + Math.sin(this.phase * (this.bossPhase === 3 ? 0.62 : 0.42)) * horizontalRange;
+        const entryY = entryStartY + (desiredY - entryStartY) * entranceEase;
+        const entryX = targetX + (patrolX - targetX) * entranceEase;
+        this.x += (entryX - this.x) * Math.min(1, dt * 1.8);
+        this.y += (entryY - this.y) * Math.min(1, dt * 1.8);
+      } else {
+        const toPlayerX = targetX - this.x;
+        const toPlayerY = targetY - this.y;
+        const playerDistance = Math.hypot(toPlayerX, toPlayerY) || 1;
+        const playerAngle = Math.atan2(toPlayerY, toPlayerX);
+        const facingDelta = Math.atan2(
+          Math.sin(playerAngle - this.facingRotation),
+          Math.cos(playerAngle - this.facingRotation)
+        );
+        const standoff = Math.max(bowClearance, height * 0.28);
+        if (this.bossMovementState === 'patrol' && this.bossRepositionCooldown <= 0 &&
+            (Math.abs(facingDelta) > 1.18 || playerDistance < standoff * 0.72)) {
+          // If the pilot reaches a poor firing angle or closes too much, the battleship
+          // chooses a new heavy position instead of accelerating into a direct chase.
+          const awayX = -toPlayerX / playerDistance;
+          const awayY = -toPlayerY / playerDistance;
+          const sideX = -awayY;
+          const sideY = awayX;
+          this.bossPatrolSide *= -1;
+          const sideOffset = Math.min(width * 0.12, 140) * this.bossPatrolSide;
+          this.bossMoveTargetX = Math.max(this.collisionRadius + 4, Math.min(width - this.collisionRadius - 4,
+            predictedTargetX + awayX * standoff + sideX * sideOffset));
+          this.bossMoveTargetY = Math.max(this.collisionRadius + 24, Math.min(height - this.collisionRadius - 30,
+            predictedTargetY + awayY * standoff + sideY * sideOffset));
+          this.bossMovementState = 'reposition';
+          this.bossMovementTimer = 2.6;
+          this.bossRepositionCooldown = 5.2;
+        }
+
+        if (this.bossMovementState === 'patrol') {
+          this.bossMoveTargetX = predictedTargetX + Math.sin(this.phase * (this.bossPhase === 3 ? 0.62 : 0.42)) * horizontalRange;
+          this.bossMoveTargetY = desiredY;
+        }
+        const profile = this.bossPhase === 3
+          ? ENEMY_MOTION_PROFILES.bossPhaseThree : ENEMY_MOTION_PROFILES.boss;
+        steerToPoint(this, this.bossMoveTargetX, this.bossMoveTargetY, profile, dt);
+      }
       this.x = Math.max(this.collisionRadius + 4, Math.min(width - this.collisionRadius - 4, this.x));
 
       // Independent weapon tracking: each hardpoint turns toward the pilot only inside its own firing arc.
@@ -278,7 +334,7 @@ export class Enemy {
           const localY = (module.y - 0.16) * this.radius;
           const muzzleX = this.x + localX * cosHull - localY * sinHull;
           const muzzleY = this.y + localX * sinHull + localY * cosHull;
-          const rawAngle = Math.atan2(targetY - muzzleY, targetX - muzzleX) - this.facingRotation;
+          const rawAngle = Math.atan2(predictedTargetY - muzzleY, predictedTargetX - muzzleX) - this.facingRotation;
           const desired = Math.atan2(Math.sin(rawAngle), Math.cos(rawAngle));
           const side = Math.sign(module.x);
           let minArc = -0.85;
@@ -597,7 +653,7 @@ export class Enemy {
     // Ranged classes keep their weapons oriented toward the pilot while repositioning.
     // Movement rotation still drives the motion feedback; facing rotation drives the hull.
     if (this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') {
-      const desiredFacing = Math.atan2(targetY - this.y, targetX - this.x);
+      const desiredFacing = Math.atan2(targetY + playerVelocityY * 0.32 - this.y, targetX + playerVelocityX * 0.32 - this.x);
       const facingDelta = Math.atan2(
         Math.sin(desiredFacing - this.facingRotation),
         Math.cos(desiredFacing - this.facingRotation)
