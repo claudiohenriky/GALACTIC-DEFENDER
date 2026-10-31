@@ -1,3 +1,15 @@
+## [Unreleased] — Rebalanceamento de combate e IA do DREADNOUGHT
+
+- Reduz a pressão geral das tropas comuns: deslocamento do Interceptador e do perseguidor mais contido, Guardião menos veloz e perfis básicos de Sentinela/Artilheiro revistos.
+- Sentinela básico recebe novo ajuste de velocidade, esquiva, faixa lateral, cadência e dano; Elite continua superior, mas com mobilidade ligeiramente reduzida.
+- Artilheiro recebe nerf mais forte: menor velocidade/aceleração, faixa de patrulha menor, salva reduzida de três para dois projéteis, cadência mais lenta e projéteis menos rápidos/danosos.
+- Corrige a esquiva involuntária do DREADNOUGHT: projéteis do jogador deixam de acionar deslocamento evasivo lateral do boss.
+- Reposicionamento do encouraçado passa a ser lateral, sem vetor de afastamento do jogador; estabilização mais curta, cooldown menor e rotação do casco mais responsiva.
+- DREADNOUGHT acelera a cadência de combate e prioriza mísseis teleguiados em distâncias maiores; alcance dos lançadores ampliado para 980 unidades.
+- Canhões de plasma acelerados de 620 para 760 unidades/s; repulsão do impacto aumentada para 1.050 com escudo ativo e 1.450 sem escudo.
+- Testes de regressão adicionados para mobilidade das tropas, ausência de esquiva do boss e armamento de longo alcance.
+- **Validação pendente:** testes automatizados e playtest real no navegador; valores de dificuldade ainda são candidatos até a confirmação do usuário.
+
 ## [Unreleased] — DREADNOUGHT · escudos e legibilidade dos módulos
 
 - Reduz a integridade dos quatro setores regionais e alonga suas janelas de recarga para tornar o combate contra as defesas mais legível.
