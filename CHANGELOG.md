@@ -17,7 +17,7 @@
 - DREADNOUGHT recebe estados de patrulha, reposicionamento pesado e estabilização. Ao detectar o jogador fora de seu arco frontal ou próximo demais, escolhe uma posição lateral/oblíqua em vez de tentar persegui-lo diretamente.
 - O chefe usa perfil de aceleração e velocidade máxima próprios e antecipa moderadamente a posição do jogador ao orientar as torres, usando sua velocidade atual como estimativa limitada.
 - Adiciona testes para movimento pesado, limite de velocidade, reposicionamento quando o jogador sai do arco frontal e diferença de mira contra um alvo em movimento.
-- **Estado:** primeira fundação integrada ao jogador, Sentinelas, Artilheiros, Chasers, coordenação Elite e movimento inicial do DREADNOUGHT. A integração completa do Guardião à física compartilhada e a lógica avançada de controle de áreas/ataques antecipatórios continuam pendentes. Teste manual ainda não realizado.
+- **Estado:** primeira fundação integrada ao jogador, Sentinelas, Artilheiros, Chasers, coordenação Elite e movimento inicial do DREADNOUGHT. O Guardião também foi migrado para steering compartilhado na formação e no fallback sem aliados; a lógica avançada de controle de áreas/ataques antecipatórios do DREADNOUGHT continua pendente. Teste manual ainda não realizado.
 
 ## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
 
