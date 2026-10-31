@@ -335,6 +335,10 @@ export class Enemy {
           const localY = (module.y - 0.16) * this.radius;
           const muzzleX = this.x + localX * cosHull - localY * sinHull;
           const muzzleY = this.y + localX * sinHull + localY * cosHull;
+          const targetLocalX = (predictedTargetX - this.x) * cosHull + (predictedTargetY - this.y) * sinHull;
+          const targetOnWeaponSide = module.region !== 'left' && module.region !== 'right'
+            || module.crossSide || Math.sign(targetLocalX) === Math.sign(module.x);
+          if (!targetOnWeaponSide) continue;
           const rawAngle = Math.atan2(predictedTargetY - muzzleY, predictedTargetX - muzzleX) - this.facingRotation;
           const desired = Math.atan2(Math.sin(rawAngle), Math.cos(rawAngle));
           const side = Math.sign(module.x);
@@ -438,7 +442,14 @@ export class Enemy {
 
         // Every surviving mount now fires from its own physical position.
         // Destroying one weapon reduces that weapon family's actual output.
+        const targetLocalX = (targetX - this.x) * Math.cos(shipRotation) + (targetY - this.y) * Math.sin(shipRotation);
         for (const module of modules) {
+          const moduleSideAllowed = module.region !== 'left' && module.region !== 'right'
+            || module.crossSide || Math.sign(targetLocalX) === Math.sign(module.x);
+          if (!moduleSideAllowed) continue;
+          const muzzleForRange = getMuzzle(module);
+          const targetDistance = Math.hypot(targetX - muzzleForRange.x, targetY - muzzleForRange.y);
+          if (targetDistance > (module.firingRange ?? 700)) continue;
           if (module.kind.includes('light-laser')) {
             const spread = this.bossPhase === 3 ? 0.045 : 0.075;
             shots.push(makeShot(module, {
@@ -466,11 +477,11 @@ export class Enemy {
           } else if (module.kind.includes('plasma')) {
             if ((module.plasmaChargeTimer ?? 0) <= 0) {
               shots.push(makeShot(module, {
-                damage: 34, speed: 142, radius: 13,
+                damage: 68, speed: 620, radius: 15,
                 heavyImpact: true, plasmaImpact: true,
-                color: '#ffb66e', glowColor: '#ff542e'
+                color: '#fff0c2', glowColor: '#ff542e'
               }));
-              module.plasmaChargeTimer = module.plasmaChargeDuration ?? 4.8;
+              module.plasmaChargeTimer = module.plasmaChargeDuration ?? 5.4;
             }
           } else if (module.kind.includes('energy') || module.kind.includes('overload-cannon')) {
             // The main energy cannon is presentation-only in this iteration:
@@ -1113,6 +1124,23 @@ export class Enemy {
           const moduleHalfSize = moduleSize / 2;
           ctx.save();
           ctx.translate(mx, my);
+          if (module.kind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled' &&
+              module.plasmaChargeTimer <= (module.plasmaWarningDuration ?? 1.5)) {
+            const charge = 1 - Math.max(0, module.plasmaChargeTimer) / (module.plasmaWarningDuration ?? 1.5);
+            const pulse = 0.72 + Math.sin(this.phase * 18 + module.x * 3) * 0.28;
+            ctx.globalAlpha = 0.28 + charge * 0.58;
+            ctx.strokeStyle = '#ff7544';
+            ctx.lineWidth = mountSize * (0.09 + charge * 0.05);
+            ctx.beginPath();
+            ctx.arc(0, 0, mountSize * (1.2 + charge * 0.9), 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.globalAlpha = 0.18 + charge * 0.42;
+            ctx.fillStyle = '#ff4b24';
+            ctx.beginPath();
+            ctx.arc(0, 0, mountSize * (0.65 + pulse * 0.22), 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
           if (module.id !== 'main-energy-cannon') ctx.rotate(module.turretAngle ?? 0);
           // The main energy module is represented by the open bow aperture above,
           // not by a turret, barrel or solid socket covering the cavity.
