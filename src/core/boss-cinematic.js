@@ -15,21 +15,21 @@ export const BOSS_CINEMATIC_PHASES = Object.freeze([
 // This keeps the 4.5-second reading rhythm stable if a phase is later extended.
 export const BOSS_CINEMATIC_DIALOGUE = Object.freeze({
   'pilot-intro': Object.freeze([
-    { at: 0.5, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Setor nove está limpo. Nenhum contato hostil permanece nos sensores.' },
-    { at: 5, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Vamos respirar por alguns segundos e preparar a próxima rota.' }
+    { at: 0.5, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Setor nove... finalmente limpo. Não detecto mais nenhuma unidade hostil.' },
+    { at: 5, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Vou conferir os sistemas e traçar a próxima rota. Por enquanto, parece tranquilo.' }
   ]),
   'anomaly-scan': Object.freeze([
-    { at: 0.35, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Espere... há alguma coisa interferindo nos meus sensores.' },
-    { at: 4.85, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'A assinatura está crescendo. Não consigo identificar a origem.' }
+    { at: 0.35, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Espera... isso não é interferência comum. Tem alguma coisa à nossa frente.' },
+    { at: 4.85, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'A assinatura está aumentando rápido. Central, estão recebendo esses dados?' }
   ]),
   'distant-contact': Object.freeze([
-    { at: 0.4, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Contato visual... isso é muito maior do que qualquer unidade que enfrentamos.' },
-    { at: 4.9, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Mantenha distância. Não sabemos do que essa nave é capaz.' },
-    { at: 9.4, speaker: 'DREADNOUGHT', actor: 'boss', text: 'Sua resistência foi registrada.' },
-    { at: 13.9, speaker: 'DREADNOUGHT', actor: 'boss', text: 'Agora, testemunhe o poder da minha frota.' }
+    { at: 0.4, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Contato visual... pelos céus. Essa nave é gigantesca!' },
+    { at: 4.9, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Não vou chegar mais perto. Armas em alerta — não sabemos o alcance dela.' },
+    { at: 9.4, speaker: 'DREADNOUGHT', actor: 'boss', text: 'Identificação: piloto Vanguard. Sua resistência foi... curiosa.' },
+    { at: 13.9, speaker: 'DREADNOUGHT', actor: 'boss', text: 'A avaliação terminou. Ajoelhe-se diante do poder da minha frota.' }
   ]),
   'boss-identification': Object.freeze([
-    { at: 0.2, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Identificação confirmada. DREADNOUGHT... preparando sistemas defensivos.' }
+    { at: 0.2, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'DREADNOUGHT... então era você por trás dos sinais. Sistemas defensivos, agora!' }
   ])
 });
 
@@ -38,13 +38,19 @@ export const BOSS_CINEMATIC_ALERTS = Object.freeze({
     phase: 'anomaly-scan',
     at: 1.8,
     title: 'ANOMALIA DETECTADA',
-    detail: 'ASSINATURA DESCONHECIDA · NÍVEL DE AMEAÇA ELEVADO'
+    detail: 'ASSINATURA DESCONHECIDA · NÍVEL DE AMEAÇA ELEVADO',
+    kind: 'anomaly',
+    icon: '!',
+    accent: '#f2b85f'
   }),
   identity: Object.freeze({
     phase: 'boss-identification',
     at: 0,
     title: 'DREADNOUGHT',
-    detail: 'NAVE DE GUERRA COLOSSAL · AMEAÇA CONFIRMADA'
+    detail: 'NAVE DE GUERRA COLOSSAL · AMEAÇA CONFIRMADA',
+    kind: 'boss',
+    icon: '◆',
+    accent: '#ff718d'
   })
 });
 
@@ -106,7 +112,21 @@ export function getBossCinematicDialogue(state) {
     if (state.phaseElapsed + 1e-9 < cue.at) break;
     active = cue;
   }
-  return active;
+  if (!active) return null;
+  const elapsed = Math.max(0, state.phaseElapsed - active.at);
+  const text = active.text;
+  let budget = elapsed * 38;
+  let visibleLength = 0;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    const cost = character === '.' || character === '…' || character === '!' || character === '?'
+      ? 3.2
+      : character === ',' || character === ':' || character === ';' ? 2.1 : 1;
+    if (budget < cost) break;
+    budget -= cost;
+    visibleLength += 1;
+  }
+  return { ...active, visibleText: text.slice(0, visibleLength), typingComplete: visibleLength >= text.length };
 }
 
 export function getBossCinematicAlert(state) {
