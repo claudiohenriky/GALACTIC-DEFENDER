@@ -78,3 +78,13 @@ test('normal wave progression starts with five enemies and reserves the Dreadnou
  assert.equal(waves.wave,11);
  assert.equal(waves.enemyCount,18);
 });
+
+test('elite variants are limited to Sentinel, Guardian and Artillery; Interceptor stays basic',()=>{
+ const interceptor=new Enemy(100,100,1,'interceptor',true);
+ assert.equal(interceptor.isElite,false);
+ assert.equal(interceptor.maxHealth,1);
+ for(const type of ['sentinel','guardian','artillery']){
+  const elite=new Enemy(100,100,12,type,true);
+  assert.equal(elite.isElite,true,`${type} should support an Elite variant`);
+ }
+});
