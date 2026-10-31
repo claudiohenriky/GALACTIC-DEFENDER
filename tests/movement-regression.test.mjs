@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Player } from '../src/player/player.js';
-import { approachVelocity, integrateVelocity } from '../src/movement/motion.js';
+import { Enemy } from '../src/enemies/enemy.js';
+import { approachVelocity, integrateVelocity, steerToPoint, ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 
 function simulateVelocity(fps, duration, targetX, targetY, acceleration = 2400) {
   const entity = { x: 0, y: 0, velocityX: 0, velocityY: 0 };
@@ -57,4 +58,42 @@ test('player direction reversal responds faster while preserving the existing sp
     player.update(1 / 60, new Set(['a']), 1000, 1000);
   }
   assert.ok(Math.abs(player.velocityX - 10) < 1e-9);
+});
+
+test('braking-aware steering converges on a destination at common frame rates', () => {
+  for (const fps of [30, 60, 120]) {
+    const entity = { x: 0, y: 0, velocityX: 0, velocityY: 0 };
+    const profile = { maxSpeed: 150, acceleration: 300 };
+    for (let frame = 0; frame < fps * 4; frame += 1) {
+      steerToPoint(entity, 120, 80, profile, 1 / fps);
+    }
+    assert.ok(Math.hypot(entity.x - 120, entity.y - 80) < 0.5, `failed to settle at ${fps} FPS`);
+    assert.ok(Math.hypot(entity.velocityX, entity.velocityY) < 1);
+  }
+});
+
+test('ranged enemy profiles preserve distinct class and Elite movement capabilities', () => {
+  assert.ok(ENEMY_MOTION_PROFILES.sentinelElite.maxSpeed > ENEMY_MOTION_PROFILES.sentinel.maxSpeed);
+  assert.ok(ENEMY_MOTION_PROFILES.artilleryElite.acceleration > ENEMY_MOTION_PROFILES.artillery.acceleration);
+  assert.ok(ENEMY_MOTION_PROFILES.guardianElite.maxSpeed > ENEMY_MOTION_PROFILES.guardian.maxSpeed);
+
+  const sentinel = new Enemy(500, 200, 14, 'sentinel', true);
+  const artillery = new Enemy(500, 200, 12, 'artillery', true);
+  const interceptor = new Enemy(500, 200, 12, 'interceptor', true);
+  const boss = new Enemy(500, 0, 10, 'boss');
+  assert.equal(sentinel.motionProfile, ENEMY_MOTION_PROFILES.sentinelElite);
+  assert.equal(artillery.motionProfile, ENEMY_MOTION_PROFILES.artilleryElite);
+  assert.equal(interceptor.motionProfile, null);
+  assert.equal(boss.motionProfile, null);
+});
+
+test('ranged enemy steering keeps position and velocity finite during a sustained encounter', () => {
+  for (const type of ['sentinel', 'artillery']) {
+    const enemy = new Enemy(500, 160, 16, type, true);
+    for (let frame = 0; frame < 600; frame += 1) {
+      enemy.update(1 / 60, 650, 900, 1200, 1600, [], [], 0);
+      assert.ok(Number.isFinite(enemy.x) && Number.isFinite(enemy.y));
+      assert.ok(Number.isFinite(enemy.velocityX) && Number.isFinite(enemy.velocityY));
+    }
+  }
 });
