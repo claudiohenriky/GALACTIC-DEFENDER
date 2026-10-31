@@ -572,6 +572,40 @@ export class Enemy {
   }
 
   draw(ctx) {
+    if (this.type !== 'boss' || typeof document === 'undefined') {
+      return this.drawVector(ctx);
+    }
+
+    // Reusable low-resolution surface: the complete boss is rendered on a coarse
+    // pixel grid, then enlarged with nearest-neighbor sampling. No per-frame canvas
+    // allocation and no changes to simulation, weapons, shields or collision rules.
+    if (!this.bossPixelCanvas) {
+      this.bossPixelCanvas = document.createElement('canvas');
+      this.bossPixelCanvas.width = 80;
+      this.bossPixelCanvas.height = 104;
+      this.bossPixelContext = this.bossPixelCanvas.getContext('2d', { alpha: true });
+    }
+
+    const pixelCanvas = this.bossPixelCanvas;
+    const pixelCtx = this.bossPixelContext;
+    const pixelScale = 0.2;
+    pixelCtx.setTransform(1, 0, 0, 1, 0, 0);
+    pixelCtx.clearRect(0, 0, pixelCanvas.width, pixelCanvas.height);
+    pixelCtx.imageSmoothingEnabled = false;
+    pixelCtx.setTransform(
+      pixelScale, 0, 0, pixelScale,
+      pixelCanvas.width / 2 - this.x * pixelScale,
+      pixelCanvas.height / 2 - this.y * pixelScale
+    );
+    this.drawVector(pixelCtx);
+
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(pixelCanvas, this.x - 200, this.y - 260, 400, 520);
+    ctx.restore();
+  }
+
+  drawVector(ctx) {
     const boss = this.type === 'boss';
     const guardian = this.type === 'guardian';
     const artillery = this.type === 'artillery';
@@ -629,6 +663,9 @@ export class Enemy {
       0,
       0
     );
+    // The capital ship reads as a long, narrow dreadnought rather than a bulky carrier.
+    // This is presentation-only: the existing combat hitbox remains untouched.
+    if (boss) ctx.scale(0.82, 1);
 
     // Small animated exhaust makes acceleration and direction changes visible without sprites.
     const flame = 3 + Math.sin(this.phase * 10) * 0.65 + this.thrust * 4.5;
@@ -739,6 +776,42 @@ export class Enemy {
 
     if (boss) {
       const systems = this.bossSystems;
+
+      // Aggressive pixel-art armor silhouette: stepped shoulder blades and
+      // outward-facing armor teeth make the ship feel more predatory.
+      for (const side of [-1, 1]) {
+        ctx.fillStyle = '#111820';
+        ctx.beginPath();
+        ctx.moveTo(side * this.radius * 0.96, -this.radius * 0.76);
+        ctx.lineTo(side * this.radius * 1.54, -this.radius * 0.98);
+        ctx.lineTo(side * this.radius * 1.34, -this.radius * 0.42);
+        ctx.lineTo(side * this.radius * 1.52, this.radius * 0.02);
+        ctx.lineTo(side * this.radius * 1.20, this.radius * 0.34);
+        ctx.lineTo(side * this.radius * 1.02, -this.radius * 0.12);
+        ctx.closePath();
+        ctx.fill();
+
+        // Block-built steel plates and narrow orange warning marks.
+        ctx.fillStyle = '#596574';
+        ctx.fillRect(side < 0 ? -this.radius * 1.38 : this.radius * 1.18, -this.radius * 0.48, this.radius * 0.20, this.radius * 0.72);
+        ctx.fillStyle = '#8796a6';
+        ctx.fillRect(side < 0 ? -this.radius * 1.30 : this.radius * 1.22, -this.radius * 0.36, this.radius * 0.08, this.radius * 0.40);
+        ctx.fillStyle = '#ff653d';
+        ctx.fillRect(side < 0 ? -this.radius * 1.42 : this.radius * 1.30, -this.radius * 0.08, this.radius * 0.07, this.radius * 0.20);
+      }
+
+      // Stern vents and stepped heat channels add mechanical density without
+      // relying on tiny photorealistic highlights.
+      ctx.fillStyle = '#111820';
+      ctx.fillRect(-this.radius * 0.46, this.radius * 1.36, this.radius * 0.92, this.radius * 0.30);
+      for (let vent = -2; vent <= 2; vent += 1) {
+        ctx.fillStyle = vent === 0 ? '#36d9ff' : '#596574';
+        ctx.fillRect(vent * this.radius * 0.15 - this.radius * 0.045, this.radius * 1.40, this.radius * 0.09, this.radius * 0.20);
+      }
+      ctx.fillStyle = '#ff653d';
+      ctx.fillRect(-this.radius * 0.54, this.radius * 0.98, this.radius * 0.12, this.radius * 0.08);
+      ctx.fillRect(this.radius * 0.42, this.radius * 0.98, this.radius * 0.12, this.radius * 0.08);
+
       // Matte graphite armor with brushed-steel structural ribs.
       ctx.fillStyle = '#293542'; ctx.strokeStyle = '#718091'; ctx.lineWidth = 2;
       ctx.beginPath();
