@@ -10,9 +10,9 @@ const MODULE_TEMPLATES = [
   { id: 'light-laser-left', kind: 'light-laser', region: 'front', x: -0.42, y: -1.50, maxHealth: 28, replacement: 'light-laser', firingRange: 620 },
   { id: 'light-laser-right', kind: 'light-laser', region: 'front', x: 0.42, y: -1.50, maxHealth: 28, replacement: 'light-laser', firingRange: 620 },
   { id: 'plasma-cannon-left-forward', kind: 'plasma-cannon', region: 'left', x: -1.34, y: -0.02, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 },
-  { id: 'long-range-ion-left', kind: 'light-laser', region: 'left', x: -1.42, y: 0.52, maxHealth: 38, replacement: 'ion-emitter', firingRange: 1050 },
+  { id: 'long-range-ion-left', kind: 'light-laser', region: 'left', x: -1.42, y: 0.52, maxHealth: 38, replacement: 'light-laser', firingRange: 1050 },
   { id: 'plasma-cannon-right-forward', kind: 'plasma-cannon', region: 'right', x: 1.34, y: -0.02, maxHealth: 48, replacement: 'reinforced-plasma', firingRange: 500 },
-  { id: 'long-range-ion-right', kind: 'light-laser', region: 'right', x: 1.42, y: 0.52, maxHealth: 38, replacement: 'ion-emitter', firingRange: 1050 }, 
+  { id: 'long-range-ion-right', kind: 'light-laser', region: 'right', x: 1.42, y: 0.52, maxHealth: 38, replacement: 'light-laser', firingRange: 1050 }, 
   { id: 'main-energy-cannon', kind: 'energy-cannon', region: 'front', x: 0, y: -1.84, maxHealth: 58, replacement: 'overload-cannon', firingRange: 1250, energyState: 'standby', energyChargeDuration: 7.2, energyChargeTimer: 7.2, energyAlignDuration: 1.35, energyAlignTimer: 0, energyWarningDuration: 1.8, energyWarningTimer: 0, energyFireDuration: 0.42, energyFireTimer: 0, energyCooldownDuration: 5.5, energyCooldownTimer: 0, energyAimAngle: 0, energyBeamRange: 1250, energyBeamWidth: 46, energyDamage: 34 },
   { id: 'auxiliary-system', kind: 'support-system', region: 'core', x: 0, y: 1.04, maxHealth: 42, replacement: 'adaptive-system' }
 ];
@@ -42,7 +42,7 @@ export function selectBossAttack(modules, targetDistance, targetLocalX, centerli
   const priorities = phase >= 3
     ? (targetDistance <= 500
       ? ['missile', 'plasma', 'machine-gun', 'light-laser']
-      : ['missile', 'machine-gun', 'light-laser', 'plasma'])
+      : ['missile', 'light-laser', 'machine-gun', 'plasma'])
     : phase === 2
       ? (targetDistance <= 500
         ? ['plasma', 'missile', 'machine-gun', 'light-laser']
