@@ -147,3 +147,17 @@ test('alert cues tolerate floating-point boundaries at the scheduled frame', () 
   advance(state, 25.8);
   assert.equal(getBossCinematicAlert(state)?.kind, 'anomaly');
 });
+
+test('mobile dialogue wrapping keeps all readable lines within the expanded card limit', () => {
+  const text = 'Leituras estáveis... vou recalcular a rota. Por enquanto, tudo parece tranquilo.';
+  const rows = wrapBossCinematicDialogue(text, (value) => value.length * 5.5, 210, 4);
+  assert.ok(rows.length >= 2 && rows.length <= 4);
+  assert.equal(rows.join(' '), text);
+});
+
+test('dialogue wrapping never exceeds the configured row count', () => {
+  const text = 'um dois três quatro cinco seis sete oito nove dez onze doze treze quatorze';
+  const rows = wrapBossCinematicDialogue(text, (value) => value.length * 6, 60, 4);
+  assert.equal(rows.length, 4);
+  assert.ok(rows.every((row) => row.length > 0));
+});
