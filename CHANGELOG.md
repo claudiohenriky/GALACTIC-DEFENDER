@@ -855,6 +855,7 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Simplifica os sinais de surpresa/perigo do piloto, removendo o emblema circular e os efeitos de pulso.
 - O alerta de perigo é acionado pouco antes da identificação verbal do DREADNOUGHT.
 - Restaura a salva de três projéteis do Artilheiro normal; reduz velocidade, aceleração, amplitude de deslocamento e impulso da esquiva lateral sem reduzir a quantidade de tiros.
+- Reduz também a mobilidade evasiva do Sentinela básico e Elite, e contém o deslocamento lateral do Artilheiro Elite, preservando as funções e os padrões de ataque.
 - Reorganiza a proteção dos Guardiões: Sentinelas e Artilheiros Elite têm prioridade máxima, as versões normais dessas classes vêm em seguida, e demais tropas recebem prioridade inferior.
 - Limita a atribuição de proteção a aliados próximos e evita que mais de um Guardião assuma o mesmo alvo.
 - Testes automatizados adicionados para a salva de três tiros, esquiva do Artilheiro e prioridade/distância das atribuições do Guardião. Validação de gameplay em navegador ainda pendente.
