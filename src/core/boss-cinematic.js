@@ -139,7 +139,7 @@ export function getBossCinematicDialogue(state) {
 export function getBossCinematicAlert(state) {
   if (!state) return null;
   for (const alert of Object.values(BOSS_CINEMATIC_ALERTS)) {
-    if (alert.phase === state.phase && state.phaseElapsed >= alert.at) return alert;
+    if (alert.phase === state.phase && state.phaseElapsed + 1e-9 >= alert.at) return alert;
   }
   return null;
 }
