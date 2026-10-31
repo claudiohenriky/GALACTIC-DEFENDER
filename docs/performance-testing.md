@@ -261,3 +261,12 @@ O foco desta etapa é reduzir custos conhecidos antes de abrir a prévia para o 
 - [ ] Confirmar deriva lateral, rotação e desaparecimento antes da remoção final do chefe.
 - [ ] Verificar que fragmentos são puramente visuais, sem hitbox, dano, colisão ou seleção de mísseis.
 - [ ] Observar o custo de renderização com zoom tático em celular e desktop; não inferir FPS pelo CI.
+
+
+## Proa aberta e condutores laterais — validação visual pendente (30/10/2026)
+- [ ] Confirmar que a boca emissora central aparece como um vão escuro, aberto e desobstruído; nenhuma torre/barrel deve ocupar a ponta da nave.
+- [ ] Confirmar que o módulo lógico principal continua no HUD e conserva estados/carga sem desenhar uma arma física sobre a abertura.
+- [ ] Verificar os condutores laterais e nós capacitivos em zoom tático, celular e desktop; observar contraste com blindagem e armamentos próximos.
+- [ ] Confirmar que os bocais dos dois motores principais e auxiliares não apresentam núcleo branco ou azul-claro destacado; a leitura deve permanecer ciano/azul-petróleo.
+- [ ] Confirmar que a mudança é somente visual: IA, disparos secundários, dano, cadência, colisões, hitboxes, escudos e telemetria permanecem inalterados.
+- [ ] Registrar captura da proa em repouso e durante a carga visual do módulo principal. O laser não deve ser disparado nem causar dano nesta etapa.
