@@ -1,13 +1,20 @@
-## Jogabilidade — auditoria e evolução da movimentação
+## v0.45.0 — Reestruturação da movimentação e IA tática
 
+### Direção aprovada
 - [x] Restaurar a progressão normal: cinco inimigos na onda 1; DREADNOUGHT nas ondas 10, 15, 20 e seguintes.
 - [x] Adicionar teste de regressão para a progressão inicial e a entrada da onda de chefe.
-- [ ] Preservar a movimentação orgânica do jogador; avaliar aceleração, desaceleração, inércia, rotação e inclinação visual antes de alterar parâmetros.
-- [ ] Medir separadamente a suavização da câmera e sua relação com a resposta dos controles.
-- [ ] Projetar uma resposta física própria para o DREADNOUGHT: massa percebida, aceleração lateral baixa, inércia, desaceleração controlada e esquiva compatível com o porte.
-- [ ] Testar teclado e controles móveis, limites da arena, mudanças de direção e estabilidade em diferentes taxas de quadros.
-- **Regra de escopo:** não remover a sensação suave/gelatinosa da nave do jogador; ajustes do encouraçado não devem alterar a física do piloto.
-- **Estado:** auditoria estática inicial concluída; nenhuma física foi modificada ainda. Testes de navegador e medições com o jogador continuam pendentes.
+- [x] Confirmar que não existe Interceptador de Elite: a variante Elite é válida somente para Sentinela, Guardião e Artilheiro. O Interceptador permanece a unidade básica de perseguição, com 1 ponto de integridade e sem habilidade especial própria.
+- [ ] Substituir a movimentação excessivamente orgânica/gelatinosa por uma resposta mais precisa e previsível, mantendo apenas animações visuais moderadas quando não prejudicarem o controle.
+- [ ] Separar decisão tática (objetivo), controle de movimento (como chegar) e apresentação visual (inclinação/efeitos).
+- [ ] Revisar aceleração, desaceleração, inércia, rotação, limites de arena e suavização da câmera sem confundir a resposta do jogador com o acompanhamento da câmera.
+- [ ] Dar às tropas comuns mais autonomia de posicionamento, sem abandonar suas funções-base nem tornar todas perseguidoras idênticas.
+- [ ] Reservar flanqueamento coordenado às tropas de Elite existentes: Sentinela, Guardião e Artilheiro. Elas podem avaliar oportunidades de contorno, mas devem sinalizar a manobra e respeitar tempo de decisão e limites de coordenação.
+- [ ] Manter Interceptadores comuns simples: perseguição veloz e pressão direta; não recebem papel de flanqueador nem IA avançada exclusiva.
+- [ ] Criar controlador tático próprio para o DREADNOUGHT: controle de distância, reposicionamento para proteger ângulos vulneráveis, previsão imperfeita de trajetórias e estabilização antes de ataques importantes.
+- [ ] Dar aos chefes padrões próprios; não reutilizar a perseguição simples das tropas como controlador principal.
+- [ ] Testar teclado e controles móveis, limites da arena, mudanças de direção, colisões e estabilidade em diferentes taxas de quadros.
+- **Princípio de dificuldade:** os inimigos devem ganhar vantagem por posicionamento, cooperação e controle de áreas — não por conhecer perfeitamente o futuro ou reagir instantaneamente.
+- **Estado:** auditoria inicial identificou a lógica de movimento em `Enemy.update()` e a atualização de inimigos em `Game`; a implementação da nova arquitetura ainda não começou.
 
 ### DREADNOUGHT — proa limpa e redução de custo visual
 
@@ -82,7 +89,6 @@
 - [x] Artilheiro de Elite — primeira prova de conceito e refinamento visual.
 - [x] Sentinela de Elite — salva dupla de plasma e identidade visual revisada.
 - [x] Guardião de Elite — escudo próprio e papel defensivo preservado.
-- [ ] Interceptador de Elite — preservar perseguição veloz e criar habilidade ofensiva própria.
 - [ ] Revisar frequência e balanceamento das quatro variantes após teste geral.
 - [ ] Investigar e otimizar a queda de FPS com perfilamento isolado.
 
@@ -121,7 +127,7 @@
 ## Planejamento v0.40.0 — Fundação das Tropas de Elite
 
 ### Princípios aprovados
-- Tropas de Elite são variantes especiais das quatro classes existentes: Sentinela, Guardião, Interceptador e Artilheiro; não constituem uma quinta classe independente.
+- Tropas de Elite são variantes especiais de três classes: Sentinela, Guardião e Artilheiro; o Interceptador não possui variante Elite e permanece uma unidade básica.
 - Cada variante preserva a identidade tática da classe-base, mas recebe identidade visual própria e habilidades especiais legíveis.
 - A referência visual do Artilheiro de Elite usa armadura predominantemente preta, mantendo detalhes roxos e podendo incluir acentos verdes.
 - As variantes devem surgir apenas em ondas mais avançadas; a faixa exata de introdução (por volta das ondas 12–15) será definida no balanceamento.
