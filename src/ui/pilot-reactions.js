@@ -31,27 +31,14 @@ export function signalPilotThreat(state, source, threatening) {
 
 export function drawPilotReaction(ctx, state, x, y) {
   if (!ctx || !state || state.remaining <= 0 || !state.symbol) return;
-  const fade = Math.min(1, state.remaining / 0.2);
-  const elapsed = state.duration - state.remaining;
-  const pulse = 1 + Math.sin(elapsed * 13) * 0.055;
   ctx.save();
-  ctx.translate(x, y - Math.sin(elapsed * 5) * 3);
-  ctx.scale(pulse, pulse);
-  ctx.globalAlpha = fade;
-  ctx.shadowColor = state.symbol === '❗' ? '#ff704d' : '#69e8ff';
-  ctx.shadowBlur = 13;
-  ctx.fillStyle = 'rgba(5, 15, 29, 0.88)';
-  ctx.strokeStyle = state.symbol === '❗' ? '#ff8a58' : '#72eaff';
-  ctx.lineWidth = 1.8;
-  ctx.beginPath();
-  ctx.arc(0, 0, 17, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.stroke();
-  ctx.shadowBlur = 0;
+  ctx.globalAlpha = Math.min(1, state.remaining / 0.2);
   ctx.font = '900 23px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = '#ffffff';
-  ctx.fillText(state.symbol, 0, 1);
+  ctx.fillStyle = state.symbol === '❗' ? '#ff9b72' : '#8beaff';
+  ctx.shadowColor = state.symbol === '❗' ? '#ff704d' : '#69e8ff';
+  ctx.shadowBlur = 5;
+  ctx.fillText(state.symbol, x, y);
   ctx.restore();
 }
