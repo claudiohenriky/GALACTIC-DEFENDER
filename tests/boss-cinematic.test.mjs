@@ -61,6 +61,30 @@ test('dialogue advances at deliberate intervals and anomaly alert does not revea
   assert.equal(alert.title.includes('DREADNOUGHT'), false);
 });
 
+test('dialogue uses a timed typewriter reveal and preserves the complete source line', () => {
+  const state = createBossCinematic();
+  advance(state, 15.6);
+  const early = getBossCinematicDialogue(state);
+  assert.ok(early.visibleText.length > 0);
+  assert.ok(early.visibleText.length < early.text.length);
+  assert.equal(early.typingComplete, false);
+  advance(state, 3.4);
+  const later = getBossCinematicDialogue(state);
+  assert.ok(later.visibleText.length > early.visibleText.length);
+});
+
+test('pilot and DREADNOUGHT have distinct alert identities', () => {
+  const state = createBossCinematic();
+  advance(state, 25.8);
+  const anomaly = getBossCinematicAlert(state);
+  assert.equal(anomaly.kind, 'anomaly');
+  assert.equal(anomaly.icon, '!');
+  advance(state, 24.45);
+  const identity = getBossCinematicAlert(state);
+  assert.equal(identity.kind, 'boss');
+  assert.equal(identity.icon, '◆');
+});
+
 test('boss identity appears only in the final identification phase', () => {
   const state = createBossCinematic();
   advance(state, 50.25);
