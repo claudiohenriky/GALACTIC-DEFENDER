@@ -9,7 +9,7 @@ Esta rotina compara versões no mesmo dispositivo e cenário. Verificações est
 - O refinamento evita adicionar gradientes, blur ou filtros de sombra por arma. Isso limita o custo visual adicional, mas não prova melhoria de FPS.
 - O DREADNOUGHT usa composição vetorial 2D no Canvas para sugerir volume; esta etapa não introduz malhas 3D ou pipeline WebGL.
 - **Verificação estática:** confirmar que o bloco de desenho mantém save/restore balanceados, não cria arrays/objetos por quadro e não altera IDs/posições dos módulos.
-- **Validação manual pendente:** comparar a mesma partida e dispositivo com ?fps=1; observar média/estabilidade de FPS, tempo de quadro, legibilidade a zoom 0,5 e possíveis sobreposições. Registrar resultados reais antes de afirmar qualquer ganho.
+- **Validação manual pendente:** comparar a mesma partida e dispositivo; ativar o medidor em Configurações > Medidor de FPS e observar média/estabilidade de FPS, tempo de quadro, legibilidade a zoom 0,5 e possíveis sobreposições. Registrar resultados reais antes de afirmar qualquer ganho.
 
 ## Diagnóstico opcional
 
