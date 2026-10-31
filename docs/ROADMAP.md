@@ -1,3 +1,50 @@
+## Jogabilidade — auditoria e evolução da movimentação
+
+- [x] Restaurar a progressão normal: cinco inimigos na onda 1; DREADNOUGHT nas ondas 10, 15, 20 e seguintes.
+- [x] Adicionar teste de regressão para a progressão inicial e a entrada da onda de chefe.
+- [ ] Preservar a movimentação orgânica do jogador; avaliar aceleração, desaceleração, inércia, rotação e inclinação visual antes de alterar parâmetros.
+- [ ] Medir separadamente a suavização da câmera e sua relação com a resposta dos controles.
+- [ ] Projetar uma resposta física própria para o DREADNOUGHT: massa percebida, aceleração lateral baixa, inércia, desaceleração controlada e esquiva compatível com o porte.
+- [ ] Testar teclado e controles móveis, limites da arena, mudanças de direção e estabilidade em diferentes taxas de quadros.
+- **Regra de escopo:** não remover a sensação suave/gelatinosa da nave do jogador; ajustes do encouraçado não devem alterar a física do piloto.
+- **Estado:** auditoria estática inicial concluída; nenhuma física foi modificada ainda. Testes de navegador e medições com o jogador continuam pendentes.
+
+### DREADNOUGHT — proa limpa e redução de custo visual
+
+- [x] Remover a passagem antiga duplicada do casco; manter apenas a renderização vetorial em camadas.
+- [x] Retirar a superestrutura/ponte cinza do eixo frontal, deixando a proa central limpa entre a cavidade de energia e a ponta.
+- [x] Preservar os conduítes e detalhes laterais que indicam o caminho de energia do canhão principal.
+- [x] Substituir gradientes transitórios do casco, reator e cavidade por preenchimentos sólidos e reduzir arrays temporários nos loops de desenho.
+- [ ] Validar visualmente a proa e a separação das armas em escala de gameplay.
+- [ ] Medir FPS e tempo de quadro no mesmo dispositivo e cenário antes/depois; ainda não há ganho de desempenho medido.
+
+### Revisão visual do DREADNOUGHT — armamentos e integração do casco
+
+- [x] Preservar o casco vetorial em camadas e redesenhar as armas para recuperar silhuetas reconhecíveis sobre a nova superestrutura.
+- [x] Diferenciar metralhadoras duplas, lançadores de três tubos, lasers leves de emissores duplos e canhões de plasma com câmara/emissor próprio.
+- [x] Manter a cavidade frontal aberta e o canhão principal sem torre/barrel físico.
+- [ ] Validar a legibilidade dos módulos em escala de gameplay, celular e desktop; conferir sobreposição nos hardpoints e animações de substituição.
+- [ ] Medir FPS/tempo de quadro no mesmo dispositivo e cenário antes/depois. A revisão visual não comprova ganho de desempenho.
+- [ ] Se alguma arma continuar encoberta, ajustar apenas a camada/posição visual correspondente antes de considerar reverter qualquer parte do casco.
+
+## Candidata v0.44.0 — Primeiro chefe: nave de guerra pesada
+
+- Branch: `feature/v0.44.0-boss-evolution`, baseada na candidata v0.43.0; PR #78 e `main` permanecem sem merge.
+- Aparição: primeira batalha na onda 10; recorrência a cada cinco ondas a partir daí.
+- Nave: casco muito maior e lento, orientação de armamentos independente do deslocamento, silhueta de encouraçado espacial.
+- Arsenal inicial: dez módulos independentes (metralhadoras, mísseis, lasers leves, canhões de plasma, canhão de energia e suporte).
+- Componentes: estados operacional, danificado, inoperante e destruído; dano direcionado por região de impacto.
+- Escudos: quatro setores regionais; o sistema auxiliar condiciona a recarga.
+- Sobrecarga: uma transformação ao atingir 33% do casco; módulos destruídos são substituídos, danificados/inoperantes recebem reparos emergenciais e o casco retorna a 50%.
+- Ataques: pressão de lasers/metralhadoras, mísseis e plasma de alto impacto. O canhão principal de energia permanece em preparação visual/rastreamento, sem disparo danoso até que carga, alerta, janela de reação e contra-jogo sejam implementados e validados.
+- Interface: barra exclusiva de integridade do casco e indicação de fase, atualizadas junto da telemetria já limitada por intervalo.
+- Otimização inicial: seleção do alvo do laser sem ordenação de arrays, checagem de aproximação com distância ao quadrado, reservas de alvos dos mísseis calculadas uma vez por quadro e remoção de `shadowBlur` no núcleo do chefe; ainda sem medição de FPS.
+- Visual: primeira composição de nave de guerra em Canvas; entrada cinematográfica e zoom de câmera implementados. A destruição agora tem cinco detonações locais escalonadas, chamas nas brechas, fumaça persistente e duas ondas de choque na explosão final; a nave permanece visível durante a sequência, sem atacar ou receber dano, e desaparece após a conclusão. Arte final em pixel art e efeitos avançados de fogo/fumaça/faíscas continuam pendentes.
+- Arena: primeira implementação da expansão física concluída na branch — mundo com 1,6× a largura e a altura do viewport, câmera de acompanhamento, limites ampliados e mira convertida para coordenadas do mundo. Spawn comum e entrada do chefe foram ajustados à área visível; o Artilheiro acompanha a faixa do jogador. O encouraçado tem reposicionamento e rotação lentos para permitir flanqueamento, além de hitbox ampliada alinhada à silhueta blindada. O cache do fundo permanece limitado ao viewport. A implementação ainda requer teste real em celular e desktop.
+- Próxima sequência: validar movimentação nos quatro limites, colisões, mira por toque/mouse, câmera, rotação lenta, flanqueamento e a nova sequência de destruição; depois refinar fogo/fumaça/faíscas/reconstrução e aprimorar o HUD do chefe.
+- Validação geral: revisão estática dos caminhos de viewport/mundo, câmera, mira, movimentação, projéteis, colisões, separação e renderização concluída; os checks automatizados de sintaxe JavaScript, imports relativos e whitespace passaram no HEAD atual. Permanecem pendentes testes de navegador, estresse com alta densidade de entidades e medição real de FPS para a expansão atual.
+- Não mesclar em `main` sem aprovação explícita.
+
 ## Candidata v0.43.0 — Evolução da IA inimiga
 
 - Branch: `feature/v0.43.0-enemy-ai-evolution`, baseada no commit da candidata v0.42.1; PR #76 e `main` permanecem sem merge.
@@ -298,3 +345,131 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - Validar sintaxe, imports e workflows automatizados; depois testar pelo GitHub Pages em computador e celular.
 - Não afirmar teste manual sem confirmação explícita do usuário.
 - Seguir versionamento semântico: correção incrementa patch; funcionalidade incrementa minor; marco estável pode atingir v1.0.0.
+
+
+## HUD tático do encouraçado — candidata v0.44.0
+
+- [x] Separar visualmente a integridade geral do casco dos quatro setores regionais de escudo.
+- [x] Mostrar percentual e estado de cada escudo: operacional, danificado ou inoperante.
+- [x] Representar os dez módulos independentes com indicadores individuais e abreviações identificáveis em grade 5×2: operacional, danificado, inoperante ou destruído.
+- [x] Resumir armamentos disponíveis e estados degradados sem confundir módulos com integridade do casco.
+- [x] Indicar fase de sobrecarga, reconstrução e sequência de destruição no cabeçalho do painel.
+- [x] Adaptar grade e tipografia para telas estreitas e orientação horizontal.
+- [ ] Validar a legibilidade e a ausência de sobreposição em navegador móvel e desktop.
+- [ ] Confirmar durante gameplay a atualização dos indicadores após dano regional, desativação do gerador auxiliar e reconstrução da sobrecarga.
+
+
+## Feedback de combate do encouraçado — candidata v0.44.0
+
+- [x] Destacar brevemente a perda de integridade de cada setor de escudo e módulo atingido.
+- [x] Diferenciar visualmente a recuperação de integridade com feedback verde.
+- [x] Exibir uma barra de progresso durante a reconstrução da sobrecarga, usando a duração real configurada de 4,5 s.
+- [x] Respeitar a preferência de movimento reduzido e manter a atualização na cadência limitada da HUD.
+- [ ] Validar em gameplay as animações, a leitura da barra de reconstrução e o comportamento em telas pequenas.
+
+
+## Integração de dano regional — candidata v0.44.0
+
+- [x] Aplicar defesa regional também a habilidades especiais, laser contínuo e ataques de área sem ponto de impacto explícito, usando a posição do jogador como referência direcional.
+- [x] Manter a posição real do projétil para impactos com coordenadas conhecidas.
+- [ ] Validar em gameplay se cada ângulo de aproximação consome o setor esperado e se o dano residual chega ao casco/módulo corretamente.
+
+
+## Reformulação integrada do encouraçado — rodada de desenvolvimento
+
+- [x] Alongar a silhueta do casco e reduzir a rotação visual do corpo para reforçar massa/inércia.
+- [x] Substituir sockets quadrados por representações distintas de metralhadoras, lançadores, lasers, plasma e canhão de energia.
+- [x] Classificar destruição catastrófica por dano excedente; sobrecarga mantém e repara módulos recuperáveis, preserva os intactos e substitui apenas montagens irrecuperáveis.
+- [x] Aumentar o mundo para 2× o viewport e manter zoom de 0,5 após a aparição do boss, enquadrando o mapa inteiro até o reinício.
+- [ ] Implementar mira independente de torres, arcos de disparo por hardpoint e lançamento de mísseis guiados do boss.
+- [ ] Implementar alerta de ameaça e entrada cinematográfica validada em tela real.
+- [ ] Implementar sequência de falha estrutural, explosões distribuídas e deriva final do casco.
+- [ ] Testar o novo enquadramento e a legibilidade do boss em celular/desktop; não há validação visual real nesta etapa.
+
+
+### Armamentos independentes e Attack Clash — rodada de desenvolvimento
+
+- [x] Cada hardpoint armado acompanha o jogador com ângulo próprio, velocidade de rotação por família e arco angular limitado pela posição/tipo da arma.
+- [x] Disparos do encouraçado usam a orientação atual da torre, em vez de mirar instantaneamente através do casco.
+- [x] Lançadores de mísseis do boss criam projéteis teleguiados com velocidade angular limitada.
+- [x] Attack Clash aplica resistência graduada: projéteis leves são neutralizados por um impacto forte o suficiente; projéteis pesados exigem mais de um impacto ou disparos mais potentes.
+- [ ] Testar arcos e rotação das torres em todas as posições relativas do jogador; validar homing e resistência dos projéteis em gameplay.
+
+
+## Boss v0.44.0 — apresentação, sobrecarga e derrota (30/10/2026)
+- Entrada ampliada para 5,2 s, com bloqueio de disparos durante a apresentação, alerta persistente no banner e identificação visual sobre o encouraçado.
+- Sobrecarga sinaliza reparo, reconstrução e substituição de módulos com pulsos mecânicos locais, sem alterar a regra de preservação dos armamentos intactos.
+- Finalização estendida para 8,4 s: o casco perde estabilidade, deriva e gira gradualmente enquanto as detonações percorrem a estrutura; remoção e recompensa continuam no término da sequência.
+- Pendente: validar visualmente o tempo de leitura, a trajetória do destroço e a sobrecarga em gameplay real mobile/desktop.
+
+## Desestabilização cinética — combate e ruptura (30/10/2026)
+- Pulso de ruptura aplica impulso físico aos inimigos e suspende temporariamente perseguição/tiros enquanto o impulso é amortecido; a IA retoma o combate após a recuperação.
+- O bloqueio temporário de steering evita que o inimigo tente avançar imediatamente contra o recuo, removendo a oscilação de aproximação/afastamento descrita no feedback.
+- Impacto de plasma aplica repulsão e reduz temporariamente a autoridade de movimentação do jogador, com recuperação progressiva e aviso de sistemas desestabilizados.
+- Duração inicial: 0,86 s para inimigos comuns, 0,58 s para boss e 1,45 s para o jogador. Valores são parâmetros iniciais e precisam de balanceamento em gameplay.
+
+
+## Canhões de plasma do encouraçado — identidade de ataque (30/10/2026)
+- [x] Limpar `transitionType` e `transitionFromKind` quando o temporizador de reparo, reconstrução ou substituição termina, evitando metadados visuais obsoletos.
+
+- Canhões carregam independentemente por montagem, com indicador radial local e núcleo de energia crescente.
+- Disparo pesado com projétil alongado, dano alto e impacto de repulsão forte.
+- Ao atingir escudo ativo do jogador, o plasma rompe o escudo imediatamente, dispara o efeito de ruptura existente e aplica forte repulsão; sem escudo, causa dano elevado e repulsão ainda maior.
+- O ciclo de carga é local por canhão, sem aumentar a frequência dos demais armamentos. Valores iniciais são de balanceamento e exigem teste de gameplay.
+
+
+## Reformulação visual dos escudos — primeira passagem (30/10/2026)
+- Jogador: a cobertura lógica continua 360°, mas apenas o setor previsto como ameaçado é desenhado. A previsão agora usa o ponto de aproximação mais próximo e forma uma pequena barreira animada que expande e dissipa; impactos absorvidos reforçam o setor correspondente.
+- Encouraçado: os quatro setores mantêm indicação discreta em repouso e respondem a impactos com pulsos regionais mais evidentes.
+- Tropas de elite: os segmentos de escudo recebem uma expansão/flash curto quando absorvem dano.
+- A camada visual não participa da decisão de colisão ou dano; não foi criada esfera contínua, sistema de partículas por quadro ou alteração de integridade/recarga.
+- Pendente: validação manual de múltiplas ameaças, orientação, zoom e fluidez em dispositivos reais; depois ajustar tempos e intensidade visual com feedback de gameplay.
+
+
+## Geometria de colisão do laser contínuo — 30/10/2026
+- [x] O feixe considera a soma entre a meia-largura visual e o raio físico do alvo em colisões com projéteis inimigos.
+- [x] O feixe considera o raio de colisão da entidade, incluindo o footprint do encouraçado, evitando falsos negativos nas bordas.
+- [ ] Validar em gameplay os contatos tangenciais contra projéteis, inimigos comuns e boss; confirmar que a colisão acompanha a leitura visual.
+- A alteração não modifica valores de dano, cadência, alcance ou duração.
+
+
+## Canhão principal de energia — telemetria visual v0.44.0
+- [x] Ativar a carga visual apenas nas fases II/III e depois da entrada cinematográfica.
+- [x] Exibir progresso de carga no HUD tático, com aviso de energia crítica ao concluir a preparação.
+- [x] Reforçar visualmente o núcleo e o anel do canhão frontal durante carga e alerta.
+- [x] Desativar a telemetria quando o módulo é destruído/inoperante; permitir retomada após reparo/reconstrução.
+- [x] Preservar o canhão como sistema exclusivamente visual: nenhum projétil, dano, feixe ofensivo ou habilidade de Attack Clash é criado.
+- [ ] Validar leitura do indicador e alerta em celular/desktop, incluindo zoom tático 0,5 e preferência de movimento reduzido.
+- [ ] Confirmar em gameplay que o ciclo não altera a cadência dos demais armamentos nem cria dano indireto.
+
+
+## Expansão adicional da arena e enquadramento tático — 30/10/2026
+- [x] Aumentar o mundo físico de 2,0× para 2,4× o viewport em cada eixo, totalizando 5,76× a área de um viewport.
+- [x] Calcular o zoom mínimo como `1 / arenaScale`, mantendo o mapa inteiro enquadrado durante e após o encontro com o chefe.
+- [x] Aplicar o mesmo zoom mínimo à câmera, renderização, conversão mouse/toque e cálculo de spawn baseado na área visível.
+- [x] Aumentar a amplitude de reposicionamento horizontal do encouraçado para manter o flanqueamento perceptível no novo enquadramento.
+- [ ] Validar movimento até os quatro limites da arena e confirmar que a câmera não revela áreas fora do mundo.
+- [ ] Validar mira por mouse, toque, joystick e teclado durante a transição de zoom.
+- [ ] Confirmar em gameplay que o encouraçado oferece espaço e tempo suficientes para flanquear e atingir os quatro setores de escudo.
+- [ ] Medir memória, tempo de renderização e FPS em dispositivos reais; não inferir desempenho a partir do CI.
+
+
+## Desprendimento estrutural da destruição — 30/10/2026
+- [x] Ejetar quatro placas de blindagem em tempos escalonados durante a sequência de 8,4 s.
+- [x] Dar deriva lateral e rotação própria aos fragmentos, preservando leitura de peças estruturais separadas do casco.
+- [x] Encerrar a visibilidade dos fragmentos antes da remoção final do destroço.
+- [x] Usar desenho determinístico sem criar coleções, entidades ou partículas por quadro.
+- [ ] Validar em gameplay a leitura dos fragmentos com o zoom tático e a deriva do casco.
+- [ ] Confirmar que os fragmentos não parecem projéteis ativos nem interferem em colisões ou recompensas.
+
+
+## Proa aberta e condutores de energia do DREADNOUGHT — 30/10/2026
+- [x] Remover a representação de canhão/barrel físico na ponta da nave.
+- [x] Preservar a abertura central como cavidade oca e permanentemente aberta; o módulo lógico principal continua existindo sem cobrir o vão.
+- [x] Preparar a boca emissora com borda de contenção mecânica e centro escuro desobstruído.
+- [x] Adicionar condutores/manifolds laterais com nós capacitivos como base visual para a futura animação de carga do laser.
+- [x] Remover o destaque quase branco dos bocais dos propulsores e manter ciano/azul-petróleo.
+- [ ] Validar em navegador que a abertura permanece visível em diferentes zooms e orientações do casco.
+- [ ] Validar leitura dos condutores laterais em celular e desktop, sem competir visualmente com as dez armas.
+- [ ] Em etapa futura, animar a carga percorrendo os condutores e culminando na emissão do laser diretamente pela abertura; não adicionar barrel retrátil nem fechar a cavidade.
+- [ ] Manter o laser principal sem projétil/dano até que telegraph, janela de reação e contra-jogo sejam implementados e testados.

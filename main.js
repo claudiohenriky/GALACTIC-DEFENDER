@@ -1,5 +1,5 @@
-import { Game } from './src/core/game.js?v=0.42.1';
-import { gameAudio } from './src/audio/game-audio.js?v=0.42.1';
+import { Game } from './src/core/game.js?v=0.44.0-boss-hull-ellipse';
+import { gameAudio } from './src/audio/game-audio.js?v=0.44.0';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');

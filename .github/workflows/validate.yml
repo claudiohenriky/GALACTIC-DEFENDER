@@ -2,9 +2,9 @@ name: Validate project
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feature/v0.43.0-enemy-ai-evolution]
   push:
-    branches: [main]
+    branches: [main, feature/v0.44.0-boss-evolution]
 
 permissions:
   contents: read
@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -27,6 +29,8 @@ jobs:
             echo "Checking $file"
             node --input-type=module --check < "$file"
           done < <(find . -path './.git' -prune -o -name '*.js' -type f -print0)
+      - name: Run automated gameplay-system unit tests
+        run: node --experimental-default-type=module --test tests/*.mjs
       - name: Check relative module imports
         run: |
           python - <<'PY'
@@ -56,4 +60,13 @@ jobs:
           print('All relative JavaScript module imports resolve.')
           PY
       - name: Check patch whitespace
-        run: git diff --check
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            git diff --check "$PR_BASE_SHA" HEAD
+          else
+            git show --check --oneline HEAD
+          fi

@@ -1,3 +1,5 @@
+import { BossSystems } from './boss-systems.js?v=0.44.0-arena-2-4';
+
 export class Enemy {
   constructor(x, y, level = 1, type = 'chaser', isElite = false) {
     this.x = x;
@@ -8,16 +10,30 @@ export class Enemy {
     // Artillery keeps its 8-point shield; Guardian Elite has a stronger defensive reserve.
     this.eliteMaxShield = this.isElite ? (type === 'artillery' ? 8 : type === 'guardian' ? 12 : 0) : 0;
     this.eliteShield = this.eliteMaxShield;
+    this.eliteShieldFlash = 0;
     this.protectedAllies = [];
     this.guardianCoverShieldMax = this.isElite && type === 'guardian' ? 18 : 0;
     this.guardianCoverShield = this.guardianCoverShieldMax;
     this.eliteSpawnTimer = this.isElite ? 1.65 : 0;
-    this.radius = type === 'boss' ? 23 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
-    this.maxHealth = type === 'boss' ? 34 + level * 4 : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
+    this.radius = type === 'boss' ? 100 : type === 'guardian' ? 15 : type === 'artillery' ? 13 : type === 'sentinel' ? 12 : type === 'interceptor' ? 8 : 10 + Math.random() * 3;
+    // Keep the general movement/separation radius compact; the elongated boss hull
+    // uses an oriented ellipse for projectile and pilot contact tests in Game.
+    this.collisionRadius = type === 'boss' ? this.radius * 1.45 : this.radius;
+    this.maxHealth = type === 'boss' ? 360 + level * 12 : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
+    this.bossSystems = type === 'boss' ? new BossSystems() : null;
     this.bossPhase = 1;
     this.bossPhaseTransition = 0;
-    this.speed = (type === 'boss' ? 34 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
+    this.bossEntranceDuration = type === 'boss' ? 5.2 : 0;
+    this.bossEntranceTimer = this.bossEntranceDuration;
+    this.bossDying = false;
+    this.bossDeathTimer = 0;
+    this.bossDeathDuration = 8.4;
+    this.bossDeathDriftX = 0;
+    this.bossDeathDriftY = 0;
+    this.bossDeathSpin = 0;
+    this.rewardGranted = false;
+    this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'boss'
       ? 1.8
@@ -32,6 +48,9 @@ export class Enemy {
     this.dodgeCooldown = 0;
     this.dodgeTimer = 0;
     this.dodgeDirection = 0;
+    this.disruptionTimer = 0;
+    this.disruptionImpulseX = 0;
+    this.disruptionImpulseY = 0;
 
     // Motion feedback is visual only: steering does not change damage or projectile rules.
     this.velocityX = 0;
@@ -42,6 +61,12 @@ export class Enemy {
     this.bank = 0;
     this.thrust = 0;
     this.lateralThrust = 0;
+  }
+
+  applyDisruption(impulseX, impulseY, duration = 0.82) {
+    this.disruptionTimer = Math.max(this.disruptionTimer, duration);
+    this.disruptionImpulseX += impulseX;
+    this.disruptionImpulseY += impulseY;
   }
 
   updateMotionFeedback(dt, previousX, previousY) {
@@ -69,7 +94,7 @@ export class Enemy {
     this.bank += (targetBank - this.bank) * Math.min(1, dt * 8);
   }
 
-  update(dt, targetX, targetY, width, height, playerProjectiles = [], allies = []) {
+  update(dt, targetX, targetY, width, height, playerProjectiles = [], allies = [], cameraTop = 0) {
     const previousX = this.x;
     const previousY = this.y;
     this.contactCooldown = Math.max(0, this.contactCooldown - dt);
@@ -77,16 +102,56 @@ export class Enemy {
     this.dodgeTimer = Math.max(0, this.dodgeTimer - dt);
     this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? (this.isElite ? 1.25 : 0.9) : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
     this.eliteSpawnTimer = Math.max(0, this.eliteSpawnTimer - dt);
+    this.eliteShieldFlash = Math.max(0, this.eliteShieldFlash - dt);
 
+    // A destroyed dreadnought becomes a non-combat visual entity until its finale completes.
+    if (this.type === 'boss' && this.bossDying) {
+      this.bossDeathTimer = Math.min(this.bossDeathDuration, this.bossDeathTimer + dt);
+      const collapseProgress = Math.min(1, this.bossDeathTimer / this.bossDeathDuration);
+      // The wreck loses thrust, tumbles and drifts instead of vanishing in place.
+      this.bossDeathDriftX += Math.sin(this.bossDeathTimer * 1.7) * dt * 2.2;
+      this.bossDeathDriftY += dt * (5 + collapseProgress * 18);
+      this.bossDeathSpin += dt * (0.035 + collapseProgress * 0.12);
+      this.x += this.bossDeathDriftX * dt;
+      this.y += this.bossDeathDriftY * dt;
+      this.facingRotation += this.bossDeathSpin * dt;
+      return null;
+    }
+
+    // Disruption temporarily suspends steering and firing so AI pursuit cannot
+    // immediately cancel the physical impulse that pushed this ship away.
+    if (this.disruptionTimer > 0) {
+      this.disruptionTimer = Math.max(0, this.disruptionTimer - dt);
+      const damping = Math.exp(-3.2 * dt);
+      this.disruptionImpulseX *= damping;
+      this.disruptionImpulseY *= damping;
+      this.x += this.disruptionImpulseX * dt;
+      this.y += this.disruptionImpulseY * dt;
+      const movementRadius = this.collisionRadius ?? this.radius;
+      this.x = Math.max(movementRadius, Math.min(width - movementRadius, this.x));
+      this.y = Math.max(movementRadius, Math.min(height - movementRadius, this.y));
+      this.fireCooldown = Math.max(this.fireCooldown, 0.18);
+      this.updateMotionFeedback(dt, previousX, previousY);
+      return null;
+    }
+
+    // Clear residual impulse before normal steering resumes; the damping above
+    // leaves only a small tail, avoiding a visible snap when the recovery ends.
+    this.disruptionImpulseX *= Math.exp(-8 * dt);
+    this.disruptionImpulseY *= Math.exp(-8 * dt);
     const dx = targetX - this.x;
     const dy = targetY - this.y;
-    const distance = Math.hypot(dx, dy) || 1;
+    // Ranged classes steer toward explicit lanes and do not consume target distance.
+    // Avoid a square root for them; pursuit/formation classes retain the exact distance.
+    const needsTargetDistance = this.type === 'interceptor' || this.type === 'guardian' ||
+      (this.type !== 'boss' && this.type !== 'artillery' && this.type !== 'sentinel');
+    const distance = needsTargetDistance ? (Math.hypot(dx, dy) || 1) : 1;
 
     // First tactical-cooperation pass: Guardians screen nearby Sentinels;
     // Sentinels use that cover to keep a firing lane behind the Guardian.
     // This changes positioning only, not health, damage, collision, or firing rules.
     let supportAlly = null;
-    let supportDistance = Infinity;
+    let supportDistanceSquared = Infinity;
     if (this.type === 'guardian' || this.type === 'sentinel') {
       let supportPriority = Infinity;
       for (const ally of allies) {
@@ -95,15 +160,18 @@ export class Enemy {
           ? (ally.isElite || ally.type === 'sentinel')
           : ally.type === 'guardian' && (ally.protectedAllies || []).includes(this);
         if (!isPreferredSupport) continue;
+        const offsetX = ally.x - this.x;
+        const offsetY = ally.y - this.y;
+        const allyDistanceSquared = offsetX * offsetX + offsetY * offsetY;
         const priority = this.type === 'guardian' && ally.isElite ? 0 : 1;
-        const allyDistance = Math.hypot(ally.x - this.x, ally.y - this.y);
-        if (priority < supportPriority || (priority === supportPriority && allyDistance < supportDistance)) {
+        if (priority < supportPriority || (priority === supportPriority && allyDistanceSquared < supportDistanceSquared)) {
           supportPriority = priority;
-          supportDistance = allyDistance;
+          supportDistanceSquared = allyDistanceSquared;
           supportAlly = ally;
         }
       }
     }
+    const supportDistance = supportAlly ? Math.sqrt(supportDistanceSquared) : Infinity;
 
     const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 18 : this.type === 'artillery' ? (this.isElite ? 9 : 3) : this.type === 'guardian' ? 2.5 : this.type === 'interceptor' ? 5 : 9);
     let shot = null;
@@ -111,8 +179,9 @@ export class Enemy {
     // Estimate closest approach over a short horizon using relative velocity.
     // Only Sentinel, Artillery and Boss react in this first pass; each has a different response strength.
     if ((this.type === 'sentinel' || this.type === 'artillery' || this.type === 'boss') && this.dodgeCooldown <= 0) {
-      let bestThreat = null;
-      let bestClearance = Infinity;
+      let hasBestThreat = false;
+      let bestThreatX = 0;
+      let bestClearanceSquared = Infinity;
       for (const projectile of playerProjectiles) {
         if (!projectile.active) continue;
         const rvx = (projectile.vx ?? 0) - this.velocityX;
@@ -125,15 +194,16 @@ export class Enemy {
         if (impactTime < 0.07) continue;
         const closestX = rx + rvx * impactTime;
         const closestY = ry + rvy * impactTime;
-        const clearance = Math.hypot(closestX, closestY);
+        const clearanceSquared = closestX * closestX + closestY * closestY;
         const dangerRadius = this.radius + (projectile.radius ?? 3) + (this.type === 'boss' ? 5 : 12);
-        if (clearance < dangerRadius && clearance < bestClearance) {
-          bestClearance = clearance;
-          bestThreat = { x: closestX, y: closestY };
+        if (clearanceSquared < dangerRadius * dangerRadius && clearanceSquared < bestClearanceSquared) {
+          bestClearanceSquared = clearanceSquared;
+          bestThreatX = closestX;
+          hasBestThreat = true;
         }
       }
-      if (bestThreat && this.dodgeCooldown <= 0) {
-        this.dodgeDirection = bestThreat.x >= 0 ? -1 : 1;
+      if (hasBestThreat && this.dodgeCooldown <= 0) {
+        this.dodgeDirection = bestThreatX >= 0 ? -1 : 1;
         this.dodgeTimer = this.type === 'boss' ? 0.26 : this.type === 'sentinel' ? (this.isElite ? 0.62 : 0.30) : 0.48;
         this.dodgeCooldown = this.type === 'boss' ? 1.8 : this.type === 'sentinel' ? (this.isElite ? 0.72 : 1.45) : this.type === 'artillery' ? 1.25 : 0.95;
       }
@@ -143,6 +213,7 @@ export class Enemy {
       : 0;
 
     if (this.type === 'boss') {
+      this.bossSystems?.update(dt);
       // Boss phases unlock at 66% and 33% health. A short transition pause signals each change.
       const healthRatio = this.health / Math.max(1, this.maxHealth);
       const nextBossPhase = healthRatio <= 0.33 ? 3 : healthRatio <= 0.66 ? 2 : 1;
@@ -152,39 +223,187 @@ export class Enemy {
         this.fireCooldown = Math.max(this.fireCooldown, 1.05);
       }
       this.bossPhaseTransition = Math.max(0, this.bossPhaseTransition - dt);
-      // Bosses advance into the arena, then sweep across a broad horizontal lane.
-      // Steering toward a sinusoidal destination avoids the old edge-to-edge velocity oscillation.
-      const horizontalRange = Math.max(0, width * (this.bossPhase === 3 ? 0.36 : 0.32));
-      const desiredX = width / 2 + Math.sin(this.phase * (this.bossPhase === 3 ? 1.05 : 0.8)) * horizontalRange;
-      const desiredY = Math.max(58, Math.min(targetY - Math.max(90, height * 0.18), height * 0.52));
-      this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 1.65 : 1.35));
-      this.y += (desiredY - this.y) * Math.min(1, dt * 1.1);
-      this.x = Math.max(this.radius + 4, Math.min(width - this.radius - 4, this.x));
-      this.fireCooldown -= dt;
-      if (this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
-        this.fireCooldown = this.bossPhase === 1 ? 1.65 : this.bossPhase === 2 ? 1.85 : 2.05;
-        const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
-        const shotCount = this.bossPhase === 1 ? 1 : this.bossPhase === 2 ? 3 : 5;
-        const spread = this.bossPhase === 2 ? 0.2 : 0.17;
-        const shotDamage = this.bossPhase === 1 ? 8 : this.bossPhase === 2 ? 6 : 5;
-        const shotSpeed = this.bossPhase === 3 ? 185 : 165;
-        const shots = [];
-        for (let index = 0; index < shotCount; index += 1) {
-          const offset = index - (shotCount - 1) / 2;
-          const angle = baseAngle + offset * spread;
-          shots.push({
-            x: this.x,
-            y: this.y + this.radius,
-            targetX: this.x + Math.cos(angle) * 420,
-            targetY: this.y + Math.sin(angle) * 420,
-            damage: shotDamage,
-            speed: shotSpeed,
-            radius: this.bossPhase === 3 ? 4.5 : 5,
-            color: this.bossPhase === 1 ? '#d59bff' : this.bossPhase === 2 ? '#ffb36b' : '#ff6d8f',
-            glowColor: this.bossPhase === 1 ? '#a85cff' : this.bossPhase === 2 ? '#ff7b42' : '#ff315e'
-          });
+      // A short, readable arrival sequence gives the heavy ship a clear entrance before combat.
+      // Smoothstep keeps the descent controlled and avoids a sudden position snap.
+      this.bossEntranceTimer = Math.max(0, this.bossEntranceTimer - dt);
+      const entranceProgress = 1 - this.bossEntranceTimer / Math.max(0.001, this.bossEntranceDuration);
+      const entranceEase = entranceProgress * entranceProgress * (3 - 2 * entranceProgress);
+      const horizontalRange = Math.min(width * (this.bossPhase === 3 ? 0.22 : 0.17), this.bossPhase === 3 ? 260 : 210);
+      // The battleship repositions around the encounter instead of mirroring every player movement.
+      // Its slow drift leaves room for the pilot to circle and attack different shield sectors.
+      const patrolX = targetX + Math.sin(this.phase * (this.bossPhase === 3 ? 0.62 : 0.42)) * horizontalRange;
+      // Keep the long bow clear of the pilot after the camera widens to the full arena.
+      const bowClearance = this.radius * 2.18 + 38;
+      const desiredY = Math.max(this.collisionRadius + 24, Math.min(targetY - Math.max(bowClearance, height * 0.28), height - this.collisionRadius - 30));
+      const entryStartY = cameraTop - this.radius * 1.9;
+      const entryY = entryStartY + (desiredY - entryStartY) * entranceEase;
+      const desiredX = targetX + (patrolX - targetX) * entranceEase;
+      this.x += (desiredX - this.x) * Math.min(1, dt * (this.bossPhase === 3 ? 0.18 : 0.14));
+      this.y += (entryY - this.y) * Math.min(1, dt * (this.bossEntranceTimer > 0 ? 1.8 : this.bossPhase === 3 ? 0.16 : 0.12));
+      this.x = Math.max(this.collisionRadius + 4, Math.min(width - this.collisionRadius - 4, this.x));
+
+      // Independent weapon tracking: each hardpoint turns toward the pilot only inside its own firing arc.
+      const turretSystems = this.bossSystems;
+      if (turretSystems && this.bossEntranceTimer <= 0) {
+        const hullRotation = this.facingRotation + Math.PI / 2;
+        const cosHull = Math.cos(hullRotation);
+        const sinHull = Math.sin(hullRotation);
+        for (const module of turretSystems.modules) {
+          if (module.kind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled') {
+            module.plasmaChargeTimer = Math.max(0, (module.plasmaChargeTimer ?? module.plasmaChargeDuration) - dt);
+          }
+          if (module.kind.includes('support') || module.state === 'destroyed' || module.state === 'disabled') continue;
+          const localX = module.x * this.radius;
+          const localY = (module.y - 0.16) * this.radius;
+          const muzzleX = this.x + localX * cosHull - localY * sinHull;
+          const muzzleY = this.y + localX * sinHull + localY * cosHull;
+          const rawAngle = Math.atan2(targetY - muzzleY, targetX - muzzleX) - this.facingRotation;
+          const desired = Math.atan2(Math.sin(rawAngle), Math.cos(rawAngle));
+          const side = Math.sign(module.x);
+          let minArc = -0.85;
+          let maxArc = 0.85;
+          if (module.kind.includes('energy') || module.kind.includes('overload-cannon')) {
+            minArc = -0.22; maxArc = 0.22;
+          } else if (module.kind.includes('light-laser')) {
+            minArc = -0.78; maxArc = 0.78;
+          } else if (module.kind.includes('missile') || module.kind.includes('rocket')) {
+            minArc = side < 0 ? -2.45 : -0.85;
+            maxArc = side > 0 ? 2.45 : 0.85;
+          } else if (module.kind.includes('plasma')) {
+            minArc = side < 0 ? -2.05 : -0.72;
+            maxArc = side > 0 ? 2.05 : 0.72;
+          } else if (module.kind.includes('machine-gun')) {
+            minArc = side < 0 ? -2.25 : -0.72;
+            maxArc = side > 0 ? 2.25 : 0.72;
+          }
+          const targetAngle = Math.max(minArc, Math.min(maxArc, desired));
+          const delta = Math.atan2(Math.sin(targetAngle - (module.turretAngle ?? 0)), Math.cos(targetAngle - (module.turretAngle ?? 0)));
+          const turnSpeed = module.kind.includes('energy') ? 0.42
+            : module.kind.includes('plasma') ? 0.82
+              : module.kind.includes('missile') || module.kind.includes('rocket') ? 1.05 : 1.35;
+          module.turretAngle = (module.turretAngle ?? 0) + Math.max(-turnSpeed * dt, Math.min(turnSpeed * dt, delta));
         }
-        shot = shotCount === 1 ? shots[0] : shots;
+      }
+
+      // The main cannon is a telegraphed future threat only: this cycle charges and warns,
+      // but deliberately creates no projectile and applies no damage in v0.44.0.
+      const mainCannon = turretSystems?.getModule('main-energy-cannon');
+      if (mainCannon) {
+        const cannonAvailable = mainCannon.state !== 'destroyed' && mainCannon.state !== 'disabled' && mainCannon.transitionTimer <= 0;
+        if (!cannonAvailable) {
+          mainCannon.energyState = 'offline';
+          mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
+          mainCannon.energyWarningTimer = 0;
+          mainCannon.energyCooldownTimer = 0;
+        } else if (this.bossPhase < 2 || this.bossEntranceTimer > 0) {
+          mainCannon.energyState = 'standby';
+          mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
+          mainCannon.energyWarningTimer = 0;
+          mainCannon.energyCooldownTimer = 0;
+        } else if (mainCannon.energyState === 'standby' || mainCannon.energyState === 'offline') {
+          mainCannon.energyState = 'charging';
+          mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
+        } else if (mainCannon.energyState === 'charging') {
+          mainCannon.energyChargeTimer = Math.max(0, mainCannon.energyChargeTimer - dt);
+          if (mainCannon.energyChargeTimer === 0) {
+            mainCannon.energyState = 'warning';
+            mainCannon.energyWarningTimer = mainCannon.energyWarningDuration;
+          }
+        } else if (mainCannon.energyState === 'warning') {
+          mainCannon.energyWarningTimer = Math.max(0, mainCannon.energyWarningTimer - dt);
+          if (mainCannon.energyWarningTimer === 0) {
+            mainCannon.energyState = 'cooldown';
+            mainCannon.energyCooldownTimer = mainCannon.energyCooldownDuration;
+            mainCannon.energyChargeTimer = mainCannon.energyChargeDuration;
+          }
+        } else if (mainCannon.energyState === 'cooldown') {
+          mainCannon.energyCooldownTimer = Math.max(0, mainCannon.energyCooldownTimer - dt);
+          if (mainCannon.energyCooldownTimer === 0) mainCannon.energyState = 'charging';
+        }
+      }
+
+      if (this.bossEntranceTimer <= 0) this.fireCooldown -= dt;
+      else this.fireCooldown = Math.max(this.fireCooldown, 1.8);
+      if (this.bossEntranceTimer <= 0 && this.fireCooldown <= 0 && this.y > 18 && this.bossPhaseTransition <= 0) {
+        const systems = this.bossSystems;
+        const modules = systems?.getOperationalModules() || [];
+        const shots = [];
+        const shipRotation = this.facingRotation + Math.PI / 2;
+        const getMuzzle = (module, forwardOffset = 0.16) => {
+          const localX = module.x * this.radius;
+          const localY = (module.y - forwardOffset) * this.radius;
+          const cos = Math.cos(shipRotation);
+          const sin = Math.sin(shipRotation);
+          return {
+            x: this.x + localX * cos - localY * sin,
+            y: this.y + localX * sin + localY * cos
+          };
+        };
+        const makeShot = (module, options = {}) => {
+          const muzzle = getMuzzle(module, options.forwardOffset ?? 0.16);
+          const angle = this.facingRotation + (module.turretAngle ?? 0) + (options.angleOffset ?? 0);
+          const speed = options.speed ?? 190;
+          return {
+            x: muzzle.x,
+            y: muzzle.y,
+            targetX: muzzle.x + Math.cos(angle) * 520,
+            targetY: muzzle.y + Math.sin(angle) * 520,
+            damage: options.damage ?? 4,
+            speed,
+            radius: options.radius ?? 4,
+            color: options.color ?? '#73e7ff',
+            glowColor: options.glowColor ?? '#36aee8',
+            homing: options.homing ?? false,
+            turnRate: options.turnRate ?? 1.8
+          };
+        };
+
+        // Every surviving mount now fires from its own physical position.
+        // Destroying one weapon reduces that weapon family's actual output.
+        for (const module of modules) {
+          if (module.kind.includes('light-laser')) {
+            const spread = this.bossPhase === 3 ? 0.045 : 0.075;
+            shots.push(makeShot(module, {
+              damage: 2.2, speed: 245, radius: 3,
+              angleOffset: module.x < 0 ? -spread : spread,
+              color: '#8df4ff', glowColor: '#32c9ff'
+            }));
+          } else if (module.kind.includes('machine-gun')) {
+            const burst = this.bossPhase === 1 ? 2 : this.bossPhase === 2 ? 3 : 4;
+            for (let index = 0; index < burst; index += 1) {
+              const offset = index - (burst - 1) / 2;
+              shots.push(makeShot(module, {
+                damage: 3.2, speed: 215, radius: 4,
+                angleOffset: offset * 0.075,
+                color: '#ffd08a', glowColor: '#ff9b45'
+              }));
+            }
+          } else if (module.kind.includes('missile') || module.kind.includes('rocket')) {
+            const spread = this.bossPhase === 3 ? 0.12 : 0.19;
+            shots.push(makeShot(module, {
+              damage: 9, speed: 118, radius: 7, homing: true, turnRate: 1.35,
+              angleOffset: module.x < 0 ? -spread : spread,
+              color: '#d7b6ff', glowColor: '#9d6cff'
+            }));
+          } else if (module.kind.includes('plasma')) {
+            if ((module.plasmaChargeTimer ?? 0) <= 0) {
+              shots.push(makeShot(module, {
+                damage: 34, speed: 142, radius: 13,
+                heavyImpact: true, plasmaImpact: true,
+                color: '#ffb66e', glowColor: '#ff542e'
+              }));
+              module.plasmaChargeTimer = module.plasmaChargeDuration ?? 4.8;
+            }
+          } else if (module.kind.includes('energy') || module.kind.includes('overload-cannon')) {
+            // The main energy cannon is presentation-only in this iteration:
+            // keep its independent tracking and visible hardware, but do not
+            // launch a damaging projectile until its telegraph/charge sequence
+            // and counterplay are implemented and validated together.
+          }
+        }
+
+        this.fireCooldown = this.bossPhase === 1 ? 2.35 : this.bossPhase === 2 ? 2.05 : 1.7;
+        if (shots.length) shot = shots;
       }
     } else if (this.type === 'interceptor') {
       // Interceptors combine pursuit with a smooth side-to-side arc to pressure the pilot.
@@ -196,7 +415,7 @@ export class Enemy {
     } else if (this.type === 'artillery') {
       // Artillery keeps a distant firing lane and uses a readable three-shot fan.
       const eliteStrafe = this.isElite ? Math.sin(this.phase * 0.82) * Math.min(width * 0.18, 88) : 0;
-      const desiredX = width / 2 + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150) + eliteStrafe + dodgeStrength;
+      const desiredX = targetX + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150) + eliteStrafe + dodgeStrength;
       const desiredY = Math.max(36, targetY - Math.min(235, height * 0.42));
       this.x += (desiredX - this.x) * Math.min(1, dt * (this.isElite ? 1.05 : 0.8));
       this.y += (desiredY - this.y) * Math.min(1, dt * 1.0);
@@ -277,10 +496,19 @@ export class Enemy {
       }
     } else if (this.type === 'guardian') {
       // Each Guardian screens its own assigned formation of at most two allies.
-      const formation = (this.protectedAllies || []).filter((ally) => ally.active);
-      if (formation.length) {
-        const centerX = formation.reduce((sum, ally) => sum + ally.x, 0) / formation.length;
-        const centerY = formation.reduce((sum, ally) => sum + ally.y, 0) / formation.length;
+      // Accumulate active positions directly to avoid a filtered array and reduce passes.
+      let formationCount = 0;
+      let centerX = 0;
+      let centerY = 0;
+      for (const ally of this.protectedAllies || []) {
+        if (!ally.active) continue;
+        formationCount += 1;
+        centerX += ally.x;
+        centerY += ally.y;
+      }
+      if (formationCount > 0) {
+        centerX /= formationCount;
+        centerY /= formationCount;
         const screenX = centerX + (targetX - centerX) * 0.45;
         const screenY = centerY + (targetY - centerY) * 0.45;
         this.x += (screenX - this.x) * Math.min(1, dt * (this.isElite ? 1.15 : 0.95)) + drift * dt;
@@ -315,9 +543,17 @@ export class Enemy {
     // Apply lateral dodge after normal steering so it produces a meaningful curved displacement.
     if (dodgeStrength !== 0) this.x += dodgeStrength * dt;
 
-    // Keep enemies in the arena so reaching an edge never deals automatic damage.
-    this.x = Math.max(this.radius, Math.min(width - this.radius, this.x));
-    this.y = Math.max(this.radius, Math.min(height - this.radius, this.y));
+    // Keep enemies inside the arena, except while the battleship is completing
+    // its deliberate off-screen entrance. Clamping its Y coordinate here would
+    // snap it to the top edge and cancel the planned smooth descent.
+    const movementRadius = this.collisionRadius ?? this.radius;
+    this.x = Math.max(movementRadius, Math.min(width - movementRadius, this.x));
+    if (this.type !== 'boss' || this.bossEntranceTimer <= 0) {
+      this.y = Math.max(movementRadius, Math.min(height - movementRadius, this.y));
+    } else {
+      // The boss may remain above the visible playfield, but cannot drift below it.
+      this.y = Math.min(height - movementRadius, this.y);
+    }
     this.updateMotionFeedback(dt, previousX, previousY);
 
     // Ranged classes keep their weapons oriented toward the pilot while repositioning.
@@ -328,7 +564,7 @@ export class Enemy {
         Math.sin(desiredFacing - this.facingRotation),
         Math.cos(desiredFacing - this.facingRotation)
       );
-      this.facingRotation += facingDelta * Math.min(1, dt * (this.type === 'boss' ? 3.2 : 4.5));
+      this.facingRotation += facingDelta * Math.min(1, dt * (this.type === 'boss' ? 0.34 : 4.5));
     } else {
       this.facingRotation = this.rotation;
     }
@@ -336,16 +572,28 @@ export class Enemy {
   }
 
   draw(ctx) {
+    // The Dreadnought uses the game's smooth vector renderer; its depth comes
+    // from layered geometry, bevels, gradients and cast shadows rather than pixel scaling.
+    return this.drawVector(ctx);
+  }
+
+  drawVector(ctx) {
     const boss = this.type === 'boss';
     const guardian = this.type === 'guardian';
     const artillery = this.type === 'artillery';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
-    const color = this.isElite ? (artillery ? '#171d24' : ranged ? '#59377f' : guardian ? '#245b4b' : '#7546a6') : boss ? (this.bossPhase === 3 ? '#ff6d8f' : this.bossPhase === 2 ? '#ffb36b' : '#d59bff') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
-    const edge = this.isElite ? (artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : boss ? (this.bossPhase === 3 ? '#ffd1dc' : this.bossPhase === 2 ? '#fff0cf' : '#f1d7ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
+    const color = boss ? '#202833' : this.isElite ? (artillery ? '#171d24' : ranged ? '#59377f' : guardian ? '#245b4b' : '#7546a6') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
+    const edge = boss ? '#8796a6' : this.isElite ? (artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
     ctx.save();
+    // The death update already integrates wreck velocity into x/y; do not add a second visual drift offset here.
     ctx.translate(this.x, this.y);
+    if (boss && this.bossDying) {
+      const collapse = Math.min(1, this.bossDeathTimer / this.bossDeathDuration);
+      ctx.rotate(Math.sin(this.bossDeathTimer * 1.35) * collapse * 0.075);
+      ctx.globalAlpha = Math.max(0.18, 1 - Math.max(0, collapse - 0.48) * 1.45);
+    }
     if (boss && this.bossPhaseTransition > 0) {
       ctx.globalAlpha = 0.55 + Math.sin(this.bossPhaseTransition * 22) * 0.25;
       ctx.strokeStyle = edge;
@@ -353,6 +601,31 @@ export class Enemy {
       ctx.beginPath();
       ctx.arc(0, 0, this.radius + 8, 0, Math.PI * 2);
       ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    if (boss && this.bossEntranceTimer > 0) {
+      const progress = 1 - this.bossEntranceTimer / Math.max(0.001, this.bossEntranceDuration);
+      const pulse = 0.5 + Math.sin(this.phase * 7) * 0.18;
+      ctx.globalAlpha = (1 - progress * 0.45) * pulse;
+      ctx.strokeStyle = '#8feaff';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 7]);
+      ctx.beginPath();
+      ctx.ellipse(0, 0, this.radius * (1.55 + progress * 0.18), this.radius * (0.48 + progress * 0.08), 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+      ctx.save();
+      ctx.rotate(-(this.facingRotation + Math.PI / 2));
+      ctx.globalAlpha = 0.78 + Math.sin(this.phase * 8) * 0.12;
+      ctx.fillStyle = '#8feaff';
+      ctx.font = 'bold 10px monospace';
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText('DREADNOUGHT', 0, -this.radius * 1.22);
+      ctx.font = 'bold 7px monospace';
+      ctx.fillText(progress < 0.48 ? 'COLOSSAL WARSHIP · CONTATO HOSTIL' : 'SISTEMAS DE COMBATE ATIVANDO', 0, -this.radius * 1.10);
+      ctx.restore();
       ctx.globalAlpha = 1;
     }
     ctx.rotate(this.facingRotation + Math.PI / 2);
@@ -365,28 +638,55 @@ export class Enemy {
       0,
       0
     );
+    // The capital ship reads as a long, narrow dreadnought rather than a bulky carrier.
+    // This is presentation-only: the existing combat hitbox remains untouched.
+    if (boss) ctx.scale(0.82, 1);
 
-    // Small animated exhaust makes acceleration and direction changes visible without sprites.
+    // The Dreadnought exhaust uses smooth tapered energy plumes rather than
+    // the block-shaped flame style of the smaller ships.
     const flame = 3 + Math.sin(this.phase * 10) * 0.65 + this.thrust * 4.5;
-    ctx.globalAlpha = 0.22 + this.thrust * 0.25;
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.ellipse(0, this.radius * 0.88, 2 + this.thrust, 2.5 + flame * 0.45, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    ctx.beginPath();
-    ctx.moveTo(-2.2, this.radius * 0.72);
-    ctx.lineTo(0, this.radius * 0.72 + flame);
-    ctx.lineTo(2.2, this.radius * 0.72);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = '#fff2b5';
-    ctx.beginPath();
-    ctx.moveTo(-0.8, this.radius * 0.72);
-    ctx.lineTo(0, this.radius * 0.72 + flame * 0.58);
-    ctx.lineTo(0.8, this.radius * 0.72);
-    ctx.closePath();
-    ctx.fill();
+    if (boss) {
+      const pulse = 0.34 + Math.sin(this.phase * 11) * 0.06 + this.thrust * 0.12;
+      for (let side = -1; side <= 1; side += 2) {
+        const engineX = side * this.radius * 0.58;
+        const plumeLength = this.radius * (0.58 + this.thrust * 0.16 + Math.sin(this.phase * 10 + side) * 0.035);
+        const plume = ctx.createLinearGradient(0, this.radius * 1.72, 0, this.radius * 1.72 + plumeLength);
+        plume.addColorStop(0, 'rgba(54,217,255,0.82)');
+        plume.addColorStop(0.28, 'rgba(8,127,156,0.56)');
+        plume.addColorStop(1, 'rgba(8,127,156,0)');
+        ctx.save();
+        ctx.globalAlpha = pulse;
+        ctx.fillStyle = plume;
+        ctx.beginPath();
+        ctx.moveTo(engineX - this.radius * 0.105, this.radius * 1.72);
+        ctx.lineTo(engineX + this.radius * 0.105, this.radius * 1.72);
+        ctx.lineTo(engineX + this.radius * 0.045, this.radius * 1.72 + plumeLength);
+        ctx.lineTo(engineX - this.radius * 0.045, this.radius * 1.72 + plumeLength);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+    } else {
+      ctx.globalAlpha = 0.22 + this.thrust * 0.25;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(0, this.radius * 0.88, 2 + this.thrust, 2.5 + flame * 0.45, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.moveTo(-2.2, this.radius * 0.72);
+      ctx.lineTo(0, this.radius * 0.72 + flame);
+      ctx.lineTo(2.2, this.radius * 0.72);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#fff2b5';
+      ctx.beginPath();
+      ctx.moveTo(-0.8, this.radius * 0.72);
+      ctx.lineTo(0, this.radius * 0.72 + flame * 0.58);
+      ctx.lineTo(0.8, this.radius * 0.72);
+      ctx.closePath();
+      ctx.fill();
+    }
 
     if (this.lateralThrust > 0.1) {
       ctx.globalAlpha = this.lateralThrust * 0.35;
@@ -399,25 +699,34 @@ export class Enemy {
     }
 
     // Angular plating and dark insets distinguish the hostile faction from the player hull.
-    ctx.fillStyle = '#130d20';
+    ctx.fillStyle = boss ? '#111820' : '#130d20';
     ctx.beginPath();
-    ctx.ellipse(0, 2, this.radius * 1.05, this.radius * 0.82, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 2, this.radius * (boss ? 1.48 : 1.05), this.radius * (boss ? 1.78 : 0.82), 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = color;
     ctx.strokeStyle = edge;
     ctx.lineWidth = boss || guardian ? 2 : 1.2;
     ctx.beginPath();
     if (boss) {
-      ctx.moveTo(0, -this.radius * 1.35);
-      ctx.lineTo(this.radius * 0.52, -this.radius * 0.72);
-      ctx.lineTo(this.radius * 1.35, -this.radius * 0.15);
-      ctx.lineTo(this.radius * 0.88, this.radius * 0.72);
-      ctx.lineTo(this.radius * 0.36, this.radius * 0.88);
-      ctx.lineTo(0, this.radius * 1.22);
-      ctx.lineTo(-this.radius * 0.36, this.radius * 0.88);
-      ctx.lineTo(-this.radius * 0.88, this.radius * 0.72);
-      ctx.lineTo(-this.radius * 1.35, -this.radius * 0.15);
-      ctx.lineTo(-this.radius * 0.52, -this.radius * 0.72);
+      // Full capital-ship hull: broad shoulders, armored decks and a reinforced stern.
+      ctx.moveTo(0, -this.radius * 2.22);
+      ctx.lineTo(this.radius * 0.34, -this.radius * 2.02);
+      ctx.lineTo(this.radius * 0.62, -this.radius * 1.55);
+      ctx.lineTo(this.radius * 1.04, -this.radius * 1.12);
+      ctx.lineTo(this.radius * 1.34, -this.radius * 0.56);
+      ctx.lineTo(this.radius * 1.46, this.radius * 0.24);
+      ctx.lineTo(this.radius * 1.32, this.radius * 1.02);
+      ctx.lineTo(this.radius * 0.94, this.radius * 1.54);
+      ctx.lineTo(this.radius * 0.56, this.radius * 1.86);
+      ctx.lineTo(0, this.radius * 2.02);
+      ctx.lineTo(-this.radius * 0.56, this.radius * 1.86);
+      ctx.lineTo(-this.radius * 0.94, this.radius * 1.54);
+      ctx.lineTo(-this.radius * 1.32, this.radius * 1.02);
+      ctx.lineTo(-this.radius * 1.46, this.radius * 0.24);
+      ctx.lineTo(-this.radius * 1.34, -this.radius * 0.56);
+      ctx.lineTo(-this.radius * 1.04, -this.radius * 1.12);
+      ctx.lineTo(-this.radius * 0.62, -this.radius * 1.55);
+      ctx.lineTo(-this.radius * 0.34, -this.radius * 2.02);
     } else if (guardian) {
       ctx.moveTo(-this.radius * 0.48, -this.radius * 1.15);
       ctx.lineTo(this.radius * 0.48, -this.radius * 1.15);
@@ -463,6 +772,607 @@ export class Enemy {
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+
+    if (boss) {
+      const systems = this.bossSystems;
+
+      // The layered DREADNOUGHT hull below is the sole boss-body render pass.
+      // DREADNOUGHT 3D pass -------------------------------------------------
+      // The game remains top-down 2D. Layered silhouettes, offset sidewalls,
+      // bevel highlights and directional gradients create a raised 3D hull.
+      const hullR = this.radius;
+      const deckLight = '#354351';
+
+      // Deep cast shadow and lower armor lip make the upper deck appear elevated.
+      ctx.save();
+      ctx.globalAlpha = 0.62;
+      ctx.fillStyle = '#080d13';
+      ctx.beginPath();
+      ctx.moveTo(0, -hullR * 1.78);
+      ctx.lineTo(hullR * 0.48, -hullR * 1.52);
+      ctx.lineTo(hullR * 1.42, -hullR * 0.72);
+      ctx.lineTo(hullR * 1.58, hullR * 0.58);
+      ctx.lineTo(hullR * 1.18, hullR * 1.48);
+      ctx.lineTo(0, hullR * 2.12);
+      ctx.lineTo(-hullR * 1.18, hullR * 1.48);
+      ctx.lineTo(-hullR * 1.58, hullR * 0.58);
+      ctx.lineTo(-hullR * 1.42, -hullR * 0.72);
+      ctx.lineTo(-hullR * 0.48, -hullR * 1.52);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // Angled port and starboard armor walls: darker lower facets sit beneath
+      // the brighter top plates, giving the ship visible thickness from above.
+      for (let side = -1; side <= 1; side += 2) {
+        ctx.save();
+        ctx.fillStyle = side < 0 ? '#111a23' : '#151f2a';
+        ctx.strokeStyle = '#0b1118';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(side * hullR * 0.72, -hullR * 0.92);
+        ctx.lineTo(side * hullR * 1.42, -hullR * 0.64);
+        ctx.lineTo(side * hullR * 1.60, hullR * 0.42);
+        ctx.lineTo(side * hullR * 1.43, hullR * 1.12);
+        ctx.lineTo(side * hullR * 1.08, hullR * 1.48);
+        ctx.lineTo(side * hullR * 0.88, hullR * 0.88);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#202b36';
+        ctx.beginPath();
+        ctx.moveTo(side * hullR * 1.22, -hullR * 0.48);
+        ctx.lineTo(side * hullR * 1.50, -hullR * 0.30);
+        ctx.lineTo(side * hullR * 1.53, hullR * 0.52);
+        ctx.lineTo(side * hullR * 1.31, hullR * 0.96);
+        ctx.lineTo(side * hullR * 1.16, hullR * 0.72);
+        ctx.closePath();
+        ctx.fill();
+
+        // Narrow specular edge separates the upper deck from its vertical side.
+        ctx.strokeStyle = '#8796a6';
+        ctx.globalAlpha = 0.78;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(side * hullR * 0.82, -hullR * 0.90);
+        ctx.lineTo(side * hullR * 1.36, -hullR * 0.66);
+        ctx.lineTo(side * hullR * 1.50, -hullR * 0.20);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Keep the bow centerline clear: no raised bridge or gray superstructure
+      // between the open energy aperture and the pointed front of the hull.
+
+      // Recessed reactor well: radial light sits inside a dark armored socket.
+      const reactorCoreColor = this.bossPhase === 3 ? '#baffff' : '#36d9ff';
+      ctx.fillStyle = '#0b131b';
+      ctx.beginPath();
+      ctx.ellipse(0, hullR * 0.30, hullR * 0.25, hullR * 0.48, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = reactorCoreColor;
+      ctx.globalAlpha = 0.18;
+      ctx.beginPath();
+      ctx.ellipse(0, hullR * 0.30, hullR * 0.20, hullR * 0.38, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#36d9ff';
+      ctx.fillRect(-hullR * 0.045, hullR * 0.02, hullR * 0.09, hullR * 0.54);
+      ctx.strokeStyle = '#596574';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(0, hullR * 0.30, hullR * 0.25, hullR * 0.48, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Main energy emitter aperture: an intentionally hollow, open cavity.
+      // The laser will be charged and released from this opening in a later combat pass;
+      // no physical barrel or protruding cannon is mounted at the bow.
+      const apertureY = -hullR * 1.82;
+      ctx.save();
+      ctx.translate(0, apertureY);
+      ctx.fillStyle = '#080e15';
+      ctx.strokeStyle = '#8796a6';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(-hullR * 0.39, -hullR * 0.12);
+      ctx.lineTo(-hullR * 0.30, -hullR * 0.25);
+      ctx.lineTo(hullR * 0.30, -hullR * 0.25);
+      ctx.lineTo(hullR * 0.39, -hullR * 0.12);
+      ctx.lineTo(hullR * 0.39, hullR * 0.12);
+      ctx.lineTo(hullR * 0.30, hullR * 0.25);
+      ctx.lineTo(-hullR * 0.30, hullR * 0.25);
+      ctx.lineTo(-hullR * 0.39, hullR * 0.12);
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+
+      // The center is deliberately kept dark and unobstructed to read as a void.
+      ctx.fillStyle = '#02070c';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, hullR * 0.285, hullR * 0.17, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#06121a';
+      ctx.fill();
+
+      // Segmented containment lips frame the opening without crossing its center.
+      ctx.strokeStyle = '#596574'; ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, hullR * 0.34, hullR * 0.22, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.62 + Math.sin(this.phase * 8) * 0.10;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, hullR * 0.25, hullR * 0.135, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+      for (let side = -1; side <= 1; side += 2) {
+        ctx.fillStyle = '#293542'; ctx.strokeStyle = '#a0acb8'; ctx.lineWidth = 1.3;
+        ctx.fillRect(side * hullR * 0.30 - hullR * 0.045, -hullR * 0.075, hullR * 0.09, hullR * 0.15);
+        ctx.strokeRect(side * hullR * 0.30 - hullR * 0.045, -hullR * 0.075, hullR * 0.09, hullR * 0.15);
+      }
+      ctx.restore();
+
+      // Armor segmentation, fasteners and heat vents add scale without noise.
+      for (let side = -1; side <= 1; side += 2) {
+        ctx.strokeStyle = '#a0acb8';
+        ctx.globalAlpha = 0.72;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(side * hullR * 0.94, -hullR * 0.62);
+        ctx.lineTo(side * hullR * 1.20, -hullR * 0.42);
+        ctx.lineTo(side * hullR * 1.25, hullR * 0.24);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        for (let boltIndex = 0; boltIndex < 3; boltIndex += 1) {
+          const boltY = boltIndex === 0 ? -0.42 : boltIndex === 1 ? 0.38 : 0.92;
+          ctx.fillStyle = '#aab5c0';
+          ctx.beginPath();
+          ctx.arc(side * hullR * 1.16, hullR * boltY, hullR * 0.018, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = '#0b121a';
+        ctx.fillRect(side * hullR * 0.92 - hullR * 0.06, hullR * 0.98, hullR * 0.12, hullR * 0.24);
+        ctx.fillStyle = '#596574';
+        for (let vent = 0; vent < 3; vent += 1) {
+          ctx.fillRect(side * hullR * (0.92 + vent * 0.055) - hullR * 0.012, hullR * 1.01, hullR * 0.024, hullR * 0.17);
+        }
+      }
+
+      // Rear auxiliary thrusters reinforce the twin main engines and give the
+      // stern a wider mechanical footprint; their exhaust remains presentation-only.
+      for (let side = -1; side <= 1; side += 2) {
+        const auxX = side * hullR * 1.02;
+        ctx.fillStyle = '#0b121a';
+        ctx.strokeStyle = '#596574';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(auxX - hullR * 0.09, hullR * 1.18);
+        ctx.lineTo(auxX + hullR * 0.09, hullR * 1.18);
+        ctx.lineTo(auxX + hullR * 0.12, hullR * 1.52);
+        ctx.lineTo(auxX, hullR * 1.64);
+        ctx.lineTo(auxX - hullR * 0.12, hullR * 1.52);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        const auxPulse = 0.42 + this.thrust * 0.22 + Math.sin(this.phase * 12 + side) * 0.06;
+        ctx.fillStyle = '#087f9c';
+        ctx.globalAlpha = auxPulse;
+        ctx.fillRect(auxX - hullR * 0.052, hullR * 1.40, hullR * 0.104, hullR * 0.20);
+        ctx.fillStyle = '#36d9ff';
+        ctx.fillRect(auxX - hullR * 0.025, hullR * 1.43, hullR * 0.05, hullR * 0.14);
+        ctx.globalAlpha = 1;
+      }
+      // Paired side energy manifolds: recessed housings, exposed conduits and
+      // small capacitor nodes make the future laser charge path readable.
+      for (let side = -1; side <= 1; side += 2) {
+        const railX = side * this.radius * 0.43;
+        ctx.fillStyle = '#0b141d'; ctx.strokeStyle = '#596574'; ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(railX - this.radius * 0.075, -this.radius * 1.42);
+        ctx.lineTo(railX + this.radius * 0.075, -this.radius * 1.42);
+        ctx.lineTo(railX + this.radius * 0.09, this.radius * 0.78);
+        ctx.lineTo(railX, this.radius * 0.94);
+        ctx.lineTo(railX - this.radius * 0.09, this.radius * 0.78);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = '#087f9c'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(railX, this.radius * 0.68); ctx.lineTo(railX, -this.radius * 1.28); ctx.stroke();
+        ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 1.8; ctx.globalAlpha = 0.78;
+        ctx.beginPath(); ctx.moveTo(railX, this.radius * 0.58); ctx.lineTo(railX, -this.radius * 1.20); ctx.stroke(); ctx.globalAlpha = 1;
+        for (let nodeIndex = 0; nodeIndex < 3; nodeIndex += 1) {
+          const nodeY = nodeIndex === 0 ? -1.08 : nodeIndex === 1 ? -0.42 : 0.30;
+          ctx.fillStyle = '#111d28'; ctx.strokeStyle = '#718091'; ctx.lineWidth = 1;
+          ctx.fillRect(railX - this.radius * 0.105, this.radius * nodeY - this.radius * 0.075, this.radius * 0.21, this.radius * 0.15);
+          ctx.strokeRect(railX - this.radius * 0.105, this.radius * nodeY - this.radius * 0.075, this.radius * 0.21, this.radius * 0.15);
+          ctx.fillStyle = '#36d9ff'; ctx.globalAlpha = 0.58 + Math.sin(this.phase * 8 + nodeY) * 0.12;
+          ctx.fillRect(railX - this.radius * 0.035, this.radius * nodeY - this.radius * 0.035, this.radius * 0.07, this.radius * 0.07);
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      // End DREADNOUGHT 3D pass ---------------------------------------------
+
+      // Ten independently damageable weapon modules are represented by visible sockets.
+      if (systems) {
+        const radius = this.radius;
+        const damagePulse = Math.sin(this.phase * 8);
+        const smokeDrift = this.phase * 2;
+        for (const module of systems.modules) {
+          const mx = module.x * radius;
+          const my = module.y * radius;
+          const transitionDuration = module.transitionType === 'replacement' ? 2.2
+            : module.transitionType === 'rebuild' ? 1.8
+              : module.transitionType === 'repair' ? 1.35 : 0;
+          const transitionProgress = transitionDuration > 0 && module.transitionTimer > 0
+            ? Math.max(0, Math.min(1, 1 - module.transitionTimer / transitionDuration)) : 1;
+          const renderKind = module.transitionType === 'replacement' &&
+            module.transitionTimer > 0 && transitionProgress < 0.46
+            ? (module.transitionFromKind || module.kind) : module.kind;
+          const moduleColor = module.state === 'destroyed' ? '#343b45'
+            : module.state === 'disabled' ? '#713d32'
+              : module.state === 'damaged' ? '#b86a37'
+                : renderKind.includes('laser') ? '#36d9ff'
+                  : renderKind.includes('missile') || renderKind.includes('rocket') ? '#aab6c2'
+                    : renderKind.includes('plasma') ? '#ff653d'
+                      : renderKind.includes('energy') || renderKind.includes('cannon') ? '#36d9ff' : '#8796a6';
+          const mountSize = radius * 0.12;
+          const moduleSize = mountSize * 2.15;
+          const moduleHalfSize = moduleSize / 2;
+          ctx.save();
+          ctx.translate(mx, my);
+          if (module.id !== 'main-energy-cannon') ctx.rotate(module.turretAngle ?? 0);
+          // The main energy module is represented by the open bow aperture above,
+          // not by a turret, barrel or solid socket covering the cavity.
+          if (module.id !== 'main-energy-cannon') {
+            ctx.fillStyle = '#111820';
+            ctx.strokeStyle = '#8796a6';
+            ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            ctx.moveTo(-mountSize * 1.15, -mountSize * 0.75);
+            ctx.lineTo(mountSize * 0.75, -mountSize * 1.15);
+            ctx.lineTo(mountSize * 1.15, mountSize * 0.75);
+            ctx.lineTo(-mountSize * 0.75, mountSize * 1.15);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+          }
+          if (module.id !== 'main-energy-cannon' && !module.catastrophic) {
+            // Replacement animation physically withdraws the old mount, then seats
+            // the new weapon into the same hardpoint. Repair/rebuild uses a shorter lift.
+            let weaponOffsetY = 0;
+            let weaponAlpha = 1;
+            if (module.transitionTimer > 0 && transitionDuration > 0) {
+              if (module.transitionType === 'replacement') {
+                const retracting = transitionProgress < 0.46;
+                const phaseProgress = retracting ? transitionProgress / 0.46 : (transitionProgress - 0.46) / 0.54;
+                weaponOffsetY = retracting
+                  ? -mountSize * 2.8 * phaseProgress
+                  : mountSize * 2.4 * (1 - phaseProgress);
+                weaponAlpha = retracting ? Math.max(0, 1 - phaseProgress * 1.35) : Math.min(1, phaseProgress * 1.5);
+              } else {
+                weaponOffsetY = -mountSize * 0.7 * (1 - transitionProgress);
+                weaponAlpha = 0.35 + transitionProgress * 0.65;
+              }
+            }
+            ctx.save();
+            ctx.translate(0, weaponOffsetY);
+            ctx.globalAlpha *= weaponAlpha;
+            // Weapons are separate, readable mechanical assemblies drawn above the hull.
+            // Flat fills and short strokes keep the silhouettes crisp without adding blur,
+            // per-weapon gradients or shadow filters to the frame loop.
+            ctx.fillStyle = moduleColor;
+            ctx.strokeStyle = '#dce7ef';
+            ctx.lineWidth = 1.45;
+            ctx.lineJoin = 'round';
+
+            if (renderKind.includes('machine-gun')) {
+              // Twin-barrel armored receiver.
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.82, mountSize * 0.42);
+              ctx.lineTo(mountSize * 0.82, mountSize * 0.42);
+              ctx.lineTo(mountSize * 0.70, -mountSize * 0.72);
+              ctx.lineTo(mountSize * 0.42, -mountSize * 1.08);
+              ctx.lineTo(-mountSize * 0.42, -mountSize * 1.08);
+              ctx.lineTo(-mountSize * 0.70, -mountSize * 0.72);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              for (let barrel = -1; barrel <= 1; barrel += 2) {
+                const barrelX = barrel * mountSize * 0.38;
+                ctx.fillStyle = '#202b36';
+                ctx.fillRect(barrelX - mountSize * 0.17, -mountSize * 2.22, mountSize * 0.34, mountSize * 1.30);
+                ctx.strokeRect(barrelX - mountSize * 0.17, -mountSize * 2.22, mountSize * 0.34, mountSize * 1.30);
+                ctx.fillStyle = '#aab8c5';
+                ctx.fillRect(barrelX - mountSize * 0.055, -mountSize * 2.08, mountSize * 0.11, mountSize * 0.98);
+                ctx.fillStyle = '#080e15';
+                ctx.beginPath();
+                ctx.arc(barrelX, -mountSize * 2.20, mountSize * 0.14, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+              }
+              ctx.fillStyle = '#8796a6';
+              ctx.fillRect(-mountSize * 0.48, -mountSize * 0.18, mountSize * 0.96, mountSize * 0.10);
+            } else if (renderKind.includes('missile') || renderKind.includes('rocket')) {
+              // Three recessed launch tubes inside a visibly armored pod.
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.86, mountSize * 0.52);
+              ctx.lineTo(mountSize * 0.86, mountSize * 0.52);
+              ctx.lineTo(mountSize * 0.72, -mountSize * 0.86);
+              ctx.lineTo(mountSize * 0.48, -mountSize * 1.18);
+              ctx.lineTo(-mountSize * 0.48, -mountSize * 1.18);
+              ctx.lineTo(-mountSize * 0.72, -mountSize * 0.86);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              for (let tube = -1; tube <= 1; tube += 1) {
+                const tubeX = tube * mountSize * 0.43;
+                ctx.fillStyle = '#0a1119';
+                ctx.beginPath();
+                ctx.arc(tubeX, -mountSize * 0.48, mountSize * 0.235, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#aab8c5';
+                ctx.lineWidth = 1.25;
+                ctx.stroke();
+                ctx.fillStyle = '#263544';
+                ctx.beginPath();
+                ctx.arc(tubeX, -mountSize * 0.48, mountSize * 0.115, 0, Math.PI * 2);
+                ctx.fill();
+              }
+              ctx.strokeStyle = '#dce7ef';
+              ctx.lineWidth = 1.45;
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.56, mountSize * 0.22);
+              ctx.lineTo(mountSize * 0.56, mountSize * 0.22);
+              ctx.stroke();
+            } else if (renderKind.includes('laser')) {
+              // Slim twin emitter rails make the light-laser distinct from a cannon.
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.70, mountSize * 0.48);
+              ctx.lineTo(mountSize * 0.70, mountSize * 0.48);
+              ctx.lineTo(mountSize * 0.48, -mountSize * 0.78);
+              ctx.lineTo(0, -mountSize * 1.10);
+              ctx.lineTo(-mountSize * 0.48, -mountSize * 0.78);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              for (let emitter = -1; emitter <= 1; emitter += 2) {
+                const emitterX = emitter * mountSize * 0.23;
+                ctx.fillStyle = '#202b36';
+                ctx.fillRect(emitterX - mountSize * 0.105, -mountSize * 2.10, mountSize * 0.21, mountSize * 1.35);
+                ctx.strokeRect(emitterX - mountSize * 0.105, -mountSize * 2.10, mountSize * 0.21, mountSize * 1.35);
+                ctx.fillStyle = '#d8fbff';
+                ctx.fillRect(emitterX - mountSize * 0.045, -mountSize * 1.94, mountSize * 0.09, mountSize * 1.08);
+              }
+              ctx.fillStyle = '#36d9ff';
+              ctx.fillRect(-mountSize * 0.10, -mountSize * 0.40, mountSize * 0.20, mountSize * 0.62);
+            } else if (renderKind.includes('plasma')) {
+              // Heavy plasma weapon: armored breech, exposed coil and orange emitter.
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.88, mountSize * 0.48);
+              ctx.lineTo(mountSize * 0.88, mountSize * 0.48);
+              ctx.lineTo(mountSize * 0.72, -mountSize * 0.56);
+              ctx.lineTo(mountSize * 0.42, -mountSize * 0.94);
+              ctx.lineTo(-mountSize * 0.42, -mountSize * 0.94);
+              ctx.lineTo(-mountSize * 0.72, -mountSize * 0.56);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              ctx.fillStyle = '#202b36';
+              ctx.fillRect(-mountSize * 0.34, -mountSize * 2.02, mountSize * 0.68, mountSize * 1.28);
+              ctx.strokeRect(-mountSize * 0.34, -mountSize * 2.02, mountSize * 0.68, mountSize * 1.28);
+              ctx.fillStyle = '#ff9a55';
+              ctx.globalAlpha *= 0.86;
+              ctx.beginPath();
+              ctx.arc(0, -mountSize * 1.98, mountSize * 0.24, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.globalAlpha /= 0.86;
+              ctx.strokeStyle = '#ffd0a3';
+              ctx.lineWidth = 1.5;
+              ctx.beginPath();
+              ctx.arc(0, -mountSize * 1.98, mountSize * 0.31, 0, Math.PI * 2);
+              ctx.stroke();
+              ctx.strokeStyle = '#dce7ef';
+              ctx.lineWidth = 1.45;
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.60, -mountSize * 0.28);
+              ctx.lineTo(-mountSize * 0.60, mountSize * 0.20);
+              ctx.moveTo(mountSize * 0.60, -mountSize * 0.28);
+              ctx.lineTo(mountSize * 0.60, mountSize * 0.20);
+              ctx.stroke();
+            } else if (renderKind.includes('energy') || renderKind.includes('cannon')) {
+              // Generic heavy emitter used by future replacement variants.
+              ctx.beginPath();
+              ctx.moveTo(-mountSize * 0.82, mountSize * 0.52);
+              ctx.lineTo(mountSize * 0.82, mountSize * 0.52);
+              ctx.lineTo(mountSize * 0.62, -mountSize * 0.72);
+              ctx.lineTo(mountSize * 0.34, -mountSize * 1.04);
+              ctx.lineTo(-mountSize * 0.34, -mountSize * 1.04);
+              ctx.lineTo(-mountSize * 0.62, -mountSize * 0.72);
+              ctx.closePath();
+              ctx.fill();
+              ctx.stroke();
+              ctx.fillStyle = '#202b36';
+              ctx.fillRect(-mountSize * 0.28, -mountSize * 2.24, mountSize * 0.56, mountSize * 1.48);
+              ctx.strokeRect(-mountSize * 0.28, -mountSize * 2.24, mountSize * 0.56, mountSize * 1.48);
+              ctx.fillStyle = '#d8faff';
+              ctx.fillRect(-mountSize * 0.09, -mountSize * 2.10, mountSize * 0.18, mountSize * 1.20);
+              ctx.fillStyle = '#36d9ff';
+              ctx.beginPath();
+              ctx.arc(0, -mountSize * 2.22, mountSize * 0.17, 0, Math.PI * 2);
+              ctx.fill();
+            } else {
+              ctx.beginPath();
+              ctx.arc(0, 0, mountSize * 0.78, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.stroke();
+            }
+            ctx.restore();
+          } else if (module.id !== 'main-energy-cannon') {
+            ctx.globalAlpha = 0.85;
+            ctx.strokeStyle = '#ff704e';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-mountSize, -mountSize);
+            ctx.lineTo(mountSize, mountSize);
+            ctx.moveTo(mountSize, -mountSize);
+            ctx.lineTo(-mountSize, mountSize);
+            ctx.stroke();
+          }
+          ctx.restore();
+          if (module.state !== 'operational') {
+            ctx.globalAlpha = 0.45 + damagePulse * 0.18;
+            ctx.strokeStyle = '#ff9a55';
+            ctx.beginPath();
+            ctx.moveTo(mx - 7, my - 7);
+            ctx.lineTo(mx + 7, my + 7);
+            ctx.moveTo(mx + 7, my - 7);
+            ctx.lineTo(mx - 7, my + 7);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+          if (module.smoke > 0.08) {
+            ctx.globalAlpha = Math.min(0.55, module.smoke * 0.45);
+            ctx.fillStyle = '#aab4bd';
+            ctx.beginPath();
+            ctx.arc(mx + Math.sin(smokeDrift + mx) * 7, my - 12 - module.smoke * 10, 5 + module.smoke * 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+          if (module.fire > 0.08) {
+            ctx.globalAlpha = Math.min(0.85, module.fire);
+            ctx.fillStyle = '#ff7a32';
+            ctx.beginPath();
+            ctx.arc(mx, my, 4 + module.fire * 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+          }
+          if (module.sparks > 0.08) {
+            const sparkPhase = this.phase * 19 + mx * 0.7 + my;
+            const sparkAlpha = Math.min(0.9, module.sparks);
+            ctx.globalAlpha = sparkAlpha;
+            ctx.strokeStyle = '#ffe2a3';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(mx - 5 + Math.sin(sparkPhase) * 3, my - 3);
+            ctx.lineTo(mx - 1 + Math.sin(sparkPhase + 1.2) * 4, my - 8);
+            ctx.moveTo(mx + 3, my + 2);
+            ctx.lineTo(mx + 7 + Math.cos(sparkPhase) * 3, my - 3);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+          if (module.repairGlow > 0.08) {
+            ctx.globalAlpha = module.repairGlow * (0.55 + damagePulse * 0.12);
+            ctx.strokeStyle = '#78f4ff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(mx - moduleHalfSize - 3, my - moduleHalfSize - 3, moduleSize + 6, moduleSize + 6);
+            ctx.globalAlpha = 1;
+          }
+          if (renderKind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled') {
+            const chargeRatio = 1 - Math.max(0, module.plasmaChargeTimer ?? 0) / Math.max(0.1, module.plasmaChargeDuration ?? 2.6);
+            if (chargeRatio > 0.02) {
+              const pulse = 0.72 + Math.sin(this.phase * (7 + chargeRatio * 12) + mx) * 0.2;
+              ctx.save();
+              ctx.globalAlpha = Math.min(0.9, chargeRatio * pulse);
+              ctx.strokeStyle = '#ff9d5c';
+              ctx.lineWidth = 1.5 + chargeRatio * 2;
+              ctx.beginPath();
+              ctx.arc(mx, my, moduleHalfSize + 4 + chargeRatio * 8, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * chargeRatio);
+              ctx.stroke();
+              ctx.fillStyle = '#ffd6a1';
+              ctx.globalAlpha = chargeRatio * pulse * 0.75;
+              ctx.beginPath();
+              ctx.arc(mx, my, 2 + chargeRatio * 4, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.restore();
+            }
+          }
+
+          if (module.id === 'main-energy-cannon' && module.state !== 'destroyed' && module.state !== 'disabled' &&
+              (module.energyState === 'charging' || module.energyState === 'warning')) {
+            const warning = module.energyState === 'warning';
+            const chargeRatio = warning ? 1 : 1 - module.energyChargeTimer / Math.max(0.1, module.energyChargeDuration);
+            const pulse = 0.78 + Math.sin(this.phase * (warning ? 18 : 10)) * 0.16;
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = (warning ? 0.9 : 0.25 + chargeRatio * 0.55) * pulse;
+            ctx.strokeStyle = warning ? '#ff684f' : '#72eaff';
+            ctx.lineWidth = warning ? 2.8 : 1.4 + chargeRatio * 1.8;
+            ctx.beginPath();
+            ctx.arc(mx, my, moduleHalfSize + 5 + chargeRatio * 9, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0.08, chargeRatio));
+            ctx.stroke();
+            ctx.fillStyle = warning ? '#ffb08a' : '#c8f8ff';
+            ctx.globalAlpha = (warning ? 0.85 : 0.18 + chargeRatio * 0.58) * pulse;
+            ctx.beginPath();
+            ctx.arc(mx, my, 2 + chargeRatio * 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+          }
+          if (module.transitionTimer > 0) {
+            const transitionProgress = 1 - module.transitionTimer / (module.transitionType === 'replacement' ? 2.2 : module.transitionType === 'rebuild' ? 1.8 : 1.35);
+            const transitionPulse = 0.55 + Math.sin(this.phase * 16 + mx) * 0.2;
+            ctx.save();
+            ctx.globalAlpha = Math.max(0, 1 - transitionProgress * 0.72) * transitionPulse;
+            ctx.strokeStyle = module.transitionType === 'replacement' ? '#ffb56b' : '#78f4ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(mx, my, moduleHalfSize + 4 + transitionProgress * 12, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+          }
+        }
+
+        // Scalar arc bounds avoid allocating four temporary arrays on every boss draw.
+        for (const shield of systems.shields) {
+          if (shield.health <= 0 || this.bossDying) continue;
+          let arcStart = 0;
+          let arcEnd = 0;
+          if (shield.id === 'front') {
+            arcStart = -2.72;
+            arcEnd = -0.42;
+          } else if (shield.id === 'left') {
+            arcStart = 2.45;
+            arcEnd = 3.8;
+          } else if (shield.id === 'right') {
+            arcStart = -0.68;
+            arcEnd = 0.68;
+          } else {
+            arcStart = 0.42;
+            arcEnd = 2.72;
+          }
+          ctx.globalAlpha = 0.07 + 0.13 * (shield.health / shield.maxHealth);
+          ctx.strokeStyle = '#67dcff';
+          ctx.lineWidth = 5;
+          ctx.beginPath();
+          ctx.arc(0, 0, radius * 1.38, arcStart, arcEnd);
+          ctx.stroke();
+          if (shield.impactFlash > 0) {
+            const impactProgress = 1 - shield.impactFlash / 0.46;
+            const impactRadius = radius * (1.34 + impactProgress * 0.2);
+            ctx.globalAlpha = Math.min(1, shield.impactFlash * 2.5) * (0.55 + shield.impactStrength * 0.45);
+            ctx.strokeStyle = '#b8f7ff';
+            ctx.lineWidth = 3 + shield.impactStrength * 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, impactRadius, arcStart, arcEnd);
+            ctx.stroke();
+            ctx.globalAlpha = shield.impactFlash * 1.2;
+            ctx.strokeStyle = '#5fe5ff';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.arc(0, 0, impactRadius + 4, arcStart, arcEnd);
+            ctx.stroke();
+          }
+          if (shield.repairGlow > 0.08) {
+            ctx.globalAlpha = shield.repairGlow * 0.72;
+            ctx.strokeStyle = '#b4f8ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, radius * 1.48, arcStart, arcEnd);
+            ctx.stroke();
+          }
+          ctx.globalAlpha = 1;
+        }
+      }
+    }
 
     if (artillery) {
       ctx.fillStyle = '#6d3b9d';
@@ -576,14 +1486,24 @@ export class Enemy {
     if (this.isElite && this.eliteShield > 0) {
       // Lightweight segmented shield cue, visually consistent with the player's shield arcs.
       const shieldRatio = this.eliteShield / Math.max(1, this.eliteMaxShield);
-      ctx.globalAlpha = 0.35 + shieldRatio * 0.35;
+      const flashProgress = this.eliteShieldFlash > 0 ? 1 - this.eliteShieldFlash / 0.42 : 1;
+      const shieldRadius = this.radius + 3 + (this.eliteShieldFlash > 0 ? flashProgress * 5 : 2);
+      ctx.globalAlpha = 0.28 + shieldRatio * 0.28 + (this.eliteShieldFlash > 0 ? this.eliteShieldFlash * 1.15 : 0);
       ctx.strokeStyle = guardian ? '#a7f2ce' : '#82dca2';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = this.eliteShieldFlash > 0 ? 2.5 + this.eliteShieldFlash * 3 : 1.8;
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.arc(0, 0, this.radius + 5, -2.72, -2.12);
-      ctx.arc(0, 0, this.radius + 5, -1.02, -0.42);
+      ctx.arc(0, 0, shieldRadius, -2.72, -2.12);
+      ctx.arc(0, 0, shieldRadius, -1.02, -0.42);
       ctx.stroke();
+      if (this.eliteShieldFlash > 0) {
+        ctx.globalAlpha = this.eliteShieldFlash * 1.45;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(0, 0, shieldRadius + 3, -2.72, -2.12);
+        ctx.arc(0, 0, shieldRadius + 3, -1.02, -0.42);
+        ctx.stroke();
+      }
       ctx.globalAlpha = 1;
     }
 
@@ -604,6 +1524,145 @@ export class Enemy {
       ctx.globalAlpha = 1;
     }
 
+    if (boss && this.bossDying) {
+      const deathTime = this.bossDeathTimer;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      // Seven deterministic detonations now span the bow, side batteries, core and stern.
+      // Fixed local coordinates avoid per-frame particle allocation during the finale.
+      for (let index = 0; index < 7; index += 1) {
+        const burstStart = 0.35 + index * 0.52;
+        const burstAge = deathTime - burstStart;
+        const side = index % 2 === 0 ? -1 : 1;
+        const burstX = side * this.radius * (0.22 + (index % 3) * 0.16);
+        const burstY = this.radius * (-1.55 + index * 0.5);
+
+        // A short-lived pressure ring marks each internal detonation.
+        if (burstAge >= 0 && burstAge <= 0.56) {
+          const fade = 1 - burstAge / 0.56;
+          ctx.globalAlpha = fade * 0.88;
+          ctx.strokeStyle = index % 2 === 0 ? '#ffb45f' : '#8feaff';
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(burstX, burstY, 5 + burstAge * 76, 0, Math.PI * 2);
+          ctx.stroke();
+
+          // Local flame tongues flicker from fixed hull breaches without particle allocation.
+          const flicker = 0.72 + Math.sin(deathTime * 31 + index * 2.1) * 0.18;
+          ctx.globalAlpha = fade * flicker;
+          ctx.fillStyle = '#ff9b45';
+          ctx.beginPath();
+          ctx.ellipse(burstX, burstY, 5 + fade * 7, 10 + fade * 15, side * 0.22, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fff0b5';
+          ctx.beginPath();
+          ctx.arc(burstX, burstY, 3 + fade * 5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // Smoke remains visible after each blast and slowly drifts away from the breach.
+        if (burstAge > 0.08 && burstAge < 2.65) {
+          const smokeAge = burstAge - 0.08;
+          const smokeFade = Math.min(0.48, (1 - smokeAge / 2.65) * 0.42);
+          const drift = smokeAge * (8 + index * 1.2);
+          ctx.globalAlpha = smokeFade;
+          ctx.fillStyle = '#8995a3';
+          ctx.beginPath();
+          ctx.ellipse(
+            burstX + Math.sin(smokeAge * 2.4 + index) * 5,
+            burstY - drift,
+            7 + smokeAge * 5,
+            5 + smokeAge * 4,
+            smokeAge * 0.12,
+            0,
+            Math.PI * 2
+          );
+          ctx.fill();
+          ctx.globalAlpha = smokeFade * 0.52;
+          ctx.fillStyle = '#c1c9d0';
+          ctx.beginPath();
+          ctx.arc(burstX - 4 + Math.cos(smokeAge * 1.8 + index) * 4, burstY - drift - 5, 4 + smokeAge * 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // Four deterministic armor fragments detach over time and drift away from the wreck.
+      // They are drawn from fixed local transforms: no per-frame arrays or particle objects.
+      for (let index = 0; index < 4; index += 1) {
+        const detachStart = 1.1 + index * 0.82;
+        const fragmentAge = deathTime - detachStart;
+        if (fragmentAge < 0 || fragmentAge > 3.7) continue;
+
+        const side = index % 2 === 0 ? -1 : 1;
+        const originX = side * this.radius * (0.48 + (index % 2) * 0.1);
+        const originY = this.radius * (-0.92 + index * 0.62);
+        const fragmentX = originX + side * (10 + fragmentAge * 28);
+        const fragmentY = originY + fragmentAge * (12 + index * 1.5);
+        const fragmentFade = Math.min(1, fragmentAge / 0.18) * Math.max(0, 1 - fragmentAge / 3.7);
+
+        ctx.save();
+        ctx.translate(fragmentX, fragmentY);
+        ctx.rotate(side * (fragmentAge * 0.72 + index * 0.16));
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = fragmentFade * 0.92;
+        ctx.fillStyle = index % 2 === 0 ? '#263747' : '#343044';
+        ctx.strokeStyle = '#b5c6d2';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(-11, -5);
+        ctx.lineTo(5, -8);
+        ctx.lineTo(13, -1);
+        ctx.lineTo(7, 7);
+        ctx.lineTo(-8, 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.globalAlpha = fragmentFade * (0.45 + Math.sin(deathTime * 19 + index) * 0.18);
+        ctx.strokeStyle = '#ffad63';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.moveTo(-5, -2);
+        ctx.lineTo(2, 1);
+        ctx.lineTo(7, 4);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      const finalAge = deathTime - 4.15;
+      if (finalAge >= 0) {
+        const finalFade = Math.max(0, 1 - finalAge / 1.45);
+        const shockRadius = 12 + finalAge * 145;
+
+        // Two expanding shockwave rings create a stronger final detonation silhouette.
+        ctx.globalAlpha = finalFade * 0.9;
+        ctx.strokeStyle = '#fff0c2';
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(0, 0, shockRadius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.globalAlpha = finalFade * 0.58;
+        ctx.strokeStyle = '#ff9b54';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, 0, Math.max(2, shockRadius - 22), 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Bright core flash fades before the hull is removed.
+        ctx.globalAlpha = finalFade * 0.22;
+        ctx.fillStyle = '#ff9b54';
+        ctx.beginPath();
+        ctx.arc(0, 0, 9 + finalAge * 54, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = finalFade * 0.34;
+        ctx.fillStyle = '#fff0c2';
+        ctx.beginPath();
+        ctx.arc(0, 0, 5 + finalFade * 13, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
     ctx.restore();
   }
 }

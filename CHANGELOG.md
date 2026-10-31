@@ -1,3 +1,88 @@
+## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
+
+- Desativa o modo temporário que fazia o DREADNOUGHT surgir já na primeira onda; a partida volta a começar com cinco inimigos e segue a progressão normal.
+- Mantém o DREADNOUGHT programado para as ondas especiais a partir da onda 10, com recorrência a cada cinco ondas.
+- Adiciona teste de regressão para o início da partida e a transição entre as ondas 9, 10 e 11.
+- Inicia a auditoria da jogabilidade: preservar a movimentação orgânica do jogador e investigar separadamente aceleração, inércia, rotação, inclinação visual, câmera e deslocamento do encouraçado.
+- **Escopo:** ajuste do modo de teste e cobertura da progressão; nenhuma física ou parâmetro de movimentação foi alterado nesta etapa.
+- **Validação pendente:** executar a suíte automatizada e testar a progressão real no navegador antes de iniciar ajustes físicos.
+
+## [Unreleased] — DREADNOUGHT · proa limpa e otimização de renderização
+
+- Remove a antiga passagem de desenho do casco que continuava sendo renderizada por baixo do novo modelo em camadas; o DREADNOUGHT passa a ter uma única passagem principal de casco.
+- Remove a superestrutura central elevada e os detalhes cinza da ponte na proa, mantendo a linha central limpa e reta entre a cavidade aberta do emissor e a ponta da nave.
+- Preserva os detalhes laterais, os condutores de energia e a cavidade frontal; nenhum canhão físico ou peça central foi recolocada.
+- Substitui gradientes criados a cada quadro por preenchimentos sólidos controlados na carcaça, no reator e na cavidade. O contraste passa a vir principalmente da geometria e das placas.
+- Remove arrays temporários de coordenadas em loops do desenho do boss e mantém as armas como módulos independentes.
+- **Escopo:** renderização visual e eficiência do desenho; IA, posições dos módulos, mira, cadência, projéteis, dano, escudos, hitboxes e colisões permanecem inalterados.
+- **Validação pendente:** verificar a leitura da proa e das armas no jogo e medir FPS/tempo de quadro no mesmo aparelho. A redução de operações de desenho é verificável no código; ganho de FPS ainda não foi medido.
+
+## [Unreleased] — DREADNOUGHT · legibilidade do armamento
+
+- Redesenha as silhuetas visuais das metralhadoras, lançadores de mísseis, lasers leves e canhões de plasma, com receptores blindados, bocais/tubos rebaixados e detalhes de emissor próprios por família.
+- Amplia moderadamente os hardpoints e reforça o contraste entre a base mecânica e a arma instalada, mantendo os módulos desenhados acima do casco para evitar que a nova superestrutura os esconda.
+- Mantém posições, IDs, ângulos, arcos de mira, cadência, projéteis, dano, integridade dos módulos, transições e colisões. O canhão principal continua representado pela cavidade frontal aberta.
+- A renderização continua sendo Canvas 2D com geometria vetorial em camadas; não foram adicionadas malhas 3D, filtros de sombra ou gradientes por arma.
+- **Validação pendente:** conferir leitura à distância e em telas pequenas, possíveis sobreposições entre hardpoints, transições de substituição e desempenho real em celular/desktop.
+
+## [Unreleased] — DREADNOUGHT · propulsores e canhão principal
+
+- Remove o núcleo quase branco dos propulsores, que podia parecer uma peça separada; os bocais passam a usar uma escala de cianos coerente com a identidade energética da nave.
+- Substitui a chama rígida em blocos por plumas vetoriais cônicas e suaves, mantendo os dois motores principais visualmente independentes.
+- Refina os propulsores auxiliares com núcleo ciano e halo azul-petróleo, sem acrescentar novos elementos brancos.
+- Redesenha o encaixe do canhão principal com câmara rebaixada, blindagem octogonal, anéis de contenção, dentes de travamento e lente emissora ciano pulsante.
+- Preserva a posição e o módulo funcional do canhão, além de IA, dano, cadência, escudos, colisões e demais sistemas.
+- **Validação pendente:** conferir se o detalhe do canhão permanece legível sob o módulo de arma, se os propulsores estão equilibrados e se o brilho não satura em telas pequenas.
+
+## [Unreleased] — DREADNOUGHT · COLOSSAL WARSHIP — redesign tridimensional
+
+- Retorna o boss à renderização vetorial suave do jogo; a experiência de pixel art permanece apenas como estudo visual e não é usada nesta implementação.
+- Redesenha a apresentação do DREADNOUGHT com geometria em camadas, laterais facetadas, sombras projetadas, chanfros, gradientes direcionais e superestrutura elevada para criar volume 3D em perspectiva superior 2D.
+- Adiciona ponte de comando escalonada, encaixe frontal do canhão principal, poço de reator ciano com iluminação radial, segmentação de blindagem, rebites, grelhas e propulsores auxiliares.
+- Preserva o grafite fosco, o aço escovado, o núcleo ciano, os armamentos de plasma laranja e os traços verdes localizados da fase adaptativa.
+- Atualiza a identificação de entrada e o alerta da arena para **DREADNOUGHT — COLOSSAL WARSHIP**.
+- Mantém os dez módulos, escudos regionais, IA, movimento, dano, cadência, colisões, hitboxes e transições de fase sem alterações intencionais.
+- **Validação pendente:** conferir leitura da silhueta, profundidade dos volumes, sobreposição dos hardpoints, efeitos de dano, escala em celular e desempenho em computador.
+
+## [Unreleased] — Nitidez da pixel art e propulsores do Encouraçado
+
+- Aumentada a resolução interna da arte de 80 × 104 para 100 × 144 pixels, com ampliação exata de 4× e suavização desativada para bordas mais definidas.
+- Ampliado o enquadramento vertical do sprite para acomodar os dois jatos traseiros sem cortar a chama.
+- Substituído o escape central genérico por dois propulsores independentes, com carcaças, bocais e chamas em blocos de pixels ciano, branco e laranja.
+- Reorganizados os bocais para evitar sobreposição visual entre a grelha traseira, a blindagem e as chamas.
+- **Escopo:** ajuste visual; IA, movimento, dano, cadência, colisões e sistemas de combate permanecem inalterados.
+- **Validação pendente:** verificar nitidez em diferentes escalas, alinhamento dos dois propulsores e desempenho em celular.
+
+## [Unreleased] — Encouraçado em pixel art
+
+- Converte toda a renderização do Encouraçado para uma superfície pixelada reutilizável de baixa resolução, ampliada com amostragem nearest-neighbor para formar blocos de pixels nítidos.
+- Afina visualmente a silhueta em 18%, preservando o enquadramento, as dimensões físicas e as regras de colisão existentes.
+- Adiciona placas laterais serrilhadas, dentes de blindagem, marcações de alerta e grelhas de exaustão em blocos de cor.
+- Preserva os dez hardpoints, os estados dos módulos, os escudos regionais, as animações de dano, reconstrução e destruição.
+- **Escopo:** alteração exclusivamente visual; nenhum dano, cadência, IA, movimento ou hitbox foi alterado.
+- **Validação pendente:** conferir a leitura dos pixels, a silhueta mais estreita, a legibilidade dos módulos e o desempenho em celular e computador.
+
+## [0.44.0] — Modo temporário de teste do Encouraçado
+
+- Ativado o surgimento do Encouraçado já na onda 1, sozinho, para permitir testes imediatos do chefe durante o desenvolvimento.
+- As ondas seguintes mantêm a progressão normal; o calendário original de chefes nas ondas 10, 15, 20... continua ativo.
+- O modo fica centralizado em `BOSS_TEST_MODE` no gerenciador de ondas e deverá ser desativado quando o desenvolvimento do Encouraçado for concluído.
+- **Validação pendente:** confirmar início da partida, entrada do chefe na onda 1, derrota e avanço correto para a onda 2.
+
+## [0.44.0] — Identidade visual do Encouraçado
+
+- Reconstruída a silhueta como nave capital completa, com casco largo, blindagem grafite fosca e reforços em aço escovado.
+- Integrado ao casco um canal longitudinal de energia ciano, conduzindo visualmente ao canhão principal fixo.
+- Reposicionados os dez hardpoints para distribuir armamentos pelas laterais, proa e região central.
+- Diferenciadas as identidades cromáticas: energia ciano, plasma laranja-avermelhado e traços verdes localizados durante a reconstrução adaptativa da fase III.
+- Preservadas as rotinas de combate, estados dos módulos, escudos, sobrecarga, dano e IA; as coordenadas dos hardpoints foram atualizadas junto à disposição física.
+- **Validação pendente:** teste visual e de combate em navegador, incluindo hardpoints, colisões dos módulos e enquadramento em celular.
+
+## [0.44.0] — Primeiro chefe: nave de guerra pesada (em desenvolvimento)
+
+- Corrige a geometria de colisão do laser contínuo: o teste agora considera o raio real de projéteis inimigos e entidades (incluindo a hitbox ampliada do boss), somado à largura do feixe. Isso evita falsos negativos em interseções visíveis sem alterar dano, cadência ou alcance.
+- Canhão principal frontal: adiciona ciclo visual de carga, progresso no HUD tático e alerta de energia crítica nas fases II/III. Não há disparo, projétil, dano ou habilidade de Clash nesta etapa; é apenas preparação visual e telemetria.
+
 ## [0.43.0] — Evolução da IA inimiga (candidata)
 
 - Rebalanceia a Sentinela normal: esquiva menos frequente e menos intensa, com deslocamento lateral mais contido e reposicionamento menos agressivo.
@@ -619,3 +704,67 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 ## Observações
 - Atualizar este arquivo e o histórico dentro do jogo juntos.
 - A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; a v0.15.1 foi aprovada em computador e celular. A v0.16.2 passou nos seis testes manuais de desempenho e regressão no celular informados pelo usuário. A v0.17.0 foi publicada como candidata em `main`. A v0.17.1 adiciona mira por arraste e disparo automático mobile; aguarda validação manual no celular.
+
+- Refinamento do HUD do encouraçado: os dez indicadores de armamento agora exibem abreviações identificáveis em uma grade 5×2, mantendo cores e estados distintos; os nomes completos permanecem disponíveis nos rótulos acessíveis e dicas.
+
+- Corrige a resolução de dano do encouraçado para que habilidades especiais, laser contínuo e ataques de área sem coordenada de impacto explícita atinjam o setor de escudo voltado para o jogador, em vez de ignorarem a defesa regional.
+- Reutiliza o snapshot de integridade do HUD por instância de chefe, evitando recriar objetos de comparação em cada atualização da interface.
+
+
+## v0.44.0 — rodada de reformulação do encouraçado
+
+- Alongada a silhueta do encouraçado e adicionadas geometrias visuais distintas para as famílias de armamentos.
+- Sobrecarga adaptativa preserva módulos intactos, repara os danificados, reconstrói armamentos destruídos recuperáveis e substitui somente montagens classificadas como catastróficas.
+- Arena ampliada para 2× o viewport; zoom de 0,5 enquadra o mapa completo após o surgimento do chefe e permanece até o reinício da partida.
+- Rotação visual do casco reduzida para reforçar a sensação de massa. Mira independente das torres, IA de mísseis, entrada com alerta e finalização estendida permanecem em desenvolvimento.
+
+
+- Torres do encouraçado agora acompanham o jogador de forma independente, respeitando arcos e velocidades de rotação próprios.
+- Lançadores do boss passam a disparar projéteis teleguiados.
+- Attack Clash agora considera resistência dos projéteis inimigos, evitando que ataques pesados sejam neutralizados por um único disparo leve.
+
+
+## [Unreleased] — Boss cinematográfico
+- Limpa o estado temporário das animações de reparo, reconstrução e substituição dos módulos ao término de cada transição.
+
+- Entrada do encouraçado mais longa, com armas bloqueadas durante o alerta e identificação visual integrada à nave.
+- Sobrecarga com sinais visuais distintos para reparo, reconstrução e substituição de módulos.
+- Derrota prolongada com perda de estabilidade, rotação e deriva do casco antes da remoção.
+
+
+- Boss: canhões de plasma com carga independente e indicador de energia, projétil pesado de alto dano, ruptura imediata do escudo do jogador e repulsão forte no impacto.
+- Combate: Pulso de Ruptura desestabiliza temporariamente inimigos, suspendendo a perseguição durante o recuo; impactos de plasma também comprometem temporariamente o controle de movimento do jogador.
+
+- Corrige a consistência do arsenal: o canhão principal de energia deixa de causar dano/disparar nas fases 2 e 3 enquanto sua preparação visual e seu contra-jogo ainda não estão implementados; o armamento permanece como elemento visual/rastreamento nesta candidata.
+
+
+### Escudos reativos — atualização visual inicial
+- Jogador: setores preditivos agora apontam para a posição prevista de aproximação do projétil e formam uma barreira localizada com expansão e dissipação; o impacto absorvido reforça o setor correspondente.
+- Encouraçado: os quatro setores regionais exibem pulsos localizados ao absorver dano, mantendo baixa presença visual em repouso.
+- Tropas de elite: segmentos de escudo reagem com flash e expansão curta quando absorvem dano.
+- Mantidas as regras atuais de proteção 360°, integridade, absorção, recarga e colisões; os efeitos são apenas visuais e não usam esfera permanente nem partículas por quadro.
+
+
+### Expansão adicional da arena e enquadramento tático — 30/10/2026
+- Mundo físico ampliado de 2,0× para 2,4× a largura e a altura do viewport (44% mais área de jogo).
+- Zoom mínimo agora é derivado de `1 / arenaScale` em vez de um limite fixo de 0,5; o enquadramento integral acompanha automaticamente a dimensão real do mundo.
+- Câmera, conversão de coordenadas de mouse/toque, spawn de inimigos, renderização e limites de visualização usam o mesmo zoom mínimo calculado.
+- Aumentada a amplitude horizontal de reposicionamento do encouraçado para que o flanqueamento continue legível no enquadramento mais amplo.
+- Nenhuma regra de dano, cadência, colisão, resistência de projéteis ou controle de nave foi alterada nesta etapa.
+- Validação manual mobile/desktop e de flanqueamento ainda pendente; CI automatizado não será tratado como teste de gameplay.
+
+
+### Desprendimento estrutural na destruição do encouraçado — 30/10/2026
+- A finalização agora ejeta quatro placas de blindagem em momentos escalonados, com afastamento lateral, deriva e rotação independentes.
+- Os fragmentos preservam uma silhueta metálica legível e uma linha interna de calor/falha, desaparecendo antes do encerramento da sequência.
+- O efeito usa quatro transformações determinísticas no desenho existente; não cria arrays, entidades físicas ou partículas por quadro.
+- Movimento, colisões e integridade do combate não são alterados; a validação visual da sequência completa permanece pendente.
+
+
+### Revisão da proa e do sistema emissor do DREADNOUGHT — 30/10/2026
+- Remove o canhão físico/barrel projetado na ponta da nave; o módulo lógico principal permanece no sistema, mas sua representação visual passa a ser a abertura central oca e permanentemente aberta.
+- Redesenha a boca emissora como uma cavidade escura com borda de contenção segmentada. O laser futuro será carregado e lançado a partir desse vão, sem uma peça de canhão atravessando ou preenchendo a abertura.
+- Adiciona manifolds laterais de energia com carcaças rebaixadas, conduítes ciano e pequenos nós capacitivos, preparados visualmente para uma futura animação de carga.
+- Remove o realce quase branco/azul-claro do núcleo dos propulsores e mantém a paleta em ciano e azul-petróleo.
+- Escopo exclusivamente visual: não altera disparos, dano, cadência, IA, hitboxes, colisões, escudos ou telemetria de carga. O laser principal continua sem disparo/dano nesta candidata.
+- Validação visual em navegador, celular e desktop ainda pendente.

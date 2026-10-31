@@ -35,6 +35,8 @@ export class Player {
     this.overloadSpeedFactor = 1;
     this.knockbackX = 0;
     this.knockbackY = 0;
+    this.systemDisruptionTimer = 0;
+    this.systemDisruptionDuration = 1.4;
     this.x = width / 2;
     this.y = height * (width > height ? 0.66 : 0.78);
     this.fitToArena(width, height);
@@ -45,7 +47,13 @@ export class Player {
     this.y = Math.max(this.radius + 5, Math.min(height - this.radius - 5, this.y));
   }
 
+  applySystemDisruption(duration = 1.4) {
+    this.systemDisruptionDuration = Math.max(this.systemDisruptionDuration, duration);
+    this.systemDisruptionTimer = Math.max(this.systemDisruptionTimer, duration);
+  }
+
   update(dt, keys, width, height, joystick = null, targetAngle = this.rotation, relativeMovement = false) {
+    this.systemDisruptionTimer = Math.max(0, this.systemDisruptionTimer - dt);
     this.invulnerabilityTimer = Math.max(0, this.invulnerabilityTimer - dt);
     if (this.shieldLevel > 0 && this.shieldHealth <= 0) {
       this.shieldRechargeTimer = Math.max(0, this.shieldRechargeTimer - dt);
@@ -91,6 +99,14 @@ export class Player {
       dx /= magnitude;
       dy /= magnitude;
     }
+    // A heavy impact temporarily reduces propulsion authority, then restores it smoothly.
+    const disruptionProgress = this.systemDisruptionDuration > 0
+      ? 1 - this.systemDisruptionTimer / this.systemDisruptionDuration : 1;
+    const controlRecovery = this.systemDisruptionTimer > 0
+      ? 0.38 + 0.62 * Math.max(0, Math.min(1, disruptionProgress)) : 1;
+    dx *= controlRecovery;
+    dy *= controlRecovery;
+    inputStrength *= controlRecovery;
     // Movement velocity ramps up smoothly; the attribute improves acceleration without raising top speed.
     const movementFactor = this.overloadSpeedFactor ?? 1;
     const targetVelocityX = dx * this.speed * movementFactor;

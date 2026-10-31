@@ -1,15 +1,15 @@
-import { Player } from '../player/player.js?v=0.43.0';
-import { Enemy } from '../enemies/enemy.js?v=0.43.0';
-import { Projectile } from '../combat/projectile.js?v=0.43.0';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.43.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.43.0';
-import { circlesOverlap, circleOverlapsSegment } from '../combat/collision.js?v=0.43.0';
-import { Progression } from '../progression/progression.js?v=0.43.0';
-import { Mission } from '../missions/missions.js?v=0.43.0';
-import { WaveManager } from './wave-manager.js?v=0.43.0';
-import { updateHud } from '../ui/hud.js?v=0.43.0';
-import { gameAudio } from '../audio/game-audio.js?v=0.43.0';
-import { AchievementTracker } from '../progression/achievements.js?v=0.43.0';
+import { Player } from '../player/player.js?v=0.44.0';
+import { Enemy } from '../enemies/enemy.js?v=0.44.0-boss-bow-cleanup-perf';
+import { Projectile } from '../combat/projectile.js?v=0.44.0';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
+import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
+import { Progression } from '../progression/progression.js?v=0.44.0';
+import { Mission } from '../missions/missions.js?v=0.44.0';
+import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.44.0-boss-test-first-wave';
+import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
+import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
+import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -21,7 +21,14 @@ export class Game {
     const rect = this.canvas.getBoundingClientRect();
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
-    this.player = new Player(this.width, this.height);
+    // The simulation world is larger than the visible canvas; the camera follows the pilot.
+    this.arenaScale = 2.4;
+    this.cameraMinZoom = 1 / this.arenaScale;
+    this.worldWidth = this.width * this.arenaScale;
+    this.worldHeight = this.height * this.arenaScale;
+    this.cameraX = 0;
+    this.cameraY = 0;
+    this.player = new Player(this.worldWidth, this.worldHeight);
     this.selectedShip = 'vanguard';
     this.player.shipClass = this.selectedShip;
 
@@ -30,18 +37,22 @@ export class Game {
     this.mission = new Mission();
     this.waveManager = new WaveManager();
     this.enemies = [];
+    // The visible viewport moves through a larger world; boss zoom remains a separate camera effect.
+    this.cameraZoom = 1;
+    this.bossEncounterSeen = false;
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
     this.projectiles = [];
     this.guidedMissiles = [];
+    this.guidedMissileTargetReservations = new Set();
     this.guidedMissileCooldown = 0;
     this.guidedMissileCooldownMax = 12;
     this.pendingGuidedMissileLaunch = null;
     this.guidedMissileEffects = [];
     this.enemyProjectiles = [];
     this.stars = Array.from({ length: 95 }, () => ({
-      x: Math.random(),
-      y: Math.random(),
+      x: Math.random() * this.worldWidth,
+      y: Math.random() * this.worldHeight,
       size: rand(.5, 1.8),
       speed: rand(.012, .06),
       alpha: rand(.2, .9)
@@ -125,24 +136,28 @@ export class Game {
     this.width = Math.max(1, rect.width);
     this.height = Math.max(1, rect.height);
     const isLandscape = this.width > this.height;
+    this.worldWidth = this.width * this.arenaScale;
+    this.worldHeight = this.height * this.arenaScale;
     // The canvas may be measured while its parent menu hides it (1x1 px).
-    // Place the ship at a proper gameplay position once real dimensions are available.
+    // Reposition only when the real viewport appears or its orientation changes.
     if (wasUninitialized || previousLandscape !== isLandscape) {
-      this.player.y = this.height * (isLandscape ? 0.66 : 0.78);
-      this.player.x = this.width / 2;
+      this.player.y = this.worldHeight * (isLandscape ? 0.66 : 0.78);
+      this.player.x = this.worldWidth / 2;
     }
     this.canvas.width = Math.round(this.width * ratio);
     this.canvas.height = Math.round(this.height * ratio);
     this.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     this.pixelRatio = ratio;
     this.cacheBackground();
-    this.player.fitToArena(this.width, this.height);
+    this.player.fitToArena(this.worldWidth, this.worldHeight);
+    this.updateCamera(0, true);
     this.renderFrame(0);
   }
 
   cacheBackground() {
     const ratio = this.pixelRatio || 1;
     const canvas = this.backgroundCanvas;
+    // Cache only one viewport-sized background; the world is larger, but must not multiply offscreen memory.
     canvas.width = this.canvas.width;
     canvas.height = this.canvas.height;
     const ctx = canvas.getContext('2d');
@@ -202,7 +217,12 @@ export class Game {
     if (this.achievements && this.waveManager) {
       this.achievements.recordRun(this.score, this.waveManager.wave);
     }
-    this.player = new Player(this.width, this.height);
+    this.player = new Player(this.worldWidth, this.worldHeight);
+    this.cameraZoom = 1;
+    this.bossEncounterSeen = false;
+    this.cameraX = 0;
+    this.cameraY = 0;
+    this.updateCamera(0, true);
     this.player.shipClass = this.selectedShip || 'vanguard';
     this.progression = new Progression();
     this.mission = new Mission();
@@ -212,6 +232,7 @@ export class Game {
     this.guardianAssignmentTimer = 0;
     this.projectiles = [];
     this.guidedMissiles = [];
+    this.guidedMissileTargetReservations.clear();
     this.guidedMissileCooldown = 0;
     this.guidedMissileCooldownMax = 12;
     this.pendingGuidedMissileLaunch = null;
@@ -224,6 +245,8 @@ export class Game {
     this.levelUpParticles = [];
     this.damageSparks = [];
     this.shieldBreakEffects = [];
+    this.shieldThreatScanTimer = 0;
+    this.shieldThreatArcs.fill(0);
     this.shieldPulseCooldown = 0;
     this.shieldPulseCooldownMax = 18;
     this.shieldPulseWave = null;
@@ -240,6 +263,10 @@ export class Game {
     document.querySelector('#damage-feedback').classList.remove('damage-active');
     this.status = 'ready';
     this.clearInput();
+    // A new run must not inherit pointer targets or a held touch-drag from the previous run.
+    this.aim.active = false;
+    this.touchAim.active = false;
+    this.touchAim.pointerId = null;
     updateHud(this);
     this.updateShieldPulseButton();
     this.updateGuidedMissileButton();
@@ -482,6 +509,38 @@ export class Game {
     this.restartFeedbackAnimation(feedback, 'damage-active');
   }
 
+  triggerSystemDisruption(duration = 1.4) {
+    this.player.applySystemDisruption(duration);
+    // Keep the status message visible for the full recovery window; the canvas
+    // border flash remains capped separately so a longer disruption stays subtle.
+    this.damageFeedbackTimer = Math.max(this.damageFeedbackTimer, duration);
+    const feedback = document.querySelector('#damage-feedback');
+    if (!feedback) return;
+    feedback.textContent = 'SISTEMAS DESESTABILIZADOS';
+    this.restartFeedbackAnimation(feedback, 'damage-active');
+  }
+
+  resolvePlasmaImpact(shot) {
+    const player = this.player;
+    const shieldWasActive = player.shieldHealth > 0;
+    if (shieldWasActive) {
+      player.shieldHealth = 0;
+      player.shieldRechargeTimer = player.shieldRechargeDuration;
+      this.triggerShieldBreak();
+    } else if (player.invulnerabilityTimer <= 0 && player.health > 0) {
+      player.health = Math.max(0, player.health - shot.damage);
+      player.invulnerabilityTimer = player.invulnerabilityDuration;
+      this.triggerDamageFeedback(shot.damage);
+      gameAudio.playDamage();
+    }
+    const dx = player.x - shot.x, dy = player.y - shot.y;
+    const length = Math.hypot(dx, dy) || 1;
+    const impulse = shieldWasActive ? 560 : 680;
+    player.knockbackX += dx / length * impulse;
+    player.knockbackY += dy / length * impulse;
+    this.triggerSystemDisruption(1.45);
+  }
+
   resolveIncomingDamage(amount, sourceX = this.player.x, sourceY = this.player.y, heavyImpact = false) {
     const shieldBefore = this.player.shieldHealth;
     const tookDamage = this.player.takeDamage(amount);
@@ -501,6 +560,11 @@ export class Game {
       const impulse = heavyImpact ? 210 : 85;
       this.player.knockbackX += dx / length * impulse;
       this.player.knockbackY += dy / length * impulse;
+      // Reinforce the predicted sector with a distinct contact pulse when the
+      // shield actually absorbs the hit; this is presentation only.
+      const angle = Math.atan2(sourceY - this.player.y, sourceX - this.player.x);
+      const sector = ((Math.round((angle + Math.PI) / (Math.PI / 4)) % 8) + 8) % 8;
+      this.shieldThreatArcs[sector] = Math.max(this.shieldThreatArcs[sector], heavyImpact ? 0.52 : 0.42);
     }
   }
 
@@ -516,7 +580,7 @@ export class Game {
     for (const enemy of this.enemies) {
       const dx = enemy.x - x;
       const dy = enemy.y - y;
-      if (enemy.active && dx * dx + dy * dy <= radiusSquared) {
+      if (enemy.active && !enemy.bossDying && dx * dx + dy * dy <= radiusSquared) {
         // Make the shockwave's impact visible on durable bosses as well as small enemies.
         this.damageEnemy(enemy, enemy.type === 'boss' ? 12 : 2);
       }
@@ -565,7 +629,7 @@ export class Game {
 
     // Test only the newly swept semicircular band; use squared distance and dot products.
     for (const enemy of this.enemies) {
-      if (!enemy.active || wave.hitEnemies.has(enemy)) continue;
+      if (!enemy.active || enemy.bossDying || wave.hitEnemies.has(enemy)) continue;
       const dx = enemy.x - wave.originX, dy = enemy.y - wave.originY;
       const distanceSquared = dx * dx + dy * dy;
       if (distanceSquared < minRadiusSquared || distanceSquared > maxRadiusSquared) continue;
@@ -575,8 +639,12 @@ export class Game {
       const boss = enemy.type === 'boss' || enemy.type === 'megaboss';
       const distance = Math.sqrt(distanceSquared) || 1;
       const push = wave.repulsion * (boss ? 0.28 : 1);
-      enemy.x += dx / distance * push * dt * 8;
-      enemy.y += dy / distance * push * dt * 8;
+      const disruptionImpulse = push * 1.45;
+      enemy.applyDisruption(
+        dx / distance * disruptionImpulse,
+        dy / distance * disruptionImpulse,
+        boss ? 0.58 : 0.86
+      );
       this.damageEnemy(enemy, boss ? wave.damage * 0.6 : wave.damage);
     }
 
@@ -630,7 +698,19 @@ export class Game {
     if (!this.continuousLaserClash) return;
     document.querySelector('#laser-clash-overlay')?.classList.add('hidden'); this.continuousLaserClash = null; this.continuousLaserHeld = false;
     if (outcome === 'victory') {
-      const target = this.enemies.filter(e => e.active).sort((a,b) => Math.hypot(a.x-this.player.x,a.y-this.player.y)-Math.hypot(b.x-this.player.x,b.y-this.player.y))[0];
+      // Find the nearest live target in one pass without allocating, filtering or sorting arrays.
+      let target = null;
+      let nearestDistanceSquared = Infinity;
+      for (const enemy of this.enemies) {
+        if (!enemy.active) continue;
+        const dx = enemy.x - this.player.x;
+        const dy = enemy.y - this.player.y;
+        const distanceSquared = dx * dx + dy * dy;
+        if (distanceSquared < nearestDistanceSquared) {
+          nearestDistanceSquared = distanceSquared;
+          target = enemy;
+        }
+      }
       if (target) this.damageEnemy(target, (target.type === 'boss' || target.type === 'megaboss' ? 16 : 5) + this.player.continuousLaserLevel * 3);
       this.addOverload(18); this.continuousLaserCooldown = 2.5;
     } else if (outcome === 'draw') { this.addOverload(8); this.continuousLaserCooldown = 1.2; } else this.continuousLaserCooldown = 4;
@@ -643,13 +723,20 @@ export class Game {
     if (!this.continuousLaserHeld || this.player.continuousLaserLevel <= 0 || this.overloadLockTimer > 0 || this.continuousLaserClash) return;
     const dx = Math.cos(this.player.rotation), dy = Math.sin(this.player.rotation), sx = this.player.x + dx * 18, sy = this.player.y + dy * 18, ex = sx + dx * 460, ey = sy + dy * 460;
     for (const shot of this.enemyProjectiles) {
-      if (!shot.active || !circleOverlapsSegment(shot, sx, sy, ex, ey, 7)) continue;
+      // The segment helper expects the full combined radius, not only the beam width.
+      const clashRadius = (shot.radius ?? 0) + 7;
+      if (!shot.active || !circleOverlapsSegment(shot, sx, sy, ex, ey, clashRadius)) continue;
       shot.active = false; this.continuousLaserClash = { x: shot.x, y: shot.y }; this.continuousLaserHeld = false; this.status = 'paused';
       document.querySelector('#laser-clash-overlay')?.classList.remove('hidden'); this.updateContinuousLaserButton(); return;
     }
     if (this.continuousLaserDamageClock <= 0) {
       const weakened = this.overload >= 70;
-      for (const enemy of this.enemies) if (enemy.active && circleOverlapsSegment(enemy, sx, sy, ex, ey, 13)) {
+      for (const enemy of this.enemies) {
+        if (!enemy.active || enemy.bossDying) continue;
+        // Include both the target hit radius and the beam's half-width so visible
+        // edge intersections are not missed for large bosses or smaller enemies.
+        const hitRadius = (enemy.collisionRadius ?? enemy.radius ?? 0) + 13;
+        if (!circleOverlapsSegment(enemy, sx, sy, ex, ey, hitRadius)) continue;
         const boss = enemy.type === 'boss' || enemy.type === 'megaboss';
         this.damageEnemy(enemy, (boss ? 8 : 13) * (1 + this.player.continuousLaserLevel * .22) * (weakened ? .72 : 1));
       }
@@ -807,8 +894,47 @@ export class Game {
     }
   }
 
-  damageEnemy(enemy, amount) {
-    if (!enemy.active) return;
+  damageEnemy(enemy, amount, impactX = null, impactY = null) {
+    if (!enemy.active || enemy.bossDying || amount <= 0) return;
+
+    // The dreadnought resolves regional shields and independent weapon modules before hull damage.
+    if (enemy.type === 'boss' && enemy.bossSystems) {
+      let remainingDamage = amount;
+      let hitModule = null;
+      // Projectile callers provide the collision point. Area/special attacks do not
+      // always have a single impact point, so resolve them from the pilot's position
+      // instead of letting those attacks bypass the dreadnought's regional defenses.
+      const hitX = Number.isFinite(impactX) ? impactX : this.player.x;
+      const hitY = Number.isFinite(impactY) ? impactY : this.player.y;
+      const dx = hitX - enemy.x;
+      const dy = hitY - enemy.y;
+      const rotation = -(enemy.facingRotation + Math.PI / 2);
+      const localX = dx * Math.cos(rotation) - dy * Math.sin(rotation);
+      const localY = dx * Math.sin(rotation) + dy * Math.cos(rotation);
+      const radius = Math.max(1, enemy.radius);
+      const region = localY < -radius * 0.34 ? 'front'
+        : localY > radius * 0.48 ? 'rear'
+          : localX < 0 ? 'left' : 'right';
+      const shieldResult = enemy.bossSystems.damageShield(region, remainingDamage);
+      remainingDamage = shieldResult.remaining;
+
+      let nearestDistance = Infinity;
+      for (const module of enemy.bossSystems.modules) {
+        if (module.state === 'destroyed') continue;
+        const mx = module.x * radius;
+        const my = module.y * radius;
+        const distanceSquared = (localX - mx) ** 2 + (localY - my) ** 2;
+        if (distanceSquared < nearestDistance) {
+          nearestDistance = distanceSquared;
+          hitModule = module;
+        }
+      }
+      if (remainingDamage > 0 && hitModule && nearestDistance <= (radius * 0.42) ** 2) {
+        enemy.bossSystems.damageModule(hitModule.id, remainingDamage);
+      }
+      if (remainingDamage <= 0) return;
+      amount = remainingDamage;
+    }
     // A protected ally's incoming damage is absorbed by its assigned Elite Guardian's shared barrier.
     for (const guardian of this.enemies) {
       if (!guardian.active || !guardian.isElite || guardian.type !== 'guardian' || guardian.guardianCoverShield <= 0 || !(guardian.protectedAllies || []).includes(enemy)) continue;
@@ -822,12 +948,38 @@ export class Game {
     if (enemy.isElite && enemy.eliteShield > 0) {
       const absorbed = Math.min(enemy.eliteShield, amount);
       enemy.eliteShield -= absorbed;
+      if (absorbed > 0) enemy.eliteShieldFlash = 0.42;
       amount -= absorbed;
       if (amount <= 0) return;
     }
     enemy.health = Math.max(0, enemy.health - amount);
+
+    // One overload transformation: the ship ejects/replaces destroyed modules and returns at 50% hull.
+    if (enemy.type === 'boss' && enemy.bossSystems && !enemy.bossSystems.overloadUsed &&
+        enemy.health / Math.max(1, enemy.maxHealth) <= 0.33) {
+      enemy.bossPhase = 3;
+      enemy.bossPhaseTransition = 4.5;
+      enemy.health = Math.max(1, Math.round(enemy.maxHealth * 0.5));
+      enemy.bossSystems.beginOverloadRebuild();
+      enemy.fireCooldown = Math.max(enemy.fireCooldown, 4.5);
+      return;
+    }
     if (enemy.health > 0) return;
+    if (enemy.type === 'boss') {
+      // Keep the dreadnought in the world for its one-shot destruction sequence.
+      enemy.bossDying = true;
+      enemy.bossDeathTimer = 0;
+      enemy.fireCooldown = Infinity;
+      enemy.dodgeTimer = 0;
+      return;
+    }
     enemy.active = false;
+    this.awardEnemyKill(enemy);
+  }
+
+  awardEnemyKill(enemy) {
+    if (enemy.rewardGranted) return;
+    enemy.rewardGranted = true;
     this.score += enemy.type === 'boss' ? 1000 : enemy.isElite ? 150 : enemy.type === 'artillery' ? 150 : 100;
     this.destroyed += 1;
     const newlyUnlocked = this.achievements.record('kills');
@@ -863,9 +1015,13 @@ export class Game {
       const closestX = rx + shot.vx * closestTime;
       const closestY = ry + shot.vy * closestTime;
       if (closestX * closestX + closestY * closestY > dangerRadiusSquared) continue;
-      const angle = Math.atan2(ry, rx);
+
+      // Aim the visual response at the predicted contact point, not the projectile's
+      // current position. The defensive rule itself remains omnidirectional.
+      const angle = Math.atan2(closestY, closestX);
       const sector = ((Math.round((angle + Math.PI) / (Math.PI / 4)) % 8) + 8) % 8;
-      arcs[sector] = 0.2;
+      const urgency = 1 - closestTime / 0.55;
+      arcs[sector] = Math.max(arcs[sector], 0.28 + urgency * 0.18);
     }
   }
 
@@ -885,18 +1041,31 @@ export class Game {
         const life = this.shieldThreatArcs[i];
         if (life <= 0) continue;
         const angle = -Math.PI + i * (Math.PI / 4);
-        const alpha = Math.min(0.9, life / 0.12);
-        ctx.globalAlpha = alpha * 0.3;
+        const progress = Math.max(0, Math.min(1, 1 - life / 0.46));
+        const radius = player.radius + 2 + progress * 10;
+        const spread = 0.16 + progress * 0.12;
+        const alpha = Math.min(0.92, life / 0.16);
+        ctx.globalAlpha = alpha * 0.24;
         ctx.strokeStyle = weak ? '#ffad68' : '#57cfff';
-        ctx.lineWidth = 7;
+        ctx.lineWidth = 9 - progress * 3;
         ctx.beginPath();
-        ctx.arc(player.x, player.y, player.radius + 10, angle - 0.24, angle + 0.24);
+        ctx.arc(player.x, player.y, radius, angle - spread, angle + spread);
         ctx.stroke();
         ctx.globalAlpha = alpha;
         ctx.strokeStyle = weak ? '#ffbd82' : '#a8f5ff';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 2.2;
         ctx.beginPath();
-        ctx.arc(player.x, player.y, player.radius + 10, angle - 0.24, angle + 0.24);
+        ctx.arc(player.x, player.y, radius, angle - spread, angle + spread);
+        ctx.stroke();
+        // Two short radial traces make the local barrier feel like it is forming
+        // over the ship surface instead of simply blinking into existence.
+        ctx.globalAlpha = alpha * 0.72;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(player.x + Math.cos(angle - spread) * (player.radius - 1), player.y + Math.sin(angle - spread) * (player.radius - 1));
+        ctx.lineTo(player.x + Math.cos(angle - spread) * (radius + 2), player.y + Math.sin(angle - spread) * (radius + 2));
+        ctx.moveTo(player.x + Math.cos(angle + spread) * (player.radius - 1), player.y + Math.sin(angle + spread) * (player.radius - 1));
+        ctx.lineTo(player.x + Math.cos(angle + spread) * (radius + 2), player.y + Math.sin(angle + spread) * (radius + 2));
         ctx.stroke();
       }
     }
@@ -916,20 +1085,58 @@ export class Game {
     ctx.restore();
   }
 
+  updateCamera(dt, snap = false) {
+    const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
+    const halfViewWidth = this.width / (2 * zoom);
+    const halfViewHeight = this.height / (2 * zoom);
+    const minX = halfViewWidth - this.width / 2;
+    const minY = halfViewHeight - this.height / 2;
+    const maxX = Math.max(minX, this.worldWidth - halfViewWidth - this.width / 2);
+    const maxY = Math.max(minY, this.worldHeight - halfViewHeight - this.height / 2);
+    const targetX = Math.max(minX, Math.min(maxX, this.player.x - this.width / 2));
+    const targetY = Math.max(minY, Math.min(maxY, this.player.y - this.height / 2));
+    if (snap) {
+      this.cameraX = targetX;
+      this.cameraY = targetY;
+      return;
+    }
+    const follow = Math.min(1, Math.max(0, dt) * 5.5);
+    this.cameraX += (targetX - this.cameraX) * follow;
+    this.cameraY += (targetY - this.cameraY) * follow;
+  }
+
+  screenToWorld(screenX, screenY) {
+    const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
+    const centerX = this.width / 2;
+    const centerY = this.height / 2;
+    return {
+      x: centerX + this.cameraX + (screenX - centerX) / zoom,
+      y: centerY + this.cameraY + (screenY - centerY) / zoom
+    };
+  }
+
   setAimFromPointer(event) {
     if (event.pointerType !== 'mouse') return;
     const rect = this.canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    this.aim.x = Math.max(0, Math.min(this.width, event.clientX - rect.left));
-    this.aim.y = Math.max(0, Math.min(this.height, event.clientY - rect.top));
+    const point = this.screenToWorld(
+      (event.clientX - rect.left) * this.width / rect.width,
+      (event.clientY - rect.top) * this.height / rect.height
+    );
+    this.aim.x = Math.max(0, Math.min(this.worldWidth, point.x));
+    this.aim.y = Math.max(0, Math.min(this.worldHeight, point.y));
     this.aim.active = true;
   }
 
   setAimFromTouch(event) {
     const rect = this.canvas.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
-    this.touchAim.x = Math.max(0, Math.min(this.width, (event.clientX - rect.left) * this.width / rect.width));
-    this.touchAim.y = Math.max(0, Math.min(this.height, (event.clientY - rect.top) * this.height / rect.height));
+    const point = this.screenToWorld(
+      (event.clientX - rect.left) * this.width / rect.width,
+      (event.clientY - rect.top) * this.height / rect.height
+    );
+    this.touchAim.x = Math.max(0, Math.min(this.worldWidth, point.x));
+    this.touchAim.y = Math.max(0, Math.min(this.worldHeight, point.y));
     this.touchAim.active = true;
   }
 
@@ -1042,17 +1249,30 @@ export class Game {
   }
 
   update(dt) {
-    this.stars.forEach((star) => {
-      star.y += star.speed * dt;
-      if (star.y > 1) {
+    let bossPresent = false;
+    for (let index = 0; index < this.enemies.length; index += 1) {
+      const enemy = this.enemies[index];
+      if (enemy.active && enemy.type === 'boss') { bossPresent = true; break; }
+    }
+    if (bossPresent) this.bossEncounterSeen = true;
+    // The 2.4x world is fully visible at its calculated minimum zoom (1 / arenaScale).
+    // Keep the tactical overview after the boss is defeated until the next run.
+    const targetCameraZoom = this.bossEncounterSeen ? this.cameraMinZoom : 1;
+    this.cameraZoom += (targetCameraZoom - this.cameraZoom) * Math.min(1, dt * 1.65);
+
+    for (let index = 0; index < this.stars.length; index += 1) {
+      const star = this.stars[index];
+      star.y += star.speed * dt * this.worldHeight;
+      if (star.y > this.worldHeight) {
         star.y = 0;
-        star.x = Math.random();
+        star.x = Math.random() * this.worldWidth;
       }
-    });
+    }
 
     const mobileMode = document.documentElement.dataset.platform === 'mobile';
     const aimAngle = this.getAimAngle(mobileMode);
-    this.player.update(dt, this.keys, this.width, this.height, this.joystick, aimAngle, !mobileMode);
+    this.player.update(dt, this.keys, this.worldWidth, this.worldHeight, this.joystick, aimAngle, !mobileMode);
+    this.updateCamera(dt);
     this.levelUpToastTimer = Math.max(0, this.levelUpToastTimer - dt);
     const previousDamageFeedbackTimer = this.damageFeedbackTimer;
     this.damageFeedbackTimer = Math.max(0, this.damageFeedbackTimer - dt);
@@ -1117,10 +1337,16 @@ export class Game {
 
     // WaveManager decides when an enemy should spawn and when the next wave begins.
     if (this.waveManager.update(dt, this.enemies.length)) {
-      const margin = Math.min(20, this.width / 2);
-      const spawnX = rand(margin, Math.max(margin, this.width - margin));
+      const bossWave = (BOSS_TEST_MODE && this.waveManager.wave === 1) || (this.waveManager.wave >= 10 && this.waveManager.wave % 5 === 0);
+      const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
+      const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * zoom);
+      const viewTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
+      const visibleWidth = this.width / zoom;
+      const margin = Math.min(20, visibleWidth / 2);
+      const spawnX = bossWave
+        ? this.width / 2 + this.cameraX
+        : rand(viewLeft + margin, Math.max(viewLeft + margin, viewLeft + visibleWidth - margin));
       const roll = Math.random();
-      const bossWave = this.waveManager.wave % 5 === 0;
       const type = bossWave ? 'boss'
         : this.waveManager.wave >= 4 && roll < 0.12 ? 'artillery'
           : this.waveManager.wave >= 3 && roll < (this.waveManager.wave >= 4 ? 0.24 : 0.12) ? 'guardian'
@@ -1133,7 +1359,11 @@ export class Game {
         (this.waveManager.wave >= 14 && type === 'sentinel' && Math.random() < 0.30) ||
         (this.waveManager.wave >= 16 && type === 'guardian' && Math.random() < 0.24)
       );
-      this.enemies.push(new Enemy(spawnX, -20, this.waveManager.wave, type, isElite));
+      const spawnY = bossWave ? viewTop - 180 : viewTop + 20;
+      this.enemies.push(new Enemy(spawnX, spawnY, this.waveManager.wave, type, isElite));
+      if (bossWave) {
+        this.showRewardBanner('ALERTA MÁXIMA · DREADNOUGHT DETECTADO', 'COLOSSAL WARSHIP · SISTEMAS DE COMBATE IDENTIFICADOS', 'boss');
+      }
       if (isElite && !this.eliteAlertsShown.has(type)) {
         this.eliteAlertsShown.add(type);
         const alerts = {
@@ -1146,7 +1376,9 @@ export class Game {
       }
     }
 
-    this.projectiles.forEach((shot) => shot.update(dt));
+    for (let index = 0; index < this.projectiles.length; index += 1) {
+      this.projectiles[index].update(dt);
+    }
     this.guidedMissileCooldown = Math.max(0, this.guidedMissileCooldown - dt);
     this.player.guidedMissileCooldown = this.guidedMissileCooldown;
     this.shieldPulseCooldown = Math.max(0, this.shieldPulseCooldown - dt);
@@ -1177,60 +1409,112 @@ export class Game {
         this.createGuidedMissileFromWing(pending.side, pending.target, pending.level);
       }
     }
-    this.guidedMissiles.forEach((missile) => missile.update(dt, this.enemies, this.width, this.height, this.guidedMissiles));
+    // Build target reservations once per frame instead of rescanning every missile for every candidate enemy.
+    const reservedMissileTargets = this.guidedMissileTargetReservations;
+    reservedMissileTargets.clear();
+    for (const missile of this.guidedMissiles) {
+      if (missile.active && missile.target?.active) reservedMissileTargets.add(missile.target);
+    }
+    for (let index = 0; index < this.guidedMissiles.length; index += 1) {
+      this.guidedMissiles[index].update(dt, this.enemies, this.worldWidth, this.worldHeight, this.guidedMissiles, reservedMissileTargets);
+    }
     let effectWriteIndex = 0;
     for (const effect of this.guidedMissileEffects) {
       effect.life -= dt;
       if (effect.life > 0) this.guidedMissileEffects[effectWriteIndex++] = effect;
     }
     this.guidedMissileEffects.length = effectWriteIndex;
-    this.enemyProjectiles.forEach((shot) => shot.update(dt));
+    for (let index = 0; index < this.enemyProjectiles.length; index += 1) {
+      this.enemyProjectiles[index].update(dt);
+    }
 
     // Reassign formations at a low cadence to avoid sorting the enemy roster every frame.
     this.guardianAssignmentTimer = Math.max(0, this.guardianAssignmentTimer - dt);
     if (this.guardianAssignmentTimer <= 0) {
       this.guardianAssignmentTimer = 0.35;
       // Assign each active Guardian up to two unique allies. Elite Guardians are assigned first.
-      const guardians = this.enemies
-        .filter((enemy) => enemy.active && enemy.type === 'guardian')
-        .sort((a, b) => Number(b.isElite) - Number(a.isElite));
       const assignedAllies = new Set();
-      for (const guardian of guardians) {
-        const candidates = this.enemies
-          .filter((ally) => ally.active && ally !== guardian && ally.type !== 'guardian' && ally.type !== 'boss' && !assignedAllies.has(ally))
-          .map((ally) => ({ ally, distance: (ally.x - guardian.x) ** 2 + (ally.y - guardian.y) ** 2 }))
-          .sort((a, b) => (Number(b.ally.type === 'sentinel') - Number(a.ally.type === 'sentinel')) || a.distance - b.distance);
-        guardian.protectedAllies = [];
-        for (let index = 0; index < Math.min(2, candidates.length); index += 1) {
-          const ally = candidates[index].ally;
-          guardian.protectedAllies.push(ally);
-          assignedAllies.add(ally);
+      // Two stable passes preserve the former elite-first sort order without
+      // allocating and sorting a temporary Guardian roster.
+      for (let priorityPass = 0; priorityPass < 2; priorityPass += 1) {
+        const elitePass = priorityPass === 0;
+        for (const guardian of this.enemies) {
+          if (!guardian.active || guardian.type !== 'guardian' || Boolean(guardian.isElite) !== elitePass) continue;
+          // Preserve Sentinel-first priority and nearest-distance ordering.
+          let first = null, second = null;
+          let firstPriority = Infinity, secondPriority = Infinity;
+          let firstDistance = Infinity, secondDistance = Infinity;
+          for (const ally of this.enemies) {
+            if (!ally.active || ally === guardian || ally.type === 'guardian' ||
+                ally.type === 'boss' || assignedAllies.has(ally)) continue;
+            const priority = ally.type === 'sentinel' ? 0 : 1;
+            const dx = ally.x - guardian.x, dy = ally.y - guardian.y;
+            const distance = dx * dx + dy * dy;
+            if (priority < firstPriority || (priority === firstPriority && distance < firstDistance)) {
+              second = first;
+              secondPriority = firstPriority;
+              secondDistance = firstDistance;
+              first = ally;
+              firstPriority = priority;
+              firstDistance = distance;
+            } else if (priority < secondPriority || (priority === secondPriority && distance < secondDistance)) {
+              second = ally;
+              secondPriority = priority;
+              secondDistance = distance;
+            }
+          }
+          guardian.protectedAllies = [];
+          if (first) {
+            guardian.protectedAllies.push(first);
+            assignedAllies.add(first);
+          }
+          if (second) {
+            guardian.protectedAllies.push(second);
+            assignedAllies.add(second);
+          }
         }
       }
     }
 
-    this.enemies.forEach((enemy) => {
-      const shot = enemy.update(dt, this.player.x, this.player.y, this.width, this.height, this.projectiles, this.enemies);
+    for (let index = 0; index < this.enemies.length; index += 1) {
+      const enemy = this.enemies[index];
+      const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
+      const cameraTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
+      const shot = enemy.update(dt, this.player.x, this.player.y, this.worldWidth, this.worldHeight, this.projectiles, this.enemies, cameraTop);
+      if (enemy.type === 'boss' && enemy.bossDying) {
+        if (enemy.bossDeathTimer >= enemy.bossDeathDuration) {
+          enemy.active = false;
+          this.awardEnemyKill(enemy);
+        }
+        continue;
+      }
       if (shot) {
         const shots = Array.isArray(shot) ? shot : [shot];
         for (const projectileData of shots) {
-          this.enemyProjectiles.push(new EnemyProjectile(projectileData.x, projectileData.y, projectileData.targetX, projectileData.targetY, projectileData));
+          this.enemyProjectiles.push(new EnemyProjectile(
+            projectileData.x, projectileData.y, projectileData.targetX, projectileData.targetY,
+            { ...projectileData, target: projectileData.homing ? this.player : null }
+          ));
         }
         gameAudio.playEnemyShot(shots[0].color);
       }
-    });
+    }
 
     // Soft local separation prevents hostile ships from stacking while preserving their current tactics.
     for (let i = 0; i < this.enemies.length; i += 1) {
       const first = this.enemies[i];
-      if (!first.active) continue;
+      if (!first.active || first.bossDying) continue;
       for (let j = i + 1; j < this.enemies.length; j += 1) {
         const second = this.enemies[j];
-        if (!second.active) continue;
+        if (!second.active || second.bossDying) continue;
+        const firstRadius = first.collisionRadius ?? first.radius;
+        const secondRadius = second.collisionRadius ?? second.radius;
+        const minimumDistance = firstRadius + secondRadius + 4;
         let dx = second.x - first.x;
         let dy = second.y - first.y;
+        // Reject distant pairs on the cheap axis checks before multiplying.
+        if (Math.abs(dx) >= minimumDistance || Math.abs(dy) >= minimumDistance) continue;
         let distanceSquared = dx * dx + dy * dy;
-        const minimumDistance = first.radius + second.radius + 4;
         if (distanceSquared >= minimumDistance * minimumDistance) continue;
         if (distanceSquared < 0.01) {
           const angle = first.phase - second.phase || 0.5;
@@ -1241,19 +1525,19 @@ export class Game {
         const distance = Math.sqrt(distanceSquared);
         const overlap = minimumDistance - distance;
         const separation = Math.min(3.5, overlap * 0.32);
-        const totalRadius = Math.max(1, first.radius + second.radius);
-        const firstShare = second.radius / totalRadius;
-        const secondShare = first.radius / totalRadius;
+        const totalRadius = Math.max(1, firstRadius + secondRadius);
+        const firstShare = secondRadius / totalRadius;
+        const secondShare = firstRadius / totalRadius;
         const pushX = dx / distance * separation;
         const pushY = dy / distance * separation;
         first.x -= pushX * firstShare;
         first.y -= pushY * firstShare;
         second.x += pushX * secondShare;
         second.y += pushY * secondShare;
-        first.x = Math.max(first.radius, Math.min(this.width - first.radius, first.x));
-        first.y = Math.max(first.radius, Math.min(this.height - first.radius, first.y));
-        second.x = Math.max(second.radius, Math.min(this.width - second.radius, second.x));
-        second.y = Math.max(second.radius, Math.min(this.height - second.radius, second.y));
+        first.x = Math.max(firstRadius, Math.min(this.worldWidth - firstRadius, first.x));
+        first.y = Math.max(firstRadius, Math.min(this.worldHeight - firstRadius, first.y));
+        second.x = Math.max(secondRadius, Math.min(this.worldWidth - secondRadius, second.x));
+        second.y = Math.max(secondRadius, Math.min(this.worldHeight - secondRadius, second.y));
       }
     }
 
@@ -1263,10 +1547,19 @@ export class Game {
     for (const shot of this.projectiles) {
       if (!shot.active) continue;
       for (const enemy of this.enemies) {
-        if (enemy.active && !shot.hitEnemies.has(enemy) && circlesOverlap(shot, enemy)) {
+        if (!enemy.active || enemy.bossDying || shot.hitEnemies.has(enemy)) continue;
+        // Cheap axis-aligned rejection avoids the squared-distance test for
+        // pairs that cannot overlap; the exact circle test remains authoritative.
+        const bossHull = enemy.type === 'boss';
+        const combinedRadius = (shot.radius ?? 0) + (bossHull ? enemy.radius * 2.18 : enemy.collisionRadius ?? enemy.radius ?? 0);
+        if (Math.abs(shot.x - enemy.x) >= combinedRadius || Math.abs(shot.y - enemy.y) >= combinedRadius) continue;
+        const overlaps = bossHull
+          ? orientedEllipseOverlapsCircle(enemy, shot, enemy.radius * 1.42, enemy.radius * 2.18, enemy.facingRotation + Math.PI / 2)
+          : circlesOverlap(shot, enemy, shot.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0);
+        if (overlaps) {
           shot.hitEnemies.add(enemy);
           if (!shot.piercing) shot.active = false;
-          this.damageEnemy(enemy, shot.damage ?? 1);
+          this.damageEnemy(enemy, shot.damage ?? 1, shot.x, shot.y);
           if (!shot.piercing) break;
         }
       }
@@ -1278,9 +1571,17 @@ export class Game {
       if (!playerShot.active) continue;
       for (const enemyShot of this.enemyProjectiles) {
         if (!enemyShot.active) continue;
+        const combinedRadius = (playerShot.radius ?? 0) + (enemyShot.radius ?? 0);
+        if (Math.abs(playerShot.x - enemyShot.x) >= combinedRadius ||
+            Math.abs(playerShot.y - enemyShot.y) >= combinedRadius) continue;
         if (circlesOverlap(playerShot, enemyShot)) {
+          const playerPower = Math.max(1, Math.floor((playerShot.damage ?? 1) / 4));
           playerShot.active = false;
-          enemyShot.active = false;
+          if (playerPower >= (enemyShot.clashResistance ?? 1)) {
+            enemyShot.active = false;
+          } else {
+            enemyShot.clashResistance -= playerPower;
+          }
           break;
         }
       }
@@ -1290,8 +1591,14 @@ export class Game {
     for (const missile of this.guidedMissiles) {
       if (!missile.active) continue;
       for (const enemy of this.enemies) {
-        if (!enemy.active) continue;
-        if (circlesOverlap(missile, enemy)) {
+        if (!enemy.active || enemy.bossDying) continue;
+        const bossHull = enemy.type === 'boss';
+        const combinedRadius = (missile.radius ?? 0) + (bossHull ? enemy.radius * 2.18 : enemy.collisionRadius ?? enemy.radius ?? 0);
+        if (Math.abs(missile.x - enemy.x) >= combinedRadius || Math.abs(missile.y - enemy.y) >= combinedRadius) continue;
+        const overlaps = bossHull
+          ? orientedEllipseOverlapsCircle(enemy, missile, enemy.radius * 1.42, enemy.radius * 2.18, enemy.facingRotation + Math.PI / 2)
+          : circlesOverlap(missile, enemy, missile.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0);
+        if (overlaps) {
           missile.active = false;
           this.explodeGuidedMissile(missile);
           break;
@@ -1302,8 +1609,14 @@ export class Game {
     // Contact damage is throttled per enemy. A charged shield absorbs contact
     // without instantly destroying enemies or losing all charge in a few frames.
     for (const enemy of this.enemies) {
-      if (!enemy.active) continue;
-      if (circlesOverlap(this.player, enemy) && enemy.contactCooldown <= 0) {
+      if (!enemy.active || enemy.bossDying) continue;
+      const bossHull = enemy.type === 'boss';
+      const contactRadius = (this.player.radius ?? 0) + (bossHull ? enemy.radius * 2.18 : enemy.collisionRadius ?? enemy.radius ?? 0);
+      if (Math.abs(this.player.x - enemy.x) >= contactRadius || Math.abs(this.player.y - enemy.y) >= contactRadius) continue;
+      const touchingHull = bossHull
+        ? orientedEllipseOverlapsCircle(enemy, this.player, enemy.radius * 1.42, enemy.radius * 2.18, enemy.facingRotation + Math.PI / 2)
+        : circlesOverlap(this.player, enemy, this.player.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0);
+      if (touchingHull && enemy.contactCooldown <= 0) {
         const shieldWasActive = this.player.shieldHealth > 0;
         enemy.contactCooldown = 0.75;
         // Ordinary enemies can be destroyed by an unshielded ram; bosses must never die from contact alone.
@@ -1315,9 +1628,13 @@ export class Game {
     // Enemy shots deal damage on direct impact and respect the player's invulnerability window.
     for (const shot of this.enemyProjectiles) {
       if (!shot.active) continue;
+      const impactRadius = (this.player.radius ?? 0) + (shot.radius ?? 0);
+      if (Math.abs(this.player.x - shot.x) >= impactRadius ||
+          Math.abs(this.player.y - shot.y) >= impactRadius) continue;
       if (circlesOverlap(this.player, shot)) {
         shot.active = false;
-        this.resolveIncomingDamage(shot.damage, shot.x, shot.y, shot.damage >= 10);
+        if (shot.plasmaImpact) this.resolvePlasmaImpact(shot);
+        else this.resolveIncomingDamage(shot.damage, shot.x, shot.y, shot.heavyImpact || shot.damage >= 10);
       }
     }
 
@@ -1329,8 +1646,8 @@ export class Game {
       const shot = this.projectiles[index];
       if (
         shot.active &&
-        shot.x > -20 && shot.x < this.width + 20 &&
-        shot.y > -20 && shot.y < this.height + 20
+        shot.x > -20 && shot.x < this.worldWidth + 20 &&
+        shot.y > -20 && shot.y < this.worldHeight + 20
       ) {
         this.projectiles[projectileWriteIndex++] = shot;
       }
@@ -1349,8 +1666,8 @@ export class Game {
       const shot = this.enemyProjectiles[index];
       if (
         shot.active &&
-        shot.x > -20 && shot.x < this.width + 20 &&
-        shot.y > -20 && shot.y < this.height + 20
+        shot.x > -20 && shot.x < this.worldWidth + 20 &&
+        shot.y > -20 && shot.y < this.worldHeight + 20
       ) {
         this.enemyProjectiles[enemyProjectileWriteIndex++] = shot;
       }
@@ -1378,21 +1695,29 @@ export class Game {
     if (!this.ctx || !this.width || !this.height) return;
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
+    const cameraZoom = Math.max(this.cameraMinZoom, Math.min(1, this.cameraZoom || 1));
+    ctx.save();
+    ctx.translate(this.width / 2, this.height / 2);
+    ctx.scale(cameraZoom, cameraZoom);
+    ctx.translate(-this.width / 2 - this.cameraX, -this.height / 2 - this.cameraY);
     if (this.backgroundCanvas.width && this.backgroundCanvas.height) {
-      ctx.drawImage(this.backgroundCanvas, 0, 0, this.width, this.height);
+      const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * cameraZoom);
+      const viewTop = this.height / 2 + this.cameraY - this.height / (2 * cameraZoom);
+      ctx.drawImage(this.backgroundCanvas, viewLeft, viewTop, this.width / cameraZoom, this.height / cameraZoom);
     }
 
-    this.stars.forEach((star) => {
+    for (let index = 0; index < this.stars.length; index += 1) {
+      const star = this.stars[index];
       ctx.globalAlpha = star.alpha;
       ctx.fillStyle = '#a9d7ff';
-      ctx.fillRect(star.x * this.width, star.y * this.height, star.size, star.size);
-    });
+      ctx.fillRect(star.x, star.y, star.size, star.size);
+    }
 
     ctx.globalAlpha = 1;
     if (this.continuousLaserHeld && this.player.continuousLaserLevel > 0) { const dx=Math.cos(this.player.rotation),dy=Math.sin(this.player.rotation),sx=this.player.x+dx*18,sy=this.player.y+dy*18,ex=sx+dx*460,ey=sy+dy*460; ctx.save();ctx.lineCap='round';ctx.globalAlpha=.2;ctx.strokeStyle='#44dfff';ctx.lineWidth=13;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=.92;ctx.strokeStyle='#6eeeff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.globalAlpha=1;ctx.strokeStyle='#eaffff';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore(); }
-    this.projectiles.forEach((shot) => shot.draw(ctx));
-    this.enemyProjectiles.forEach((shot) => shot.draw(ctx));
-    this.enemies.forEach((enemy) => enemy.draw(ctx));
+    for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
+    for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx);
+    for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx);
     // Elite Guardian's shared barrier is drawn around each of its assigned allies.
     for (const guardian of this.enemies) {
       if (!guardian.active || !guardian.isElite || guardian.type !== 'guardian' || guardian.guardianCoverShield <= 0) continue;
@@ -1409,7 +1734,8 @@ export class Game {
       }
       ctx.restore();
     }
-    this.guidedMissileEffects.forEach((effect) => {
+    for (let index = 0; index < this.guidedMissileEffects.length; index += 1) {
+      const effect = this.guidedMissileEffects[index];
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
       const radius = effect.radius * (0.35 + progress * 0.65);
@@ -1421,7 +1747,7 @@ export class Game {
       ctx.globalAlpha = fade * 0.72; ctx.strokeStyle = '#fff0c8'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(effect.x, effect.y, radius * 0.68, 0, Math.PI * 2); ctx.stroke();
       ctx.restore();
-    });
+    }
 
     // Blink during the brief invulnerability window after taking damage.
     const playerVisible = this.player.invulnerabilityTimer <= 0 ||
@@ -1429,7 +1755,7 @@ export class Game {
     this.drawShield(ctx);
     this.player.draw(ctx, playerVisible);
     // Draw missiles after the ship so the hull cannot hide a launch from either wing.
-    this.guidedMissiles.forEach((missile) => missile.draw(ctx));
+    for (let index = 0; index < this.guidedMissiles.length; index += 1) this.guidedMissiles[index].draw(ctx);
 
     // Lightweight plasma-smoke rupture: preserve the semicircular rim, remove
     // the large translucent fill that covered the playfield and cost fill-rate.
@@ -1468,7 +1794,8 @@ export class Game {
     }
 
     // Lightweight dual-ring shockwave without per-frame shadow blur.
-    this.shieldBreakEffects.forEach((effect) => {
+    for (let index = 0; index < this.shieldBreakEffects.length; index += 1) {
+      const effect = this.shieldBreakEffects[index];
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
       ctx.save();
@@ -1479,10 +1806,12 @@ export class Game {
       ctx.arc(effect.x, effect.y, effect.radius * progress, 0, Math.PI * 2);
       ctx.stroke();
       ctx.restore();
-    });
+    }
 
     // Red circuit sparks and a brief edge flash make incoming damage easier to notice.
-    this.damageSparks.forEach((spark) => {
+    // Indexed iteration avoids allocating a callback on every rendered frame.
+    for (let index = 0; index < this.damageSparks.length; index += 1) {
+      const spark = this.damageSparks[index];
       const fade = Math.max(0, spark.life / spark.maxLife);
       ctx.save();
       ctx.translate(spark.x, spark.y);
@@ -1493,7 +1822,7 @@ export class Game {
         ctx.arc(0, 0, spark.size * (1 + (1 - fade) * 0.7), 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
-        return;
+        continue;
       }
       ctx.rotate(Math.atan2(spark.vy, spark.vx));
       ctx.strokeStyle = spark.color || (fade > 0.55 ? '#ffdce3' : '#ff526f');
@@ -1504,14 +1833,17 @@ export class Game {
       ctx.lineTo(spark.length, 0);
       ctx.stroke();
       ctx.restore();
-    });
+    }
     if (this.damageFeedbackTimer > 0) {
-      const flash = this.damageFeedbackTimer / 0.48;
+      const flash = Math.min(1, this.damageFeedbackTimer / 0.48);
       ctx.save();
       ctx.globalAlpha = flash * 0.16;
       ctx.strokeStyle = '#ff526f';
       ctx.lineWidth = 3;
-      ctx.strokeRect(4, 4, this.width - 8, this.height - 8);
+      const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
+      const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * zoom);
+      const viewTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
+      ctx.strokeRect(viewLeft + 4 / zoom, viewTop + 4 / zoom, (this.width - 8) / zoom, (this.height - 8) / zoom);
       ctx.restore();
     }
 
@@ -1536,7 +1868,8 @@ export class Game {
     }
 
     // Short-lived gold particles make level gains visible without blocking play.
-    this.levelUpParticles.forEach((particle) => {
+    for (let index = 0; index < this.levelUpParticles.length; index += 1) {
+      const particle = this.levelUpParticles[index];
       ctx.save();
       ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
       ctx.translate(particle.x, particle.y);
@@ -1554,6 +1887,7 @@ export class Game {
       ctx.closePath();
       ctx.fill();
       ctx.restore();
-    });
+    }
+    ctx.restore();
   }
 }
