@@ -1774,6 +1774,17 @@ export class Game {
 
   update(dt) {
     updatePilotReaction(this.pilotReaction, dt);
+    if (this.pilotReaction.remaining > 0 && this.pilotReaction.message) {
+      const reactionKey = `reaction:${this.pilotReaction.actor}:${this.pilotReaction.message}`;
+      if (this.activeReactionDialogueKey !== reactionKey) {
+        this.activeReactionDialogueKey = reactionKey;
+        gameAudio.playDialogueLine(this.pilotReaction.actor);
+      }
+      gameAudio.playDialogueTick(this.pilotReaction.actor,
+        Math.floor((this.pilotReaction.duration - this.pilotReaction.remaining) * 30), reactionKey);
+    } else {
+      this.activeReactionDialogueKey = '';
+    }
     if (this.bossCinematic) {
       this.updateBossCinematic(dt);
       return;
@@ -1930,7 +1941,6 @@ export class Game {
         triggerElitePilotReaction(this.pilotReaction, this.eliteAlertsShown, type, reactions[type] || 'Unidade de elite detectada.', 6);
         if (firstEliteEncounter) {
           gameAudio.playEliteArrival(type);
-          gameAudio.playDialogueLine(type);
           const alerts = {
             artillery: ['AMEAÇA DE ARTILHARIA DETECTADA', 'A nave detectou um Artilheiro de Elite. Blindagem e poder de fogo acima do padrão.'],
             sentinel: ['AMEAÇA TÁTICA DETECTADA', 'A nave detectou uma Sentinela de Elite. Disparos de plasma em salva dupla.'],
