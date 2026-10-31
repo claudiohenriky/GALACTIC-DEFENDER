@@ -1,3 +1,11 @@
+## [Unreleased] — câmera cinematográfica e apresentação do DREADNOUGHT
+
+- Ajusta o enquadramento da câmera durante a transição da onda 9 para a onda 10: começa próximo do piloto, recua gradualmente durante o alerta e enquadra piloto e encouraçado na revelação.
+- Durante o combate contra o DREADNOUGHT, desloca o foco vertical para a região entre jogador e chefe, reduzindo cortes da silhueta sem alterar dimensões do mundo, hitboxes ou colisões.
+- Substitui o painel de diálogo grande por balões compactos ancorados ao piloto ou ao chefe, com uma fala por vez e quebra de linha responsiva.
+- Mantém a tela de carregamento, bloqueia a simulação de combate durante a apresentação e libera o chefe somente no handoff final.
+- Adiciona testes unitários para os enquadramentos cinematográficos em telas largas e estreitas. Validação visual em navegador/celular/desktop ainda pendente.
+
 ## [Unreleased] — v0.49.0 · reações do piloto e alertas de ameaça
 
 - Adiciona reações diegéticas da nave: ❓ para surpresa diante da chegada do DREADNOUGHT e da primeira aparição de cada classe de Elite; ❗ para sinalizar ataques perigosos.
