@@ -10,8 +10,10 @@
 - A inclinação visual, a rotação, os efeitos de propulsão e a câmera permanecem separados da integração física.
 - Migra Sentinelas e Artilheiros normais/Elite para steering com aceleração, velocidade máxima por perfil e frenagem proporcional à distância até o ponto de combate.
 - Perfis Elite têm capacidades de reposicionamento superiores às versões comuns. O Interceptador continua usando perseguição simples, sem perfil de flanqueamento ou variante Elite.
-- Adiciona testes de convergência em 30/60/120 FPS, perfis distintos e estabilidade de posição/velocidade em encontros prolongados.
-- **Estado:** primeira fundação integrada ao jogador, Sentinelas e Artilheiros. A coordenação tática, o flanqueamento Elite, o movimento de formação do Guardião e o controlador próprio do DREADNOUGHT continuam pendentes. Teste manual ainda não realizado.
+- Adiciona coordenador tático dedicado que escolhe uma única Elite por vez, prioriza Sentinelas, seleciona o corredor traseiro menos congestionado e respeita intervalo entre manobras.
+- Sentinelas e Artilheiros Elite suspendem os disparos durante o reposicionamento; Guardião Elite não abandona aliados vivos que estejam sob sua proteção.
+- Adiciona testes de convergência em 30/60/120 FPS, perfis distintos, estabilidade prolongada, seleção única de flanqueador, prioridade da Sentinela, proteção do Guardião e suspensão de disparos.
+- **Estado:** primeira fundação integrada ao jogador, Sentinelas, Artilheiros e coordenação Elite. A autonomia das tropas comuns, a integração completa do Guardião à física compartilhada e o controlador próprio do DREADNOUGHT continuam pendentes. Teste manual ainda não realizado.
 
 ## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
 
