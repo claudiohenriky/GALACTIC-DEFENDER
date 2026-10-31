@@ -6,6 +6,7 @@ import { Enemy } from '../src/enemies/enemy.js';
 import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
 import { advanceWaveTenTransition, createWaveTenTransition, finalizeWaveTenTransition, WAVE_TEN_TRANSITION_DURATION } from '../src/core/wave-ten-transition.js';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat } from '../src/ui/pilot-reactions.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
  assert.equal(circlesOverlap({x:0,y:0,radius:5},{x:8,y:0,radius:4}),true);
@@ -301,4 +302,25 @@ test('DREADNOUGHT missile mounts retain a long-range firing lane',()=>{
  const missile=systems.getModule('missile-left');
  assert.equal(missile.firingRange,980);
  assert.equal(selectBossAttack([missile],900,-120,8,1),'missile');
+});
+
+
+test('pilot reactions display surprise and expire cleanly',()=>{
+ const state=createPilotReactionState();
+ assert.equal(triggerPilotReaction(state,'❓',1.5),true);
+ assert.equal(state.symbol,'❓');
+ updatePilotReaction(state,0.5);
+ assert.equal(state.remaining,1);
+ updatePilotReaction(state,1);
+ assert.equal(state.symbol,'');
+ assert.equal(state.remaining,0);
+});
+
+test('pilot threat warning is edge-triggered and can be signaled again after clearing',()=>{
+ const state=createPilotReactionState(),source={};
+ assert.equal(signalPilotThreat(state,source,true),true);
+ assert.equal(state.symbol,'❗');
+ assert.equal(signalPilotThreat(state,source,true),false);
+ assert.equal(signalPilotThreat(state,source,false),false);
+ assert.equal(signalPilotThreat(state,source,true),true);
 });
