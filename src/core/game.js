@@ -1567,8 +1567,11 @@ export class Game {
     if (!this.bossEncounterDialogue || this.bossEncounterDialogueTimer <= 0 || this.bossCinematic) return;
     const lines = this.bossEncounterDialogue.lines;
     const elapsed = this.bossEncounterDialogue.duration - this.bossEncounterDialogueTimer;
-    const cue = lines[elapsed < this.bossEncounterDialogue.lineInterval ? 0 : 1];
+    const lineIndex = elapsed < this.bossEncounterDialogue.lineInterval ? 0 : 1;
+    const cue = lines[lineIndex];
     if (!cue) return;
+    const lineElapsed = lineIndex === 0 ? elapsed : elapsed - this.bossEncounterDialogue.lineInterval;
+    const visibleCue = cue.slice(0, Math.max(0, Math.floor((lineElapsed - 0.35) * 36)));
     const width = Math.min(this.width - 24, 390);
     const x = (this.width - width) / 2;
     const y = Math.max(14, this.height - 112);
