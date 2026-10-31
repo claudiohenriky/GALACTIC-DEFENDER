@@ -25,7 +25,7 @@ test('new cinematic owns a deterministic sequence and lasts the planned duration
     'hud-fade', 'loading', 'pilot-intro', 'anomaly-scan',
     'distant-contact', 'boss-identification', 'handoff', 'complete'
   ]);
-  assert.equal(BOSS_CINEMATIC_TOTAL_DURATION, 52.5);
+  assert.equal(BOSS_CINEMATIC_TOTAL_DURATION, 56.5);
   advance(state, BOSS_CINEMATIC_TOTAL_DURATION);
   assert.equal(state.phase, 'complete');
   assert.equal(state.handoffComplete, true);
@@ -40,7 +40,7 @@ test('HUD fades out before loading and fades back only during combat handoff', (
   advance(state, 2.5);
   assert.equal(state.phase, 'loading');
   assert.equal(state.pilotHudOpacity, 0);
-  advance(state, 45);
+  advance(state, 54);
   assert.equal(state.phase, 'handoff');
   assert.ok(state.pilotHudOpacity < 0.001);
   advance(state, 1.25);
@@ -63,7 +63,7 @@ test('dialogue advances at deliberate intervals and anomaly alert does not revea
 
 test('boss identity appears only in the final identification phase', () => {
   const state = createBossCinematic();
-  advance(state, 46.5);
+  advance(state, 50.25);
   assert.equal(state.phase, 'boss-identification');
   const alert = getBossCinematicAlert(state);
   assert.equal(alert.title, 'DREADNOUGHT');

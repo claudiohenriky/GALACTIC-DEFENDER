@@ -5,7 +5,7 @@ export const BOSS_CINEMATIC_PHASES = Object.freeze([
   { id: 'loading', duration: 10 },
   { id: 'pilot-intro', duration: 9 },
   { id: 'anomaly-scan', duration: 9 },
-  { id: 'distant-contact', duration: 13 },
+  { id: 'distant-contact', duration: 17 },
   { id: 'boss-identification', duration: 4 },
   { id: 'handoff', duration: 2.5 },
   { id: 'complete', duration: 0 }
@@ -25,8 +25,8 @@ export const BOSS_CINEMATIC_DIALOGUE = Object.freeze({
   'distant-contact': Object.freeze([
     { at: 0.4, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Contato visual... isso é muito maior do que qualquer unidade que enfrentamos.' },
     { at: 4.9, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Mantenha distância. Não sabemos do que essa nave é capaz.' },
-    { at: 8.1, speaker: 'DREADNOUGHT', actor: 'boss', text: 'Sua resistência foi registrada.' },
-    { at: 11.0, speaker: 'DREADNOUGHT', actor: 'boss', text: 'Agora, testemunhe o poder da minha frota.' }
+    { at: 9.4, speaker: 'DREADNOUGHT', actor: 'boss', text: 'Sua resistência foi registrada.' },
+    { at: 13.9, speaker: 'DREADNOUGHT', actor: 'boss', text: 'Agora, testemunhe o poder da minha frota.' }
   ]),
   'boss-identification': Object.freeze([
     { at: 0.2, speaker: 'PILOTO // VANGUARD', actor: 'pilot', text: 'Identificação confirmada. DREADNOUGHT... preparando sistemas defensivos.' }

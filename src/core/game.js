@@ -1426,28 +1426,42 @@ export class Game {
   drawCinematicAlert(ctx, alert) {
     if (!alert) return;
     const elapsed = this.bossCinematic.phaseElapsed - alert.at;
-    const duration = 4.2;
+    const duration = 3.8;
     const progress = Math.max(0, Math.min(1, elapsed / 0.7));
     const eased = progress * progress * (3 - 2 * progress);
     const fadeOut = Math.max(0, Math.min(1, (duration - elapsed) / 0.55));
     const alpha = eased * fadeOut;
-    const y = -64 + (this.height * 0.17 + 64) * eased;
-    const width = Math.min(this.width - 28, 520);
-    const x = (this.width - width) / 2;
+    const width = Math.min(this.width - 24, Math.max(168, Math.min(380, this.width * 0.48)));
+    const height = 62;
+    const x = this.width - width - 12;
+    const y = -height + (this.height * 0.15 + height) * eased;
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = 'rgba(4, 12, 25, 0.9)';
-    ctx.fillRect(x, y, width, 54);
+    ctx.fillStyle = 'rgba(4, 12, 25, 0.92)';
+    ctx.fillRect(x, y, width, height);
     ctx.strokeStyle = alert.title === 'DREADNOUGHT' ? '#ed8196' : '#efb45d';
     ctx.lineWidth = 1.2;
-    ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, 52.8);
+    ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, height - 1.2);
     ctx.textAlign = 'center';
     ctx.fillStyle = alert.title === 'DREADNOUGHT' ? '#ff9cac' : '#ffd18a';
-    ctx.font = '900 12px ui-monospace, monospace';
-    ctx.fillText(alert.title, this.width / 2, y + 21);
+    ctx.font = '900 11px ui-monospace, monospace';
+    ctx.fillText(alert.title, x + width / 2, y + 20);
     ctx.fillStyle = '#d8e4f2';
-    ctx.font = `900 ${this.width < 520 ? 7 : 9}px ui-monospace, monospace`;
-    ctx.fillText(alert.detail, this.width / 2, y + 39, width - 18);
+    const fontSize = this.width < 520 ? 6.5 : 8;
+    ctx.font = `900 ${fontSize}px ui-monospace, monospace`;
+    const words = alert.detail.split(' ');
+    const rows = [];
+    let row = '';
+    const maxWidth = width - 18;
+    for (const word of words) {
+      const candidate = row ? `${row} ${word}` : word;
+      if (row && ctx.measureText(candidate).width > maxWidth) {
+        rows.push(row);
+        row = word;
+      } else row = candidate;
+    }
+    if (row) rows.push(row);
+    rows.slice(0, 2).forEach((line, index) => ctx.fillText(line, x + width / 2, y + 39 + index * (fontSize + 3), maxWidth));
     ctx.restore();
   }
 
