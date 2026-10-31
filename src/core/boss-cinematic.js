@@ -5,7 +5,7 @@ export const BOSS_CINEMATIC_PHASES = Object.freeze([
   { id: 'loading', duration: 10 },
   { id: 'pilot-intro', duration: 9 },
   { id: 'anomaly-scan', duration: 9 },
-  { id: 'distant-contact', duration: 17 },
+  { id: 'distant-contact', duration: 21 },
   { id: 'boss-identification', duration: 4 },
   { id: 'handoff', duration: 2.5 },
   { id: 'complete', duration: 0 }
@@ -54,6 +54,15 @@ export const BOSS_CINEMATIC_ALERTS = Object.freeze({
     accent: '#ff718d'
   })
 });
+
+// The capital ship becomes visible gradually over the first 7.5 seconds of its approach.
+export function getBossCinematicBossOpacity(state) {
+  if (!state) return 0;
+  if (state.phase === 'distant-contact') {
+    return Math.max(0, Math.min(1, (state.phaseElapsed - 0.45) / 7.5));
+  }
+  return ['boss-identification', 'handoff', 'complete'].includes(state.phase) ? 1 : 0;
+}
 
 export function createBossCinematic() {
   return {
