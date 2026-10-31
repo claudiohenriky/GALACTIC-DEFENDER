@@ -29,8 +29,9 @@ export function integrateVelocity(entity, dt) {
 
 export const ENEMY_MOTION_PROFILES = Object.freeze({
   chaser: Object.freeze({ maxSpeed: 58, acceleration: 140 }),
-  boss: Object.freeze({ maxSpeed: 60, acceleration: 46 }),
-  bossPhaseThree: Object.freeze({ maxSpeed: 72, acceleration: 56 }),
+  // Heavy hull movement is intentionally deliberate; broad turns create flank windows.
+  boss: Object.freeze({ maxSpeed: 34, acceleration: 24 }),
+  bossPhaseThree: Object.freeze({ maxSpeed: 42, acceleration: 30 }),
   artillery: Object.freeze({ maxSpeed: 58, acceleration: 112 }),
   artilleryElite: Object.freeze({ maxSpeed: 96, acceleration: 185 }),
   devastator: Object.freeze({ maxSpeed: 28, acceleration: 64 }),
