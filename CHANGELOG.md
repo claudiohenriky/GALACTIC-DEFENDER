@@ -1,5 +1,7 @@
 ## [Unreleased] — Rebalanceamento de combate e IA do DREADNOUGHT
 
+- Build de comparação mantém a progressão padrão, sem iniciar a cutscene da onda 9 para 10; a sequência cinematográfica continua isolada na branch própria.
+
 - Reduz a pressão geral das tropas comuns: deslocamento do Interceptador e do perseguidor mais contido, Guardião menos veloz e perfis básicos de Sentinela/Artilheiro revistos.
 - Sentinela básico recebe novo ajuste de velocidade, esquiva, faixa lateral, cadência e dano; Elite continua superior, mas com mobilidade ligeiramente reduzida.
 - Artilheiro recebe nerf mais forte: menor velocidade/aceleração, faixa de patrulha menor, salva reduzida de três para dois projéteis, cadência mais lenta e projéteis menos rápidos/danosos.
