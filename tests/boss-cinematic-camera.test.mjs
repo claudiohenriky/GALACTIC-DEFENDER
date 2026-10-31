@@ -39,6 +39,17 @@ test('handoff camera exactly matches the combat camera target formula', () => {
   assert.equal(frame.zoom, zoom);
 });
 
+
+test('centered boss entrance keeps the camera aligned with the pilot horizontally', () => {
+  const alignedBoss = { x: player.x, y: 650, collisionRadius: 145 };
+  const frame = getBossCinematicCameraFrame({
+    phase: 'distant-contact', phaseElapsed: 17, phaseDuration: 17,
+    player, boss: alignedBoss, width: 900, height: 420,
+    minZoom: 1 / 2.4, worldWidth: 2160, worldHeight: 1008
+  });
+  assert.equal(frame.x + 450, player.x);
+});
+
 test('cinematic camera clamps safely on narrow and portrait viewports', () => {
   for (const [width, height] of [[360, 740], [740, 360], [320, 240]]) {
     const frame = getBossCinematicCameraFrame({
