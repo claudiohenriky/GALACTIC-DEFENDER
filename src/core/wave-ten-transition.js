@@ -35,3 +35,12 @@ export function advanceWaveTenTransition(state, dt) {
 }
 
 export const WAVE_TEN_TRANSITION_DURATION = TRANSITION_PHASES.reduce((sum, phase) => sum + phase.duration, 0);
+
+
+// The cinematic controls the boss position until the reveal. Release its internal
+// entrance timer at handoff so its normal AI cannot replay the entrance afterward.
+export function finalizeWaveTenTransition(state) {
+  const boss = state?.boss ?? null;
+  if (boss) boss.bossEntranceTimer = 0;
+  return boss;
+}
