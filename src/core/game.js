@@ -458,7 +458,7 @@ export class Game {
           && (option.type !== 'missileGuidance' || this.player.upgradeSpecializations.guidedMissileGuidance < 2)
           && (option.type !== 'missilePayload' || this.player.upgradeSpecializations.guidedMissilePayload < 2)
           && (option.type !== 'missileFragmentation' || this.player.upgradeSpecializations.guidedMissileFragmentation < 1);
-        if (option.type.startsWith('shield')) return this.player.shieldLevel > 0
+        if (option.type === 'shieldCapacity' || option.type === 'shieldRecharge') return this.player.shieldLevel > 0
           && (option.type !== 'shieldCapacity' || this.player.upgradeSpecializations.shieldCapacity < 2)
           && (option.type !== 'shieldRecharge' || this.player.upgradeSpecializations.shieldRecharge < 2);
         if (option.type === 'doubleShotSpread') return this.player.doubleShotLevel > 0

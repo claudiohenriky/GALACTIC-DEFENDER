@@ -14,6 +14,8 @@ test('run specializations are gated by their unlocked base abilities', async () 
   assert.match(source, /this\.player\.guidedMissileLevel > 0/);
   assert.match(source, /this\.player\.shieldLevel > 0/);
   assert.match(source, /this\.player\.doubleShotLevel > 0/);
+  assert.match(source, /option\.type === 'shieldCapacity' \|\| option\.type === 'shieldRecharge'/);
+  assert.doesNotMatch(source, /option\.type\.startsWith\('shield'\)/);
   assert.match(source, /guidedMissileFragmentation/);
 });
 
