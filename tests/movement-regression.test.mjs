@@ -205,6 +205,8 @@ test('Dreadnought turret tracking leads a moving pilot instead of aiming only at
   leadingBoss.bossEntranceTimer = 0;
   stationaryBoss.facingRotation = Math.PI / 2;
   leadingBoss.facingRotation = Math.PI / 2;
+  stationaryBoss.bossSystems.getModule('machine-gun-left').turretAngle = 0.12;
+  leadingBoss.bossSystems.getModule('machine-gun-left').turretAngle = 0.12;
   stationaryBoss.update(1 / 60, 500, 900, 1200, 1600, [], [], 0, 0, 0);
   leadingBoss.update(1 / 60, 500, 900, 1200, 1600, [], [], 0, 120, 0);
   const stationaryAngle = stationaryBoss.bossSystems.getModule('machine-gun-left').turretAngle;
