@@ -1,3 +1,17 @@
+## v0.57.2 — Balanceamento do Encouraçado e correção de mira
+
+- [x] Reduzir os canhões de plasma do chefe de quatro para dois, um em cada lateral.
+- [x] Substituir os módulos traseiros removidos por emissores iônicos laterais de longo alcance e dano moderado.
+- [x] Redesenhar os mísseis guiados como dardos roxos alongados, mais rápidos e legíveis, com correção de trajetória suave.
+- [x] Limitar a vida útil dos mísseis e espaçar lançamentos para evitar acúmulo de projéteis.
+- [x] Mover o Encouraçado para a onda 15, com recorrência a cada 15 ondas.
+- [x] Travar ângulo e posição de mira do Devastador durante o aviso e usar o mesmo ângulo no disparo.
+- [x] Adicionar testes automatizados para armas, mísseis, ondas e mira fixa.
+- [ ] Validar em gameplay real o equilíbrio dos emissores iônicos e a legibilidade dos novos mísseis.
+- [ ] Confirmar que os projéteis do boss não acumulam nem provocam quedas de FPS em celular.
+- [ ] Confirmar que o Devastador dispara exatamente na linha visual indicada em diferentes velocidades do jogador.
+- **Estado:** candidata em PR #81; `main` preservada. Validação automatizada pendente; nenhum playtest manual foi realizado.
+
 ## v0.57.1 — Balanceamento do Encouraçado e flanqueamento
 
 - [x] Aumentar a recarga dos canhões de plasma de 5,4 s para 7,2 s, preservando dano e impacto.
