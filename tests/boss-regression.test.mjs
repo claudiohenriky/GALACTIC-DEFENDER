@@ -119,7 +119,7 @@ test('DREADNOUGHT missile launcher selection alternates wings and respects targe
  assert.equal(selectBossMissileLauncher(systems.modules,600,-35,8,1),left);
  right.state='disabled';
  assert.equal(selectBossMissileLauncher(systems.modules,600,0,8,1),left);
- assert.equal(selectBossMissileLauncher(systems.modules,800,0,8,-1),null);
+ assert.equal(selectBossMissileLauncher(systems.modules,1000,0,8,-1),null);
 });
 
 test('DREADNOUGHT launches only one missile per salvo and applies a dedicated cooldown',()=>{

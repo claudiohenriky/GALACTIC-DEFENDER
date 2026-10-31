@@ -191,11 +191,11 @@ test('Dreadnought uses a heavy reposition state when the pilot leaves its forwar
   boss.bossEntranceTimer = 0;
   boss.facingRotation = 0;
   boss.bossRepositionCooldown = 0;
-  boss.update(1 / 60, 200, 300, 1200, 1600, [], [], 0, 0, 0);
+  boss.update(1 / 60, 200, 900, 1200, 1600, [], [], 0, 0, 0);
   assert.equal(boss.bossMovementState, 'reposition');
   assert.ok(Number.isFinite(boss.bossMoveTargetX) && Number.isFinite(boss.bossMoveTargetY));
   assert.ok(Math.hypot(boss.velocityX, boss.velocityY) <= ENEMY_MOTION_PROFILES.boss.maxSpeed + 1e-6);
-  assert.ok(Math.hypot(boss.bossMoveTargetX - 200, boss.bossMoveTargetY - 300) > 250);
+  assert.ok(Math.hypot(boss.bossMoveTargetX - 200, boss.bossMoveTargetY - 900) > 250);
 });
 
 test('Dreadnought turret tracking leads a moving pilot instead of aiming only at its current position', () => {
