@@ -12,6 +12,7 @@ export class EnemyProjectile {
     this.glowColor = options.glowColor ?? '#ffad55';
     this.homing = Boolean(options.homing && options.target);
     this.target = this.homing ? options.target : null;
+    this.homingDuration = options.homingDuration ?? Infinity;
     this.turnRate = options.turnRate ?? 1.8;
     this.guidedStyle = Boolean(options.guidedStyle);
     this.life = options.lifetime ?? Infinity;
@@ -37,7 +38,7 @@ export class EnemyProjectile {
         return;
       }
     }
-    if (this.homing && this.target) {
+    if (this.homing && this.target && this.age <= this.homingDuration) {
       const desired = Math.atan2(this.target.y - this.y, this.target.x - this.x)
         + Math.sin(this.age * this.curveFrequency) * this.curveAmplitude;
       const current = Math.atan2(this.vy, this.vx);
@@ -45,6 +46,9 @@ export class EnemyProjectile {
       const angle = current + Math.max(-this.turnRate * dt, Math.min(this.turnRate * dt, delta));
       this.vx = Math.cos(angle) * this.speed;
       this.vy = Math.sin(angle) * this.speed;
+    } else if (this.homing) {
+      this.homing = false;
+      this.target = null;
     }
     this.x += this.vx * dt;
     this.y += this.vy * dt;
