@@ -14,14 +14,14 @@ test('pilot dialogue phases keep the player centered and use a deliberate close-
   for (const phase of ['hud-fade', 'loading', 'pilot-intro', 'anomaly-scan']) {
     const frame = getBossCinematicCameraFrame({
       phase, player, width: 900, height: 420,
-      worldWidth: 2160, worldHeight: 1008
+      worldWidth: 2160, worldHeight: 2016
     });
     assert.equal(frame.x + 450, player.x);
     assert.equal(frame.y + 210, player.y);
   }
   const close = getBossCinematicCameraFrame({
     phase: 'pilot-intro', player, width: 900, height: 420,
-    worldWidth: 2160, worldHeight: 1008
+    worldWidth: 2160, worldHeight: 2016
   });
   assert.equal(close.zoom, 1.12);
 });
@@ -30,17 +30,17 @@ test('boss reveal widens progressively without horizontal camera drift', () => {
   const start = getBossCinematicCameraFrame({
     phase: 'distant-contact', phaseElapsed: 0, phaseDuration: 21,
     player, boss, width: 900, height: 420,
-    worldWidth: 2160, worldHeight: 1008
+    worldWidth: 2160, worldHeight: 2016
   });
   const middle = getBossCinematicCameraFrame({
     phase: 'distant-contact', phaseElapsed: 10.5, phaseDuration: 21,
     player, boss, width: 900, height: 420,
-    worldWidth: 2160, worldHeight: 1008
+    worldWidth: 2160, worldHeight: 2016
   });
   const end = getBossCinematicCameraFrame({
     phase: 'distant-contact', phaseElapsed: 21, phaseDuration: 21,
     player, boss, width: 900, height: 420,
-    worldWidth: 2160, worldHeight: 1008
+    worldWidth: 2160, worldHeight: 2016
   });
   assert.equal(start.x, middle.x);
   assert.equal(middle.x, end.x);
@@ -53,15 +53,15 @@ test('boss reveal widens progressively without horizontal camera drift', () => {
 test('arena reveal adds a small final zoom-out and combat handoff keeps that scale', () => {
   const reveal = getBossCinematicCameraFrame({
     phase: 'boss-identification', player, boss, width: 900, height: 420,
-    worldWidth: 2160, worldHeight: 1008
+    worldWidth: 2160, worldHeight: 2016
   });
   const arena = getBossCinematicCameraFrame({
     phase: 'arena-reveal', player, boss, width: 900, height: 420,
-    worldWidth: 2160, worldHeight: 1008
+    worldWidth: 2160, worldHeight: 2016
   });
   const handoff = getBossCinematicCameraFrame({
     phase: 'handoff', player, boss, width: 900, height: 420,
-    worldWidth: 2160, worldHeight: 1008
+    worldWidth: 2160, worldHeight: 2016
   });
   assert.equal(reveal.zoom, BOSS_CINEMATIC_REVEAL_ZOOM);
   assert.equal(arena.zoom, BOSS_CINEMATIC_ARENA_ZOOM);
@@ -97,7 +97,7 @@ test('cinematic camera clamps safely on narrow and portrait viewports', () => {
 test('boss spawn stays in front of the player with a fixed hull clearance', () => {
   const ship = { x: 1200, y: 1650, radius: 13 };
   const capitalShip = { radius: 100, collisionRadius: 145 };
-  const position = getBossCinematicSpawnPositions(ship, capitalShip, 420, 2160, 1008);
+  const position = getBossCinematicSpawnPositions(ship, capitalShip, 420, 2160, 2016);
   assert.equal(position.startX, ship.x);
   assert.equal(position.targetX, ship.x);
   assert.ok(position.startY < position.targetY);
