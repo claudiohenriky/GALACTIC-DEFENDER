@@ -1834,7 +1834,7 @@ export class Game {
         (this.waveManager.wave >= 12 && type === 'artillery' && Math.random() < 0.45) ||
         (this.waveManager.wave >= 14 && type === 'sentinel' && Math.random() < 0.30) ||
         (this.waveManager.wave >= 16 && type === 'guardian' && Math.random() < 0.24) ||
-        (this.waveManager.wave >= 20 && type === 'devastator' && Math.random() < 0.18)
+        (this.waveManager.wave >= 21 && type === 'devastator' && Math.random() < 0.18)
       );
       const spawnY = bossWave ? viewTop - 180 : viewTop + 20;
       this.enemies.push(new Enemy(spawnX, spawnY, this.waveManager.wave, type, isElite));

@@ -4,7 +4,7 @@
 - [x] Integrar um canhão de plasma ao casco, com carga, previsão limitada do movimento, aviso de linha de tiro e projétil rápido.
 - [x] Criar impacto de cerco com dano elevado, repulsão forte e desestabilização temporária do jogador.
 - [x] Criar variante Elite com escudo próprio, maior dano e janela de aviso mais curta.
-- [x] Introduzir a unidade normal a partir da onda 8 e a Elite a partir da onda 20.
+- [x] Introduzir a unidade normal a partir da onda 8 e a Elite a partir da onda 21, depois da onda de chefe 20.
 - [x] Adicionar recompensa e alerta tático específicos.
 - [ ] Revisar o Guardião e o comportamento de proteção de formações.
 - [ ] Desenvolver diálogos contextuais de entrada para as classes Elite.

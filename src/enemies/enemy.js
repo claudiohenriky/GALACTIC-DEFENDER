@@ -65,7 +65,7 @@ export class Enemy {
     this.siegeWarningDuration = this.isElite ? 0.82 : 1.05;
     this.siegeWarningTimer = 0;
     this.siegeRecoveryTimer = 0;
-    this.siegeAimAngle = this.rotation;
+    this.siegeAimAngle = Math.PI / 2;
     this.active = true;
     this.contactCooldown = 0;
     // Threat response is deliberately limited: ranged units dodge predicted near-misses, not every shot.
