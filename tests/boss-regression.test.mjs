@@ -5,7 +5,7 @@ import { BossSystems, getBossBeamSegment, getBossMissileProfile, selectBossAttac
 import { Enemy } from '../src/enemies/enemy.js';
 import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
-import { advanceWaveTenTransition, createWaveTenTransition, WAVE_TEN_TRANSITION_DURATION } from '../src/core/wave-ten-transition.js';
+import { advanceWaveTenTransition, createWaveTenTransition, finalizeWaveTenTransition, WAVE_TEN_TRANSITION_DURATION } from '../src/core/wave-ten-transition.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
  assert.equal(circlesOverlap({x:0,y:0,radius:5},{x:8,y:0,radius:4}),true);
@@ -222,6 +222,16 @@ test('wave 9 to 10 transition waits ten seconds, then runs the cinematic phases 
  advance(4.8);assert.equal(transition.phase,'boss-taunt');
  advance(4.2);assert.equal(transition.phase,'complete');
  assert.equal(WAVE_TEN_TRANSITION_DURATION,25.2);
+});
+
+test('cinematic handoff releases the boss internal entrance timer before combat',()=>{
+ const boss=new Enemy(500,200,10,'boss');
+ assert.equal(boss.bossEntranceTimer,boss.bossEntranceDuration);
+ const transition={boss};
+ assert.equal(finalizeWaveTenTransition(transition),boss);
+ assert.equal(boss.bossEntranceTimer,0);
+ boss.update(1/60,500,900,1000,1200,[],[],0,0,0);
+ assert.equal(boss.bossEntranceTimer,0,'normal AI must not replay the cinematic entrance');
 });
 
 test('wave 10 transition ignores negative and oversized frame deltas safely',()=>{
