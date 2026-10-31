@@ -1,5 +1,6 @@
 import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.47.0-combat-rebalance';
-import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.47.0-combat-rebalance';
+import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.50.0-ai-balance';
+import { getGuardianProtectionPriority } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
 
 export class Enemy {
   constructor(x, y, level = 1, type = 'chaser', isElite = false) {
@@ -190,13 +191,16 @@ export class Enemy {
       for (const ally of allies) {
         if (ally === this || !ally.active) continue;
         const isPreferredSupport = this.type === 'guardian'
-          ? (ally.isElite || ally.type === 'sentinel')
+          ? (this.protectedAllies || []).includes(ally) &&
+            getGuardianProtectionPriority(ally) < Infinity
           : ally.type === 'guardian' && (ally.protectedAllies || []).includes(this);
         if (!isPreferredSupport) continue;
         const offsetX = ally.x - this.x;
         const offsetY = ally.y - this.y;
         const allyDistanceSquared = offsetX * offsetX + offsetY * offsetY;
-        const priority = this.type === 'guardian' && ally.isElite ? 0 : 1;
+        const priority = this.type === 'guardian'
+          ? getGuardianProtectionPriority(ally)
+          : 0;
         if (priority < supportPriority || (priority === supportPriority && allyDistanceSquared < supportDistanceSquared)) {
           supportPriority = priority;
           supportDistanceSquared = allyDistanceSquared;
@@ -237,12 +241,16 @@ export class Enemy {
       }
       if (hasBestThreat && this.dodgeCooldown <= 0) {
         this.dodgeDirection = bestThreatX >= 0 ? -1 : 1;
-        this.dodgeTimer = this.type === 'boss' ? 0.26 : this.type === 'sentinel' ? (this.isElite ? 0.62 : 0.22) : 0.48;
-        this.dodgeCooldown = this.type === 'boss' ? 1.8 : this.type === 'sentinel' ? (this.isElite ? 0.72 : 1.8) : this.type === 'artillery' ? 1.25 : 0.95;
+        this.dodgeTimer = this.type === 'boss' ? 0.26
+          : this.type === 'sentinel' ? (this.isElite ? 0.62 : 0.22)
+            : this.type === 'artillery' ? (this.isElite ? 0.48 : 0.32) : 0.48;
+        this.dodgeCooldown = this.type === 'boss' ? 1.8
+          : this.type === 'sentinel' ? (this.isElite ? 0.72 : 1.8)
+            : this.type === 'artillery' ? (this.isElite ? 1.25 : 1.6) : 0.95;
       }
     }
     const dodgeStrength = this.dodgeTimer > 0
-      ? (this.type === 'sentinel' ? (this.isElite ? 150 : 28) : this.type === 'artillery' ? (this.isElite ? 96 : 48) : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'sentinel' && this.isElite ? 0.62 : this.type === 'sentinel' ? 0.18 : 0.48))
+      ? (this.type === 'sentinel' ? (this.isElite ? 150 : 28) : this.type === 'artillery' ? (this.isElite ? 96 : 24) : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'sentinel' && this.isElite ? 0.62 : this.type === 'sentinel' ? 0.18 : this.type === 'artillery' && !this.isElite ? 0.32 : 0.48))
       : 0;
 
     if (this.type === 'boss') {
@@ -543,7 +551,7 @@ export class Enemy {
       const eliteStrafe = this.isElite ? Math.sin(this.phase * 0.82) * Math.min(width * 0.15, 72) : 0;
       const desiredX = flankActive
         ? this.flankTargetX
-        : targetX + Math.sin(this.phase * 0.65) * Math.min(width * 0.24, 112) + eliteStrafe + dodgeStrength;
+        : targetX + Math.sin(this.phase * 0.65) * Math.min(width * (this.isElite ? 0.24 : 0.18), this.isElite ? 112 : 78) + eliteStrafe + dodgeStrength;
       const desiredY = flankActive
         ? this.flankTargetY
         : Math.max(36, targetY - Math.min(205, height * 0.36));
@@ -554,7 +562,7 @@ export class Enemy {
         this.fireCooldown = this.isElite ? 3.6 : 4.4;
         const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
         const spread = this.isElite ? 0.17 : 0.14;
-        shot = [-1, 1].map((offset) => {
+        shot = [-1, 0, 1].map((offset) => {
           const angle = baseAngle + offset * spread;
           return {
             x: this.x,
