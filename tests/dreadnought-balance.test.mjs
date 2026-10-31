@@ -3,11 +3,13 @@ import assert from 'node:assert/strict';
 import { Enemy } from '../src/enemies/enemy.js';
 import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 
-test('DREADNOUGHT plasma cannons use the longer 7.2-second recharge', () => {
+test('DREADNOUGHT keeps one plasma cannon per side with the longer 7.2-second recharge', () => {
   const boss = new Enemy(400, 120, 1, 'boss');
   const cannons = boss.bossSystems.modules.filter((module) => module.kind.includes('plasma'));
 
-  assert.equal(cannons.length, 4);
+  assert.equal(cannons.length, 2);
+  assert.equal(cannons.filter((module) => module.region === 'left').length, 1);
+  assert.equal(cannons.filter((module) => module.region === 'right').length, 1);
   assert.ok(cannons.every((module) => module.plasmaChargeDuration === 7.2));
   assert.ok(cannons.every((module) => module.plasmaChargeTimer === 7.2));
 });
