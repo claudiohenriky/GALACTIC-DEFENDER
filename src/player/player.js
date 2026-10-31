@@ -1,8 +1,12 @@
+import { approachVelocity, integrateVelocity } from '../movement/motion.js?v=0.45.0-motion-core';
+
 export class Player {
   constructor(width = 360, height = 780) {
     this.radius = 13;
     this.baseSpeed = 250;
     this.speed = this.baseSpeed;
+    // Higher acceleration shortens reversals and stopping response without raising top speed.
+    this.movementAcceleration = 2400;
     this.baseMaxHealth = 100;
     this.maxHealth = this.baseMaxHealth;
     this.health = this.maxHealth;
@@ -111,22 +115,13 @@ export class Player {
     const movementFactor = this.overloadSpeedFactor ?? 1;
     const targetVelocityX = dx * this.speed * movementFactor;
     const targetVelocityY = dy * this.speed * movementFactor;
-    const acceleration = 1800 * (1 + this.propulsionControlLevel * 0.08);
-    const velocityDeltaX = targetVelocityX - this.velocityX;
-    const velocityDeltaY = targetVelocityY - this.velocityY;
-    const velocityDelta = Math.hypot(velocityDeltaX, velocityDeltaY);
-    const maxVelocityChange = acceleration * dt;
-    if (velocityDelta <= maxVelocityChange || velocityDelta === 0) {
-      this.velocityX = targetVelocityX;
-      this.velocityY = targetVelocityY;
-    } else {
-      this.velocityX += (velocityDeltaX / velocityDelta) * maxVelocityChange;
-      this.velocityY += (velocityDeltaY / velocityDelta) * maxVelocityChange;
-    }
+    const acceleration = this.movementAcceleration * (1 + this.propulsionControlLevel * 0.08);
+    approachVelocity(this, targetVelocityX, targetVelocityY, acceleration, dt);
+    integrateVelocity(this, dt);
     this.knockbackX *= Math.exp(-7 * dt);
     this.knockbackY *= Math.exp(-7 * dt);
-    this.x += (this.velocityX + this.knockbackX) * dt;
-    this.y += (this.velocityY + this.knockbackY) * dt;
+    this.x += this.knockbackX * dt;
+    this.y += this.knockbackY * dt;
 
     // Movement feedback is purely visual: propulsion grows under input and settles smoothly at rest.
     this.thrust += (inputStrength - this.thrust) * Math.min(1, dt * 8);
