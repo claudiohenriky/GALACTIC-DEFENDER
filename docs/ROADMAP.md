@@ -1,3 +1,14 @@
+## Jogabilidade — auditoria e evolução da movimentação
+
+- [x] Restaurar a progressão normal: cinco inimigos na onda 1; DREADNOUGHT nas ondas 10, 15, 20 e seguintes.
+- [x] Adicionar teste de regressão para a progressão inicial e a entrada da onda de chefe.
+- [ ] Preservar a movimentação orgânica do jogador; avaliar aceleração, desaceleração, inércia, rotação e inclinação visual antes de alterar parâmetros.
+- [ ] Medir separadamente a suavização da câmera e sua relação com a resposta dos controles.
+- [ ] Projetar uma resposta física própria para o DREADNOUGHT: massa percebida, aceleração lateral baixa, inércia, desaceleração controlada e esquiva compatível com o porte.
+- [ ] Testar teclado e controles móveis, limites da arena, mudanças de direção e estabilidade em diferentes taxas de quadros.
+- **Regra de escopo:** não remover a sensação suave/gelatinosa da nave do jogador; ajustes do encouraçado não devem alterar a física do piloto.
+- **Estado:** auditoria estática inicial concluída; nenhuma física foi modificada ainda. Testes de navegador e medições com o jogador continuam pendentes.
+
 ### DREADNOUGHT — proa limpa e redução de custo visual
 
 - [x] Remover a passagem antiga duplicada do casco; manter apenas a renderização vetorial em camadas.
