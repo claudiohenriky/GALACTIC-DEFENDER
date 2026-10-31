@@ -6,7 +6,8 @@ import {
   advanceBossCinematic,
   createBossCinematic,
   getBossCinematicAlert,
-  getBossCinematicDialogue
+  getBossCinematicDialogue,
+  getBossCinematicDialogueText
 } from '../src/core/boss-cinematic.js';
 
 function advance(state, seconds) {
@@ -25,7 +26,7 @@ test('new cinematic owns a deterministic sequence and lasts the planned duration
     'hud-fade', 'loading', 'pilot-intro', 'anomaly-scan',
     'distant-contact', 'boss-identification', 'handoff', 'complete'
   ]);
-  assert.equal(BOSS_CINEMATIC_TOTAL_DURATION, 56.5);
+  assert.equal(BOSS_CINEMATIC_TOTAL_DURATION, 61.5);
   advance(state, BOSS_CINEMATIC_TOTAL_DURATION);
   assert.equal(state.phase, 'complete');
   assert.equal(state.handoffComplete, true);
@@ -40,7 +41,7 @@ test('HUD fades out before loading and fades back only during combat handoff', (
   advance(state, 2.5);
   assert.equal(state.phase, 'loading');
   assert.equal(state.pilotHudOpacity, 0);
-  advance(state, 49);
+  advance(state, 59);
   assert.equal(state.phase, 'handoff');
   assert.ok(state.pilotHudOpacity < 0.001);
   advance(state, 1.25);
@@ -61,9 +62,18 @@ test('dialogue advances at deliberate intervals and anomaly alert does not revea
   assert.equal(alert.title.includes('DREADNOUGHT'), false);
 });
 
+test('dialogue text reveals progressively instead of appearing all at once', () => {
+  const state = createBossCinematic(); advance(state, 15.5);
+  const cue = getBossCinematicDialogue(state);
+  assert.equal(getBossCinematicDialogueText(state), '');
+  advance(state, 1); const partial = getBossCinematicDialogueText(state);
+  assert.ok(partial.length > 0 && partial.length < cue.text.length);
+  advance(state, 4); assert.equal(getBossCinematicDialogueText(state), cue.text);
+});
+
 test('boss identity appears only in the final identification phase', () => {
   const state = createBossCinematic();
-  advance(state, 50.25);
+  advance(state, 54.75);
   assert.equal(state.phase, 'boss-identification');
   const alert = getBossCinematicAlert(state);
   assert.equal(alert.title, 'DREADNOUGHT');

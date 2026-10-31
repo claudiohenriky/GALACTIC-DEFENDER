@@ -16,7 +16,8 @@ export function getBossCinematicCameraFrame({
         : phase === 'hud-fade' || phase === 'loading' ? 0.9 : minZoom;
   const zoom = Math.max(minZoom, closeZoom);
   const showBoth = Boolean(boss && (phase === 'distant-contact' || phase === 'boss-identification' || phase === 'handoff' || phase === 'complete'));
-  const focusX = showBoth ? (player.x + boss.x) / 2 : player.x;
+  // Keep the pilot's horizontal axis fixed while the boss is revealed.
+  const focusX = player.x;
   const focusY = showBoth
     ? (boss.y - (boss.collisionRadius || 145) * 1.5 + player.y + (player.radius || 12)) / 2
     : player.y - height * (phase === 'pilot-intro' ? 0.12 : 0.08);

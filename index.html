@@ -6,15 +6,15 @@
   <meta name="theme-color" content="#070b18">
   <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.54.0-cinematic-rebuild">
+  <link rel="stylesheet" href="./style.css?v=0.54.1-cinematic-polish">
   <link rel="stylesheet" href="./src/ui/version-history.css?v=0.54.0">
-  <script type="module" src="./main.js?v=0.54.0-cinematic-rebuild"></script>
+  <script type="module" src="./main.js?v=0.54.1-cinematic-polish"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PRÉ-ALFA · 0.54.0</span>
+      <span class="build-tag">PRÉ-ALFA · 0.54.1</span>
     </header>
 
     <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
@@ -53,7 +53,7 @@
       <section id="about-panel" class="menu-panel hidden" aria-labelledby="about-title">
         <div class="panel-heading"><div><p class="eyebrow">SOBRE O PROJETO</p><h2 id="about-title">Construído para evoluir</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar informações">×</button></div>
         <p class="menu-description">GALACTIC-DEFENDER é um jogo de ação espacial para navegador, desenvolvido com HTML, CSS e JavaScript, sem frameworks externos.</p>
-        <p class="menu-note">Versão candidata 0.54.0 · nova cinemática do DREADNOUGHT, encontros recorrentes a cada dez ondas e revisão de desempenho da IA e dos efeitos temporários. A validação visual e de FPS em dispositivos reais continua pendente.</p>
+        <p class="menu-note">Versão candidata 0.54.1 · nova cinemática do DREADNOUGHT, encontros recorrentes a cada dez ondas e revisão de desempenho da IA e dos efeitos temporários. A validação visual e de FPS em dispositivos reais continua pendente.</p>
         <button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button>
       </section>
       <section id="achievements-panel" class="menu-panel achievements-panel hidden" aria-labelledby="achievements-title">
@@ -67,6 +67,7 @@
         <div class="panel-heading"><div><p class="eyebrow">REGISTRO DE DESENVOLVIMENTO</p><h2 id="version-history-title">Histórico de versões</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar histórico de versões">×</button></div>
         <p class="menu-description">Novidades, ajustes e correções do GALACTIC-DEFENDER, da versão mais recente para a mais antiga.</p>
         <div id="version-history-list" class="version-history-list">
+<article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.54.1</strong><span>POLIMENTO CINEMATOGRÁFICO · DESEMPENHO</span></div><ul><li>Corrige o zoom lateral e mantém o eixo do piloto estável durante a revelação do DREADNOUGHT.</li><li>Reposiciona os alertas no topo central com animação descendente; diálogos recebem personalidades distintas e efeito de digitação, com falas do chefe em área própria.</li><li>Reativa os sinais de interrogação e exclamação durante a cena e torna o carregamento totalmente opaco, com moldura refinada.</li><li>Reduz o custo gráfico dos projéteis e dos sinais de reação ao remover desfoques de sombra por quadro. Teste de FPS real no celular pendente.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.54.0</strong><span>NOVA CINEMÁTICA · PROGRESSÃO DE CHEFES · OTIMIZAÇÃO</span></div><ul><li>Substitui integralmente a antiga transição da onda 9 para 10 por uma sequência nova: fade do HUD, carregamento com registros do universo, falas espaçadas, alerta anônimo de anomalia, revelação distante e identificação do DREADNOUGHT.</li><li>Centraliza câmera e apresentação em um controlador exclusivo durante a cinemática; o chefe permanece fora da IA até a transferência explícita para o combate, evitando disputa de posição e câmera.</li><li>O DREADNOUGHT passa a retornar nas ondas 20, 30, 40 e assim por diante, com falas curtas de reconhecimento; ondas 15, 25 e demais múltiplos de cinco deixam de ser ondas de chefe.</li><li>Reduz varreduras repetidas de projéteis pela IA de Sentinelas e Artilheiros e limita o acúmulo de partículas temporárias. São otimizações estáticas; ganhos de FPS ainda precisam ser medidos no celular e no desktop.</li><li>Adiciona testes para fases da nova cinemática, câmera e handoff, além da cadência de chefes. A validação visual no navegador e o playtest continuam pendentes.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.53.2</strong><span>CORREÇÃO DE BUGS · TRANSIÇÃO DA CUTSCENE</span></div><ul><li>Sincroniza o zoom e os limites da câmera cinematográfica com o enquadramento usado pelo combate, evitando o deslocamento aparente do piloto e do DREADNOUGHT ao terminar o diálogo.</li><li>Reposiciona os sinais de surpresa e perigo para que não cubram os balões; redesenha os ícones com contorno e símbolo vetorial próprio.</li><li>Reforça a rolagem do histórico no celular e inclui o registro da etapa de câmera cinematográfica v0.51.0.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.53.1</strong><span>CORREÇÃO DA TRANSIÇÃO · HISTÓRICO CONSOLIDADO</span></div><ul><li>Corrige a passagem da apresentação para o combate: o temporizador de entrada criado no construtor do DREADNOUGHT agora é encerrado antes do primeiro quadro de IA normal.</li><li>Evita que a IA repita a descida cinematográfica depois do diálogo final, causando o deslocamento do chefe e a impressão de que o jogador sobe.</li><li>Adiciona teste de regressão específico para o temporizador, posição, alvo e estado de movimento no handoff.</li><li>Atualiza o histórico do menu com as entregas consolidadas desde a v0.44.0. Esta é uma versão candidata; playtest visual ainda pendente.</li></ul></article>

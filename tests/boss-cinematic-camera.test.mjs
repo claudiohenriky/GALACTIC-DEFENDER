@@ -21,6 +21,7 @@ test('cinematic camera starts on the pilot and progressively widens to frame bot
   assert.ok(close.zoom > revealStart.zoom);
   assert.ok(revealStart.zoom > revealEnd.zoom);
   assert.equal(revealEnd.zoom, 1 / 2.4);
+  assert.equal(revealStart.x, revealEnd.x, 'horizontal camera position must not drift during zoom-out');
 });
 
 test('handoff camera exactly matches the combat camera target formula', () => {
@@ -37,6 +38,7 @@ test('handoff camera exactly matches the combat camera target formula', () => {
   assert.equal(frame.x, Math.max(minX, Math.min(maxX, player.x - 900 / 2)));
   assert.equal(frame.y, Math.max(minY, Math.min(maxY, focusY - 420 / 2)));
   assert.equal(frame.zoom, zoom);
+  assert.equal(frame.x, player.x - 900 / 2, 'camera stays horizontally centered on the pilot');
 });
 
 test('cinematic camera clamps safely on narrow and portrait viewports', () => {

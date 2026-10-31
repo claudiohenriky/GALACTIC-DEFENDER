@@ -1,3 +1,13 @@
+## [0.54.1] — polimento da cinemática e redução do custo de renderização
+
+- Corrige o enquadramento horizontal durante a revelação: o eixo do piloto permanece fixo enquanto o zoom abre, evitando deslocamento lateral.
+- Reorganiza os avisos de anomalia e identificação no topo central, com entrada descendente, estilos distintos e maior contraste.
+- Reescreve as falas para diferenciar o piloto (observador, pragmático e levemente irônico) do DREADNOUGHT (formal, frio e ameaçador); aumenta os intervalos de leitura e adiciona digitação progressiva.
+- Garante que os dois diálogos do DREADNOUGHT tenham espaço próprio, sem disputa visual com os avisos. Reativa os sinais ❓ e ❗ durante a cinemática, acionados pela anomalia e pelo contato visual.
+- Torna a tela de carregamento totalmente opaca e melhora a moldura visual.
+- Remove o desfoque de sombra recalculado em cada projétil e no indicador de reação do piloto, substituindo-o por contornos simples de menor custo.
+- Validação automatizada da lógica e do enquadramento; desempenho real no celular ainda depende de playtest.
+
 ## [0.54.0] — nova cinemática, chefes recorrentes e revisão de desempenho
 
 - Substitui o controlador antigo da transição da onda 9 para 10 por uma sequência independente, com fade do HUD, carregamento de 10 segundos, diálogos com intervalos definidos, alerta anônimo, revelação distante e identificação final do DREADNOUGHT.

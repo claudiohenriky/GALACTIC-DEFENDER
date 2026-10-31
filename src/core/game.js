@@ -3,7 +3,7 @@ import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=
 import { Enemy } from '../enemies/enemy.js?v=0.53.0-stage-6-7';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
-import { Projectile } from '../combat/projectile.js?v=0.44.0';
+import { Projectile } from '../combat/projectile.js?v=0.54.1-low-cost-glow';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.44.0';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle } from '../combat/collision.js?v=0.44.0-boss-hull-ellipse';
@@ -14,10 +14,10 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert } from './boss-cinematic.js?v=0.54.0-clean-cinematic';
-import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.54.0-clean-cinematic';
+import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicDialogueText, getBossCinematicAlert } from './boss-cinematic.js?v=0.54.1-cinematic-polish';
+import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.54.1-cinematic-polish';
 import { prepareBossForCombatHandoff } from './boss-cinematic-camera.js?v=0.54.0-clean-cinematic';
-import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.53.2-reaction-polish';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.1-reaction-polish';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1350,8 +1350,15 @@ export class Game {
     });
     const cameraBlend = Math.min(1, Math.max(0, dt) * 3.2);
     cinematic.cameraZoom += (cameraFrame.zoom - cinematic.cameraZoom) * cameraBlend;
-    this.cameraX += (cameraFrame.x - this.cameraX) * cameraBlend;
+    const halfViewWidth = this.width / (2 * cinematic.cameraZoom);
+    const minCameraX = halfViewWidth - this.width / 2;
+    const maxCameraX = Math.max(minCameraX, this.worldWidth - halfViewWidth - this.width / 2);
+    this.cameraX = Math.max(minCameraX, Math.min(maxCameraX, this.player.x - this.width / 2));
     this.cameraY += (cameraFrame.y - this.cameraY) * cameraBlend;
+    if (previousPhase !== cinematic.phase) {
+      if (cinematic.phase === 'anomaly-scan') triggerPilotReaction(this.pilotReaction, '❓', 1.8);
+      if (cinematic.phase === 'distant-contact') triggerPilotReaction(this.pilotReaction, '❗', 2.1);
+    }
 
     this.setCinematicHudOpacity(cinematic.pilotHudOpacity, true);
 
@@ -1383,86 +1390,74 @@ export class Game {
   drawCinematicDialogue(ctx, cue) {
     if (!cue) return;
     const cinematic = this.bossCinematic;
-    const actor = cue.actor === 'boss' ? cinematic?.boss : this.player;
-    const zoom = Math.max(this.cameraMinZoom, cinematic?.cameraZoom ?? this.cameraZoom);
-    const anchorX = this.width / 2 + (actor.x - this.width / 2 - this.cameraX) * zoom;
-    const anchorY = this.height / 2 + (actor.y - this.height / 2 - this.cameraY) * zoom;
-    const boxWidth = Math.min(340, Math.max(190, this.width * 0.48), this.width - 24);
-    const boxHeight = this.height < 390 ? 68 : 76;
-    const placeRight = anchorX < this.width * 0.5;
-    const x = Math.max(12, Math.min(this.width - boxWidth - 12,
-      placeRight ? anchorX + 24 : anchorX - boxWidth - 24));
-    const y = Math.max(12, Math.min(this.height - boxHeight - 14,
-      anchorY > this.height * 0.52 ? anchorY - boxHeight - 26 : anchorY + 26));
-    const accent = cue.actor === 'boss' ? '#ef829a' : '#68e5f2';
+    const boxWidth = Math.min(440, Math.max(220, this.width * 0.72), this.width - 24);
+    const boxHeight = this.height < 390 ? 72 : 86;
+    const x = cue.actor === 'boss' ? this.width - boxWidth - 12 : 12;
+    const y = Math.max(12, this.height * 0.78 - boxHeight / 2);
+    const accent = cue.actor === 'boss' ? '#f18a9e' : '#68e5f2';
+    const displayedText = getBossCinematicDialogueText(cinematic, 27);
     ctx.save();
-    ctx.fillStyle = 'rgba(3, 10, 23, 0.94)';
+    ctx.fillStyle = cue.actor === 'boss' ? 'rgba(20, 5, 17, 0.97)' : 'rgba(3, 10, 23, 0.97)';
     ctx.fillRect(x, y, boxWidth, boxHeight);
-    ctx.strokeStyle = accent;
-    ctx.lineWidth = 1.4;
+    ctx.strokeStyle = accent; ctx.lineWidth = 1.5;
     ctx.strokeRect(x + 0.7, y + 0.7, boxWidth - 1.4, boxHeight - 1.4);
-    ctx.fillStyle = accent;
-    ctx.textAlign = 'left';
-    ctx.font = '900 9px ui-monospace, monospace';
-    ctx.fillText(cue.speaker, x + 11, y + 17);
+    ctx.fillStyle = accent; ctx.fillRect(x + 10, y + 9, 3, boxHeight - 18);
+    ctx.textAlign = 'left'; ctx.font = '900 9px ui-monospace, monospace';
+    ctx.fillText(cue.speaker, x + 21, y + 19);
     ctx.fillStyle = '#f0f5ff';
-    const fontSize = this.width < 520 ? 10 : 12;
+    const fontSize = this.width < 520 ? 9 : 11;
     ctx.font = `${fontSize}px ui-monospace, monospace`;
-    const maxWidth = boxWidth - 22;
-    const words = cue.text.split(' ');
-    const rows = [];
+    const maxWidth = boxWidth - 42, words = displayedText.split(' '), rows = [];
     let row = '';
     for (const word of words) {
       const candidate = row ? `${row} ${word}` : word;
-      if (row && ctx.measureText(candidate).width > maxWidth) {
-        rows.push(row);
-        row = word;
-      } else row = candidate;
+      if (row && ctx.measureText(candidate).width > maxWidth) { rows.push(row); row = word; }
+      else row = candidate;
     }
     if (row) rows.push(row);
-    rows.slice(0, 3).forEach((line, index) => ctx.fillText(line, x + 11, y + 39 + index * (fontSize + 3)));
+    rows.slice(0, 3).forEach((line, index) => ctx.fillText(line, x + 21, y + 43 + index * (fontSize + 4)));
+    if (displayedText.length < cue.text.length && Math.floor(cinematic.phaseElapsed * 3) % 2 === 0) {
+      const cursorX = x + 21 + Math.min(maxWidth - 5, ctx.measureText(rows[rows.length - 1] || '').width + 2);
+      ctx.fillStyle = accent; ctx.fillRect(cursorX, y + 34 + Math.max(0, rows.length - 1) * (fontSize + 4), 2, fontSize + 2);
+    }
     ctx.restore();
   }
 
   drawCinematicAlert(ctx, alert) {
     if (!alert) return;
     const elapsed = this.bossCinematic.phaseElapsed - alert.at;
-    const duration = 3.8;
-    const progress = Math.max(0, Math.min(1, elapsed / 0.7));
+    const duration = 4.2;
+    const progress = Math.max(0, Math.min(1, elapsed / 0.82));
     const eased = progress * progress * (3 - 2 * progress);
-    const fadeOut = Math.max(0, Math.min(1, (duration - elapsed) / 0.55));
+    const fadeOut = Math.max(0, Math.min(1, (duration - elapsed) / 0.6));
     const alpha = eased * fadeOut;
-    const width = Math.min(this.width - 24, Math.max(168, Math.min(380, this.width * 0.48)));
-    const height = 62;
-    const x = this.width - width - 12;
-    const y = -height + (this.height * 0.15 + height) * eased;
-    ctx.save();
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = 'rgba(4, 12, 25, 0.92)';
+    const width = Math.min(this.width - 24, Math.max(210, Math.min(460, this.width * 0.72)));
+    const height = 70, x = (this.width - width) / 2;
+    const targetY = Math.max(14, this.height * 0.055);
+    const y = -height + (targetY + height) * eased;
+    const identity = alert.title === 'DREADNOUGHT';
+    const accent = identity ? '#ed8196' : '#efb45d';
+    ctx.save(); ctx.globalAlpha = alpha;
+    ctx.fillStyle = identity ? 'rgba(18, 7, 18, 0.98)' : 'rgba(15, 12, 5, 0.98)';
     ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = alert.title === 'DREADNOUGHT' ? '#ed8196' : '#efb45d';
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = accent; ctx.lineWidth = 1.35;
     ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, height - 1.2);
-    ctx.textAlign = 'center';
-    ctx.fillStyle = alert.title === 'DREADNOUGHT' ? '#ff9cac' : '#ffd18a';
+    ctx.fillStyle = accent; ctx.fillRect(x + 10, y + 10, 3, height - 20);
+    ctx.textAlign = 'left'; ctx.fillStyle = identity ? '#ff9cac' : '#ffd18a';
     ctx.font = '900 11px ui-monospace, monospace';
-    ctx.fillText(alert.title, x + width / 2, y + 20);
+    ctx.fillText(alert.title, x + 22, y + 23);
     ctx.fillStyle = '#d8e4f2';
     const fontSize = this.width < 520 ? 6.5 : 8;
     ctx.font = `900 ${fontSize}px ui-monospace, monospace`;
-    const words = alert.detail.split(' ');
-    const rows = [];
-    let row = '';
-    const maxWidth = width - 18;
+    const words = alert.detail.split(' '), rows = [];
+    let row = ''; const maxWidth = width - 34;
     for (const word of words) {
       const candidate = row ? `${row} ${word}` : word;
-      if (row && ctx.measureText(candidate).width > maxWidth) {
-        rows.push(row);
-        row = word;
-      } else row = candidate;
+      if (row && ctx.measureText(candidate).width > maxWidth) { rows.push(row); row = word; }
+      else row = candidate;
     }
     if (row) rows.push(row);
-    rows.slice(0, 2).forEach((line, index) => ctx.fillText(line, x + width / 2, y + 39 + index * (fontSize + 3), maxWidth));
+    rows.slice(0, 2).forEach((line, index) => ctx.fillText(line, x + 22, y + 44 + index * (fontSize + 3), maxWidth));
     ctx.restore();
   }
 
@@ -1471,8 +1466,13 @@ export class Game {
     if (!cinematic) return;
     ctx.save();
     if (cinematic.phase === 'loading') {
-      ctx.fillStyle = 'rgba(2, 7, 18, 0.965)';
-      ctx.fillRect(0, 0, this.width, this.height);
+      ctx.fillStyle = '#020712'; ctx.fillRect(0, 0, this.width, this.height);
+      const panelWidth = Math.min(this.width - 28, 620), panelX = (this.width - panelWidth) / 2;
+      const panelY = this.height * 0.27, panelHeight = this.height * 0.48;
+      ctx.fillStyle = '#071225'; ctx.fillRect(panelX, panelY, panelWidth, panelHeight);
+      ctx.strokeStyle = '#294563'; ctx.lineWidth = 1; ctx.strokeRect(panelX + 0.5, panelY + 0.5, panelWidth - 1, panelHeight - 1);
+      ctx.fillStyle = '#58e4e8'; ctx.fillRect(panelX + 14, panelY + 14, panelWidth - 28, 2);
+      ctx.fillStyle = '#1a3552'; ctx.fillRect(panelX + 14, panelY + panelHeight - 16, panelWidth - 28, 1);
       const facts = [
         'REGISTRO GALÁCTICO: a antiga rota comercial foi abandonada após sinais de combate.',
         'SENSORES: algumas assinaturas energéticas persistem mesmo após a retirada das tropas.',
@@ -1483,14 +1483,14 @@ export class Game {
       ctx.textAlign = 'center';
       ctx.fillStyle = '#75e7f3';
       ctx.font = '900 10px ui-monospace, monospace';
-      ctx.fillText('GALACTIC DEFENDER // REGISTRO DE OPERAÇÃO', this.width / 2, this.height * 0.37);
+      ctx.fillText('GALACTIC DEFENDER // REGISTRO DE OPERAÇÃO', this.width / 2, this.height * 0.34);
       ctx.fillStyle = '#f1f6ff';
       ctx.font = `900 ${Math.max(17, Math.min(27, this.width * 0.046))}px ui-monospace, monospace`;
-      ctx.fillText('SINCRONIZANDO SISTEMAS', this.width / 2, this.height * 0.47, this.width * 0.9);
+      ctx.fillText('SINCRONIZANDO SISTEMAS', this.width / 2, this.height * 0.45, this.width * 0.9);
       ctx.fillStyle = '#b9c9dc';
       ctx.font = ` ${this.width < 520 ? 9 : 11}px ui-monospace, monospace`;
-      ctx.fillText(fact, this.width / 2, this.height * 0.56, this.width * 0.86);
-      const barWidth = Math.min(this.width * 0.68, 420);
+      ctx.fillText(fact, this.width / 2, this.height * 0.55, Math.max(150, panelWidth - 40));
+      const barWidth = Math.min(panelWidth - 40, 420);
       const barX = (this.width - barWidth) / 2;
       const barY = this.height * 0.65;
       ctx.fillStyle = '#18263a';
@@ -2157,7 +2157,7 @@ export class Game {
       Math.floor(this.player.invulnerabilityTimer * 12) % 2 === 0;
     this.drawShield(ctx);
     this.player.draw(ctx, playerVisible);
-    if (!this.bossCinematic && this.pilotReaction.remaining > 0) {
+    if (this.pilotReaction.remaining > 0) {
       this.drawPilotReaction(ctx, this.player.x + (this.player.radius ?? 12) + 18, this.player.y - (this.player.radius ?? 12) - 18);
     }
     // Draw missiles after the ship so the hull cannot hide a launch from either wing.

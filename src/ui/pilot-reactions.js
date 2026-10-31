@@ -74,7 +74,7 @@ export function drawPilotReaction(ctx, state, x, y) {
   ctx.scale(scale, scale);
   ctx.globalAlpha = Math.min(1, state.remaining / 0.2);
   ctx.shadowColor = glow;
-  ctx.shadowBlur = 10;
+  ctx.shadowBlur = 0;
   ctx.fillStyle = 'rgba(5, 13, 28, 0.97)';
   ctx.beginPath();
   ctx.arc(0, 0, radius, 0, Math.PI * 2);
