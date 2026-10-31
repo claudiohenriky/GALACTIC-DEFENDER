@@ -1,4 +1,5 @@
 import { BossSystems } from './boss-systems.js?v=0.44.0-arena-2-4';
+import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.45.0-motion-core';
 
 export class Enemy {
   constructor(x, y, level = 1, type = 'chaser', isElite = false) {
@@ -34,6 +35,9 @@ export class Enemy {
     this.bossDeathSpin = 0;
     this.rewardGranted = false;
     this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 28 : type === 'artillery' ? 32 : type === 'sentinel' ? 42 : type === 'interceptor' ? 88 + Math.random() * 18 : 48 + Math.random() * 24) + Math.min(level, 8) * (type === 'guardian' ? 1.2 : 2);
+    this.motionProfile = type === 'artillery' ? (this.isElite ? ENEMY_MOTION_PROFILES.artilleryElite : ENEMY_MOTION_PROFILES.artillery)
+      : type === 'sentinel' ? (this.isElite ? ENEMY_MOTION_PROFILES.sentinelElite : ENEMY_MOTION_PROFILES.sentinel)
+        : type === 'guardian' ? (this.isElite ? ENEMY_MOTION_PROFILES.guardianElite : ENEMY_MOTION_PROFILES.guardian) : null;
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'boss'
       ? 1.8
@@ -417,8 +421,7 @@ export class Enemy {
       const eliteStrafe = this.isElite ? Math.sin(this.phase * 0.82) * Math.min(width * 0.18, 88) : 0;
       const desiredX = targetX + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150) + eliteStrafe + dodgeStrength;
       const desiredY = Math.max(36, targetY - Math.min(235, height * 0.42));
-      this.x += (desiredX - this.x) * Math.min(1, dt * (this.isElite ? 1.05 : 0.8));
-      this.y += (desiredY - this.y) * Math.min(1, dt * 1.0);
+      steerToPoint(this, desiredX, desiredY, this.motionProfile, dt);
       this.fireCooldown -= dt;
       if (this.fireCooldown <= 0 && this.y > 18) {
         this.fireCooldown = this.isElite ? 2.95 : 3.4;
@@ -456,8 +459,7 @@ export class Enemy {
         desiredY += (coverY - desiredY) * coverWeight;
       }
 
-      this.x += (desiredX - this.x) * Math.min(1, dt * (this.isElite ? 1.35 : 0.82));
-      this.y += (desiredY - this.y) * Math.min(1, dt * (this.isElite ? 1.65 : 1.2));
+      steerToPoint(this, desiredX, desiredY, this.motionProfile, dt);
       this.fireCooldown -= dt;
 
       if (this.fireCooldown <= 0 && this.y > 18) {
@@ -511,8 +513,8 @@ export class Enemy {
         centerY /= formationCount;
         const screenX = centerX + (targetX - centerX) * 0.45;
         const screenY = centerY + (targetY - centerY) * 0.45;
-        this.x += (screenX - this.x) * Math.min(1, dt * (this.isElite ? 1.15 : 0.95)) + drift * dt;
-        this.y += (screenY - this.y) * Math.min(1, dt * (this.isElite ? 1.15 : 0.95));
+        steerToPoint(this, screenX, screenY, this.motionProfile, dt);
+        this.x += drift * dt;
       } else {
         this.x += (dx / distance) * this.speed * dt + drift * dt;
         this.y += (dy / distance) * this.speed * dt;
