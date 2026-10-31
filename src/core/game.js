@@ -105,6 +105,10 @@ export class Game {
     this.pendingUpgradeChoices = [];
     this.hudUpdateInterval = 0.1;
     this.hudUpdateTimer = 0;
+    this.effectsMode = 'auto';
+    this.effectsScale = 1;
+    this.effectsPressure = 0;
+    this.effectsRecovery = 0;
     // Profiling is opt-in so normal gameplay pays no per-frame timing cost.
     this.performanceProfileEnabled = new URLSearchParams(window.location.search).get('profile') === '1';
     this.performanceProfileSamples = [];
@@ -116,6 +120,40 @@ export class Game {
     this.fpsCounterElement = document.querySelector('#fps-counter');
     this.backgroundCanvas = document.createElement('canvas');
     this.bindOverlayElements();
+  }
+
+  setEffectsMode(mode = 'auto') {
+    this.effectsMode = ['full', 'reduced', 'auto'].includes(mode) ? mode : 'auto';
+    this.effectsPressure = 0;
+    this.effectsRecovery = 0;
+    this.effectsScale = this.effectsMode === 'reduced' ? 0.55 : 1;
+  }
+
+  getEffectLimit(baseLimit) {
+    return Math.max(1, Math.floor(baseLimit * this.effectsScale));
+  }
+
+  updateEffectsQuality(frameMs) {
+    if (this.effectsMode !== 'auto') return;
+    const elapsed = Math.max(0.001, Math.min(0.05, (Number(frameMs) || 16.67) / 1000));
+    if (frameMs > 30) this.effectsPressure += elapsed * 1.8;
+    else if (frameMs > 22) this.effectsPressure += elapsed;
+    else this.effectsPressure = Math.max(0, this.effectsPressure - elapsed * 0.8);
+
+    if (this.effectsPressure >= 0.85 && this.effectsScale > 0.72) {
+      this.effectsScale = 0.72;
+      this.effectsRecovery = 0;
+    } else if (this.effectsPressure >= 1.8 && this.effectsScale > 0.5) {
+      this.effectsScale = 0.5;
+      this.effectsRecovery = 0;
+    }
+
+    if (frameMs < 18) this.effectsRecovery += elapsed;
+    else this.effectsRecovery = Math.max(0, this.effectsRecovery - elapsed * 0.5);
+    if (this.effectsRecovery >= 4 && this.effectsPressure < 0.2 && this.effectsScale < 1) {
+      this.effectsScale = this.effectsScale < 0.65 ? 0.72 : 1;
+      this.effectsRecovery = 0;
+    }
   }
 
   setFpsDisplayEnabled(enabled) {
@@ -371,7 +409,7 @@ export class Game {
     const toast = document.querySelector('#level-up-toast');
     toast.textContent = levelsGained > 1 ? `✦ NÍVEIS +${levelsGained}` : '✦ NÍVEL AUMENTADO';
     this.restartFeedbackAnimation(toast, 'level-up-active');
-    for (let i = 0; i < 22 && this.levelUpParticles.length < 66; i += 1) {
+    for (let i = 0; i < this.getEffectLimit(22) && this.levelUpParticles.length < this.getEffectLimit(66); i += 1) {
       const angle = (Math.PI * 2 * i) / 22 + rand(-0.15, 0.15);
       const speed = rand(32, 105);
       const life = rand(0.45, 0.95);
@@ -513,7 +551,7 @@ export class Game {
     this.damageFeedbackTimer = 0.48;
     this.damageImpactPulse = { x: this.player.x, y: this.player.y, life: 0.3, maxLife: 0.3 };
     // Brief red electrical sparks around the ship communicate a hit without obscuring play.
-    for (let i = 0; i < 9 && this.damageSparks.length < 36; i += 1) {
+    for (let i = 0; i < this.getEffectLimit(9) && this.damageSparks.length < this.getEffectLimit(36); i += 1) {
       const angle = rand(0, Math.PI * 2);
       const speed = rand(22, 68);
       const life = rand(0.32, 0.55);
@@ -529,8 +567,8 @@ export class Game {
     }
     // Sparks are reserved for low hull integrity, not every hit; cap them aggressively.
     const integrityRatio = this.player.health / Math.max(1, this.player.maxHealth);
-    if (integrityRatio <= 0.35 && this.damageSparks.length < 36) {
-      for (let i = 0; i < 2 && this.damageSparks.length < 36; i += 1) {
+    if (integrityRatio <= 0.35 && this.damageSparks.length < this.getEffectLimit(36)) {
+      for (let i = 0; i < this.getEffectLimit(2) && this.damageSparks.length < 36; i += 1) {
         const angle = rand(0, Math.PI * 2), speed = rand(22, 42), life = rand(0.16, 0.28);
         this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 9, y: this.player.y + Math.sin(angle) * 9, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, length: rand(3, 6), size: rand(1, 1.6), color: '#ff9d45' });
       }
@@ -606,7 +644,7 @@ export class Game {
     const y = this.player.y;
     const radius = 96;
     const life = 0.58;
-    if (this.shieldBreakEffects.length >= 4) this.shieldBreakEffects.shift();
+    if (this.shieldBreakEffects.length >= this.getEffectLimit(4)) this.shieldBreakEffects.shift();
     this.shieldBreakEffects.push({ x, y, radius, life, maxLife: life, kind: 'break' });
     // Compare squared distances to avoid square roots during area-damage checks.
     const radiusSquared = radius * radius;
@@ -887,7 +925,7 @@ export class Game {
 
   explodeGuidedMissile(missile) {
     const radius = missile.blastRadius;
-    if (this.guidedMissileEffects.length >= 6) this.guidedMissileEffects.shift();
+    if (this.guidedMissileEffects.length >= this.getEffectLimit(6)) this.guidedMissileEffects.shift();
     this.guidedMissileEffects.push({ x: missile.x, y: missile.y, radius, life: 0.48, maxLife: 0.48 });
     const radiusSquared = radius * radius;
     for (const enemy of this.enemies) {
@@ -1135,7 +1173,9 @@ export class Game {
     const focusY = boss
       ? (boss.y - boss.collisionRadius * 1.5 + this.player.y + (this.player.radius ?? 12)) / 2
       : this.player.y;
-    const targetX = Math.max(minX, Math.min(maxX, this.player.x - this.width / 2));
+    // Keep the pilot and DREADNOUGHT balanced horizontally during combat, matching the cinematic framing.
+    const focusX = boss ? (this.player.x + boss.x) * 0.5 : this.player.x;
+    const targetX = Math.max(minX, Math.min(maxX, focusX - this.width / 2));
     const targetY = Math.max(minY, Math.min(maxY, focusY - this.height / 2));
     if (snap) {
       this.cameraX = targetX;
@@ -1223,7 +1263,9 @@ export class Game {
     if (this.status !== 'running') return;
     const frameStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
     this.updateFpsCounter(time);
-    const dt = Math.min((time - this.lastTime) / 1000 || 0, .035);
+    const rawFrameMs = this.lastTime ? time - this.lastTime : 16.67;
+    const dt = Math.min(rawFrameMs / 1000 || 0, .035);
+    this.updateEffectsQuality(rawFrameMs);
     this.lastTime = time;
 
     const updateStartedAt = this.performanceProfileEnabled ? performance.now() : 0;
@@ -1409,7 +1451,7 @@ export class Game {
     const fontSize = this.width < 520 ? 10 : 12;
     ctx.font = `${fontSize}px ui-monospace, monospace`;
     const maxWidth = boxWidth - 22;
-    const words = cue.text.split(' ');
+    const words = (cue.visibleText ?? cue.text).split(' ');
     const rows = [];
     let row = '';
     for (const word of words) {
@@ -1428,32 +1470,43 @@ export class Game {
     if (!alert) return;
     const elapsed = this.bossCinematic.phaseElapsed - alert.at;
     const duration = 3.8;
-    const progress = Math.max(0, Math.min(1, elapsed / 0.7));
+    const progress = Math.max(0, Math.min(1, elapsed / 0.62));
     const eased = progress * progress * (3 - 2 * progress);
     const fadeOut = Math.max(0, Math.min(1, (duration - elapsed) / 0.55));
     const alpha = eased * fadeOut;
-    const width = Math.min(this.width - 24, Math.max(168, Math.min(380, this.width * 0.48)));
-    const height = 62;
-    const x = this.width - width - 12;
-    const y = -height + (this.height * 0.15 + height) * eased;
+    const width = Math.min(this.width - 24, Math.max(210, Math.min(alert.kind === 'boss' ? 420 : 360, this.width * 0.68)));
+    const height = 68;
+    const x = alert.kind === 'boss' ? (this.width - width) / 2 : this.width - width - 12;
+    const targetY = this.height * 0.075;
+    const y = -height + (targetY + height) * eased;
+    const accent = alert.accent || (alert.kind === 'boss' ? '#ff718d' : '#f2b85f');
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = 'rgba(4, 12, 25, 0.92)';
+    if (alert.kind === 'boss') {
+      const scale = 0.94 + eased * 0.06;
+      ctx.translate(this.width / 2, y + height / 2);
+      ctx.scale(scale, scale);
+      ctx.translate(-this.width / 2, -(y + height / 2));
+    }
+    ctx.fillStyle = 'rgba(4, 12, 25, 0.97)';
     ctx.fillRect(x, y, width, height);
-    ctx.strokeStyle = alert.title === 'DREADNOUGHT' ? '#ed8196' : '#efb45d';
-    ctx.lineWidth = 1.2;
-    ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, height - 1.2);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = alert.kind === 'boss' ? 1.8 : 1.2;
+    ctx.strokeRect(x + 0.7, y + 0.7, width - 1.4, height - 1.4);
+    ctx.fillStyle = accent;
     ctx.textAlign = 'center';
-    ctx.fillStyle = alert.title === 'DREADNOUGHT' ? '#ff9cac' : '#ffd18a';
-    ctx.font = '900 11px ui-monospace, monospace';
-    ctx.fillText(alert.title, x + width / 2, y + 20);
+    ctx.font = alert.kind === 'boss' ? '900 17px ui-monospace, monospace' : '900 14px ui-monospace, monospace';
+    ctx.fillText(alert.icon || '!', x + 22, y + 39);
+    ctx.textAlign = 'left';
+    ctx.font = '900 10px ui-monospace, monospace';
+    ctx.fillText(alert.title, x + 43, y + 23);
     ctx.fillStyle = '#d8e4f2';
-    const fontSize = this.width < 520 ? 6.5 : 8;
+    const fontSize = this.width < 520 ? 7 : 8;
     ctx.font = `900 ${fontSize}px ui-monospace, monospace`;
     const words = alert.detail.split(' ');
     const rows = [];
     let row = '';
-    const maxWidth = width - 18;
+    const maxWidth = width - 56;
     for (const word of words) {
       const candidate = row ? `${row} ${word}` : word;
       if (row && ctx.measureText(candidate).width > maxWidth) {
@@ -1462,7 +1515,7 @@ export class Game {
       } else row = candidate;
     }
     if (row) rows.push(row);
-    rows.slice(0, 2).forEach((line, index) => ctx.fillText(line, x + width / 2, y + 39 + index * (fontSize + 3), maxWidth));
+    rows.slice(0, 2).forEach((line, index) => ctx.fillText(line, x + 43, y + 43 + index * (fontSize + 3), maxWidth));
     ctx.restore();
   }
 
@@ -1471,7 +1524,7 @@ export class Game {
     if (!cinematic) return;
     ctx.save();
     if (cinematic.phase === 'loading') {
-      ctx.fillStyle = 'rgba(2, 7, 18, 0.965)';
+      ctx.fillStyle = '#020711';
       ctx.fillRect(0, 0, this.width, this.height);
       const facts = [
         'REGISTRO GALÁCTICO: a antiga rota comercial foi abandonada após sinais de combate.',
@@ -1531,7 +1584,7 @@ export class Game {
     ctx.fillText('PILOTO // VANGUARD', x + 11, y + 17);
     ctx.fillStyle = '#f0f5ff';
     ctx.font = `${this.width < 520 ? 10 : 12}px ui-monospace, monospace`;
-    ctx.fillText(cue, x + 11, y + 41, width - 22);
+    ctx.fillText(visibleCue, x + 11, y + 41, width - 22);
     ctx.restore();
   }
 
@@ -1710,7 +1763,7 @@ export class Game {
       this.overheatCriticalTimer = (this.overheatCriticalTimer || 0) + dt;
       this.overheatSparkTimer = (this.overheatSparkTimer || 0) - dt;
       // Smoke begins only after sustained critical heat; keep particle count and frequency low.
-      if (this.overheatCriticalTimer >= 1.5 && this.overheatSparkTimer <= 0 && this.damageSparks.length < 10) {
+      if (this.overheatCriticalTimer >= 1.5 && this.overheatSparkTimer <= 0 && this.damageSparks.length < this.getEffectLimit(10)) {
         this.overheatSparkTimer = 0.72;
         const angle = rand(0, Math.PI * 2), speed = rand(5, 12), life = rand(0.45, 0.7);
         this.damageSparks.push({ x: this.player.x + Math.cos(angle) * 8, y: this.player.y + Math.sin(angle) * 8, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life, maxLife: life, size: rand(2, 3.5), length: 0, color: '#778391', kind: 'smoke' });
@@ -2138,6 +2191,7 @@ export class Game {
       ctx.restore();
     }
     for (let index = 0; index < this.guidedMissileEffects.length; index += 1) {
+      if (this.effectsScale < 0.75 && index % 2) continue;
       const effect = this.guidedMissileEffects[index];
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
@@ -2201,6 +2255,7 @@ export class Game {
 
     // Lightweight dual-ring shockwave without per-frame shadow blur.
     for (let index = 0; index < this.shieldBreakEffects.length; index += 1) {
+      if (this.effectsScale < 0.75 && index % 2) continue;
       const effect = this.shieldBreakEffects[index];
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
@@ -2217,6 +2272,7 @@ export class Game {
     // Red circuit sparks and a brief edge flash make incoming damage easier to notice.
     // Indexed iteration avoids allocating a callback on every rendered frame.
     for (let index = 0; index < this.damageSparks.length; index += 1) {
+      if (this.effectsScale < 0.75 && index % 2) continue;
       const spark = this.damageSparks[index];
       const fade = Math.max(0, spark.life / spark.maxLife);
       ctx.save();
@@ -2288,6 +2344,7 @@ export class Game {
 
     // Short-lived gold particles make level gains visible without blocking play.
     for (let index = 0; index < this.levelUpParticles.length; index += 1) {
+      if (this.effectsScale < 0.75 && index % 2) continue;
       const particle = this.levelUpParticles[index];
       ctx.save();
       ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
