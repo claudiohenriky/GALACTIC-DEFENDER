@@ -69,4 +69,4 @@ test('corrupted saved data falls back without throwing', () => {
     if (previous === undefined) delete globalThis.localStorage;
     else globalThis.localStorage = previous;
   }
-}));
+});
