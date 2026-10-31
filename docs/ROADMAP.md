@@ -521,3 +521,12 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [ ] Confirmar que pausas, redimensionamento e mudanças de orientação não interrompem nem duplicam a transição.
 - [ ] Refinar a posição das falas e a composição da câmera após o primeiro teste de gameplay.
 - Versão experimental: feature/wave10-transition-cutscene. A branch test/wave10-normal-gameplay mantém a progressão original até a onda 10 para comparação.
+
+
+## Balanceamento do Sentinela — revisão experimental (31/10/2026)
+- [x] Reduzir a velocidade máxima e aceleração do Sentinela básico, preservando o perfil Elite.
+- [x] Diminuir amplitude e intensidade da esquiva lateral do Sentinela básico e espaçar as esquivas.
+- [x] Reduzir levemente a oscilação lateral da rota de patrulha do Sentinela básico.
+- [x] Adicionar teste automatizado para o perfil básico/Elite e para o início de teste na onda 9.
+- [ ] Validar em gameplay se o Sentinela ficou acertável sem perder sua identidade tática; revisar Elite somente após esse teste.
+- Na branch de cutscene, o parâmetro testStartWave=9 inicia diretamente na onda 9; a branch normal permanece na onda 1.
