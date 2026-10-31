@@ -1,3 +1,13 @@
+## Limpeza da proa e otimização do DREADNOUGHT — candidata v0.44.0
+
+- Removida a antiga passagem de desenho do casco que duplicava parte da geometria sob a nova passagem em camadas. O corpo do boss agora é desenhado por uma única passagem principal.
+- Removida a superestrutura central elevada da proa. A cavidade de energia e os trilhos laterais permanecem; a ponte cinza não é mais desenhada sobre o eixo frontal.
+- Removidos os gradientes de deck, faces laterais, reator e profundidade da cavidade criados a cada renderização. Foram usados preenchimentos sólidos com a geometria já existente para preservar contraste.
+- Os loops de desenho do boss deixaram de criar pequenos arrays de coordenadas por quadro.
+- O número de gradientes criados no passe do DREADNOUGHT caiu de quatro famílias (com gradientes laterais duplicados) para zero; a antiga passagem de casco duplicada também foi removida.
+- **Não é uma medição de FPS:** o número de operações gráficas removidas é uma evidência estática de menor trabalho por frame, mas o resultado no dispositivo precisa ser medido.
+- **Validação manual:** testar o mesmo aparelho, orientação, escala de câmera e cenário; ativar Configurações > Medidor de FPS; registrar FPS médio e tempo de quadro por pelo menos 30 segundos, em três rodadas, antes e depois.
+
 # Validação de desempenho — GALACTIC-DEFENDER
 
 Esta rotina compara versões no mesmo dispositivo e cenário. Verificações estáticas não substituem testes reais no navegador.
