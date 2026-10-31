@@ -5,7 +5,7 @@
 - Adiciona três barras de sinal com pulsação suave, um brilho de varredura discreto no cabeçalho e pequenos traços técnicos nos cantos.
 - Mantém as animações leves, sem sombras desfocadas por quadro, sem alterar a legibilidade, o posicionamento ou o fluxo da cutscene.
 - Preserva as falas, a entrada, a distância aprovada, a câmera, a arena e o combate.
-- Validação automatizada e visual desta etapa pendentes.
+- **Validação automatizada:** 69/69 testes aprovados, sintaxe JavaScript, imports relativos e whitespace aprovados. Validação visual em Android/desktop ainda pendente.
 
 ## [0.54.3] — diálogos e cartões cinematográficos
 
