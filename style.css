@@ -661,16 +661,22 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 }
 
 
-/* v0.54.0 — HUD is controlled by the cinematic owner during the wave-10 reveal. */
-.canvas-frame.cinematic-active .in-game-hud,
-.canvas-frame.cinematic-active #boss-hud,
-.canvas-frame.cinematic-active #overload-panel,
-.canvas-frame.cinematic-active #fps-counter,
-.canvas-frame.cinematic-active #level-up-toast,
-.canvas-frame.cinematic-active #guided-missile-button,
-.canvas-frame.cinematic-active #shield-pulse-button,
-.canvas-frame.cinematic-active #continuous-laser-button,
-.canvas-frame.cinematic-active #reward-banner,
-.canvas-frame.cinematic-active #damage-feedback {
+/* v0.54.0 — the cinematic temporarily hides the complete arena HUD and side telemetry. */
+.game-layout.cinematic-active .side-panel,
+.game-layout.cinematic-active .arena-status,
+.game-layout.cinematic-active .arena-footer,
+.game-layout.cinematic-active .in-game-hud,
+.game-layout.cinematic-active #boss-hud,
+.game-layout.cinematic-active #overload-panel,
+.game-layout.cinematic-active #fps-counter,
+.game-layout.cinematic-active #level-up-toast,
+.game-layout.cinematic-active #guided-missile-button,
+.game-layout.cinematic-active #shield-pulse-button,
+.game-layout.cinematic-active #continuous-laser-button,
+.game-layout.cinematic-active #reward-banner,
+.game-layout.cinematic-active #damage-feedback,
+.game-layout.cinematic-active #touch-controls,
+.game-layout.cinematic-active .fullscreen-button,
+.game-layout.cinematic-active .orientation-hint {
   pointer-events: none;
 }

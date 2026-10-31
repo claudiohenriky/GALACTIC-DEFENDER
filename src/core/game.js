@@ -55,8 +55,8 @@ export class Game {
     this.bossEncounterSeen = false;
     this.eliteAlertsShown = new Set();
     this.pilotReaction = createPilotReactionState();
-    this.cinematicHudRoot = this.canvas.closest('.canvas-frame');
-    this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #continuous-laser-button, #reward-banner, #damage-feedback') ?? []);
+    this.cinematicHudRoot = this.canvas.closest('.game-layout');
+    this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.side-panel, .arena-status, .arena-footer, .in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #continuous-laser-button, #reward-banner, #damage-feedback, #touch-controls, .fullscreen-button, .orientation-hint') ?? []);
     this.guardianAssignmentTimer = 0;
     this.eliteTactics = new EliteTacticalCoordinator();
     this.enemyTactics = new EnemyTacticalCoordinator();
