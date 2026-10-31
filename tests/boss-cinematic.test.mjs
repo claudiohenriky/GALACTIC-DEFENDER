@@ -93,3 +93,9 @@ test('boss identity appears only in the final identification phase', () => {
   assert.equal(alert.title, 'DREADNOUGHT');
   assert.equal(getBossCinematicDialogue(state).actor, 'pilot');
 });
+
+test('alert cues tolerate floating-point boundaries at the scheduled frame', () => {
+  const state = createBossCinematic();
+  advance(state, 25.8);
+  assert.equal(getBossCinematicAlert(state)?.kind, 'anomaly');
+});
