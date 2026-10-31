@@ -64,3 +64,33 @@ test('cinematic camera keeps both ships centered when their horizontal positions
   const expectedFocus = (separatedPlayer.x + separatedBoss.x) / 2;
   assert.ok(Math.abs((frame.x + 450) - expectedFocus) < 1e-9);
 });
+
+test('cinematic camera blends horizontal focus gradually instead of snapping at reveal start', () => {
+  const separatedPlayer = { x: 900, y: 1500, radius: 12 };
+  const separatedBoss = { x: 1500, y: 900, collisionRadius: 145 };
+  const frameAtStart = getBossCinematicCameraFrame({
+    phase: 'distant-contact', phaseElapsed: 0, phaseDuration: 17,
+    player: separatedPlayer, boss: separatedBoss,
+    width: 900, height: 420, minZoom: 1 / 2.4,
+    worldWidth: 2160, worldHeight: 1008
+  });
+  const frameMidway = getBossCinematicCameraFrame({
+    phase: 'distant-contact', phaseElapsed: 8.5, phaseDuration: 17,
+    player: separatedPlayer, boss: separatedBoss,
+    width: 900, height: 420, minZoom: 1 / 2.4,
+    worldWidth: 2160, worldHeight: 1008
+  });
+  const frameAtEnd = getBossCinematicCameraFrame({
+    phase: 'distant-contact', phaseElapsed: 17, phaseDuration: 17,
+    player: separatedPlayer, boss: separatedBoss,
+    width: 900, height: 420, minZoom: 1 / 2.4,
+    worldWidth: 2160, worldHeight: 1008
+  });
+  const centerAtStart = frameAtStart.x + 450;
+  const centerMidway = frameMidway.x + 450;
+  const centerAtEnd = frameAtEnd.x + 450;
+  assert.ok(centerAtStart < centerMidway);
+  assert.ok(centerMidway < centerAtEnd);
+  assert.ok(Math.abs(centerAtStart - separatedPlayer.x) < 1e-9);
+  assert.ok(Math.abs(centerAtEnd - (separatedPlayer.x + separatedBoss.x) / 2) < 1e-9);
+});
