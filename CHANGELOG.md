@@ -1,3 +1,12 @@
+## [Unreleased] — v0.49.0 · reações do piloto e alertas de ameaça
+
+- Adiciona reações diegéticas da nave: ❓ para surpresa diante da chegada do DREADNOUGHT e da primeira aparição de cada classe de Elite; ❗ para sinalizar ataques perigosos.
+- Conecta o alerta de perigo ao aviso do canhão principal do DREADNOUGHT, somente quando a linha de disparo ameaça a posição do jogador.
+- Detecta a janela final de telemetria dos canhões de plasma e verifica a trajetória prevista contra a área da nave do jogador antes de exibir o alerta.
+- Os avisos são acionados por transição de ameaça, evitando piscadas contínuas; a reação aparece ao lado da nave com animação curta e desaparecimento gradual.
+- Adiciona testes unitários para duração das reações e acionamento único dos alertas.
+- **Validação pendente:** executar a suíte automatizada e testar visualmente cutscene, tropas de Elite e ataques do DREADNOUGHT em navegador; ainda não houve playtest.
+
 ## [Unreleased] — v0.48.0 · transição cinematográfica do DREADNOUGHT
 
 - Corrige a passagem da cutscene para o combate: o temporizador interno de entrada do chefe é finalizado no handoff, impedindo que a IA reproduza a descida cinematográfica depois do diálogo final.
