@@ -10,7 +10,8 @@ import {
   getBossCinematicDialogue,
   getBossCinematicBossOpacity,
   wrapBossCinematicDialogue,
-  getBossDialogueVisualState
+  getBossDialogueVisualState,
+  getBossDialoguePlacement
 } from '../src/core/boss-cinematic.js';
 
 function advance(state, seconds) {
@@ -188,4 +189,26 @@ test('dialogue card visual state keeps communication muted and animation bounded
     assert.ok(visual.pulse >= 0 && visual.pulse <= 1);
     assert.ok(visual.scan >= 0 && visual.scan < 1);
   }
+});
+
+
+test('DREADNOUGHT dialogue card is placed beside the hull on landscape screens', () => {
+  const placement = getBossDialoguePlacement({
+    anchorX: 400, anchorY: 180, viewportWidth: 800, viewportHeight: 420,
+    boxWidth: 272, boxHeight: 76, bossRadius: 100, zoom: 0.54
+  });
+  assert.ok(['left', 'right'].includes(placement.side));
+  const hullHalfWidth = 100 * 1.52 * 0.82 * 0.54 + 8;
+  if (placement.side === 'left') assert.ok(placement.x + 272 < 400 - hullHalfWidth);
+  else assert.ok(placement.x > 400 + hullHalfWidth);
+});
+
+test('DREADNOUGHT dialogue placement stays inside narrow mobile viewport', () => {
+  const placement = getBossDialoguePlacement({
+    anchorX: 180, anchorY: 180, viewportWidth: 360, viewportHeight: 360,
+    boxWidth: 220, boxHeight: 76, bossRadius: 100, zoom: 0.54
+  });
+  assert.ok(placement.x >= 12 && placement.x + 220 <= 348);
+  assert.ok(placement.y >= 12 && placement.y + 76 <= 348);
+  assert.ok(['above', 'below', 'edge-fallback'].includes(placement.side));
 });
