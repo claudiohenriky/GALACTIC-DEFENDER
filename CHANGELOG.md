@@ -821,3 +821,11 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Remove o realce quase branco/azul-claro do núcleo dos propulsores e mantém a paleta em ciano e azul-petróleo.
 - Escopo exclusivamente visual: não altera disparos, dano, cadência, IA, hitboxes, colisões, escudos ou telemetria de carga. O laser principal continua sem disparo/dano nesta candidata.
 - Validação visual em navegador, celular e desktop ainda pendente.
+
+
+## [Unreleased] — Transição cinematográfica da onda 9 para a onda 10
+- Adiciona um controlador de estados isolado para a passagem de campanha após a limpeza completa da onda 9.
+- Carregamento de 10 segundos com telemetria rotativa, seguido de falas do piloto, alerta de contato desconhecido, entrada gradual do DREADNOUGHT e diálogo de ameaça.
+- A sequência preserva pontuação, jogador e progressão; limpa apenas entidades e projéteis transitórios antes da entrada do chefe.
+- A candidata está isolada em branch própria. A progressão normal continua disponível em uma branch de comparação, sem alterações na versão oficial.
+- Validação automatizada da máquina de estados adicionada; teste visual e de gameplay ainda pendente.
