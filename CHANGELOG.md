@@ -1,3 +1,14 @@
+## [0.54.0] — nova cinemática, chefes recorrentes e revisão de desempenho
+
+- Substitui o controlador antigo da transição da onda 9 para 10 por uma sequência independente, com fade do HUD, carregamento de 10 segundos, diálogos com intervalos definidos, alerta anônimo, revelação distante e identificação final do DREADNOUGHT.
+- A cinemática passa a ser a única proprietária da câmera e da apresentação do chefe até o handoff. O DREADNOUGHT não recebe atualizações de IA durante a cena; seu temporizador de entrada é finalizado antes do primeiro quadro de combate.
+- Remove os módulos antigos `wave-ten-transition.js` e `boss-camera.js`. A função de posicionamento de combate foi separada em `boss-positioning.js`, e a preparação do handoff pertence ao novo módulo de câmera cinematográfica.
+- Ajusta a cadência de chefes para as ondas 10, 20, 30, 40...; ondas intermediárias como 15 e 25 voltam a ser ondas normais. As aparições posteriores à primeira usam falas breves de reconhecimento, sem repetir a introdução longa.
+- Reduz varreduras redundantes de projéteis na IA de Sentinelas e Artilheiros para uma verificação a cada 0,16 s quando não há cooldown ativo.
+- Limita partículas de dano e partículas de evolução a listas com tamanho máximo controlado; efeitos de mísseis e quebra de escudo já tinham limites próprios e foram mantidos.
+- Adiciona testes de regressão para o novo fluxo temporal, enquadramento da câmera, transferência para IA e recorrência de chefes.
+- **Validação pendente:** a branch ainda precisa passar pela suíte automatizada e por teste visual em navegador. Nenhum ganho de FPS foi medido nesta alteração.
+
 ## [0.53.2] — correção de câmera no handoff e sinais da cutscene
 
 - Corrige a causa visual restante após a cutscene: o enquadramento cinematográfico terminava em zoom e posição de câmera diferentes dos limites usados por `updateCamera()`. A câmera agora converge para o mesmo zoom mínimo e para os mesmos limites durante o diálogo final, antes de liberar a simulação normal.

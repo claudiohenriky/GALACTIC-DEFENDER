@@ -1,3 +1,13 @@
+## Auditoria v0.54.0 — varreduras de IA e limites de efeitos
+
+- [x] Identificado que Sentinelas e Artilheiros podiam recalcular a trajetória de todos os projéteis em todos os quadros, inclusive quando nenhum projétil representava ameaça. A verificação agora é agendada em intervalos de 0,16 s enquanto o cooldown de esquiva está livre.
+- [x] Limitado o conjunto de partículas de dano a 36 e o conjunto de partículas de evolução a 66. O limite impede crescimento transitório excessivo em sequências de impactos ou progressão rápida.
+- [x] Mantidos os limites existentes: até 6 efeitos de explosão de míssil e até 4 efeitos de quebra de escudo.
+- [x] Preservada a compactação in-place das listas de efeitos e partículas, sem criar arrays substitutos a cada quadro.
+- [ ] Medir FPS, tempo de quadro e estabilidade no mesmo celular antes/depois, em pelo menos três rodadas de 30 segundos.
+- [ ] Medir o cenário de campanha com muitos inimigos/projéteis e o cenário da luta contra o DREADNOUGHT.
+- **Importante:** a redução de frequência da varredura da IA e os limites de efeitos são otimizações verificáveis no código, mas não comprovam sozinhos aumento de FPS. Confirmar a resposta de esquiva em jogo e medir o dispositivo-alvo.
+
 ## Limpeza da proa e otimização do DREADNOUGHT — candidata v0.44.0
 
 - Removida a antiga passagem de desenho do casco que duplicava parte da geometria sob a nova passagem em camadas. O corpo do boss agora é desenhado por uma única passagem principal.

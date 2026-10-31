@@ -659,3 +659,18 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
  .boss-section-heading{margin:4px 0 2px}.boss-shield-cell>span,.boss-shield-cell>small{font-size:5.5px}
  .boss-module-pip{min-height:12px}.boss-module-pip b{font-size:5.5px}
 }
+
+
+/* v0.54.0 — HUD is controlled by the cinematic owner during the wave-10 reveal. */
+.canvas-frame.cinematic-active .in-game-hud,
+.canvas-frame.cinematic-active #boss-hud,
+.canvas-frame.cinematic-active #overload-panel,
+.canvas-frame.cinematic-active #fps-counter,
+.canvas-frame.cinematic-active #level-up-toast,
+.canvas-frame.cinematic-active #guided-missile-button,
+.canvas-frame.cinematic-active #shield-pulse-button,
+.canvas-frame.cinematic-active #continuous-laser-button,
+.canvas-frame.cinematic-active #reward-banner,
+.canvas-frame.cinematic-active #damage-feedback {
+  pointer-events: none;
+}
