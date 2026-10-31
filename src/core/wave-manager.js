@@ -17,6 +17,17 @@ export class WaveManager {
     this.timer = 2.5;
   }
 
+  // Explicitly opt-in starting point for isolated test builds; normal runs still reset to wave 1.
+  startAtWaveForTesting(wave) {
+    const targetWave = Math.max(1, Math.floor(Number(wave) || 1));
+    this.wave = targetWave;
+    const bossWave = targetWave >= 10 && targetWave % 5 === 0;
+    this.enemyCount = bossWave ? 1 : Math.min(5 + (targetWave - 1) * 2, 18);
+    this.spawnedCount = 0;
+    this.state = 'spawning';
+    this.timer = 2.5;
+  }
+
   update(dt, activeEnemyCount) {
     if (this.state === 'intermission') {
       this.timer -= dt;
