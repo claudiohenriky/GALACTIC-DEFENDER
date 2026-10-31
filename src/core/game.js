@@ -14,7 +14,8 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createWaveTenTransition, advanceWaveTenTransition, finalizeWaveTenTransition } from './wave-ten-transition.js?v=0.48.0-boss-handoff';
+import { createWaveTenTransition, advanceWaveTenTransition, finalizeWaveTenTransition } from './wave-ten-transition.js?v=0.51.0-cinematic-camera';
+import { getBossCameraFrame } from './boss-camera.js?v=0.51.0-cinematic-camera';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction } from '../ui/pilot-reactions.js?v=0.50.0-pilot-reactions';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
@@ -1118,8 +1119,14 @@ export class Game {
     const minY = halfViewHeight - this.height / 2;
     const maxX = Math.max(minX, this.worldWidth - halfViewWidth - this.width / 2);
     const maxY = Math.max(minY, this.worldHeight - halfViewHeight - this.height / 2);
+    const boss = this.bossEncounterSeen
+      ? this.enemies.find((enemy) => enemy.active && enemy.type === 'boss' && !enemy.bossDying)
+      : null;
+    // During the DREADNOUGHT encounter, bias the camera toward the space between
+    // the pilot and the boss so the long hull stays visible without changing the arena.
+    const focusY = boss ? (this.player.y + boss.y) / 2 : this.player.y;
     const targetX = Math.max(minX, Math.min(maxX, this.player.x - this.width / 2));
-    const targetY = Math.max(minY, Math.min(maxY, this.player.y - this.height / 2));
+    const targetY = Math.max(minY, Math.min(maxY, focusY - this.height / 2));
     if (snap) {
       this.cameraX = targetX;
       this.cameraY = targetY;
@@ -1287,7 +1294,8 @@ export class Game {
     this.waveTenTransition.bossEndY = this.player.y - this.height * 0.62;
     this.cameraX = this.player.x - this.width / 2;
     this.cameraY = this.player.y - this.height / 2;
-    this.cameraZoom = 1.18;
+    this.cameraZoom = 0.72;
+    this.cameraY = this.player.y - this.height * 0.12 - this.height / 2;
   }
 
   updateWaveTenTransition(dt) {
@@ -1314,6 +1322,21 @@ export class Game {
       const eased = progress * progress * (3 - 2 * progress);
       transition.boss.y = transition.bossStartY + (transition.bossEndY - transition.bossStartY) * eased;
     }
+
+    // Camera movement is part of the cutscene, not a resize of the simulation world.
+    const cameraFrame = getBossCameraFrame({
+      phase: transition.phase,
+      player: this.player,
+      boss: transition.boss,
+      width: this.width,
+      height: this.height,
+      minZoom: this.cameraMinZoom
+    });
+    const cameraBlend = Math.min(1, Math.max(0, dt) * 2.8);
+    transition.cameraZoom += (cameraFrame.zoom - transition.cameraZoom) * cameraBlend;
+    this.cameraX += (cameraFrame.x - this.cameraX) * cameraBlend;
+    this.cameraY += (cameraFrame.y - this.cameraY) * cameraBlend;
+
     if (transition.phase === 'complete') {
       const revealedBoss = finalizeWaveTenTransition(transition);
       this.waveTenTransition = null;
@@ -1335,11 +1358,79 @@ export class Game {
     drawPilotReaction(ctx, this.pilotReaction, x, y);
   }
 
+  renderTransitionDialogue(ctx, transition) {
+    const dialogue = {
+      'pilot-report': { speaker: 'PILOTO // VANGUARD', anchor: 'player', lines: ['Setor completamente limpo. Não detecto mais hostis nas proximidades.', 'Finalmente conseguimos controlar esta região.'] },
+      'pilot-warning': { speaker: 'PILOTO // VANGUARD', anchor: 'player', lines: ['Espere... estou detectando uma assinatura energética desconhecida.', 'A leitura está aumentando. Isso não parece ser uma unidade comum.'] },
+      'boss-entry': { speaker: 'SISTEMA DE BORDO', anchor: 'player', lines: ['ALERTA MÁXIMO: contato colossal identificado.', 'Assinatura energética e armamentos em escala desconhecida.'] },
+      'boss-taunt': { speaker: 'DREADNOUGHT', anchor: 'boss', lines: ['Observei seu avanço desde o início.', 'Você eliminou todas as unidades que enviei.', 'Mas seu avanço termina aqui.'] }
+    }[transition.phase];
+    if (!dialogue) return;
+
+    const zoom = Math.max(this.cameraMinZoom, transition.cameraZoom);
+    const anchor = dialogue.anchor === 'boss' && transition.boss ? transition.boss : this.player;
+    const anchorX = this.width / 2 + (anchor.x - this.width / 2 - this.cameraX) * zoom;
+    const anchorY = this.height / 2 + (anchor.y - this.height / 2 - this.cameraY) * zoom;
+    const boxWidth = Math.min(Math.max(176, this.width * 0.48), Math.min(360, this.width - 24));
+    const boxHeight = 76;
+    const placeRight = anchorX < this.width * 0.54;
+    const x = Math.max(12, Math.min(this.width - boxWidth - 12,
+      placeRight ? anchorX + 28 : anchorX - boxWidth - 28));
+    const preferAbove = anchorY > this.height * 0.46;
+    const y = Math.max(12, Math.min(this.height - boxHeight - 12,
+      preferAbove ? anchorY - boxHeight - 28 : anchorY + 28));
+    const lineIndex = Math.min(dialogue.lines.length - 1,
+      Math.floor(transition.phaseElapsed / Math.max(0.1, transition.phaseDuration / dialogue.lines.length)));
+    const line = dialogue.lines[lineIndex];
+    const accent = transition.phase === 'boss-taunt' ? '#e58bad' : '#65dff0';
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(5, 13, 28, 0.94)';
+    ctx.fillRect(x, y, boxWidth, boxHeight);
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(x + 0.75, y + 0.75, boxWidth - 1.5, boxHeight - 1.5);
+
+    // Small pointer connects the compact radio bubble to its speaker.
+    const pointerX = Math.max(x + 14, Math.min(x + boxWidth - 14, anchorX));
+    const pointerY = preferAbove ? y + boxHeight : y;
+    const pointerTipY = preferAbove ? Math.min(this.height - 4, anchorY - 8) : Math.max(4, anchorY + 8);
+    ctx.fillStyle = 'rgba(5, 13, 28, 0.94)';
+    ctx.beginPath();
+    ctx.moveTo(pointerX - 7, pointerY);
+    ctx.lineTo(pointerX + 7, pointerY);
+    ctx.lineTo(pointerX, pointerTipY);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = accent;
+    ctx.font = '900 9px ui-monospace, monospace';
+    ctx.fillText(dialogue.speaker, x + 11, y + 17);
+    ctx.fillStyle = '#edf5ff';
+    const fontSize = this.width < 520 ? 10 : 12;
+    ctx.font = `${fontSize}px ui-monospace, monospace`;
+    const maxTextWidth = boxWidth - 22;
+    let currentLine = '';
+    const wrapped = [];
+    for (const word of line.split(' ')) {
+      const candidate = currentLine ? `${currentLine} ${word}` : word;
+      if (currentLine && ctx.measureText(candidate).width > maxTextWidth) {
+        wrapped.push(currentLine);
+        currentLine = word;
+      } else currentLine = candidate;
+    }
+    if (currentLine) wrapped.push(currentLine);
+    wrapped.slice(0, 3).forEach((text, index) => ctx.fillText(text, x + 11, y + 39 + index * (fontSize + 3)));
+    ctx.restore();
+  }
+
   renderWaveTenTransition(ctx) {
     const transition = this.waveTenTransition;
     if (!transition) return;
     ctx.save();
-    ctx.fillStyle = transition.phase === 'loading' ? 'rgba(3, 8, 20, 0.88)' : 'rgba(3, 8, 20, 0.38)';
+    ctx.fillStyle = transition.phase === 'loading' ? 'rgba(3, 8, 20, 0.88)' : 'rgba(3, 8, 20, 0.24)';
     ctx.fillRect(0, 0, this.width, this.height);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -1355,8 +1446,9 @@ export class Game {
       ctx.font = '900 11px ui-monospace, monospace';
       ctx.fillText('GALACTIC DEFENDER // OPERAÇÃO 010', this.width / 2, this.height * 0.39);
       ctx.fillStyle = '#f1f6ff';
-      ctx.font = '900 26px ui-monospace, monospace';
-      ctx.fillText('RECONFIGURANDO SETOR', this.width / 2, this.height * 0.47);
+      const titleSize = Math.max(16, Math.min(26, this.width * 0.045));
+      ctx.font = `900 ${titleSize}px ui-monospace, monospace`;
+      ctx.fillText('RECONFIGURANDO SETOR', this.width / 2, this.height * 0.47, this.width * 0.9);
       ctx.fillStyle = '#b8c8dc';
       ctx.font = '12px ui-monospace, monospace';
       ctx.fillText(facts[factIndex], this.width / 2, this.height * 0.56, this.width * 0.86);
@@ -1371,51 +1463,7 @@ export class Game {
       ctx.font = '10px ui-monospace, monospace';
       ctx.fillText('SINCRONIZANDO SISTEMAS', this.width / 2, barY + 24);
     } else {
-      const dialogue = {
-        'pilot-report': { speaker: 'PILOTO // VANGUARD', lines: ['Setor completamente limpo. Não detecto mais hostis nas proximidades.', 'Finalmente conseguimos controlar esta região.'] },
-        'pilot-warning': { speaker: 'PILOTO // VANGUARD', lines: ['Espere... estou detectando uma assinatura energética desconhecida.', 'A leitura está aumentando. Isso não parece ser uma unidade comum.'] },
-        'boss-entry': { speaker: 'SISTEMA DE BORDO', lines: ['ALERTA MÁXIMO: contato colossal identificado.', 'Assinatura energética e armamentos em escala desconhecida.'] },
-        'boss-taunt': { speaker: 'DREADNOUGHT', lines: ['Observei seu avanço desde o início.', 'Você eliminou todas as unidades que enviei.', 'Mas seu avanço termina aqui.'] }
-      }[transition.phase];
-      if (dialogue) {
-        const boxWidth = Math.min(this.width * 0.88, 720);
-        // Give dialogue more vertical room on short landscape displays without covering the full arena.
-        const boxHeight = Math.min(this.height * 0.64, 220);
-        const x = (this.width - boxWidth) / 2;
-        const y = this.height - boxHeight - Math.max(10, this.height * 0.035);
-        ctx.fillStyle = 'rgba(5, 13, 28, 0.94)';
-        ctx.fillRect(x, y, boxWidth, boxHeight);
-        ctx.strokeStyle = transition.phase === 'boss-taunt' ? '#bd6c91' : '#4d9fb8';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(x, y, boxWidth, boxHeight);
-        ctx.textAlign = 'left';
-        ctx.fillStyle = transition.phase === 'boss-taunt' ? '#ffb4cf' : '#83eaff';
-        ctx.font = '900 10px ui-monospace, monospace';
-        ctx.fillText(dialogue.speaker, x + 16, y + 22);
-        ctx.fillStyle = '#edf5ff';
-        const fontSize = this.width < 520
-          ? Math.max(9, Math.min(11, this.height * 0.022))
-          : Math.max(11, Math.min(14, this.height * 0.022));
-        const lineHeight = Math.ceil(fontSize * 1.45);
-        ctx.font = `${fontSize}px ui-monospace, monospace`;
-        const wrappedLines = [];
-        for (const line of dialogue.lines) {
-          let currentLine = '';
-          for (const word of line.split(' ')) {
-            const candidate = currentLine ? `${currentLine} ${word}` : word;
-            if (currentLine && ctx.measureText(candidate).width > boxWidth - 32) {
-              wrappedLines.push(currentLine);
-              currentLine = word;
-            } else currentLine = candidate;
-          }
-          if (currentLine) wrappedLines.push(currentLine);
-        }
-        wrappedLines.forEach((line, index) => ctx.fillText(line, x + 16, y + 48 + index * lineHeight));
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#718aa4';
-        ctx.font = '9px ui-monospace, monospace';
-        ctx.fillText('TRANSMISSÃO DE ÁUDIO // REGISTRO DE CAMPANHA', x + boxWidth - 14, y + boxHeight - 12);
-      }
+      this.renderTransitionDialogue(ctx, transition);
     }
     ctx.restore();
     if (this.pilotReaction.remaining > 0) {
