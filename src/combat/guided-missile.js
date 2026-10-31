@@ -9,8 +9,8 @@ export class GuidedMissile {
     this.angle = target && target.active ? Math.atan2(target.y - y, target.x - x) : initialAngle;
     this.speed = 235 + level * 18;
     this.turnRate = 3.5 + level * 0.3;
-    this.damage = 16 + level * 5;
-    this.blastRadius = 70 + level * 12;
+    this.damage = 9 + level * 3;
+    this.blastRadius = 58 + level * 8;
     this.life = 6;
     this.active = true;
     this.trail = [];

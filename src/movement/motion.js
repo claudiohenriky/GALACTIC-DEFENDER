@@ -28,15 +28,18 @@ export function integrateVelocity(entity, dt) {
 }
 
 export const ENEMY_MOTION_PROFILES = Object.freeze({
-  chaser: Object.freeze({ maxSpeed: 64, acceleration: 155 }),
-  boss: Object.freeze({ maxSpeed: 56, acceleration: 42 }),
-  bossPhaseThree: Object.freeze({ maxSpeed: 68, acceleration: 52 }),
-  artillery: Object.freeze({ maxSpeed: 68, acceleration: 135 }),
-  artilleryElite: Object.freeze({ maxSpeed: 108, acceleration: 210 }),
-  sentinel: Object.freeze({ maxSpeed: 76, acceleration: 155 }),
-  sentinelElite: Object.freeze({ maxSpeed: 130, acceleration: 260 }),
-  guardian: Object.freeze({ maxSpeed: 90, acceleration: 165 }),
-  guardianElite: Object.freeze({ maxSpeed: 112, acceleration: 215 })
+  chaser: Object.freeze({ maxSpeed: 58, acceleration: 140 }),
+  // Heavy hull movement is intentionally deliberate; broad turns create flank windows.
+  boss: Object.freeze({ maxSpeed: 34, acceleration: 24 }),
+  bossPhaseThree: Object.freeze({ maxSpeed: 42, acceleration: 30 }),
+  artillery: Object.freeze({ maxSpeed: 58, acceleration: 112 }),
+  artilleryElite: Object.freeze({ maxSpeed: 66, acceleration: 128 }),
+  devastator: Object.freeze({ maxSpeed: 28, acceleration: 64 }),
+  devastatorElite: Object.freeze({ maxSpeed: 32, acceleration: 72 }),
+  sentinel: Object.freeze({ maxSpeed: 64, acceleration: 128 }),
+  sentinelElite: Object.freeze({ maxSpeed: 74, acceleration: 145 }),
+  guardian: Object.freeze({ maxSpeed: 82, acceleration: 150 }),
+  guardianElite: Object.freeze({ maxSpeed: 90, acceleration: 165 })
 });
 
 // Accelerates toward a point and brakes according to stopping distance.

@@ -1,3 +1,13 @@
+## v0.54.6 — balanceamento e redução adaptativa de custo visual
+
+- [x] Reduzir a frequência das varreduras de ameaça das tropas de 6,25 Hz para 5 Hz, mantendo a previsão de aproximação e a esquiva por trajetória.
+- [x] Diminuir a quantidade de projéteis por salva do Artilheiro de três para dois e reduzir dano/velocidade; ampliar o intervalo entre salvas.
+- [x] Reduzir o número de projéteis e a frequência de disparo do Sentinela normal; preservar a salva dupla Elite com valores menos punitivos.
+- [x] Encaminhar `effectsScale` até o renderer do inimigo e trocar o gradiente dos propulsores do boss por preenchimento sólido quando a qualidade adaptativa cai abaixo de 0,75.
+- [ ] Medir tempo de update/render, FPS e estabilidade no mesmo aparelho antes/depois, em três rodadas de pelo menos 30 segundos.
+- [ ] Repetir a comparação com uso de plasma, mísseis e Pulso de Ruptura durante o combate do DREADNOUGHT.
+- **Importante:** as alterações removem trabalho gráfico e de IA de forma verificável, mas não comprovam ganho de FPS. Registrar dados reais do dispositivo antes de declarar a otimização concluída.
+
 ## Auditoria v0.54.0 — varreduras de IA e limites de efeitos
 
 - [x] Identificado que Sentinelas e Artilheiros podiam recalcular a trajetória de todos os projéteis em todos os quadros, inclusive quando nenhum projétil representava ameaça. A verificação agora é agendada em intervalos de 0,16 s enquanto o cooldown de esquiva está livre.

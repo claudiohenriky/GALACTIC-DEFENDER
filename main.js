@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.54.0-cinematic-rebuild';
+import { Game } from './src/core/game.js?v=0.59.0-skill-tree';
 import { gameAudio } from './src/audio/game-audio.js?v=0.54.0-cinematic-rebuild';
 
 // Entry point: connect the game engine to the page UI.
@@ -24,13 +24,6 @@ guidedMissileButton?.addEventListener('click', (event) => {
   else { event.preventDefault(); event.stopPropagation(); }
 });
 
-const continuousLaserButton = document.querySelector('#continuous-laser-button');
-function laserDown(event) { event.preventDefault(); event.stopPropagation(); if (event.type === 'pointerdown' && event.pointerType === 'mouse' && event.button !== 0) return; game.activateContinuousLaser(); }
-function laserUp(event) { if (event) { event.preventDefault(); event.stopPropagation(); } game.releaseContinuousLaser(); }
-continuousLaserButton?.addEventListener('pointerdown', laserDown, { passive: false });
-['pointerup','pointercancel','lostpointercapture'].forEach(type => continuousLaserButton?.addEventListener(type, laserUp));
-continuousLaserButton?.addEventListener('click', event => { if (event.detail === 0) laserDown(event); else { event.preventDefault(); event.stopPropagation(); } });
-document.querySelectorAll('[data-laser-clash]').forEach(button => button.addEventListener('click', () => game.resolveContinuousLaserClash(button.dataset.laserClash)));
 const shieldPulseButton = document.querySelector('#shield-pulse-button');
 function activateShieldPulseFromControl(event) {
   event.preventDefault();
@@ -70,6 +63,7 @@ const settingsPanel = document.querySelector('#settings-panel');
 const aboutPanel = document.querySelector('#about-panel');
 const versionHistoryPanel = document.querySelector('#version-history-panel');
 const achievementsPanel = document.querySelector('#achievements-panel');
+const skillTreePanel = document.querySelector('#skill-tree-panel');
 const achievementsList = document.querySelector('#achievements-list');
 const achievementSummary = document.querySelector('#achievement-summary');
 document.querySelectorAll('[data-upgrade]').forEach((button) => button.addEventListener('click', () => game.chooseUpgrade(button.dataset.upgrade)));
@@ -97,6 +91,7 @@ function closeMenuPanels() {
   aboutPanel.classList.add('hidden');
   versionHistoryPanel.classList.add('hidden');
   achievementsPanel.classList.add('hidden');
+  skillTreePanel.classList.add('hidden');
 }
 setPlatform(detectPlatform(), false);
 platformButtons.forEach((button) => button.addEventListener('click', () => setPlatform(button.dataset.platformChoice)));
@@ -125,10 +120,55 @@ document.querySelector('#prep-start-button').addEventListener('click', () => {
     game.start();
   });
 });
+document.querySelector('#menu-skill-tree-button').addEventListener('click', () => {
+  closeMenuPanels();
+  skillTreePanel.classList.remove('hidden');
+  renderSkillTree();
+});
+document.querySelector('#skill-tree-branches').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-skill-node]');
+  if (!button) return;
+  if (game.skillTree.purchaseNode(button.dataset.skillNode)) {
+    game.applyPermanentSkillBonuses();
+    renderSkillTree();
+  }
+});
+function renderSkillTree() {
+  const tree = game.skillTree;
+  document.querySelector('#skill-tree-summary').textContent = `${tree.researchPoints} PONTOS DE PESQUISA DISPONÍVEIS · ${tree.purchased.size}/15 TECNOLOGIAS`;
+  const root = document.querySelector('#skill-tree-branches');
+  root.replaceChildren();
+  tree.getBranches().forEach((branch) => {
+    const section = document.createElement('section'); section.className = 'skill-branch';
+    const heading = document.createElement('div'); heading.className = 'skill-branch-heading';
+    const icon = document.createElement('span'); icon.className = 'skill-branch-icon'; icon.textContent = branch.icon;
+    const copy = document.createElement('div');
+    const title = document.createElement('strong'); title.textContent = branch.name;
+    const subtitle = document.createElement('small'); subtitle.textContent = branch.subtitle;
+    copy.append(title, subtitle); heading.append(icon, copy); section.append(heading);
+    const nodes = document.createElement('div'); nodes.className = 'skill-node-list';
+    branch.nodes.forEach((node, index) => {
+      const button = document.createElement('button'); button.type = 'button';
+      button.className = 'skill-node'; button.dataset.skillNode = node.id;
+      button.disabled = !node.status.canPurchase;
+      button.classList.toggle('is-purchased', node.status.purchased);
+      button.classList.toggle('is-locked', !node.status.unlocked && !node.status.purchased);
+      const status = node.status.purchased ? 'DESBLOQUEADA' : !node.status.unlocked ? 'BLOQUEADA' : node.status.affordable ? 'DISPONÍVEL' : 'SEM PONTOS';
+      const name = document.createElement('strong'); name.textContent = node.title;
+      const description = document.createElement('small'); description.textContent = node.description;
+      const footer = document.createElement('span'); footer.className = 'skill-node-footer';
+      footer.textContent = node.status.purchased ? status : `${status} · ${node.cost} RP`;
+      button.append(name, description, footer); nodes.append(button);
+      if (index < branch.nodes.length - 1) { const connector = document.createElement('span'); connector.className = 'skill-node-connector'; connector.setAttribute('aria-hidden', 'true'); nodes.append(connector); }
+    });
+    section.append(nodes); root.append(section);
+  });
+}
 document.querySelector('#menu-achievements-button').addEventListener('click', () => {
   settingsPanel.classList.add('hidden');
   aboutPanel.classList.add('hidden');
   versionHistoryPanel.classList.add('hidden');
+  skillTreePanel.classList.add('hidden');
   achievementsPanel.classList.remove('hidden');
   renderAchievements();
 });
@@ -158,18 +198,21 @@ document.querySelector('#menu-settings-button').addEventListener('click', () => 
   aboutPanel.classList.add('hidden');
   versionHistoryPanel.classList.add('hidden');
   achievementsPanel.classList.add('hidden');
+  skillTreePanel.classList.add('hidden');
   settingsPanel.classList.remove('hidden');
 });
 document.querySelector('#menu-about-button').addEventListener('click', () => {
   settingsPanel.classList.add('hidden');
   versionHistoryPanel.classList.add('hidden');
   achievementsPanel.classList.add('hidden');
+  skillTreePanel.classList.add('hidden');
   aboutPanel.classList.remove('hidden');
 });
 document.querySelector('#menu-history-button').addEventListener('click', () => {
   settingsPanel.classList.add('hidden');
   aboutPanel.classList.add('hidden');
   achievementsPanel.classList.add('hidden');
+  skillTreePanel.classList.add('hidden');
   versionHistoryPanel.classList.remove('hidden');
 });
 document.querySelectorAll('[data-close-panel]').forEach((button) => button.addEventListener('click', closeMenuPanels));
@@ -182,13 +225,14 @@ function returnToMainMenu() {
 document.querySelector('#pause-menu-button').addEventListener('click', returnToMainMenu);
 document.querySelector('#gameover-menu-button').addEventListener('click', returnToMainMenu);
 
-const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'effects-setting': 'full', 'fps-setting': 'off', 'sound-setting': 'on', 'sound-volume-setting': '75' };
+const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'effects-setting': 'auto', 'fps-setting': 'off', 'sound-setting': 'on', 'sound-volume-setting': '75' };
 function applySettings() {
   const scale = Number(document.querySelector('#hud-scale-setting').value) / 100;
   const opacity = Number(document.querySelector('#hud-opacity-setting').value) / 100;
   document.documentElement.style.setProperty('--hud-scale', String(scale));
   document.documentElement.style.setProperty('--hud-opacity', String(opacity));
   document.documentElement.dataset.effects = document.querySelector('#effects-setting').value;
+  game.setEffectsMode(document.querySelector('#effects-setting').value);
   game.setFpsDisplayEnabled(document.querySelector('#fps-setting').value === 'on');
   document.documentElement.dataset.sound = document.querySelector('#sound-setting').value;
   gameAudio.setVolume(Number(document.querySelector('#sound-volume-setting').value) / 100);
@@ -253,7 +297,6 @@ window.addEventListener('keydown', (event) => {
 });
 window.addEventListener('keyup', (event) => game.handleKeyUp(event));
 window.addEventListener('blur', () => {
-  game.releaseContinuousLaser();
   game.clearInput();
   document.querySelectorAll('.touch-button.is-pressed').forEach((button) => button.classList.remove('is-pressed'));
 });

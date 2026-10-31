@@ -1,10 +1,9 @@
 // Assign nearby allies to Guardians using class/rank priority, then distance.
 export function getGuardianProtectionPriority(ally) {
   if (!ally || !ally.active || ally.type === 'guardian' || ally.type === 'boss') return Infinity;
-  if (ally.isElite && (ally.type === 'sentinel' || ally.type === 'artillery')) return 0;
+  if (ally.isElite) return 0;
   if (ally.type === 'sentinel' || ally.type === 'artillery') return 1;
-  if (ally.isElite) return 2;
-  return 3;
+  return 2;
 }
 
 export function selectGuardianProtectionTargets(guardian, allies, assignedAllies = new Set(), maxDistance = 360) {
