@@ -1,3 +1,11 @@
+## [0.54.2] — ajuste de distância na entrada do DREADNOUGHT
+
+- Ajusta o ponto final da aproximação para usar exatamente o mesmo afastamento vertical definido pela IA de combate.
+- Aumenta o espaço visível entre o casco e a nave do piloto e evita uma mudança brusca de posição quando a cutscene entrega o controle ao combate.
+- Preserva a trajetória central, a duração da revelação, a câmera, os diálogos e a arena aprovados.
+- Adiciona teste de regressão para garantir que a posição final cinematográfica corresponda ao alvo de combate.
+- Validação visual em Android/desktop ainda pendente; não há alteração de balanceamento ou armamentos.
+
 ## [0.54.1] — correções de apresentação da cutscene do DREADNOUGHT
 
 - **Patch corretivo da v0.54.0:** preserva a sequência e a duração das fases; não representa uma nova versão minor de funcionalidades.
