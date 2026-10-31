@@ -246,10 +246,13 @@ test('basic Artillery now fires a two-projectile lighter salvo at a slower caden
   assert.equal(shots.length, 2); assert.ok(shots.every(shot => shot.damage === 3 && shot.speed === 118)); assert.equal(artillery.fireCooldown, 5.2);
 });
 
-test('Elite Artillery keeps its stronger identity without restoring the old three-shot fan', () => {
+test('Elite Artillery upgrades its standard salvo to three lighter shots', () => {
   const artillery = new Enemy(500, 220, 12, 'artillery', true); artillery.fireCooldown = 0.001;
   const shots = artillery.update(0.02, 600, 800, 1200, 1600, [], [], 0);
-  assert.equal(shots.length, 2); assert.ok(shots.every(shot => shot.damage === 4.2 && shot.speed === 145)); assert.equal(artillery.fireCooldown, 4.2); assert.ok(artillery.eliteShield > 0);
+  assert.equal(shots.length, 3);
+  assert.ok(shots.every(shot => shot.damage === 3.35 && shot.speed === 128));
+  assert.equal(artillery.fireCooldown, 5.0);
+  assert.ok(artillery.eliteShield > 0);
 });
 
 test('Sentinel normal and Elite volleys have lower burst damage and more reaction time', () => {
@@ -258,7 +261,7 @@ test('Sentinel normal and Elite volleys have lower burst damage and more reactio
   assert.equal(normalShot.damage, 6); assert.equal(normalShot.speed, 158); assert.equal(normal.fireCooldown, 3.2);
   const elite = new Enemy(500, 220, 12, 'sentinel', true); elite.fireCooldown = 0.001;
   const eliteShots = elite.update(0.02, 600, 800, 1200, 1600, [], [], 0);
-  assert.equal(eliteShots.length, 2); assert.ok(eliteShots.every(shot => shot.damage === 4.2 && shot.speed === 168)); assert.equal(elite.fireCooldown, 3.15);
+  assert.equal(eliteShots.length, 2); assert.ok(eliteShots.every(shot => shot.damage === 3.3 && shot.speed === 164)); assert.equal(elite.fireCooldown, 3.2);
 });
 
 test('basic Chaser ranged pressure is weaker and less frequent', () => {
