@@ -17,7 +17,9 @@ export function getBossCinematicCameraFrame({
   const zoom = Math.max(minZoom, closeZoom);
   const showBoth = Boolean(boss && (phase === 'distant-contact' || phase === 'boss-identification' || phase === 'handoff' || phase === 'complete'));
   // Keep the pair centered as the zoom changes; never anchor the framing to one actor.
-  const focusX = showBoth ? player.x * 0.5 + boss.x * 0.5 : player.x;
+  // Blend from the pilot to the pair across the existing reveal; never snap sideways at phase entry.
+  const pairFocusX = showBoth ? (player.x + boss.x) * 0.5 : player.x;
+  const focusX = player.x + (pairFocusX - player.x) * revealProgress;
   const focusY = showBoth
     ? (boss.y - (boss.collisionRadius || 145) * 1.5 + player.y + (player.radius || 12)) / 2
     : player.y - height * (phase === 'pilot-intro' ? 0.12 : 0.08);
