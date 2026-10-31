@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.46.2-wave9-test-sentinel';
+import { Game } from './src/core/game.js?v=0.47.0-combat-rebalance';
 import { gameAudio } from './src/audio/game-audio.js?v=0.44.0';
 
 // Entry point: connect the game engine to the page UI.
