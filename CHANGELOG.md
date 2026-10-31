@@ -1,3 +1,12 @@
+## [0.54.4] — refinamento visual dos cartões de diálogo
+
+- Preserva o formato, o tamanho e a hierarquia dos cartões aprovados na v0.54.3.
+- Reduz a saturação e o brilho do azul usado na identificação “COMUNICAÇÃO”, mantendo uma assinatura visual própria para o piloto.
+- Adiciona três barras de sinal com pulsação suave, um brilho de varredura discreto no cabeçalho e pequenos traços técnicos nos cantos.
+- Mantém as animações leves, sem sombras desfocadas por quadro, sem alterar a legibilidade, o posicionamento ou o fluxo da cutscene.
+- Preserva as falas, a entrada, a distância aprovada, a câmera, a arena e o combate.
+- Validação automatizada e visual desta etapa pendentes.
+
 ## [0.54.3] — diálogos e cartões cinematográficos
 
 - Reescreve as falas do piloto, do sistema de bordo e do DREADNOUGHT para criar uma progressão mais natural: setor aparentemente limpo, anomalia, contato visual, ameaça e identificação.
