@@ -373,8 +373,13 @@ export class Enemy {
         const cosHull = Math.cos(hullRotation);
         const sinHull = Math.sin(hullRotation);
         for (const module of turretSystems.modules) {
-          if (module.kind.includes('plasma') && module.state !== 'destroyed' && module.state !== 'disabled') {
-            module.plasmaChargeTimer = Math.max(0, (module.plasmaChargeTimer ?? module.plasmaChargeDuration) - dt);
+          if (module.kind.includes('plasma')) {
+            if (module.state === 'destroyed' || module.state === 'disabled' || (module.transitionTimer ?? 0) > 0) {
+              module.plasmaWarningActive = false;
+              module.plasmaWarningTimer = module.plasmaWarningDuration ?? 1.5;
+            } else if (!module.plasmaWarningActive) {
+              module.plasmaChargeTimer = Math.max(0, (module.plasmaChargeTimer ?? module.plasmaChargeDuration) - dt);
+            }
           }
           if (module.kind.includes('support') || module.state === 'destroyed' || module.state === 'disabled') continue;
           const localX = module.x * this.radius;
@@ -384,7 +389,13 @@ export class Enemy {
           const targetLocalX = (predictedTargetX - this.x) * cosHull + (predictedTargetY - this.y) * sinHull;
           const targetOnWeaponSide = module.region !== 'left' && module.region !== 'right'
             || module.crossSide || Math.abs(targetLocalX) <= this.radius * 0.08 || Math.sign(targetLocalX) === Math.sign(module.x);
-          if (!targetOnWeaponSide) continue;
+          if (!targetOnWeaponSide) {
+            if (module.kind.includes('plasma')) {
+              module.plasmaWarningActive = false;
+              module.plasmaWarningTimer = module.plasmaWarningDuration ?? 1.5;
+            }
+            continue;
+          }
           const rawAngle = Math.atan2(predictedTargetY - muzzleY, predictedTargetX - muzzleX) - this.facingRotation;
           const desired = Math.atan2(Math.sin(rawAngle), Math.cos(rawAngle));
           const side = Math.sign(module.x);
@@ -410,6 +421,21 @@ export class Enemy {
             : module.kind.includes('plasma') ? 0.82
               : module.kind.includes('missile') || module.kind.includes('rocket') ? 1.05 : 1.35;
           module.turretAngle = (module.turretAngle ?? 0) + Math.max(-turnSpeed * dt, Math.min(turnSpeed * dt, delta));
+          if (module.kind.includes('plasma')) {
+            const muzzleDistance = Math.hypot(predictedTargetX - muzzleX, predictedTargetY - muzzleY);
+            const inRange = muzzleDistance <= (module.firingRange ?? 500);
+            if (inRange && this.bossPhaseTransition <= 0 && (module.plasmaChargeTimer ?? 0) <= 0) {
+              if (!module.plasmaWarningActive) {
+                module.plasmaWarningActive = true;
+                module.plasmaWarningTimer = module.plasmaWarningDuration ?? 1.5;
+              } else {
+                module.plasmaWarningTimer = Math.max(0, (module.plasmaWarningTimer ?? 0) - dt);
+              }
+            } else if (!inRange) {
+              module.plasmaWarningActive = false;
+              module.plasmaWarningTimer = module.plasmaWarningDuration ?? 1.5;
+            }
+          }
         }
       }
 
@@ -572,13 +598,15 @@ export class Enemy {
             this.bossMissileCooldown = profile.cooldown;
             this.bossMissileNextSide = -Math.sign(module.x);
           } else if (module.kind.includes('plasma')) {
-            if ((module.plasmaChargeTimer ?? 0) <= 0) {
+            if ((module.plasmaChargeTimer ?? 0) <= 0 && module.plasmaWarningActive && (module.plasmaWarningTimer ?? 0) <= 0) {
               shots.push(makeShot(module, {
                 damage: 68, speed: 760, radius: 15,
                 heavyImpact: true, plasmaImpact: true,
                 color: '#fff0c2', glowColor: '#ff542e'
               }));
-              module.plasmaChargeTimer = module.plasmaChargeDuration ?? 5.4;
+              module.plasmaChargeTimer = module.plasmaChargeDuration ?? 7.2;
+              module.plasmaWarningTimer = module.plasmaWarningDuration ?? 1.5;
+              module.plasmaWarningActive = false;
             }
           } else if (module.kind.includes('energy') || module.kind.includes('overload-cannon')) {
             // The main energy cannon is presentation-only in this iteration:
