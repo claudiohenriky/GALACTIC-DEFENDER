@@ -8,7 +8,10 @@
 - Migra a movimentação do jogador para o núcleo compartilhado; aceleração sobe de 1800 para 2400 unidades/s², mantendo a velocidade máxima de 250 e a normalização diagonal. A resposta de reversão fica mais rápida sem alterar velocidade de cruzeiro.
 - Adiciona testes para consistência em 30/60/120 FPS, reversão sem overshoot, delta inválido, movimento diagonal e limite de velocidade.
 - A inclinação visual, a rotação, os efeitos de propulsão e a câmera permanecem separados da integração física.
-- **Estado:** primeira etapa física do jogador implementada; tropas, flanqueamento de elites e controlador tático do DREADNOUGHT continuam pendentes. Teste manual de controle ainda não realizado.
+- Migra Sentinelas e Artilheiros normais/Elite para steering com aceleração, velocidade máxima por perfil e frenagem proporcional à distância até o ponto de combate.
+- Perfis Elite têm capacidades de reposicionamento superiores às versões comuns. O Interceptador continua usando perseguição simples, sem perfil de flanqueamento ou variante Elite.
+- Adiciona testes de convergência em 30/60/120 FPS, perfis distintos e estabilidade de posição/velocidade em encontros prolongados.
+- **Estado:** primeira fundação integrada ao jogador, Sentinelas e Artilheiros. A coordenação tática, o flanqueamento Elite, o movimento de formação do Guardião e o controlador próprio do DREADNOUGHT continuam pendentes. Teste manual ainda não realizado.
 
 ## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
 
