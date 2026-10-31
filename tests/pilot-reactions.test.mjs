@@ -44,8 +44,8 @@ test('pilot reaction stays close to the side of the ship and clear of its dialog
     bubble: { x: 180, y: 230, width: 190, height: 70 }
   });
   assert.ok(position);
-  assert.ok(Math.abs(position.x - 423) < 1e-9);
-  assert.ok(Math.abs(position.y - 298) < 1e-9);
+  assert.ok(Math.abs(position.x - 427) < 1e-9);
+  assert.ok(Math.abs(position.y - 299) < 1e-9);
 });
 
 test('pilot reaction renderer accepts the state and screen position without throwing', () => {
@@ -59,7 +59,7 @@ test('pilot reaction renderer accepts the state and screen position without thro
 });
 
 
-test('question indicator renders red text without a blue circular badge', () => {
+test('question indicator uses a compact cyan vector frame instead of a text emoji', () => {
   const state = createPilotReactionState();
   triggerPilotReaction(state, '❓', 2);
   const calls = [];
@@ -68,8 +68,32 @@ test('question indicator renders red text without a blue circular badge', () => 
     set: () => true
   });
   drawPilotReaction(context, state, 40, 50);
-  assert.equal(calls.some(([name]) => name === 'arc'), false);
-  assert.ok(calls.some(([name, symbol]) => name === 'fillText' && symbol === '❓'));
+  assert.equal(calls.some(([name]) => name === 'fillText'), false);
+  assert.ok(calls.some(([name]) => name === 'lineTo'));
+  assert.ok(calls.some(([name]) => name === 'bezierCurveTo'));
+  assert.ok(calls.some(([name, color]) => name === 'strokeStyle' && color === '#79dced') === false);
+  assert.ok(calls.some(([name]) => name === 'stroke'));
+});
+
+test('danger and Elite indicators use the same cyan sensor language with stronger emphasis', () => {
+  const render = (symbol) => {
+    const calls = [];
+    const context = new Proxy({}, {
+      get: (_target, property) => (...args) => calls.push([property, ...args]),
+      set: (target, property, value) => { calls.push([property, value]); return true; }
+    });
+    const state = createPilotReactionState();
+    triggerPilotReaction(state, symbol, 2);
+    drawPilotReaction(context, state, 40, 50);
+    return calls;
+  };
+  const danger = render('❗');
+  const elite = render('❓❗');
+  assert.ok(danger.some(([name]) => name === 'strokeRect'));
+  assert.ok(elite.some(([name]) => name === 'rotate'));
+  assert.ok(elite.some(([name]) => name === 'strokeRect'));
+  assert.equal(danger.some(([name]) => name === 'fillText'), false);
+  assert.equal(elite.some(([name]) => name === 'fillText'), false);
 });
 
 test('game renders pilot reactions through the imported renderer with the state argument', async () => {
