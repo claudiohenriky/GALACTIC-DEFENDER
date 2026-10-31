@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Player } from '../src/player/player.js';
 import { Enemy } from '../src/enemies/enemy.js';
+import { EliteTacticalCoordinator } from '../src/ai/elite-tactics.js';
 import { approachVelocity, integrateVelocity, steerToPoint, ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 
 function simulateVelocity(fps, duration, targetX, targetY, acceleration = 2400) {
@@ -96,4 +97,50 @@ test('ranged enemy steering keeps position and velocity finite during a sustaine
       assert.ok(Number.isFinite(enemy.velocityX) && Number.isFinite(enemy.velocityY));
     }
   }
+});
+
+test('Elite coordinator assigns at most one flank and prioritizes Sentinel Elite', () => {
+  const player = { x: 500, y: 500, velocityX: 0, velocityY: 0, rotation: -Math.PI / 2 };
+  const sentinel = new Enemy(430, 250, 14, 'sentinel', true);
+  const artillery = new Enemy(570, 250, 14, 'artillery', true);
+  sentinel.eliteSpawnTimer = 0;
+  artillery.eliteSpawnTimer = 0;
+  const enemies = [
+    sentinel,
+    artillery,
+    new Enemy(350, 180, 8, 'chaser'),
+    new Enemy(650, 180, 8, 'chaser')
+  ];
+  const coordinator = new EliteTacticalCoordinator();
+  coordinator.update(1 / 60, enemies, player, 1200, 1600);
+  assert.ok(sentinel.flankTimer > 3);
+  assert.equal(artillery.flankTimer, 0);
+  assert.equal(enemies.filter(enemy => enemy.flankTimer > 0).length, 1);
+  assert.ok(sentinel.flankTargetY > player.y, 'rear position should be behind the player facing upward');
+});
+
+test('Elite Guardian does not abandon living allies to perform a flank', () => {
+  const player = { x: 500, y: 500, velocityX: 0, velocityY: 0, rotation: -Math.PI / 2 };
+  const guardian = new Enemy(500, 250, 16, 'guardian', true);
+  guardian.eliteSpawnTimer = 0;
+  const ally = new Enemy(450, 220, 16, 'sentinel');
+  guardian.protectedAllies = [ally];
+  const enemies = [guardian, ally, new Enemy(300, 180, 8, 'chaser'), new Enemy(700, 180, 8, 'chaser')];
+  new EliteTacticalCoordinator().update(1 / 60, enemies, player, 1200, 1600);
+  assert.equal(guardian.flankTimer, 0);
+});
+
+test('flanking Elite Sentinel holds fire while moving to its assigned rear position', () => {
+  const sentinel = new Enemy(250, 200, 14, 'sentinel', true);
+  sentinel.eliteSpawnTimer = 0;
+  sentinel.flankTimer = 2;
+  sentinel.flankTargetX = 760;
+  sentinel.flankTargetY = 700;
+  sentinel.fireCooldown = 0.01;
+  const startDistance = Math.hypot(sentinel.x - sentinel.flankTargetX, sentinel.y - sentinel.flankTargetY);
+  const shot = sentinel.update(1 / 60, 300, 800, 1000, 1200, [], [], 0);
+  const endDistance = Math.hypot(sentinel.x - sentinel.flankTargetX, sentinel.y - sentinel.flankTargetY);
+  assert.equal(shot, null);
+  assert.ok(sentinel.fireCooldown >= 0.2);
+  assert.ok(endDistance < startDistance);
 });
