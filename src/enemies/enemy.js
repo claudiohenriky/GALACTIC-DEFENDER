@@ -796,31 +796,6 @@ export class Enemy {
       ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 2.4; ctx.globalAlpha = 0.72;
       ctx.beginPath(); ctx.moveTo(-this.radius * 0.12, this.radius * 0.82); ctx.lineTo(-this.radius * 0.10, -this.radius * 1.54); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(this.radius * 0.12, this.radius * 0.82); ctx.lineTo(this.radius * 0.10, -this.radius * 1.54); ctx.stroke(); ctx.globalAlpha = 1;
-      // Paired side energy manifolds: recessed housings, exposed conduits and
-      // small capacitor nodes make the future laser charge path readable.
-      for (const side of [-1, 1]) {
-        const railX = side * this.radius * 0.43;
-        ctx.fillStyle = '#0b141d'; ctx.strokeStyle = '#596574'; ctx.lineWidth = 1.4;
-        ctx.beginPath();
-        ctx.moveTo(railX - this.radius * 0.075, -this.radius * 1.42);
-        ctx.lineTo(railX + this.radius * 0.075, -this.radius * 1.42);
-        ctx.lineTo(railX + this.radius * 0.09, this.radius * 0.78);
-        ctx.lineTo(railX, this.radius * 0.94);
-        ctx.lineTo(railX - this.radius * 0.09, this.radius * 0.78);
-        ctx.closePath(); ctx.fill(); ctx.stroke();
-        ctx.strokeStyle = '#087f9c'; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.moveTo(railX, this.radius * 0.68); ctx.lineTo(railX, -this.radius * 1.28); ctx.stroke();
-        ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 1.8; ctx.globalAlpha = 0.78;
-        ctx.beginPath(); ctx.moveTo(railX, this.radius * 0.58); ctx.lineTo(railX, -this.radius * 1.20); ctx.stroke(); ctx.globalAlpha = 1;
-        for (const nodeY of [-1.08, -0.42, 0.30]) {
-          ctx.fillStyle = '#111d28'; ctx.strokeStyle = '#718091'; ctx.lineWidth = 1;
-          ctx.fillRect(railX - this.radius * 0.105, this.radius * nodeY - this.radius * 0.075, this.radius * 0.21, this.radius * 0.15);
-          ctx.strokeRect(railX - this.radius * 0.105, this.radius * nodeY - this.radius * 0.075, this.radius * 0.21, this.radius * 0.15);
-          ctx.fillStyle = '#36d9ff'; ctx.globalAlpha = 0.58 + Math.sin(this.phase * 8 + nodeY) * 0.12;
-          ctx.fillRect(railX - this.radius * 0.035, this.radius * nodeY - this.radius * 0.035, this.radius * 0.07, this.radius * 0.07);
-          ctx.globalAlpha = 1;
-        }
-      }
       // Broad side decks, layered armor and steel seams establish capital-ship scale.
       for (const side of [-1, 1]) {
         ctx.fillStyle = '#202833'; ctx.strokeStyle = '#8796a6'; ctx.lineWidth = 1.8;
@@ -1134,6 +1109,32 @@ export class Enemy {
         ctx.fillRect(auxX - hullR * 0.025, hullR * 1.43, hullR * 0.05, hullR * 0.14);
         ctx.globalAlpha = 1;
       }
+      // Paired side energy manifolds: recessed housings, exposed conduits and
+      // small capacitor nodes make the future laser charge path readable.
+      for (const side of [-1, 1]) {
+        const railX = side * this.radius * 0.43;
+        ctx.fillStyle = '#0b141d'; ctx.strokeStyle = '#596574'; ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(railX - this.radius * 0.075, -this.radius * 1.42);
+        ctx.lineTo(railX + this.radius * 0.075, -this.radius * 1.42);
+        ctx.lineTo(railX + this.radius * 0.09, this.radius * 0.78);
+        ctx.lineTo(railX, this.radius * 0.94);
+        ctx.lineTo(railX - this.radius * 0.09, this.radius * 0.78);
+        ctx.closePath(); ctx.fill(); ctx.stroke();
+        ctx.strokeStyle = '#087f9c'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(railX, this.radius * 0.68); ctx.lineTo(railX, -this.radius * 1.28); ctx.stroke();
+        ctx.strokeStyle = '#36d9ff'; ctx.lineWidth = 1.8; ctx.globalAlpha = 0.78;
+        ctx.beginPath(); ctx.moveTo(railX, this.radius * 0.58); ctx.lineTo(railX, -this.radius * 1.20); ctx.stroke(); ctx.globalAlpha = 1;
+        for (const nodeY of [-1.08, -0.42, 0.30]) {
+          ctx.fillStyle = '#111d28'; ctx.strokeStyle = '#718091'; ctx.lineWidth = 1;
+          ctx.fillRect(railX - this.radius * 0.105, this.radius * nodeY - this.radius * 0.075, this.radius * 0.21, this.radius * 0.15);
+          ctx.strokeRect(railX - this.radius * 0.105, this.radius * nodeY - this.radius * 0.075, this.radius * 0.21, this.radius * 0.15);
+          ctx.fillStyle = '#36d9ff'; ctx.globalAlpha = 0.58 + Math.sin(this.phase * 8 + nodeY) * 0.12;
+          ctx.fillRect(railX - this.radius * 0.035, this.radius * nodeY - this.radius * 0.035, this.radius * 0.07, this.radius * 0.07);
+          ctx.globalAlpha = 1;
+        }
+      }
+
       // End DREADNOUGHT 3D pass ---------------------------------------------
 
       // Ten independently damageable weapon modules are represented by visible sockets.
