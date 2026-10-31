@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { circlesOverlap, orientedEllipseOverlapsCircle } from '../src/combat/collision.js';
 import { BossSystems, getBossBeamSegment, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from '../src/enemies/boss-systems.js';
 import { Enemy } from '../src/enemies/enemy.js';
+import { getGuardianProtectionPriority, selectGuardianProtectionTargets } from '../src/ai/guardian-protection.js';
 import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
 import { advanceWaveTenTransition, createWaveTenTransition, finalizeWaveTenTransition, WAVE_TEN_TRANSITION_DURATION } from '../src/core/wave-ten-transition.js';
@@ -323,4 +324,45 @@ test('pilot threat warning is edge-triggered and can be signaled again after cle
  assert.equal(signalPilotThreat(state,source,true),false);
  assert.equal(signalPilotThreat(state,source,false),false);
  assert.equal(signalPilotThreat(state,source,true),true);
+});
+
+test('basic Artillery preserves its original three-projectile fan',()=>{
+ const artillery=new Enemy(400,220,1,'artillery');
+ artillery.fireCooldown=0;
+ const shots=artillery.update(1/60,500,900,1000,1200,[],[],0,0,0);
+ assert.equal(shots.length,3);
+ assert.ok(shots.every(shot=>shot.damage===3.8));
+});
+
+test('basic Artillery uses a slower and shorter lateral dodge',()=>{
+ const artillery=new Enemy(400,220,1,'artillery');
+ assert.equal(ENEMY_MOTION_PROFILES.artillery.maxSpeed,68);
+ assert.equal(ENEMY_MOTION_PROFILES.artillery.acceleration,135);
+ const threat={active:true,x:400,y:300,vx:0,vy:-200,radius:3};
+ artillery.update(1/60,500,900,1000,1200,[threat],[],0,0,0);
+ assert.ok(artillery.dodgeTimer<=0.32);
+ assert.ok(artillery.dodgeCooldown>=1.59);
+});
+
+test('Guardian protection prioritizes Elite ranged allies, then normal ranged allies and nearby troops',()=>{
+ const guardian=new Enemy(400,400,1,'guardian');
+ const eliteSentinel=new Enemy(560,400,1,'sentinel',true);
+ const eliteArtillery=new Enemy(420,560,1,'artillery',true);
+ const normalSentinel=new Enemy(430,420,1,'sentinel');
+ const normalArtillery=new Enemy(440,420,1,'artillery');
+ const chaser=new Enemy(405,410,1,'chaser');
+ assert.equal(getGuardianProtectionPriority(eliteSentinel),0);
+ assert.equal(getGuardianProtectionPriority(eliteArtillery),0);
+ assert.equal(getGuardianProtectionPriority(normalSentinel),1);
+ assert.equal(getGuardianProtectionPriority(chaser),3);
+ const selected=selectGuardianProtectionTargets(guardian,[chaser,normalSentinel,eliteArtillery,eliteSentinel,normalArtillery],new Set(),360);
+ assert.deepEqual(selected,[eliteSentinel,eliteArtillery]);
+});
+
+test('Guardian does not abandon its formation to protect distant allies or double-assign a target',()=>{
+ const guardian=new Enemy(100,100,1,'guardian');
+ const nearby=new Enemy(180,100,1,'sentinel',true);
+ const distant=new Enemy(900,900,1,'artillery',true);
+ assert.deepEqual(selectGuardianProtectionTargets(guardian,[nearby,distant],new Set(),250),[nearby]);
+ assert.deepEqual(selectGuardianProtectionTargets(guardian,[nearby],new Set([nearby]),250),[]);
 });
