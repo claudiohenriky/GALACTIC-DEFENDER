@@ -65,13 +65,13 @@ test('question indicator uses a compact cyan vector frame instead of a text emoj
   const calls = [];
   const context = new Proxy({}, {
     get: (_target, property) => (...args) => calls.push([property, ...args]),
-    set: () => true
+    set: (_target, property, value) => { calls.push([property, value]); return true; }
   });
   drawPilotReaction(context, state, 40, 50);
   assert.equal(calls.some(([name]) => name === 'fillText'), false);
   assert.ok(calls.some(([name]) => name === 'lineTo'));
   assert.ok(calls.some(([name]) => name === 'bezierCurveTo'));
-  assert.ok(calls.some(([name, color]) => name === 'strokeStyle' && color === '#79dced') === false);
+  assert.ok(calls.some(([name, color]) => name === 'strokeStyle' && color === '#79dced'));
   assert.ok(calls.some(([name]) => name === 'stroke'));
 });
 
