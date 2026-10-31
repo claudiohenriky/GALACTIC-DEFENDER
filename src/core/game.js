@@ -539,7 +539,9 @@ export class Game {
     }
     const dx = player.x - shot.x, dy = player.y - shot.y;
     const length = Math.hypot(dx, dy) || 1;
-    const impulse = shieldWasActive ? 560 : 680;
+    // The DREADNOUGHT plasma lance is a heavy anti-ship hit: shields absorb
+    // the hull damage but cannot prevent the powerful displacement.
+    const impulse = shieldWasActive ? 760 : 1180;
     player.knockbackX += dx / length * impulse;
     player.knockbackY += dy / length * impulse;
     this.triggerSystemDisruption(1.45);
