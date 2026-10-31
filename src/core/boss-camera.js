@@ -44,3 +44,20 @@ export function getBossCombatTargetY(playerY, worldHeight, radius = 100, collisi
   const standoff = Math.max(radius * 2.18 + 38, safeHeight * (0.92 / 2.4));
   return Math.max(collisionRadius + 24, Math.min(playerY - standoff, safeHeight - collisionRadius - 30));
 }
+
+
+// Finalize the cinematic entry before the first normal AI tick. The boss is
+// introduced outside the simulation list, so its constructor timer otherwise
+// remains active and replays the entrance after the dialogue handoff.
+export function prepareBossForCombatHandoff(boss, targetY) {
+  if (!boss) return null;
+  boss.y = targetY;
+  boss.bossMoveTargetY = targetY;
+  boss.bossMoveTargetX = boss.x;
+  boss.bossMovementState = 'patrol';
+  boss.bossMovementTimer = 0;
+  boss.bossEntranceTimer = 0;
+  boss.velocityX = 0;
+  boss.velocityY = 0;
+  return boss;
+}

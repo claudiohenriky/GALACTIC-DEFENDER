@@ -7,7 +7,7 @@ import { getGuardianProtectionPriority, selectGuardianProtectionTargets } from '
 import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
 import { advanceWaveTenTransition, createWaveTenTransition, finalizeWaveTenTransition, WAVE_TEN_TRANSITION_DURATION } from '../src/core/wave-ten-transition.js';
-import { getBossCameraFrame, getBossEntrancePositions, getBossCombatTargetY } from '../src/core/boss-camera.js';
+import { getBossCameraFrame, getBossEntrancePositions, getBossCombatTargetY, prepareBossForCombatHandoff } from '../src/core/boss-camera.js';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat } from '../src/ui/pilot-reactions.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
@@ -431,4 +431,20 @@ test('DREADNOUGHT plasma telegraph matches the weapon muzzle and activates only 
  assert.equal(isBossPlasmaTelegraphActive(boss,module,segment.startX+100,segment.startY+40),false);
  module.plasmaChargeTimer=0;
  assert.equal(isBossPlasmaTelegraphActive(boss,module,segment.startX+100,segment.startY+40),true);
+});
+
+
+test('DREADNOUGHT cinematic handoff clears its constructor entrance timer before normal AI resumes',()=>{
+ const boss=new Enemy(640,120,10,'boss');
+ assert.ok(boss.bossEntranceTimer>0,'the boss constructor starts with an entrance timer');
+ const finalY=980;
+ prepareBossForCombatHandoff(boss,finalY);
+ assert.equal(boss.bossEntranceTimer,0);
+ assert.equal(boss.y,finalY);
+ assert.equal(boss.bossMoveTargetY,finalY);
+ assert.equal(boss.bossMoveTargetX,boss.x);
+ assert.equal(boss.bossMovementState,'patrol');
+ assert.equal(boss.bossMovementTimer,0);
+ assert.equal(boss.velocityX,0);
+ assert.equal(boss.velocityY,0);
 });

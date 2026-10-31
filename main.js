@@ -1,5 +1,5 @@
-import { Game } from './src/core/game.js?v=0.53.0-stage-6-7';
-import { gameAudio } from './src/audio/game-audio.js?v=0.53.0-stage-6-7';
+import { Game } from './src/core/game.js?v=0.53.1-handoff-fix';
+import { gameAudio } from './src/audio/game-audio.js?v=0.53.1-handoff-fix';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');

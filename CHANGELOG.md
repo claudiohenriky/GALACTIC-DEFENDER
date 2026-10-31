@@ -1,14 +1,12 @@
-## [0.53.0] — consolidação desde a v0.44.0, etapas 6 e 7
+## [0.53.1] — correção do handoff e histórico de versões
 
-- Consolida no histórico da versão as entregas feitas após a v0.44.0: movimentação precisa, coordenação tática, ajustes das tropas, revisão visual e estrutural do DREADNOUGHT, escudos regionais, módulos independentes, expansão da arena e apresentação cinematográfica.
-- Corrige a transição da cutscene para o combate. O alvo vertical da IA passa a coincidir com a posição final da entrada cinematográfica, eliminando a correção brusca do chefe e o deslocamento aparente do piloto causado pelo acompanhamento da câmera.
-- Etapa 6 — revisa a seleção de famílias de ataque por fase, cria rotações distintas entre plasma, mísseis, metralhadoras e lasers, reduz a rajada da fase final e suaviza o ritmo das fases 2 e 3 sem alterar o dano individual dos projéteis.
-- Etapa 7 — adiciona linhas de telemetria para canhões de plasma, calculadas a partir do mesmo ponto de saída e ângulo usados pelos disparos. O alerta visual e a reação do piloto só aparecem quando a trajetória realmente ameaça a área do jogador e o armamento está dentro da janela de disparo.
-- Acrescenta testes de regressão para a continuidade vertical do chefe no handoff, prioridades de ataque por fase e telemetria de plasma.
-- Atualiza o cabeçalho, a descrição da versão e o histórico de versões exibido no menu para v0.53.0.
-- **Validação pendente:** a suíte automatizada e o playtest em navegador/celular ainda precisam ser executados. Nenhuma aprovação de gameplay é presumida nesta atualização.
+- Corrige a causa do deslocamento após a cutscene: o DREADNOUGHT é construído antes de entrar na lista normal de inimigos, portanto seu temporizador interno de entrada continuava ativo ao terminar o diálogo. O primeiro quadro de IA repetia a descida cinematográfica. O handoff agora encerra esse temporizador explicitamente antes de liberar a IA.
+- Centraliza a preparação do chefe para combate em uma função testável e adiciona regressão para temporizador, posição, alvo, estado e velocidade.
+- Consolida no histórico visível do menu os marcos de desenvolvimento posteriores à v0.44.0, sem apagar os registros anteriores.
+- Atualiza o identificador de versão e os parâmetros de cache para v0.53.1.
+- **Validação pendente:** a suíte automatizada e o teste visual em navegador/celular ainda precisam ser executados.
 
-## [0.53.0] — câmera cinematográfica e apresentação do DREADNOUGHT
+## [Unreleased] — câmera cinematográfica e apresentação do DREADNOUGHT
 
 - Ajusta o enquadramento da câmera durante a transição da onda 9 para a onda 10: começa próximo do piloto, recua gradualmente durante o alerta e enquadra piloto e encouraçado na revelação.
 - Durante o combate contra o DREADNOUGHT, desloca o foco vertical para a região entre jogador e chefe, reduzindo cortes da silhueta sem alterar dimensões do mundo, hitboxes ou colisões.
@@ -16,7 +14,7 @@
 - Mantém a tela de carregamento, bloqueia a simulação de combate durante a apresentação e libera o chefe somente no handoff final.
 - Adiciona testes unitários para os enquadramentos cinematográficos em telas largas e estreitas. Validação visual em navegador/celular/desktop ainda pendente.
 
-## [0.53.0] — v0.49.0 · reações do piloto e alertas de ameaça
+## [Unreleased] — v0.49.0 · reações do piloto e alertas de ameaça
 
 - Adiciona reações diegéticas da nave: ❓ para surpresa diante da chegada do DREADNOUGHT e da primeira aparição de cada classe de Elite; ❗ para sinalizar ataques perigosos.
 - Conecta o alerta de perigo ao aviso do canhão principal do DREADNOUGHT, somente quando a linha de disparo ameaça a posição do jogador.
@@ -25,14 +23,14 @@
 - Adiciona testes unitários para duração das reações e acionamento único dos alertas.
 - **Validação pendente:** executar a suíte automatizada e testar visualmente cutscene, tropas de Elite e ataques do DREADNOUGHT em navegador; ainda não houve playtest.
 
-## [0.53.0] — v0.48.0 · transição cinematográfica do DREADNOUGHT
+## [Unreleased] — v0.48.0 · transição cinematográfica do DREADNOUGHT
 
 - Corrige a passagem da cutscene para o combate: o temporizador interno de entrada do chefe é finalizado no handoff, impedindo que a IA reproduza a descida cinematográfica depois do diálogo final.
 - Amplia a área vertical das caixas de diálogo e adapta tamanho de fonte/entrelinha à altura da tela, reduzindo o risco de texto cortado em celulares na horizontal.
 - Adiciona teste de regressão para o handoff entre apresentação e IA normal do chefe.
 - **Validação pendente:** executar a suíte automatizada e testar a transição em celular e desktop; nenhuma validação de navegador foi realizada nesta alteração.
 
-## [0.53.0] — Rebalanceamento de combate e IA do DREADNOUGHT
+## [Unreleased] — Rebalanceamento de combate e IA do DREADNOUGHT
 
 - Reduz a pressão geral das tropas comuns: deslocamento do Interceptador e do perseguidor mais contido, Guardião menos veloz e perfis básicos de Sentinela/Artilheiro revistos.
 - Sentinela básico recebe novo ajuste de velocidade, esquiva, faixa lateral, cadência e dano; Elite continua superior, mas com mobilidade ligeiramente reduzida.
@@ -44,7 +42,7 @@
 - Testes de regressão adicionados para mobilidade das tropas, ausência de esquiva do boss e armamento de longo alcance.
 - **Validação pendente:** testes automatizados e playtest real no navegador; valores de dificuldade ainda são candidatos até a confirmação do usuário.
 
-## [0.53.0] — DREADNOUGHT · escudos e legibilidade dos módulos
+## [Unreleased] — DREADNOUGHT · escudos e legibilidade dos módulos
 
 - Reduz a integridade dos quatro setores regionais e alonga suas janelas de recarga para tornar o combate contra as defesas mais legível.
 - Disparos que atingem diretamente um hardpoint transferem 42% do dano ao módulo mesmo com o escudo regional ativo; impactos no casco continuam sendo absorvidos normalmente.
@@ -53,7 +51,7 @@
 - Adiciona testes de regressão para penetração controlada em hardpoints e absorção integral de impactos comuns no casco.
 - **Validação pendente:** confirmar em gameplay real a precisão do ponto de impacto, a taxa de destruição dos módulos e a legibilidade das armas no zoom tático.
 
-## [0.53.0] — DREADNOUGHT · IA tática e revisão do arsenal
+## [Unreleased] — DREADNOUGHT · IA tática e revisão do arsenal
 
 - Define alcances operacionais por módulo e restringe a mira/disparo dos armamentos laterais ao respectivo lado do casco; metralhadoras mantêm capacidade de cobertura cruzada por serem armas de longo alcance.
 - Amplia a bateria de plasma para quatro canhões independentes, dois em cada lateral, mantendo IDs e integridade individual por hardpoint.
@@ -63,7 +61,7 @@
 - Adiciona cobertura de teste para a quantidade de módulos, distribuição dos quatro canhões e configuração de alcance/telemetria.
 - **Validação pendente:** verificar alinhamento visual dos quatro novos hardpoints, legibilidade da carga, tempo real de reação, colisão do projétil, impacto/knockback e equilíbrio em gameplay. Não houve teste manual de navegador nesta etapa.
 
-## [0.53.0] — v0.45.0 · movimentação precisa e IA tática
+## [Unreleased] — v0.45.0 · movimentação precisa e IA tática
 
 - Define a substituição da movimentação excessivamente orgânica por controles mais precisos e previsíveis, com física, decisão tática e animação visual separadas.
 - Tropas comuns poderão buscar posições melhores e cooperar sem perder suas funções-base; o Interceptador permanece a unidade mais básica, com perseguição veloz e sem habilidade especial própria.
@@ -84,7 +82,7 @@
 - Adiciona testes para movimento pesado, limite de velocidade, reposicionamento quando o jogador sai do arco frontal e diferença de mira contra um alvo em movimento.
 - **Estado:** primeira fundação integrada ao jogador, Sentinelas, Artilheiros, Chasers, coordenação Elite e movimento inicial do DREADNOUGHT. O Guardião também foi migrado para steering compartilhado na formação e no fallback sem aliados; a lógica avançada de controle de áreas/ataques antecipatórios do DREADNOUGHT continua pendente. Teste manual ainda não realizado.
 
-## [0.53.0] — Progressão normal de ondas e preparação da revisão de movimentação
+## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
 
 - Desativa o modo temporário que fazia o DREADNOUGHT surgir já na primeira onda; a partida volta a começar com cinco inimigos e segue a progressão normal.
 - Mantém o DREADNOUGHT programado para as ondas especiais a partir da onda 10, com recorrência a cada cinco ondas.
@@ -93,7 +91,7 @@
 - **Escopo:** ajuste do modo de teste e cobertura da progressão; nenhuma física ou parâmetro de movimentação foi alterado nesta etapa.
 - **Validação pendente:** executar a suíte automatizada e testar a progressão real no navegador antes de iniciar ajustes físicos.
 
-## [0.53.0] — DREADNOUGHT · proa limpa e otimização de renderização
+## [Unreleased] — DREADNOUGHT · proa limpa e otimização de renderização
 
 - Remove a antiga passagem de desenho do casco que continuava sendo renderizada por baixo do novo modelo em camadas; o DREADNOUGHT passa a ter uma única passagem principal de casco.
 - Remove a superestrutura central elevada e os detalhes cinza da ponte na proa, mantendo a linha central limpa e reta entre a cavidade aberta do emissor e a ponta da nave.
@@ -103,7 +101,7 @@
 - **Escopo:** renderização visual e eficiência do desenho; IA, posições dos módulos, mira, cadência, projéteis, dano, escudos, hitboxes e colisões permanecem inalterados.
 - **Validação pendente:** verificar a leitura da proa e das armas no jogo e medir FPS/tempo de quadro no mesmo aparelho. A redução de operações de desenho é verificável no código; ganho de FPS ainda não foi medido.
 
-## [0.53.0] — DREADNOUGHT · legibilidade do armamento
+## [Unreleased] — DREADNOUGHT · legibilidade do armamento
 
 - Redesenha as silhuetas visuais das metralhadoras, lançadores de mísseis, lasers leves e canhões de plasma, com receptores blindados, bocais/tubos rebaixados e detalhes de emissor próprios por família.
 - Amplia moderadamente os hardpoints e reforça o contraste entre a base mecânica e a arma instalada, mantendo os módulos desenhados acima do casco para evitar que a nova superestrutura os esconda.
@@ -111,7 +109,7 @@
 - A renderização continua sendo Canvas 2D com geometria vetorial em camadas; não foram adicionadas malhas 3D, filtros de sombra ou gradientes por arma.
 - **Validação pendente:** conferir leitura à distância e em telas pequenas, possíveis sobreposições entre hardpoints, transições de substituição e desempenho real em celular/desktop.
 
-## [0.53.0] — DREADNOUGHT · propulsores e canhão principal
+## [Unreleased] — DREADNOUGHT · propulsores e canhão principal
 
 - Remove o núcleo quase branco dos propulsores, que podia parecer uma peça separada; os bocais passam a usar uma escala de cianos coerente com a identidade energética da nave.
 - Substitui a chama rígida em blocos por plumas vetoriais cônicas e suaves, mantendo os dois motores principais visualmente independentes.
@@ -120,7 +118,7 @@
 - Preserva a posição e o módulo funcional do canhão, além de IA, dano, cadência, escudos, colisões e demais sistemas.
 - **Validação pendente:** conferir se o detalhe do canhão permanece legível sob o módulo de arma, se os propulsores estão equilibrados e se o brilho não satura em telas pequenas.
 
-## [0.53.0] — DREADNOUGHT · COLOSSAL WARSHIP — redesign tridimensional
+## [Unreleased] — DREADNOUGHT · COLOSSAL WARSHIP — redesign tridimensional
 
 - Retorna o boss à renderização vetorial suave do jogo; a experiência de pixel art permanece apenas como estudo visual e não é usada nesta implementação.
 - Redesenha a apresentação do DREADNOUGHT com geometria em camadas, laterais facetadas, sombras projetadas, chanfros, gradientes direcionais e superestrutura elevada para criar volume 3D em perspectiva superior 2D.
@@ -130,7 +128,7 @@
 - Mantém os dez módulos, escudos regionais, IA, movimento, dano, cadência, colisões, hitboxes e transições de fase sem alterações intencionais.
 - **Validação pendente:** conferir leitura da silhueta, profundidade dos volumes, sobreposição dos hardpoints, efeitos de dano, escala em celular e desempenho em computador.
 
-## [0.53.0] — Nitidez da pixel art e propulsores do Encouraçado
+## [Unreleased] — Nitidez da pixel art e propulsores do Encouraçado
 
 - Aumentada a resolução interna da arte de 80 × 104 para 100 × 144 pixels, com ampliação exata de 4× e suavização desativada para bordas mais definidas.
 - Ampliado o enquadramento vertical do sprite para acomodar os dois jatos traseiros sem cortar a chama.
@@ -139,7 +137,7 @@
 - **Escopo:** ajuste visual; IA, movimento, dano, cadência, colisões e sistemas de combate permanecem inalterados.
 - **Validação pendente:** verificar nitidez em diferentes escalas, alinhamento dos dois propulsores e desempenho em celular.
 
-## [0.53.0] — Encouraçado em pixel art
+## [Unreleased] — Encouraçado em pixel art
 
 - Converte toda a renderização do Encouraçado para uma superfície pixelada reutilizável de baixa resolução, ampliada com amostragem nearest-neighbor para formar blocos de pixels nítidos.
 - Afina visualmente a silhueta em 18%, preservando o enquadramento, as dimensões físicas e as regras de colisão existentes.
@@ -810,12 +808,12 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Attack Clash agora considera resistência dos projéteis inimigos, evitando que ataques pesados sejam neutralizados por um único disparo leve.
 
 
-## [0.53.0] — Balanceamento dos mísseis do DREADNOUGHT
+## [Unreleased] — Balanceamento dos mísseis do DREADNOUGHT
 
 - Mísseis roxos confirmados como projéteis teleguiados dos lançadores laterais. A salva agora dispara apenas um míssil, alternando a asa quando ambos os lados têm linha de tiro.
 - Cadência separada por cooldown: 5,2 s na fase 1, 4,8 s na fase 2 e 4,4 s na fase 3. Velocidade/dano sobem gradualmente de 185/12 para 225/15, com curva de perseguição moderada.
 
-## [0.53.0] — IA tática e canhão principal do DREADNOUGHT
+## [Unreleased] — IA tática e canhão principal do DREADNOUGHT
 
 - Cada salva agora escolhe uma família de armas com base na distância, alcance real, lado do jogador, integridade dos módulos e disponibilidade de carga; armas indisponíveis não participam da seleção.
 - O canhão principal ganhou ciclo completo de carga, alinhamento, aviso, disparo e recuperação. O casco acelera o alinhamento, trava a direção durante o aviso e não persegue o jogador depois de fixar a linha de tiro.
@@ -823,7 +821,7 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - A destruição/inoperância do módulo principal cancela o ciclo e impede o disparo.
 - Validação automatizada cobre seleção por alcance/lado/estado, geometria do feixe, transições e bloqueio por módulo destruído. Teste visual e balanceamento em navegador continuam pendentes.
 
-## [0.53.0] — Boss cinematográfico
+## [Unreleased] — Boss cinematográfico
 - Limpa o estado temporário das animações de reparo, reconstrução e substituição dos módulos ao término de cada transição.
 
 - Entrada do encouraçado mais longa, com armas bloqueadas durante o alerta e identificação visual integrada à nave.
@@ -869,7 +867,7 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Validação visual em navegador, celular e desktop ainda pendente.
 
 
-## [0.53.0] — Ajustes de reação do piloto, artilharia e proteção tática
+## [Unreleased] — Ajustes de reação do piloto, artilharia e proteção tática
 - Simplifica os sinais de surpresa/perigo do piloto, removendo o emblema circular e os efeitos de pulso.
 - O alerta de perigo é acionado pouco antes da identificação verbal do DREADNOUGHT.
 - Restaura a salva de três projéteis do Artilheiro normal; reduz velocidade, aceleração, amplitude de deslocamento e impulso da esquiva lateral sem reduzir a quantidade de tiros.
@@ -878,7 +876,7 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Limita a atribuição de proteção a aliados próximos e evita que mais de um Guardião assuma o mesmo alvo.
 - Testes automatizados adicionados para a salva de três tiros, esquiva do Artilheiro e prioridade/distância das atribuições do Guardião. Validação de gameplay em navegador ainda pendente.
 
-## [0.53.0] — Transição cinematográfica da onda 9 para a onda 10
+## [Unreleased] — Transição cinematográfica da onda 9 para a onda 10
 - Adiciona um controlador de estados isolado para a passagem de campanha após a limpeza completa da onda 9.
 - Carregamento de 10 segundos com telemetria rotativa, seguido de falas do piloto, alerta de contato desconhecido, entrada gradual do DREADNOUGHT e diálogo de ameaça.
 - A sequência preserva pontuação, jogador e progressão; limpa apenas entidades e projéteis transitórios antes da entrada do chefe.
@@ -886,14 +884,14 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - Validação automatizada da máquina de estados adicionada; teste visual e de gameplay ainda pendente.
 
 
-## [0.53.0] — Balanceamento do Sentinela e preparação do teste da onda 9
+## [Unreleased] — Balanceamento do Sentinela e preparação do teste da onda 9
 - Reduz a mobilidade evasiva do Sentinela básico: velocidade máxima e aceleração menores, esquiva lateral menos intensa/curta e deslocamento de patrulha mais contido. O perfil Elite permanece inalterado nesta rodada.
 - Adiciona início de onda configurável apenas por URL de teste; a campanha normal continua iniciando na onda 1.
 - A branch da cutscene aceita testStartWave=9 para jogar a onda inteira antes da transição; a branch de gameplay normal não usa esse atalho.
 - Testes automatizados adicionados para o perfil do Sentinela e a configuração da onda de teste. A validação em navegador e o ajuste fino de dificuldade continuam pendentes.
 
 
-## [0.53.0] — Refinamento de impacto e aparição do DREADNOUGHT
+## [Unreleased] — Refinamento de impacto e aparição do DREADNOUGHT
 - Adiciona um anel curto de impacto ao redor da nave do jogador quando ela recebe dano, separado das faíscas e do aviso de integridade; o efeito é posicional, leve e expira em 0,3 s.
 - Limita o novo feedback a um único pulso ativo, sem criar entidades persistentes ou efeitos por quadro.
 - Afasta a posição final da entrada do DREADNOUGHT de 0,62 para 0,92 da altura da tela em relação ao jogador; a posição inicial também recua para 1,42, mantendo a entrada gradual.

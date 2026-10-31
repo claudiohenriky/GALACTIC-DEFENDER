@@ -15,7 +15,7 @@ import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createWaveTenTransition, advanceWaveTenTransition, finalizeWaveTenTransition } from './wave-ten-transition.js?v=0.51.0-cinematic-camera';
-import { getBossCameraFrame, getBossEntrancePositions } from './boss-camera.js?v=0.53.0-stage-6-7';
+import { getBossCameraFrame, getBossEntrancePositions, prepareBossForCombatHandoff } from './boss-camera.js?v=0.53.1-handoff-fix';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction } from '../ui/pilot-reactions.js?v=0.50.0-pilot-reactions';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
@@ -1355,15 +1355,10 @@ export class Game {
       // takes over on the next simulation tick without a one-frame zoom snap.
       this.waveTenTransition = null;
       if (revealedBoss) {
-        revealedBoss.y = transition.bossEndY;
-        // Transfer the cinematic zoom and preserve its vertical standoff at handoff.
+        // Stop the constructor's entrance timer before normal AI runs. Without
+        // this, Enemy.update() restarts its own descent and shifts the boss down.
+        prepareBossForCombatHandoff(revealedBoss, transition.bossEndY);
         this.cameraZoom = transition.cameraZoom;
-        revealedBoss.bossMoveTargetY = transition.bossEndY;
-        revealedBoss.bossMoveTargetX = revealedBoss.x;
-        revealedBoss.bossMovementState = 'patrol';
-        revealedBoss.bossMovementTimer = 0;
-        revealedBoss.velocityX = 0;
-        revealedBoss.velocityY = 0;
         this.player.velocityX = 0;
         this.player.velocityY = 0;
         this.player.knockbackX = 0;
