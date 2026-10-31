@@ -4,7 +4,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Candidata atual em desenvolvimento:** `0.54.5` — redesenho dos indicadores de ameaça e correção do posicionamento do diálogo do DREADNOUGHT na branch `fix/v0.54.1-cinematic-correction` ([PR #81](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/81)). Substitui os emojis grandes por ícones vetoriais compactos em azul/ciano, com entrada, pulsação e saída suaves; preserva os gatilhos de alerta para ataques e unidades Elite. O cartão de fala do DREADNOUGHT passa a procurar uma posição lateral fora do casco, com alternativas adaptativas em telas estreitas. A entrada, as falas, a câmera e a arena permanecem preservadas. Validação automatizada aprovada: 72/72 testes, sintaxe JavaScript, imports relativos e whitespace. Validação visual em Android/desktop ainda pendente. Não mesclada em `main`.
+**Candidata atual em desenvolvimento:** `0.54.6` — rebalanceamento de combate e IA do DREADNOUGHT na branch `fix/v0.54.1-cinematic-correction` ([PR #81](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/81)). Reduz a pressão das tropas, com ajuste mais forte no Artilheiro e novo ajuste no Sentinela; mantém as variantes Elite diferenciadas. O DREADNOUGHT recebe cadência de ataque mais rápida, reposicionamento lateral mais responsivo e não reage a tiros do jogador com esquiva de tropas. O renderer do encouraçado respeita a qualidade adaptativa de efeitos. Testes automatizados adicionados; playtest e medição real de FPS ainda pendentes. Não mesclada em `main`.
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 

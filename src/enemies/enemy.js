@@ -1,6 +1,6 @@
 import { BossSystems, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from './boss-systems.js?v=0.53.0-stage-6-7';
 import { getBossCombatTargetY } from '../core/boss-positioning.js?v=0.54.0-clean-cinematic';
-import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.50.0-ai-balance';
+import { ENEMY_MOTION_PROFILES, steerToPoint } from '../movement/motion.js?v=0.54.6-combat-balance';
 import { getGuardianProtectionPriority } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
 
 export class Enemy {
@@ -22,7 +22,7 @@ export class Enemy {
     // Keep the general movement/separation radius compact; the elongated boss hull
     // uses an oriented ellipse for projectile and pilot contact tests in Game.
     this.collisionRadius = type === 'boss' ? this.radius * 1.45 : this.radius;
-    this.maxHealth = type === 'boss' ? 360 + level * 12 : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 6 + Math.floor(level / 2) : type === 'sentinel' ? 5 : type === 'interceptor' ? 1 : 2;
+    this.maxHealth = type === 'boss' ? 360 + level * 12 : type === 'guardian' ? (this.isElite ? 9 + level : 7 + level) : type === 'artillery' ? 5 + Math.floor(level / 2) : type === 'sentinel' ? 4 : type === 'interceptor' ? 1 : 2;
     this.health = this.maxHealth;
     this.bossSystems = type === 'boss' ? new BossSystems() : null;
     this.bossPhase = 1;
@@ -45,18 +45,18 @@ export class Enemy {
     this.bossMissileNextSide = -1;
     this.bossBeamHit = false;
     this.rewardGranted = false;
-    this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 25 : type === 'artillery' ? 28 : type === 'sentinel' ? 34 : type === 'interceptor' ? 78 + Math.random() * 16 : 43 + Math.random() * 21) + Math.min(level, 8) * (type === 'guardian' ? 0.9 : 1.6);
+    this.speed = (type === 'boss' ? 16 : type === 'guardian' ? 23 : type === 'artillery' ? 25 : type === 'sentinel' ? 30 : type === 'interceptor' ? 70 + Math.random() * 14 : 38 + Math.random() * 17) + Math.min(level, 8) * (type === 'guardian' ? 0.8 : 1.35);
     this.motionProfile = type === 'artillery' ? (this.isElite ? ENEMY_MOTION_PROFILES.artilleryElite : ENEMY_MOTION_PROFILES.artillery)
       : type === 'sentinel' ? (this.isElite ? ENEMY_MOTION_PROFILES.sentinelElite : ENEMY_MOTION_PROFILES.sentinel)
         : type === 'guardian' ? (this.isElite ? ENEMY_MOTION_PROFILES.guardianElite : ENEMY_MOTION_PROFILES.guardian)
           : type === 'chaser' ? ENEMY_MOTION_PROFILES.chaser : null;
     this.phase = Math.random() * Math.PI * 2;
     this.fireCooldown = type === 'boss'
-      ? 1.8
+      ? 1.65
       : type === 'artillery'
-        ? 3.0 + Math.random() * 0.7
+        ? 3.6 + Math.random() * 0.6
         : type === 'sentinel'
-          ? (this.isElite ? 2.8 : 1.35 + Math.random() * 0.75)
+          ? (this.isElite ? 3.0 : 1.8 + Math.random() * 0.6)
           : 2.4 + Math.random() * 0.8;
     this.active = true;
     this.contactCooldown = 0;
@@ -221,7 +221,7 @@ export class Enemy {
     if ((this.type === 'sentinel' || this.type === 'artillery') && this.dodgeCooldown <= 0 && this.dodgeScanTimer <= 0) {
       // No threat is usually present. Re-scan projectile trajectories at 6.25 Hz
       // instead of repeating the full projectile pass on every rendered frame.
-      this.dodgeScanTimer = 0.16;
+      this.dodgeScanTimer = 0.2;
       let hasBestThreat = false;
       let bestThreatX = 0;
       let bestClearanceSquared = Infinity;
@@ -247,16 +247,14 @@ export class Enemy {
       }
       if (hasBestThreat && this.dodgeCooldown <= 0) {
         this.dodgeDirection = bestThreatX >= 0 ? -1 : 1;
-        this.dodgeTimer = this.type === 'boss' ? 0.26
-          : this.type === 'sentinel' ? (this.isElite ? 0.5 : 0.2)
-            : this.type === 'artillery' ? (this.isElite ? 0.42 : 0.32) : 0.48;
-        this.dodgeCooldown = this.type === 'boss' ? 1.8
-          : this.type === 'sentinel' ? (this.isElite ? 0.9 : 1.8)
-            : this.type === 'artillery' ? (this.isElite ? 1.5 : 1.6) : 0.95;
+        this.dodgeTimer = this.type === 'sentinel' ? (this.isElite ? 0.42 : 0.18)
+          : this.type === 'artillery' ? (this.isElite ? 0.36 : 0.25) : 0.48;
+        this.dodgeCooldown = this.type === 'sentinel' ? (this.isElite ? 1.1 : 2.3)
+          : this.type === 'artillery' ? (this.isElite ? 1.8 : 2.0) : 0.95;
       }
     }
     const dodgeStrength = this.dodgeTimer > 0
-      ? (this.type === 'sentinel' ? (this.isElite ? 115 : 22) : this.type === 'artillery' ? (this.isElite ? 70 : 24) : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'sentinel' && this.isElite ? 0.5 : this.type === 'sentinel' ? 0.2 : this.type === 'artillery' && !this.isElite ? 0.32 : this.type === 'artillery' ? 0.42 : 0.48))
+      ? (this.type === 'sentinel' ? (this.isElite ? 90 : 14) : this.type === 'artillery' ? (this.isElite ? 55 : 15) : 0) * this.dodgeDirection * Math.min(1, this.dodgeTimer / (this.type === 'sentinel' && this.isElite ? 0.42 : this.type === 'sentinel' ? 0.18 : this.type === 'artillery' && !this.isElite ? 0.25 : this.type === 'artillery' ? 0.36 : 0.48))
       : 0;
 
     if (this.type === 'boss') {
@@ -286,7 +284,7 @@ export class Enemy {
 
       if (this.bossMovementState === 'reposition' && this.bossMovementTimer <= 0) {
         this.bossMovementState = 'stabilize';
-        this.bossMovementTimer = 0.7;
+        this.bossMovementTimer = 0.45;
       } else if (this.bossMovementState === 'stabilize' && this.bossMovementTimer <= 0) {
         this.bossMovementState = 'patrol';
       }
@@ -321,8 +319,8 @@ export class Enemy {
           this.bossMoveTargetY = Math.max(this.collisionRadius + 30, Math.min(height - this.collisionRadius - 36,
             desiredY + sideY * sideOffset * 0.32));
           this.bossMovementState = 'reposition';
-          this.bossMovementTimer = 1.8;
-          this.bossRepositionCooldown = 4.2;
+          this.bossMovementTimer = 1.45;
+          this.bossRepositionCooldown = 3.5;
         }
 
         if (this.bossMovementState === 'patrol') {
@@ -542,7 +540,7 @@ export class Enemy {
           }
         }
 
-        this.fireCooldown = this.bossPhase === 1 ? 1.85 : this.bossPhase === 2 ? 1.7 : 1.55;
+        this.fireCooldown = this.bossPhase === 1 ? 1.65 : this.bossPhase === 2 ? 1.45 : 1.28;
         if (shots.length) shot = shots;
       }
     } else if (this.type === 'interceptor') {
@@ -553,31 +551,31 @@ export class Enemy {
       this.x += towardX * this.speed * 0.70 * dt - towardY * weave * dt;
       this.y += towardY * this.speed * 0.70 * dt + towardX * weave * dt;
     } else if (this.type === 'artillery') {
-      // Artillery keeps a distant firing lane and uses a readable three-shot fan.
-      const eliteStrafe = this.isElite ? Math.sin(this.phase * 0.82) * Math.min(width * 0.13, 60) : 0;
+      // Artillery keeps a distant firing lane and uses a lighter two-shot fan.
+      const eliteStrafe = this.isElite ? Math.sin(this.phase * 0.82) * Math.min(width * 0.12, 52) : 0;
       const desiredX = flankActive
         ? this.flankTargetX
-        : targetX + Math.sin(this.phase * 0.65) * Math.min(width * (this.isElite ? 0.24 : 0.18), this.isElite ? 112 : 78) + eliteStrafe + dodgeStrength;
+        : targetX + Math.sin(this.phase * 0.65) * Math.min(width * (this.isElite ? 0.21 : 0.14), this.isElite ? 96 : 58) + eliteStrafe + dodgeStrength;
       const desiredY = flankActive
         ? this.flankTargetY
-        : Math.max(36, targetY - Math.min(205, height * 0.36));
+        : Math.max(36, targetY - Math.min(185, height * 0.32));
       steerToPoint(this, desiredX, desiredY, this.motionProfile, dt);
       if (flankActive) this.fireCooldown = Math.max(this.fireCooldown, 0.2);
       else this.fireCooldown -= dt;
       if (!flankActive && this.fireCooldown <= 0 && this.y > 18) {
-        this.fireCooldown = this.isElite ? 3.6 : 4.4;
+        this.fireCooldown = this.isElite ? 4.2 : 5.2;
         const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
-        const spread = this.isElite ? 0.17 : 0.14;
-        shot = [-1, 0, 1].map((offset) => {
+        const spread = this.isElite ? 0.14 : 0.12;
+        shot = [-0.5, 0.5].map((offset) => {
           const angle = baseAngle + offset * spread;
           return {
             x: this.x,
             y: this.y + this.radius,
             targetX: this.x + Math.cos(angle) * 420,
             targetY: this.y + Math.sin(angle) * 420,
-            damage: this.isElite ? 5.2 : 3.8,
-            speed: this.isElite ? 160 : 132,
-            radius: this.isElite ? 4 : 3.5,
+            damage: this.isElite ? 4.2 : 3.0,
+            speed: this.isElite ? 145 : 118,
+            radius: this.isElite ? 3.8 : 3.3,
             color: this.isElite ? '#8ff0b0' : '#d6a0ff',
             glowColor: this.isElite ? '#42c978' : '#a95cff'
           };
@@ -585,9 +583,9 @@ export class Enemy {
       }
     } else if (this.type === 'sentinel') {
       // Sentinels strafe around a moving firing lane instead of sliding directly toward the player.
-      const laneOffset = Math.sin(this.phase * (this.isElite ? 1.0 : 0.58)) * Math.min(this.isElite ? 92 : 34, width * (this.isElite ? 0.22 : 0.09));
+      const laneOffset = Math.sin(this.phase * (this.isElite ? 0.92 : 0.52)) * Math.min(this.isElite ? 78 : 24, width * (this.isElite ? 0.18 : 0.065));
       let desiredX = Math.max(this.radius, Math.min(width - this.radius, targetX + laneOffset + dodgeStrength));
-      let desiredY = Math.max(42, targetY - Math.min(this.isElite ? 185 : 145, height * (this.isElite ? 0.32 : 0.25)));
+      let desiredY = Math.max(42, targetY - Math.min(this.isElite ? 170 : 130, height * (this.isElite ? 0.29 : 0.22)));
       if (flankActive) {
         desiredX = this.flankTargetX;
         desiredY = this.flankTargetY;
@@ -611,7 +609,7 @@ export class Enemy {
       if (!flankActive && this.fireCooldown <= 0 && this.y > 18) {
         if (this.isElite) {
           // A compact two-shot plasma burst gives this variant a distinct attack without a shield.
-          this.fireCooldown = 2.65;
+          this.fireCooldown = 3.15;
           const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
           shot = [-1, 1].map((offset) => {
             const angle = baseAngle + offset * 0.055;
@@ -620,22 +618,22 @@ export class Enemy {
               y: this.y + this.radius,
               targetX: this.x + Math.cos(angle) * 420,
               targetY: this.y + Math.sin(angle) * 420,
-              damage: 5.5,
-              speed: 185,
+              damage: 4.2,
+              speed: 168,
               radius: 3.8,
               color: '#c99aff',
               glowColor: '#9255d8'
             };
           });
         } else {
-          this.fireCooldown = 2.6;
+          this.fireCooldown = 3.2;
           shot = {
             x: this.x,
             y: this.y + this.radius,
             targetX,
             targetY,
-            damage: 8.5,
-            speed: 175,
+            damage: 6,
+            speed: 158,
             radius: 4,
             color: '#ffe0a8',
             glowColor: '#ffad55'
@@ -678,15 +676,15 @@ export class Enemy {
 
         this.fireCooldown -= dt;
         if (this.level >= 2 && distance > Math.max(185, width * 0.31) && this.fireCooldown <= 0) {
-          this.fireCooldown = 3.2 + Math.random() * 1.0;
-          const damage = this.radius >= 12 ? 5 : this.radius >= 11 ? 4 : 3;
+          this.fireCooldown = 4.0 + Math.random() * 1.0;
+          const damage = this.radius >= 12 ? 3.8 : this.radius >= 11 ? 3.2 : 2.5;
           shot = {
             x: this.x,
             y: this.y + this.radius,
             targetX,
             targetY,
             damage,
-            speed: 135,
+            speed: 122,
             radius: 3,
             color: '#ff9ab0',
             glowColor: '#ff718d'
@@ -724,7 +722,7 @@ export class Enemy {
           Math.cos(desiredFacing - this.facingRotation)
         );
         const turnResponse = this.type === 'boss'
-          ? cannon?.energyState === 'aligning' ? 1.15 : 0.48
+          ? cannon?.energyState === 'aligning' ? 1.15 : 0.62
           : 4.5;
         this.facingRotation += facingDelta * Math.min(1, dt * turnResponse);
       }
@@ -734,18 +732,19 @@ export class Enemy {
     return shot;
   }
 
-  draw(ctx) {
+  draw(ctx, effectsScale = 1) {
     // The Dreadnought uses the game's smooth vector renderer; its depth comes
     // from layered geometry, bevels, gradients and cast shadows rather than pixel scaling.
-    return this.drawVector(ctx);
+    return this.drawVector(ctx, effectsScale);
   }
 
-  drawVector(ctx) {
+  drawVector(ctx, effectsScale = 1) {
     const boss = this.type === 'boss';
     const guardian = this.type === 'guardian';
     const artillery = this.type === 'artillery';
     const ranged = this.type === 'sentinel';
     const interceptor = this.type === 'interceptor';
+    const reducedEffects = effectsScale < 0.75;
     const color = boss ? '#202833' : this.isElite ? (artillery ? '#171d24' : ranged ? '#59377f' : guardian ? '#245b4b' : '#7546a6') : guardian ? '#78d9a8' : artillery ? '#bd83ff' : ranged ? '#ffbd69' : interceptor ? '#70e7ff' : '#ff718d';
     const edge = boss ? '#8796a6' : this.isElite ? (artillery ? '#78d99a' : ranged ? '#c9a5ff' : guardian ? '#a7f2ce' : '#d9b8ff') : guardian ? '#d8ffea' : artillery ? '#f0dcff' : ranged ? '#fff0cf' : interceptor ? '#e3fbff' : '#ffd5de';
 
@@ -813,13 +812,17 @@ export class Enemy {
       for (let side = -1; side <= 1; side += 2) {
         const engineX = side * this.radius * 0.58;
         const plumeLength = this.radius * (0.58 + this.thrust * 0.16 + Math.sin(this.phase * 10 + side) * 0.035);
-        const plume = ctx.createLinearGradient(0, this.radius * 1.72, 0, this.radius * 1.72 + plumeLength);
-        plume.addColorStop(0, 'rgba(54,217,255,0.82)');
-        plume.addColorStop(0.28, 'rgba(8,127,156,0.56)');
-        plume.addColorStop(1, 'rgba(8,127,156,0)');
         ctx.save();
         ctx.globalAlpha = pulse;
-        ctx.fillStyle = plume;
+        if (reducedEffects) {
+          ctx.fillStyle = 'rgba(8,127,156,0.34)';
+        } else {
+          const plume = ctx.createLinearGradient(0, this.radius * 1.72, 0, this.radius * 1.72 + plumeLength);
+          plume.addColorStop(0, 'rgba(54,217,255,0.82)');
+          plume.addColorStop(0.28, 'rgba(8,127,156,0.56)');
+          plume.addColorStop(1, 'rgba(8,127,156,0)');
+          ctx.fillStyle = plume;
+        }
         ctx.beginPath();
         ctx.moveTo(engineX - this.radius * 0.105, this.radius * 1.72);
         ctx.lineTo(engineX + this.radius * 0.105, this.radius * 1.72);

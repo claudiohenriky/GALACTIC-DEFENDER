@@ -1,6 +1,6 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
-import { Enemy } from '../enemies/enemy.js?v=0.53.0-stage-6-7';
+import { Enemy } from '../enemies/enemy.js?v=0.54.6-combat-balance';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';

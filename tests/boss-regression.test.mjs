@@ -235,8 +235,8 @@ test('Sentinel projectile scans are throttled between checks when no dodge is ac
  sentinel.update(1/60,500,700,1000,1200,projectiles,[],0,0,0);
  sentinel.update(1/60,500,700,1000,1200,projectiles,[],0,0,0);
  assert.equal(iterations,1,'intermediate frames reuse the recent no-threat result');
- for(let frame=0;frame<10;frame++) sentinel.update(1/60,500,700,1000,1200,projectiles,[],0,0,0);
- assert.ok(iterations>=2,'a fresh scan occurs after the 0.16-second interval');
+ for(let frame=0;frame<13;frame++) sentinel.update(1/60,500,700,1000,1200,projectiles,[],0,0,0);
+ assert.ok(iterations>=2,'a fresh scan occurs after the 0.20-second interval');
 });
 
 test('new cinematic handoff clears the constructor entrance timer before normal AI resumes',()=>{
@@ -280,3 +280,40 @@ test('DREADNOUGHT plasma telegraph matches the weapon muzzle and activates only 
 });
 
 
+
+
+test('DREADNOUGHT ignores player projectile near-misses instead of performing troop-style dodges', () => {
+  const boss = new Enemy(500, 300, 10, 'boss'); boss.bossEntranceTimer = 0; boss.bossRepositionCooldown = 10; boss.facingRotation = Math.PI / 2; boss.fireCooldown = 10;
+  const playerShot = { x: 500, y: 450, vx: 0, vy: -280, radius: 3, active: true };
+  boss.update(1 / 60, 500, 900, 1000, 1200, [playerShot], [], 0, 0, 0);
+  assert.equal(boss.dodgeTimer, 0); assert.equal(boss.dodgeScanTimer, 0);
+});
+
+test('DREADNOUGHT reposition and stabilization windows are shorter without retreat vectors', () => {
+  const boss = new Enemy(500, 300, 10, 'boss'); boss.bossEntranceTimer = 0; boss.bossMovementState = 'reposition'; boss.bossMovementTimer = 0.01; boss.bossRepositionCooldown = 10; boss.bossMoveTargetX = 700; boss.bossMoveTargetY = 700;
+  boss.update(0.02, 500, 900, 1200, 1600, [], [], 0, 0, 0);
+  assert.equal(boss.bossMovementState, 'stabilize'); assert.equal(boss.bossMovementTimer, 0.45);
+  boss.update(0.46, 500, 900, 1200, 1600, [], [], 0, 0, 0); assert.equal(boss.bossMovementState, 'patrol');
+});
+
+test('DREADNOUGHT accelerates its attack cadence across all three phases', () => {
+  const expected = [1.65, 1.45, 1.28];
+  for (let phase = 1; phase <= 3; phase += 1) {
+    const boss = new Enemy(500, 300, 10, 'boss'); boss.bossEntranceTimer = 0; boss.bossPhase = phase; boss.health = boss.maxHealth * (phase === 1 ? 1 : phase === 2 ? 0.5 : 0.2); boss.bossPhaseTransition = 0; boss.fireCooldown = 0; boss.facingRotation = Math.PI / 2;
+    const volley = boss.update(1 / 60, 500, 900, 1000, 1200, [], [], 0, 0, 0);
+    assert.ok(Array.isArray(volley) && volley.length > 0, 'phase should fire'); assert.equal(boss.fireCooldown, expected[phase - 1]);
+  }
+});
+
+test('DREADNOUGHT prioritizes guided missiles at long range in every phase', () => {
+  const systems = new BossSystems();
+  for (const phase of [1, 2, 3]) assert.equal(selectBossAttack(systems.modules, 900, 32, 8, phase), 'missile');
+  assert.equal(systems.getModule('missile-left').firingRange, 980); assert.equal(systems.getModule('missile-right').firingRange, 980);
+});
+
+test('DREADNOUGHT plasma shots retain their high-speed heavy-impact profile', () => {
+  const boss = new Enemy(500, 300, 10, 'boss'); boss.bossEntranceTimer = 0; boss.fireCooldown = 0; boss.facingRotation = Math.PI / 2;
+  for (const module of boss.bossSystems.modules) if (module.kind.includes('plasma')) module.plasmaChargeTimer = 0;
+  const volley = boss.update(1 / 60, 500, 700, 1000, 1200, [], [], 0, 0, 0);
+  assert.ok(Array.isArray(volley)); assert.ok(volley.some(shot => shot.plasmaImpact && shot.speed === 760 && shot.damage === 68));
+});

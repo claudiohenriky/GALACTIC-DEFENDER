@@ -1,3 +1,13 @@
+## [0.54.6] — rebalanceamento de combate e IA do DREADNOUGHT
+
+- Reduz a pressão das tropas comuns: Interceptador, perseguidor e Guardião ficam menos velozes; Sentinela e Artilheiro recebem ajustes mais fortes de mobilidade, esquiva, vida, cadência e dano.
+- Sentinela básico dispara com menor dano e maior intervalo; a variante Elite continua com salva dupla, mas menos punitiva e com maior janela de reação.
+- Artilheiro passa de três para dois projéteis por salva, com dano e velocidade menores, intervalo maior e faixa de patrulha mais contida. A variante Elite mantém dois tiros mais fortes e o escudo próprio.
+- O DREADNOUGHT não usa esquiva de tropas contra tiros do jogador; reposicionamento lateral e estabilização ficam mais curtos, a rotação do casco responde melhor e a cadência de ataque aumenta gradualmente por fase.
+- Mísseis continuam sendo priorizados a longa distância; lançadores mantêm alcance de 980. O plasma mantém velocidade de 760 e repulsão pesada já definida.
+- O renderer do encouraçado agora respeita a escala adaptativa de efeitos: em qualidade reduzida, substitui o gradiente dos propulsores por preenchimento sólido, preservando a silhueta.
+- **Validação automatizada:** testes de balanceamento, mobilidade, cadência, esquiva do boss e armamento adicionados. Playtest mobile/desktop e medição real de FPS continuam pendentes.
+
 ## [0.54.5] — notificações táticas e posicionamento de diálogo
 
 - Substitui os emojis grandes de reação por indicadores vetoriais compactos, com moldura técnica azul/ciano e glifos desenhados em Canvas.
