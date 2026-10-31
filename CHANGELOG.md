@@ -1,3 +1,14 @@
+## [0.60.0] — imersão audiovisual e identidade dos personagens
+
+- Expande o áudio procedural com trilha espacial em camadas leves, variação de música para o confronto com o DREADNOUGHT e canais independentes de música, efeitos e comunicações.
+- Adiciona perfis sonoros originais para piloto, sistema da nave, Encouraçado e cada classe Elite; falas recebem sinais curtos sincronizados com a revelação do texto.
+- Adiciona efeitos para disparos, dano, absorção e ruptura de escudo, Pulso de Ruptura, lançamento de mísseis, chegadas Elite e explosões.
+- Dá a cada voz um retrato vetorial pixel-inspired próprio nos cartões de diálogo e nas falas de primeiro contato.
+- Cada classe Elite apresenta uma fala própria apenas na primeira aparição da partida; o efeito de chegada e a comunicação são disparados uma única vez por classe.
+- Mantém os efeitos sintetizados localmente, sem baixar arquivos de áudio ou depender de serviços externos; limita a cadência de sons de explosão para reduzir sobreposição.
+- Adiciona controles separados de volume para música, efeitos e comunicações e testes automatizados para os retratos e identidade dos interlocutores.
+- O pacote de combate Elite, o Devastador Elite e o design do Encouraçado permanecem sem alterações de balanceamento.
+
 ## [0.59.0] — árvore de habilidades e progressão do piloto
 
 - Adiciona uma árvore permanente com cinco ramificações (Integridade, Mobilidade, Arsenal, Energia e Tecnologia) e 15 tecnologias com custos e pré-requisitos.
