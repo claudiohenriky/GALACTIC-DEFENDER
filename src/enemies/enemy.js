@@ -642,24 +642,30 @@ export class Enemy {
     // This is presentation-only: the existing combat hitbox remains untouched.
     if (boss) ctx.scale(0.82, 1);
 
-    // The Dreadnought has two independent rear engines. Their exhaust is
-    // built from hard-edged pixel blocks and kept separate from the center keel.
+    // The Dreadnought exhaust uses smooth tapered energy plumes rather than
+    // the block-shaped flame style of the smaller ships.
     const flame = 3 + Math.sin(this.phase * 10) * 0.65 + this.thrust * 4.5;
     if (boss) {
-      const pulse = 0.68 + Math.sin(this.phase * 11) * 0.12 + this.thrust * 0.18;
+      const pulse = 0.34 + Math.sin(this.phase * 11) * 0.06 + this.thrust * 0.12;
       for (const side of [-1, 1]) {
         const engineX = side * this.radius * 0.58;
+        const plumeLength = this.radius * (0.58 + this.thrust * 0.16 + Math.sin(this.phase * 10 + side) * 0.035);
+        const plume = ctx.createLinearGradient(0, this.radius * 1.72, 0, this.radius * 1.72 + plumeLength);
+        plume.addColorStop(0, 'rgba(54,217,255,0.82)');
+        plume.addColorStop(0.28, 'rgba(8,127,156,0.56)');
+        plume.addColorStop(1, 'rgba(8,127,156,0)');
+        ctx.save();
         ctx.globalAlpha = pulse;
-        ctx.fillStyle = '#087f9c';
-        ctx.fillRect(engineX - this.radius * 0.12, this.radius * 1.78, this.radius * 0.24, this.radius * 0.54);
-        ctx.fillStyle = '#36d9ff';
-        ctx.fillRect(engineX - this.radius * 0.075, this.radius * 1.82, this.radius * 0.15, this.radius * (0.32 + flame * 0.025));
-        ctx.fillStyle = '#b9f6ff';
-        ctx.fillRect(engineX - this.radius * 0.035, this.radius * 1.86, this.radius * 0.07, this.radius * 0.22);
-        ctx.fillStyle = '#ff653d';
-        ctx.fillRect(engineX - this.radius * 0.025, this.radius * 2.18, this.radius * 0.05, this.radius * 0.10);
+        ctx.fillStyle = plume;
+        ctx.beginPath();
+        ctx.moveTo(engineX - this.radius * 0.105, this.radius * 1.72);
+        ctx.lineTo(engineX + this.radius * 0.105, this.radius * 1.72);
+        ctx.lineTo(engineX + this.radius * 0.045, this.radius * 1.72 + plumeLength);
+        ctx.lineTo(engineX - this.radius * 0.045, this.radius * 1.72 + plumeLength);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
       }
-      ctx.globalAlpha = 1;
     } else {
       ctx.globalAlpha = 0.22 + this.thrust * 0.25;
       ctx.fillStyle = color;
@@ -838,8 +844,10 @@ export class Enemy {
         ctx.fillStyle = '#36d9ff';
         ctx.globalAlpha = 0.82 + Math.sin(this.phase * 13 + side) * 0.12;
         ctx.fillRect(engineX - this.radius * 0.105, this.radius * 1.62, this.radius * 0.21, this.radius * 0.16);
-        ctx.fillStyle = '#b9f6ff';
-        ctx.fillRect(engineX - this.radius * 0.045, this.radius * 1.65, this.radius * 0.09, this.radius * 0.09);
+        // A restrained cyan highlight keeps the nozzle luminous without
+        // reading as a detached white component.
+        ctx.fillStyle = '#78eaff';
+        ctx.fillRect(engineX - this.radius * 0.035, this.radius * 1.65, this.radius * 0.07, this.radius * 0.07);
         ctx.globalAlpha = 1;
       }
       // Permanent cyan core; phase III adds localized adaptive-green repair traces.
@@ -999,22 +1007,74 @@ export class Enemy {
       ctx.ellipse(0, hullR * 0.30, hullR * 0.25, hullR * 0.48, 0, 0, Math.PI * 2);
       ctx.stroke();
 
-      // Recessed forward cannon socket: the weapon module is drawn above this
-      // ring later, keeping the central weapon readable and mechanically seated.
-      ctx.fillStyle = '#0b121a';
+      // Main energy cannon: a deep armored well with concentric containment
+      // rings, radial locking braces and a visible cyan emitter aperture.
+      // The functional cannon module is rendered afterward, seated in this mount.
+      const cannonY = -hullR * 1.82;
+      ctx.save();
+      ctx.translate(0, cannonY);
+      ctx.fillStyle = '#080e15';
       ctx.strokeStyle = '#8796a6';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 2.2;
       ctx.beginPath();
-      ctx.ellipse(0, -hullR * 1.82, hullR * 0.22, hullR * 0.16, 0, 0, Math.PI * 2);
+      ctx.moveTo(-hullR * 0.38, -hullR * 0.13);
+      ctx.lineTo(-hullR * 0.25, -hullR * 0.28);
+      ctx.lineTo(hullR * 0.25, -hullR * 0.28);
+      ctx.lineTo(hullR * 0.38, -hullR * 0.13);
+      ctx.lineTo(hullR * 0.38, hullR * 0.13);
+      ctx.lineTo(hullR * 0.25, hullR * 0.28);
+      ctx.lineTo(-hullR * 0.25, hullR * 0.28);
+      ctx.lineTo(-hullR * 0.38, hullR * 0.13);
+      ctx.closePath();
       ctx.fill();
       ctx.stroke();
-      ctx.strokeStyle = '#36d9ff';
-      ctx.globalAlpha = 0.72 + Math.sin(this.phase * 8) * 0.12;
-      ctx.lineWidth = 2.5;
+
+      // Recessed dark chamber gives the emitter a visible physical depth.
+      const apertureGlow = ctx.createRadialGradient(0, 0, hullR * 0.015, 0, 0, hullR * 0.23);
+      apertureGlow.addColorStop(0, 'rgba(54,217,255,0.34)');
+      apertureGlow.addColorStop(0.5, 'rgba(8,127,156,0.18)');
+      apertureGlow.addColorStop(1, 'rgba(8,127,156,0)');
+      ctx.fillStyle = '#050a10';
       ctx.beginPath();
-      ctx.ellipse(0, -hullR * 1.82, hullR * 0.13, hullR * 0.09, 0, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.ellipse(0, 0, hullR * 0.27, hullR * 0.18, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = apertureGlow;
+      ctx.fillRect(-hullR * 0.28, -hullR * 0.19, hullR * 0.56, hullR * 0.38);
+
+      // Three steel rings and six locking teeth make the socket read as machinery.
+      for (const ring of [0.22, 0.16, 0.095]) {
+        ctx.strokeStyle = ring === 0.22 ? '#596574' : '#36d9ff';
+        ctx.globalAlpha = ring === 0.22 ? 0.95 : 0.58 + Math.sin(this.phase * 8) * 0.12;
+        ctx.lineWidth = ring === 0.22 ? 2.2 : 1.6;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, hullR * ring, hullR * ring * 0.68, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
       ctx.globalAlpha = 1;
+      for (let tooth = 0; tooth < 6; tooth += 1) {
+        const angle = tooth * Math.PI / 3;
+        const innerX = Math.cos(angle) * hullR * 0.25;
+        const innerY = Math.sin(angle) * hullR * 0.16;
+        const outerX = Math.cos(angle) * hullR * 0.34;
+        const outerY = Math.sin(angle) * hullR * 0.25;
+        ctx.strokeStyle = '#a0acb8';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        ctx.moveTo(innerX, innerY);
+        ctx.lineTo(outerX, outerY);
+        ctx.stroke();
+      }
+
+      // Visible emitter lens remains cyan rather than white; it pulses as the
+      // main cannon charges, while the weapon module supplies the barrel above it.
+      const emitterPulse = 0.56 + Math.sin(this.phase * 9) * 0.16;
+      ctx.fillStyle = '#36d9ff';
+      ctx.globalAlpha = emitterPulse;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, hullR * 0.065, hullR * 0.045, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.restore();
 
       // Armor segmentation, fasteners and heat vents add scale without noise.
       for (const side of [-1, 1]) {
@@ -1059,9 +1119,12 @@ export class Enemy {
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
+        const auxPulse = 0.42 + this.thrust * 0.22 + Math.sin(this.phase * 12 + side) * 0.06;
+        ctx.fillStyle = '#087f9c';
+        ctx.globalAlpha = auxPulse;
+        ctx.fillRect(auxX - hullR * 0.052, hullR * 1.40, hullR * 0.104, hullR * 0.20);
         ctx.fillStyle = '#36d9ff';
-        ctx.globalAlpha = 0.45 + this.thrust * 0.28 + Math.sin(this.phase * 12 + side) * 0.08;
-        ctx.fillRect(auxX - hullR * 0.035, hullR * 1.42, hullR * 0.07, hullR * 0.16);
+        ctx.fillRect(auxX - hullR * 0.025, hullR * 1.43, hullR * 0.05, hullR * 0.14);
         ctx.globalAlpha = 1;
       }
       // End DREADNOUGHT 3D pass ---------------------------------------------
