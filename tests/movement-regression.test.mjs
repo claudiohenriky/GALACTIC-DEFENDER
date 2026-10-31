@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { Player } from '../src/player/player.js';
 import { Enemy } from '../src/enemies/enemy.js';
 import { EliteTacticalCoordinator } from '../src/ai/elite-tactics.js';
+import { EnemyTacticalCoordinator } from '../src/ai/enemy-tactics.js';
 import { approachVelocity, integrateVelocity, steerToPoint, ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 
 function simulateVelocity(fps, duration, targetX, targetY, acceleration = 2400) {
@@ -143,4 +144,44 @@ test('flanking Elite Sentinel holds fire while moving to its assigned rear posit
   assert.equal(shot, null);
   assert.ok(sentinel.fireCooldown >= 0.2);
   assert.ok(endDistance < startDistance);
+});
+
+test('common troop coordinator gives one Chaser a lateral reposition, never an Interceptor', () => {
+  const player = { x: 500, y: 500, velocityX: 0, velocityY: 0, rotation: -Math.PI / 2 };
+  const chaserA = new Enemy(420, 220, 8, 'chaser');
+  const chaserB = new Enemy(580, 220, 8, 'chaser');
+  const interceptor = new Enemy(500, 180, 8, 'interceptor', true);
+  const artillery = new Enemy(350, 190, 12, 'artillery');
+  const enemies = [chaserA, chaserB, interceptor, artillery];
+  const coordinator = new EnemyTacticalCoordinator();
+  coordinator.update(1 / 60, enemies, player, 1200, 1600);
+  assert.equal([chaserA, chaserB].filter(enemy => enemy.repositionTimer > 0).length, 1);
+  assert.equal(interceptor.repositionTimer, 0);
+  assert.equal(interceptor.isElite, false);
+});
+
+test('common Chaser holds fire during its short lateral reposition', () => {
+  const chaser = new Enemy(250, 200, 8, 'chaser');
+  chaser.repositionTimer = 2;
+  chaser.repositionTargetX = 700;
+  chaser.repositionTargetY = 500;
+  chaser.fireCooldown = 0.01;
+  const startDistance = Math.hypot(chaser.x - chaser.repositionTargetX, chaser.y - chaser.repositionTargetY);
+  const shot = chaser.update(1 / 60, 300, 800, 1000, 1200, [], [], 0);
+  const endDistance = Math.hypot(chaser.x - chaser.repositionTargetX, chaser.y - chaser.repositionTargetY);
+  assert.equal(shot, null);
+  assert.ok(chaser.fireCooldown >= 0.2);
+  assert.ok(endDistance < startDistance);
+});
+
+test('common troop reposition waits while an Elite flank is active', () => {
+  const player = { x: 500, y: 500, velocityX: 0, velocityY: 0, rotation: -Math.PI / 2 };
+  const enemies = [
+    new Enemy(420, 220, 8, 'chaser'),
+    new Enemy(580, 220, 8, 'chaser'),
+    new Enemy(500, 180, 8, 'interceptor'),
+    new Enemy(350, 190, 12, 'artillery')
+  ];
+  new EnemyTacticalCoordinator().update(1 / 60, enemies, player, 1200, 1600, true);
+  assert.ok(enemies.every(enemy => enemy.repositionTimer === 0));
 });
