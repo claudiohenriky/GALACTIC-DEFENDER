@@ -158,6 +158,15 @@ export class Game {
     this.cacheBackground();
     this.player.fitToArena(this.worldWidth, this.worldHeight);
     this.updateCamera(0, true);
+    if (this.waveTenTransition) {
+      this.waveTenTransition.bossStartY = this.player.y - this.height * 1.12;
+      this.waveTenTransition.bossEndY = this.player.y - this.height * 0.62;
+      if (this.waveTenTransition.boss && this.waveTenTransition.phase === 'boss-entry') {
+        const progress = Math.max(0, Math.min(1, this.waveTenTransition.phaseElapsed / this.waveTenTransition.phaseDuration));
+        const eased = progress * progress * (3 - 2 * progress);
+        this.waveTenTransition.boss.y = this.waveTenTransition.bossStartY + (this.waveTenTransition.bossEndY - this.waveTenTransition.bossStartY) * eased;
+      }
+    }
     this.renderFrame(0);
   }
 
@@ -234,6 +243,7 @@ export class Game {
     this.progression = new Progression();
     this.mission = new Mission();
     this.waveManager.reset();
+    this.waveTenTransition = null;
     this.enemies = [];
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
