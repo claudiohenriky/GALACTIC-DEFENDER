@@ -1,13 +1,13 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
-import { Enemy } from '../enemies/enemy.js?v=0.56.0-devastator';
+import { Enemy } from '../enemies/enemy.js?v=0.57.1-boss-flank-movement';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.56.0-siege-impact';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
-import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.53.0-stage-6-7';
+import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.57.1-plasma-cooldown';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nine-test-start';
