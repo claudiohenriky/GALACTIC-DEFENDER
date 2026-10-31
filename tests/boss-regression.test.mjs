@@ -184,7 +184,7 @@ test('destroyed main cannon cannot enter the attack cycle',()=>{
  assert.equal(cannon.energyState,'offline');
 });
 
-test('normal wave progression starts with five enemies and reserves the Dreadnought for wave 10',()=>{
+test('normal wave progression reserves bosses for every tenth wave',()=>{
  assert.equal(BOSS_TEST_MODE,false);
  const waves=new WaveManager();
  assert.equal(waves.wave,1);
@@ -212,6 +212,32 @@ test('elite variants are limited to Sentinel, Guardian and Artillery; Intercepto
  }
 });
 
+
+test('waves 15 and 25 are normal; waves 20 and 30 spawn the recurring boss',()=>{
+ const waves=new WaveManager();
+ waves.startAtWaveForTesting(15); assert.equal(waves.enemyCount,18);
+ waves.startAtWaveForTesting(20); assert.equal(waves.enemyCount,1);
+ waves.startAtWaveForTesting(25); assert.equal(waves.enemyCount,18);
+ waves.startAtWaveForTesting(30); assert.equal(waves.enemyCount,1);
+});
+
+test('Sentinel projectile scans are throttled between checks when no dodge is active',()=>{
+ const sentinel=new Enemy(300,300,8,'sentinel');
+ let iterations=0;
+ const projectiles=new Proxy([],{
+  get(target,property,receiver){
+   if(property===Symbol.iterator) iterations+=1;
+   return Reflect.get(target,property,receiver);
+  }
+ });
+ sentinel.update(1/60,500,700,1000,1200,projectiles,[],0,0,0);
+ assert.equal(iterations,1);
+ sentinel.update(1/60,500,700,1000,1200,projectiles,[],0,0,0);
+ sentinel.update(1/60,500,700,1000,1200,projectiles,[],0,0,0);
+ assert.equal(iterations,1,'intermediate frames reuse the recent no-threat result');
+ for(let frame=0;frame<10;frame++) sentinel.update(1/60,500,700,1000,1200,projectiles,[],0,0,0);
+ assert.ok(iterations>=2,'a fresh scan occurs after the 0.16-second interval');
+});
 
 test('new cinematic handoff clears the constructor entrance timer before normal AI resumes',()=>{
  const boss=new Enemy(640,120,10,'boss');
@@ -254,17 +280,3 @@ test('DREADNOUGHT plasma telegraph matches the weapon muzzle and activates only 
 });
 
 
-test('DREADNOUGHT cinematic handoff clears its constructor entrance timer before normal AI resumes',()=>{
- const boss=new Enemy(640,120,10,'boss');
- assert.ok(boss.bossEntranceTimer>0,'the boss constructor starts with an entrance timer');
- const finalY=980;
- prepareBossForCombatHandoff(boss,finalY);
- assert.equal(boss.bossEntranceTimer,0);
- assert.equal(boss.y,finalY);
- assert.equal(boss.bossMoveTargetY,finalY);
- assert.equal(boss.bossMoveTargetX,boss.x);
- assert.equal(boss.bossMovementState,'patrol');
- assert.equal(boss.bossMovementTimer,0);
- assert.equal(boss.velocityX,0);
- assert.equal(boss.velocityY,0);
-});
