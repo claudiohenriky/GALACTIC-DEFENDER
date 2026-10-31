@@ -572,40 +572,9 @@ export class Enemy {
   }
 
   draw(ctx) {
-    if (this.type !== 'boss' || typeof document === 'undefined') {
-      return this.drawVector(ctx);
-    }
-
-    // Reusable low-resolution surface: the complete boss is rendered on a coarse
-    // pixel grid, then enlarged with nearest-neighbor sampling. No per-frame canvas
-    // allocation and no changes to simulation, weapons, shields or collision rules.
-    if (!this.bossPixelCanvas) {
-      this.bossPixelCanvas = document.createElement('canvas');
-      // 4x integer enlargement: a denser source grid keeps armor edges crisp
-      // while retaining a deliberately chunky pixel-art scale.
-      this.bossPixelCanvas.width = 100;
-      this.bossPixelCanvas.height = 144;
-      this.bossPixelContext = this.bossPixelCanvas.getContext('2d', { alpha: true });
-    }
-
-    const pixelCanvas = this.bossPixelCanvas;
-    const pixelCtx = this.bossPixelContext;
-    if (!pixelCtx) return this.drawVector(ctx);
-    const pixelScale = 0.25;
-    pixelCtx.setTransform(1, 0, 0, 1, 0, 0);
-    pixelCtx.clearRect(0, 0, pixelCanvas.width, pixelCanvas.height);
-    pixelCtx.imageSmoothingEnabled = false;
-    pixelCtx.setTransform(
-      pixelScale, 0, 0, pixelScale,
-      pixelCanvas.width / 2 - this.x * pixelScale,
-      pixelCanvas.height / 2 - this.y * pixelScale
-    );
-    this.drawVector(pixelCtx);
-
-    ctx.save();
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(pixelCanvas, this.x - 200, this.y - 288, 400, 576);
-    ctx.restore();
+    // The Dreadnought uses the game's smooth vector renderer; its depth comes
+    // from layered geometry, bevels, gradients and cast shadows rather than pixel scaling.
+    return this.drawVector(ctx);
   }
 
   drawVector(ctx) {
@@ -652,7 +621,10 @@ export class Enemy {
       ctx.fillStyle = '#8feaff';
       ctx.font = 'bold 10px monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(progress < 0.48 ? 'ALERTA · NAVE DE GUERRA DETECTADA' : 'SISTEMAS HOSTIS ATIVANDO', 0, -this.radius * 1.18);
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText('DREADNOUGHT', 0, -this.radius * 1.22);
+      ctx.font = 'bold 7px monospace';
+      ctx.fillText(progress < 0.48 ? 'COLOSSAL WARSHIP · CONTATO HOSTIL' : 'SISTEMAS DE COMBATE ATIVANDO', 0, -this.radius * 1.10);
       ctx.restore();
       ctx.globalAlpha = 1;
     }
@@ -885,6 +857,214 @@ export class Enemy {
         ctx.beginPath(); ctx.moveTo(side * this.radius * 0.42, -this.radius * 1.28); ctx.lineTo(side * this.radius * 0.88, -this.radius * 0.94); ctx.lineTo(side * this.radius * 1.02, -this.radius * 0.40); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(side * this.radius * 0.82, this.radius * 0.88); ctx.lineTo(side * this.radius * 0.62, this.radius * 1.24); ctx.stroke();
       }
+
+      // DREADNOUGHT 3D pass -------------------------------------------------
+      // The game remains top-down 2D. Layered silhouettes, offset sidewalls,
+      // bevel highlights and directional gradients create a raised 3D hull.
+      const hullR = this.radius;
+      const deckLight = ctx.createLinearGradient(-hullR * 1.2, -hullR * 1.5, hullR * 1.1, hullR * 1.5);
+      deckLight.addColorStop(0, '#647486');
+      deckLight.addColorStop(0.22, '#354351');
+      deckLight.addColorStop(0.58, '#202a35');
+      deckLight.addColorStop(1, '#111820');
+
+      // Deep cast shadow and lower armor lip make the upper deck appear elevated.
+      ctx.save();
+      ctx.globalAlpha = 0.62;
+      ctx.fillStyle = '#080d13';
+      ctx.beginPath();
+      ctx.moveTo(0, -hullR * 1.78);
+      ctx.lineTo(hullR * 0.48, -hullR * 1.52);
+      ctx.lineTo(hullR * 1.42, -hullR * 0.72);
+      ctx.lineTo(hullR * 1.58, hullR * 0.58);
+      ctx.lineTo(hullR * 1.18, hullR * 1.48);
+      ctx.lineTo(0, hullR * 2.12);
+      ctx.lineTo(-hullR * 1.18, hullR * 1.48);
+      ctx.lineTo(-hullR * 1.58, hullR * 0.58);
+      ctx.lineTo(-hullR * 1.42, -hullR * 0.72);
+      ctx.lineTo(-hullR * 0.48, -hullR * 1.52);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+
+      // Angled port and starboard armor walls: darker lower facets sit beneath
+      // the brighter top plates, giving the ship visible thickness from above.
+      for (const side of [-1, 1]) {
+        ctx.save();
+        ctx.fillStyle = side < 0 ? '#111a23' : '#151f2a';
+        ctx.strokeStyle = '#0b1118';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(side * hullR * 0.72, -hullR * 0.92);
+        ctx.lineTo(side * hullR * 1.42, -hullR * 0.64);
+        ctx.lineTo(side * hullR * 1.60, hullR * 0.42);
+        ctx.lineTo(side * hullR * 1.43, hullR * 1.12);
+        ctx.lineTo(side * hullR * 1.08, hullR * 1.48);
+        ctx.lineTo(side * hullR * 0.88, hullR * 0.88);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        const sideFace = ctx.createLinearGradient(side * hullR * 0.9, 0, side * hullR * 1.55, 0);
+        sideFace.addColorStop(0, '#3a4857');
+        sideFace.addColorStop(0.42, '#202b36');
+        sideFace.addColorStop(1, '#0e151d');
+        ctx.fillStyle = sideFace;
+        ctx.beginPath();
+        ctx.moveTo(side * hullR * 1.22, -hullR * 0.48);
+        ctx.lineTo(side * hullR * 1.50, -hullR * 0.30);
+        ctx.lineTo(side * hullR * 1.53, hullR * 0.52);
+        ctx.lineTo(side * hullR * 1.31, hullR * 0.96);
+        ctx.lineTo(side * hullR * 1.16, hullR * 0.72);
+        ctx.closePath();
+        ctx.fill();
+
+        // Narrow specular edge separates the upper deck from its vertical side.
+        ctx.strokeStyle = '#8796a6';
+        ctx.globalAlpha = 0.78;
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(side * hullR * 0.82, -hullR * 0.90);
+        ctx.lineTo(side * hullR * 1.36, -hullR * 0.66);
+        ctx.lineTo(side * hullR * 1.50, -hullR * 0.20);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Raised central command deck. Its offset shadow and two visible bevel
+      // faces create a stepped superstructure instead of a flat polygon.
+      ctx.fillStyle = '#0b121a';
+      ctx.beginPath();
+      ctx.moveTo(0, -hullR * 1.70);
+      ctx.lineTo(hullR * 0.43, -hullR * 1.30);
+      ctx.lineTo(hullR * 0.38, -hullR * 0.48);
+      ctx.lineTo(0, -hullR * 0.20);
+      ctx.lineTo(-hullR * 0.38, -hullR * 0.48);
+      ctx.lineTo(-hullR * 0.43, -hullR * 1.30);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = deckLight;
+      ctx.strokeStyle = '#8796a6';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(0, -hullR * 1.82);
+      ctx.lineTo(hullR * 0.34, -hullR * 1.48);
+      ctx.lineTo(hullR * 0.29, -hullR * 0.62);
+      ctx.lineTo(0, -hullR * 0.38);
+      ctx.lineTo(-hullR * 0.29, -hullR * 0.62);
+      ctx.lineTo(-hullR * 0.34, -hullR * 1.48);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Command bridge roof and its front-facing bevel.
+      ctx.fillStyle = '#596574';
+      ctx.beginPath();
+      ctx.moveTo(0, -hullR * 1.60);
+      ctx.lineTo(hullR * 0.22, -hullR * 1.38);
+      ctx.lineTo(hullR * 0.18, -hullR * 1.02);
+      ctx.lineTo(0, -hullR * 0.90);
+      ctx.lineTo(-hullR * 0.18, -hullR * 1.02);
+      ctx.lineTo(-hullR * 0.22, -hullR * 1.38);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#202833';
+      ctx.beginPath();
+      ctx.moveTo(-hullR * 0.18, -hullR * 1.02);
+      ctx.lineTo(0, -hullR * 0.90);
+      ctx.lineTo(hullR * 0.18, -hullR * 1.02);
+      ctx.lineTo(hullR * 0.18, -hullR * 0.88);
+      ctx.lineTo(0, -hullR * 0.75);
+      ctx.lineTo(-hullR * 0.18, -hullR * 0.88);
+      ctx.closePath();
+      ctx.fill();
+
+      // Recessed reactor well: radial light sits inside a dark armored socket.
+      const reactorGlow = ctx.createRadialGradient(0, hullR * 0.30, hullR * 0.025, 0, hullR * 0.30, hullR * 0.38);
+      reactorGlow.addColorStop(0, this.bossPhase === 3 ? 'rgba(190,255,255,0.95)' : 'rgba(54,217,255,0.72)');
+      reactorGlow.addColorStop(0.28, 'rgba(54,217,255,0.34)');
+      reactorGlow.addColorStop(1, 'rgba(54,217,255,0)');
+      ctx.fillStyle = '#0b131b';
+      ctx.beginPath();
+      ctx.ellipse(0, hullR * 0.30, hullR * 0.25, hullR * 0.48, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = reactorGlow;
+      ctx.fillRect(-hullR * 0.42, -hullR * 0.12, hullR * 0.84, hullR * 0.88);
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = '#596574';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(0, hullR * 0.30, hullR * 0.25, hullR * 0.48, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Recessed forward cannon socket: the weapon module is drawn above this
+      // ring later, keeping the central weapon readable and mechanically seated.
+      ctx.fillStyle = '#0b121a';
+      ctx.strokeStyle = '#8796a6';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.ellipse(0, -hullR * 1.82, hullR * 0.22, hullR * 0.16, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeStyle = '#36d9ff';
+      ctx.globalAlpha = 0.72 + Math.sin(this.phase * 8) * 0.12;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.ellipse(0, -hullR * 1.82, hullR * 0.13, hullR * 0.09, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // Armor segmentation, fasteners and heat vents add scale without noise.
+      for (const side of [-1, 1]) {
+        ctx.strokeStyle = '#a0acb8';
+        ctx.globalAlpha = 0.72;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(side * hullR * 0.94, -hullR * 0.62);
+        ctx.lineTo(side * hullR * 1.20, -hullR * 0.42);
+        ctx.lineTo(side * hullR * 1.25, hullR * 0.24);
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+
+        for (const boltY of [-0.42, 0.38, 0.92]) {
+          ctx.fillStyle = '#aab5c0';
+          ctx.beginPath();
+          ctx.arc(side * hullR * 1.16, hullR * boltY, hullR * 0.018, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = '#0b121a';
+        ctx.fillRect(side * hullR * 0.92 - hullR * 0.06, hullR * 0.98, hullR * 0.12, hullR * 0.24);
+        ctx.fillStyle = '#596574';
+        for (let vent = 0; vent < 3; vent += 1) {
+          ctx.fillRect(side * hullR * (0.92 + vent * 0.055) - hullR * 0.012, hullR * 1.01, hullR * 0.024, hullR * 0.17);
+        }
+      }
+
+      // Rear auxiliary thrusters reinforce the twin main engines and give the
+      // stern a wider mechanical footprint; their exhaust remains presentation-only.
+      for (const side of [-1, 1]) {
+        const auxX = side * hullR * 1.02;
+        ctx.fillStyle = '#0b121a';
+        ctx.strokeStyle = '#596574';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath();
+        ctx.moveTo(auxX - hullR * 0.09, hullR * 1.18);
+        ctx.lineTo(auxX + hullR * 0.09, hullR * 1.18);
+        ctx.lineTo(auxX + hullR * 0.12, hullR * 1.52);
+        ctx.lineTo(auxX, hullR * 1.64);
+        ctx.lineTo(auxX - hullR * 0.12, hullR * 1.52);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#36d9ff';
+        ctx.globalAlpha = 0.45 + this.thrust * 0.28 + Math.sin(this.phase * 12 + side) * 0.08;
+        ctx.fillRect(auxX - hullR * 0.035, hullR * 1.42, hullR * 0.07, hullR * 0.16);
+        ctx.globalAlpha = 1;
+      }
+      // End DREADNOUGHT 3D pass ---------------------------------------------
 
       // Ten independently damageable weapon modules are represented by visible sockets.
       if (systems) {
