@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.46.0-wave10-cutscene';
+import { Game } from './src/core/game.js?v=0.46.1-wave9-test-start';
 import { gameAudio } from './src/audio/game-audio.js?v=0.44.0';
 
 // Entry point: connect the game engine to the page UI.
