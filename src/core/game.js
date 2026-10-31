@@ -14,7 +14,7 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert } from './boss-cinematic.js?v=0.54.1-cinematic-correction';
+import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity } from './boss-cinematic.js?v=0.54.1-cinematic-correction';
 import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.54.1-cinematic-correction';
 import { prepareBossForCombatHandoff } from './boss-cinematic-camera.js?v=0.55.0-centered-framing';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.1-cinematic-correction';
@@ -1371,11 +1371,11 @@ export class Game {
 
     if (cinematic.phase !== previousPhase) {
       if (cinematic.phase === 'anomaly-scan' && !cinematic.anomalyReactionShown) {
-        triggerPilotReaction(this.pilotReaction, '❓', 2.8);
+        triggerPilotReaction(this.pilotReaction, '❓', 8.5);
         cinematic.anomalyReactionShown = true;
       }
       if (cinematic.phase === 'distant-contact' && !cinematic.bossReactionShown) {
-        triggerPilotReaction(this.pilotReaction, '❗', 19.5);
+        triggerPilotReaction(this.pilotReaction, '❗', 26);
         cinematic.bossReactionShown = true;
       }
     }
@@ -2195,9 +2195,7 @@ export class Game {
     for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx, this.effectsScale);
     if (this.bossCinematic?.boss) {
       const cinematic = this.bossCinematic;
-      const revealAlpha = cinematic.phase === 'distant-contact'
-        ? Math.max(0, Math.min(1, (cinematic.phaseElapsed - 0.35) / 2.1))
-        : cinematic.phase === 'boss-identification' || cinematic.phase === 'handoff' ? 1 : 0;
+      const revealAlpha = getBossCinematicBossOpacity(cinematic);
       if (revealAlpha > 0) {
         ctx.save();
         ctx.globalAlpha = revealAlpha;
