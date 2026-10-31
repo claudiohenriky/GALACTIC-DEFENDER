@@ -4,7 +4,7 @@ export function createPilotReactionState() {
 }
 
 export function triggerPilotReaction(state, symbol, duration = 1.25) {
-  if (!state || (symbol !== '❓' && symbol !== '❗')) return false;
+  if (!state || !['❓', '❗', '❓❗'].includes(symbol)) return false;
   state.symbol = symbol;
   state.duration = Math.max(0.1, Number(duration) || 1.25);
   state.remaining = state.duration;
@@ -63,9 +63,10 @@ export function getPilotReactionPosition({ x, y, bubble = null, width, height, r
 export function drawPilotReaction(ctx, state, x, y) {
   if (!ctx || !state || state.remaining <= 0 || !state.symbol) return;
   const danger = state.symbol === '❗';
-  const accent = danger ? '#ff9878' : '#7de8ff';
-  const glow = danger ? '#ff654d' : '#35c8f4';
-  const radius = 15;
+  const combined = state.symbol === '❓❗';
+  const accent = danger || combined ? '#ff9878' : '#7de8ff';
+  const glow = danger || combined ? '#ff654d' : '#35c8f4';
+  const radius = combined ? 21 : 15;
   const life = state.duration > 0 ? state.remaining / state.duration : 1;
   const scale = 0.94 + Math.min(1, life) * 0.06;
 
@@ -90,6 +91,15 @@ export function drawPilotReaction(ctx, state, x, y) {
   ctx.arc(0, 0, radius - 4, -Math.PI * 0.78, Math.PI * 0.62);
   ctx.stroke();
   ctx.globalAlpha = Math.min(1, state.remaining / 0.2);
+  if (combined) {
+    ctx.fillStyle = '#fff2e8';
+    ctx.font = '900 15px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('❓❗', 0, 1);
+    ctx.restore();
+    return;
+  }
   ctx.strokeStyle = accent;
   ctx.fillStyle = accent;
   ctx.lineWidth = 3.4;
