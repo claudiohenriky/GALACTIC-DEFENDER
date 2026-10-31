@@ -45,7 +45,7 @@ test('centered boss entrance keeps the camera aligned with the pilot horizontall
   const frame = getBossCinematicCameraFrame({
     phase: 'distant-contact', phaseElapsed: 17, phaseDuration: 17,
     player, boss: alignedBoss, width: 900, height: 420,
-    minZoom: 1 / 2.4, worldWidth: 2160, worldHeight: 1008
+    minZoom: 1 / 2.4, worldWidth: 2400, worldHeight: 1008
   });
   assert.equal(frame.x + 450, player.x);
 });
