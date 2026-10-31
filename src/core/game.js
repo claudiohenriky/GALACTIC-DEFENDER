@@ -14,8 +14,9 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createWaveTenTransition, advanceWaveTenTransition, finalizeWaveTenTransition } from './wave-ten-transition.js?v=0.51.0-cinematic-camera';
-import { getBossCameraFrame, getBossEntrancePositions, prepareBossForCombatHandoff } from './boss-camera.js?v=0.53.2-camera-handoff';
+import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert } from './boss-cinematic.js?v=0.54.0-clean-cinematic';
+import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.54.0-clean-cinematic';
+import { prepareBossForCombatHandoff } from './boss-camera.js?v=0.54.0-clean-cinematic';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.53.2-reaction-polish';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
@@ -43,7 +44,10 @@ export class Game {
     this.achievements = new AchievementTracker();
     this.mission = new Mission();
     this.waveManager = new WaveManager();
-    this.waveTenTransition = null;
+    this.bossCinematic = null;
+    this.bossEncounterDialogue = null;
+    this.bossEncounterDialogueTimer = 0;
+    this.bossEncounterCount = 0;
     this.testStartWave = null;
     this.enemies = []
     // The visible viewport moves through a larger world; boss zoom remains a separate camera effect.
@@ -51,6 +55,8 @@ export class Game {
     this.bossEncounterSeen = false;
     this.eliteAlertsShown = new Set();
     this.pilotReaction = createPilotReactionState();
+    this.cinematicHudRoot = this.canvas.closest('.canvas-frame');
+    this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #continuous-laser-button, #reward-banner, #damage-feedback') ?? []);
     this.guardianAssignmentTimer = 0;
     this.eliteTactics = new EliteTacticalCoordinator();
     this.enemyTactics = new EnemyTacticalCoordinator();
@@ -153,7 +159,7 @@ export class Game {
     this.worldHeight = this.height * this.arenaScale;
     // The canvas may be measured while its parent menu hides it (1x1 px).
     // Reposition only when the real viewport appears or its orientation changes.
-    if (wasUninitialized || previousLandscape !== isLandscape) {
+    if ((wasUninitialized || previousLandscape !== isLandscape) && !this.bossCinematic) {
       this.player.y = this.worldHeight * (isLandscape ? 0.66 : 0.78);
       this.player.x = this.worldWidth / 2;
     }
@@ -163,17 +169,7 @@ export class Game {
     this.pixelRatio = ratio;
     this.cacheBackground();
     this.player.fitToArena(this.worldWidth, this.worldHeight);
-    this.updateCamera(0, true);
-    if (this.waveTenTransition) {
-      const entrance = getBossEntrancePositions(this.player.y, this.height);
-      this.waveTenTransition.bossStartY = entrance.startY;
-      this.waveTenTransition.bossEndY = entrance.endY;
-      if (this.waveTenTransition.boss && this.waveTenTransition.phase === 'boss-entry') {
-        const progress = Math.max(0, Math.min(1, this.waveTenTransition.phaseElapsed / this.waveTenTransition.phaseDuration));
-        const eased = progress * progress * (3 - 2 * progress);
-        this.waveTenTransition.boss.y = this.waveTenTransition.bossStartY + (this.waveTenTransition.bossEndY - this.waveTenTransition.bossStartY) * eased;
-      }
-    }
+    if (!this.bossCinematic) this.updateCamera(0, true);
     this.renderFrame(0);
   }
 
@@ -251,7 +247,10 @@ export class Game {
     this.mission = new Mission();
     this.waveManager.reset();
     if (Number.isInteger(this.testStartWave) && this.testStartWave > 1) this.waveManager.startAtWaveForTesting(this.testStartWave);
-    this.waveTenTransition = null;
+    this.bossCinematic = null;
+    this.bossEncounterDialogue = null;
+    this.bossEncounterDialogueTimer = 0;
+    this.bossEncounterCount = 0;
     this.enemies = [];
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
@@ -1286,9 +1285,18 @@ export class Game {
     this.performanceProfileSamples = [];
   }
 
-  beginWaveTenTransition() {
+  setCinematicHudOpacity(opacity, active = true) {
+    if (!this.cinematicHudRoot) return;
+    this.cinematicHudRoot.classList.toggle('cinematic-active', active);
+    const value = Math.max(0, Math.min(1, opacity));
+    for (const element of this.cinematicHudElements) {
+      element.style.opacity = active ? String(value) : '';
+      element.style.pointerEvents = active ? 'none' : '';
+    }
+  }
+
+  beginBossCinematic() {
     this.clearInput();
-    // Freeze residual inertia/knockback while the cinematic owns the camera.
     this.player.velocityX = 0;
     this.player.velocityY = 0;
     this.player.knockbackX = 0;
@@ -1299,209 +1307,212 @@ export class Game {
     this.guidedMissiles.length = 0;
     this.guidedMissileEffects.length = 0;
     this.enemies.length = 0;
-    this.waveTenTransition = createWaveTenTransition();
-    this.waveTenTransition.boss = null;
-    const entrance = getBossEntrancePositions(this.player.y, this.height);
-    this.waveTenTransition.bossStartY = entrance.startY;
-    this.waveTenTransition.bossEndY = entrance.endY;
-    this.cameraX = this.player.x - this.width / 2;
-    this.cameraY = this.player.y - this.height / 2;
-    this.cameraZoom = 0.72;
-    this.cameraY = this.player.y - this.height * 0.12 - this.height / 2;
+    this.bossCinematic = createBossCinematic();
+    this.bossCinematic.cameraZoom = this.cameraZoom || 1;
+    this.setCinematicHudOpacity(1, true);
+    this.bossEncounterDialogue = null;
+    this.bossEncounterDialogueTimer = 0;
   }
 
-  updateWaveTenTransition(dt) {
-    const transition = this.waveTenTransition;
-    if (!transition) return;
-    const previousPhase = transition.phase;
-    advanceWaveTenTransition(transition, dt);
-    if (previousPhase !== transition.phase) {
-      if (transition.phase === 'boss-entry') {
-        transition.bossDangerReactionShown = false;
-        triggerPilotReaction(this.pilotReaction, '❓', 1.55);
-      }
-    }
-    if (previousPhase !== 'boss-entry' && transition.phase === 'boss-entry') {
-      transition.boss = new Enemy(this.player.x, transition.bossStartY, 10, 'boss');
-    }
-    if (transition.phase === 'boss-entry' && !transition.bossDangerReactionShown &&
-        transition.phaseElapsed >= transition.phaseDuration - 0.3) {
-      transition.bossDangerReactionShown = true;
-      triggerPilotReaction(this.pilotReaction, '❗', 2.0);
-    }
-    if (transition.phase === 'boss-entry' && transition.boss) {
-      const progress = Math.max(0, Math.min(1, transition.phaseElapsed / transition.phaseDuration));
-      const eased = progress * progress * (3 - 2 * progress);
-      transition.boss.y = transition.bossStartY + (transition.bossEndY - transition.bossStartY) * eased;
+  updateBossCinematic(dt) {
+    const cinematic = this.bossCinematic;
+    if (!cinematic) return;
+    const previousPhase = cinematic.phase;
+    advanceBossCinematic(cinematic, dt);
+
+    if (!cinematic.bossSpawned && cinematic.phase === 'distant-contact') {
+      // Spawn once at a fixed standoff. The boss is not updated by its AI until
+      // the explicit handoff, so no second entrance controller can move it.
+      const bossY = Math.max(160, this.player.y - this.height * 1.08);
+      cinematic.boss = new Enemy(this.player.x, bossY, 10, 'boss');
+      cinematic.boss.facingRotation = Math.PI / 2;
+      cinematic.boss.rotation = Math.PI / 2;
+      cinematic.bossSpawned = true;
     }
 
-    // Camera movement is part of the cutscene, not a resize of the simulation world.
-    const cameraFrame = getBossCameraFrame({
-      phase: transition.phase,
+    const cameraFrame = getBossCinematicCameraFrame({
+      phase: cinematic.phase,
+      phaseElapsed: cinematic.phaseElapsed,
+      phaseDuration: cinematic.phaseDuration,
       player: this.player,
-      boss: transition.boss,
+      boss: cinematic.boss,
       width: this.width,
       height: this.height,
       minZoom: this.cameraMinZoom,
       worldWidth: this.worldWidth,
       worldHeight: this.worldHeight
     });
-    const cameraBlend = Math.min(1, Math.max(0, dt) * 2.8);
-    transition.cameraZoom += (cameraFrame.zoom - transition.cameraZoom) * cameraBlend;
+    const cameraBlend = Math.min(1, Math.max(0, dt) * 3.2);
+    cinematic.cameraZoom += (cameraFrame.zoom - cinematic.cameraZoom) * cameraBlend;
     this.cameraX += (cameraFrame.x - this.cameraX) * cameraBlend;
     this.cameraY += (cameraFrame.y - this.cameraY) * cameraBlend;
 
-    if (transition.phase === 'complete') {
-      const revealedBoss = finalizeWaveTenTransition(transition);
-      // The final cinematic phase has already converged to the combat camera.
-      // Snap to that exact bounded frame before the first normal simulation tick.
-      this.waveTenTransition = null;
-      if (revealedBoss) {
-        prepareBossForCombatHandoff(revealedBoss, transition.bossEndY);
+    this.setCinematicHudOpacity(cinematic.pilotHudOpacity, true);
+
+    if (cinematic.phase === 'complete') {
+      const boss = cinematic.boss;
+      if (boss) {
+        prepareBossForCombatHandoff(boss, boss.y);
         this.player.velocityX = 0;
         this.player.velocityY = 0;
         this.player.knockbackX = 0;
         this.player.knockbackY = 0;
-        this.enemies = [revealedBoss];
+        this.enemies = [boss];
         this.bossEncounterSeen = true;
-        this.cameraZoom = this.cameraMinZoom;
-        this.updateCamera(0, true);
+        this.bossEncounterCount += 1;
         this.waveManager.enemyCount = 1;
         this.waveManager.spawnedCount = 1;
       }
+      // Snap only once to the exact combat target. The camera helper uses the
+      // same bounds/focus equation as updateCamera, avoiding a handoff jump.
+      this.cameraZoom = this.cameraMinZoom;
+      this.updateCamera(0, true);
       this.waveManager.timer = 1.0;
-      this.showRewardBanner('ALERTA MÁXIMA · DREADNOUGHT DETECTADO', 'COLOSSAL WARSHIP · SISTEMAS DE COMBATE IDENTIFICADOS', 'boss');
       this.clearInput();
+      this.bossCinematic = null;
+      this.setCinematicHudOpacity(1, false);
     }
   }
 
-  drawPilotReaction(ctx, x, y) {
-    drawPilotReaction(ctx, this.pilotReaction, x, y);
-  }
-
-  renderTransitionDialogue(ctx, transition) {
-    const dialogue = {
-      'pilot-report': { speaker: 'PILOTO // VANGUARD', anchor: 'player', lines: ['Setor completamente limpo. Não detecto mais hostis nas proximidades.', 'Finalmente conseguimos controlar esta região.'] },
-      'pilot-warning': { speaker: 'PILOTO // VANGUARD', anchor: 'player', lines: ['Espere... estou detectando uma assinatura energética desconhecida.', 'A leitura está aumentando. Isso não parece ser uma unidade comum.'] },
-      'boss-entry': { speaker: 'SISTEMA DE BORDO', anchor: 'player', lines: ['ALERTA MÁXIMO: contato colossal identificado.', 'Assinatura energética e armamentos em escala desconhecida.'] },
-      'boss-taunt': { speaker: 'DREADNOUGHT', anchor: 'boss', lines: ['Observei seu avanço desde o início.', 'Você eliminou todas as unidades que enviei.', 'Mas seu avanço termina aqui.'] }
-    }[transition.phase];
-    if (!dialogue) return;
-
-    const zoom = Math.max(this.cameraMinZoom, transition.cameraZoom);
-    const anchor = dialogue.anchor === 'boss' && transition.boss ? transition.boss : this.player;
-    const anchorX = this.width / 2 + (anchor.x - this.width / 2 - this.cameraX) * zoom;
-    const anchorY = this.height / 2 + (anchor.y - this.height / 2 - this.cameraY) * zoom;
-    const boxWidth = Math.min(Math.max(176, this.width * 0.48), Math.min(360, this.width - 24));
-    const boxHeight = 76;
-    const placeRight = anchorX < this.width * 0.54;
+  drawCinematicDialogue(ctx, cue) {
+    if (!cue) return;
+    const cinematic = this.bossCinematic;
+    const actor = cue.actor === 'boss' ? cinematic?.boss : this.player;
+    const zoom = Math.max(this.cameraMinZoom, cinematic?.cameraZoom ?? this.cameraZoom);
+    const anchorX = this.width / 2 + (actor.x - this.width / 2 - this.cameraX) * zoom;
+    const anchorY = this.height / 2 + (actor.y - this.height / 2 - this.cameraY) * zoom;
+    const boxWidth = Math.min(340, Math.max(190, this.width * 0.48), this.width - 24);
+    const boxHeight = this.height < 390 ? 68 : 76;
+    const placeRight = anchorX < this.width * 0.5;
     const x = Math.max(12, Math.min(this.width - boxWidth - 12,
-      placeRight ? anchorX + 28 : anchorX - boxWidth - 28));
-    const preferAbove = anchorY > this.height * 0.46;
-    const y = Math.max(12, Math.min(this.height - boxHeight - 12,
-      preferAbove ? anchorY - boxHeight - 28 : anchorY + 28));
-    const lineIndex = Math.min(dialogue.lines.length - 1,
-      Math.floor(transition.phaseElapsed / Math.max(0.1, transition.phaseDuration / dialogue.lines.length)));
-    const line = dialogue.lines[lineIndex];
-    const accent = transition.phase === 'boss-taunt' ? '#e58bad' : '#65dff0';
-
+      placeRight ? anchorX + 24 : anchorX - boxWidth - 24));
+    const y = Math.max(12, Math.min(this.height - boxHeight - 14,
+      anchorY > this.height * 0.52 ? anchorY - boxHeight - 26 : anchorY + 26));
+    const accent = cue.actor === 'boss' ? '#ef829a' : '#68e5f2';
     ctx.save();
-    ctx.fillStyle = 'rgba(5, 13, 28, 0.94)';
+    ctx.fillStyle = 'rgba(3, 10, 23, 0.94)';
     ctx.fillRect(x, y, boxWidth, boxHeight);
     ctx.strokeStyle = accent;
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(x + 0.75, y + 0.75, boxWidth - 1.5, boxHeight - 1.5);
-
-    // Small pointer connects the compact radio bubble to its speaker.
-    const pointerX = Math.max(x + 14, Math.min(x + boxWidth - 14, anchorX));
-    const pointerY = preferAbove ? y + boxHeight : y;
-    const pointerTipY = preferAbove ? Math.min(this.height - 4, anchorY - 8) : Math.max(4, anchorY + 8);
-    ctx.fillStyle = 'rgba(5, 13, 28, 0.94)';
-    ctx.beginPath();
-    ctx.moveTo(pointerX - 7, pointerY);
-    ctx.lineTo(pointerX + 7, pointerY);
-    ctx.lineTo(pointerX, pointerTipY);
-    ctx.closePath();
-    ctx.fill();
-
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
+    ctx.lineWidth = 1.4;
+    ctx.strokeRect(x + 0.7, y + 0.7, boxWidth - 1.4, boxHeight - 1.4);
     ctx.fillStyle = accent;
+    ctx.textAlign = 'left';
     ctx.font = '900 9px ui-monospace, monospace';
-    ctx.fillText(dialogue.speaker, x + 11, y + 17);
-    ctx.fillStyle = '#edf5ff';
+    ctx.fillText(cue.speaker, x + 11, y + 17);
+    ctx.fillStyle = '#f0f5ff';
     const fontSize = this.width < 520 ? 10 : 12;
     ctx.font = `${fontSize}px ui-monospace, monospace`;
-    const maxTextWidth = boxWidth - 22;
-    let currentLine = '';
-    const wrapped = [];
-    for (const word of line.split(' ')) {
-      const candidate = currentLine ? `${currentLine} ${word}` : word;
-      if (currentLine && ctx.measureText(candidate).width > maxTextWidth) {
-        wrapped.push(currentLine);
-        currentLine = word;
-      } else currentLine = candidate;
+    const maxWidth = boxWidth - 22;
+    const words = cue.text.split(' ');
+    const rows = [];
+    let row = '';
+    for (const word of words) {
+      const candidate = row ? `${row} ${word}` : word;
+      if (row && ctx.measureText(candidate).width > maxWidth) {
+        rows.push(row);
+        row = word;
+      } else row = candidate;
     }
-    if (currentLine) wrapped.push(currentLine);
-    wrapped.slice(0, 3).forEach((text, index) => ctx.fillText(text, x + 11, y + 39 + index * (fontSize + 3)));
+    if (row) rows.push(row);
+    rows.slice(0, 3).forEach((line, index) => ctx.fillText(line, x + 11, y + 39 + index * (fontSize + 3)));
     ctx.restore();
-    return { x, y, width: boxWidth, height: boxHeight };
   }
 
-  renderWaveTenTransition(ctx) {
-    const transition = this.waveTenTransition;
-    if (!transition) return;
+  drawCinematicAlert(ctx, alert) {
+    if (!alert) return;
+    const elapsed = this.bossCinematic.phaseElapsed - alert.at;
+    const duration = 4.2;
+    const progress = Math.max(0, Math.min(1, elapsed / 0.7));
+    const eased = progress * progress * (3 - 2 * progress);
+    const fadeOut = Math.max(0, Math.min(1, (duration - elapsed) / 0.55));
+    const alpha = eased * fadeOut;
+    const y = -64 + (this.height * 0.17 + 64) * eased;
+    const width = Math.min(this.width - 28, 520);
+    const x = (this.width - width) / 2;
     ctx.save();
-    let dialogueBounds = null;
-    ctx.fillStyle = transition.phase === 'loading' ? 'rgba(3, 8, 20, 0.88)' : 'rgba(3, 8, 20, 0.24)';
-    ctx.fillRect(0, 0, this.width, this.height);
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = 'rgba(4, 12, 25, 0.9)';
+    ctx.fillRect(x, y, width, 54);
+    ctx.strokeStyle = alert.title === 'DREADNOUGHT' ? '#ed8196' : '#efb45d';
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, 52.8);
     ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    if (transition.phase === 'loading') {
+    ctx.fillStyle = alert.title === 'DREADNOUGHT' ? '#ff9cac' : '#ffd18a';
+    ctx.font = '900 12px ui-monospace, monospace';
+    ctx.fillText(alert.title, this.width / 2, y + 21);
+    ctx.fillStyle = '#d8e4f2';
+    ctx.font = `900 ${this.width < 520 ? 7 : 9}px ui-monospace, monospace`;
+    ctx.fillText(alert.detail, this.width / 2, y + 39, width - 18);
+    ctx.restore();
+  }
+
+  renderBossCinematic(ctx) {
+    const cinematic = this.bossCinematic;
+    if (!cinematic) return;
+    ctx.save();
+    if (cinematic.phase === 'loading') {
+      ctx.fillStyle = 'rgba(2, 7, 18, 0.965)';
+      ctx.fillRect(0, 0, this.width, this.height);
       const facts = [
-        'SISTEMAS DE NAVEGAÇÃO: recalibrando a região...',
-        'REGISTRO DE COMBATE: todas as unidades hostis foram neutralizadas.',
-        'LEITURA TÁTICA: uma assinatura desconhecida permanece fora do alcance.',
-        'PROTOCOLO DE DEFESA: sensores e armamentos em sincronização.'
+        'REGISTRO GALÁCTICO: a antiga rota comercial foi abandonada após sinais de combate.',
+        'SENSORES: algumas assinaturas energéticas persistem mesmo após a retirada das tropas.',
+        'ARQUIVO DE BORDO: o espaço profundo ainda contém regiões sem mapeamento.',
+        'PROTOCOLO VANGUARD: escudos, navegação e armamentos estão sendo sincronizados.'
       ];
-      const factIndex = Math.min(facts.length - 1, Math.floor(transition.elapsed / 2.5));
-      ctx.fillStyle = '#79e9ff';
-      ctx.font = '900 11px ui-monospace, monospace';
-      ctx.fillText('GALACTIC DEFENDER // OPERAÇÃO 010', this.width / 2, this.height * 0.39);
+      const fact = facts[Math.min(facts.length - 1, Math.floor(cinematic.phaseElapsed / 2.5))];
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#75e7f3';
+      ctx.font = '900 10px ui-monospace, monospace';
+      ctx.fillText('GALACTIC DEFENDER // REGISTRO DE OPERAÇÃO', this.width / 2, this.height * 0.37);
       ctx.fillStyle = '#f1f6ff';
-      const titleSize = Math.max(16, Math.min(26, this.width * 0.045));
-      ctx.font = `900 ${titleSize}px ui-monospace, monospace`;
-      ctx.fillText('RECONFIGURANDO SETOR', this.width / 2, this.height * 0.47, this.width * 0.9);
-      ctx.fillStyle = '#b8c8dc';
-      ctx.font = '12px ui-monospace, monospace';
-      ctx.fillText(facts[factIndex], this.width / 2, this.height * 0.56, this.width * 0.86);
+      ctx.font = `900 ${Math.max(17, Math.min(27, this.width * 0.046))}px ui-monospace, monospace`;
+      ctx.fillText('SINCRONIZANDO SISTEMAS', this.width / 2, this.height * 0.47, this.width * 0.9);
+      ctx.fillStyle = '#b9c9dc';
+      ctx.font = ` ${this.width < 520 ? 9 : 11}px ui-monospace, monospace`;
+      ctx.fillText(fact, this.width / 2, this.height * 0.56, this.width * 0.86);
       const barWidth = Math.min(this.width * 0.68, 420);
       const barX = (this.width - barWidth) / 2;
-      const barY = this.height * 0.64;
-      ctx.fillStyle = '#17263a';
-      ctx.fillRect(barX, barY, barWidth, 7);
+      const barY = this.height * 0.65;
+      ctx.fillStyle = '#18263a';
+      ctx.fillRect(barX, barY, barWidth, 6);
       ctx.fillStyle = '#65e6ef';
-      ctx.fillRect(barX, barY, barWidth * Math.max(0, Math.min(1, transition.elapsed / 10)), 7);
-      ctx.fillStyle = '#8da8c2';
-      ctx.font = '10px ui-monospace, monospace';
-      ctx.fillText('SINCRONIZANDO SISTEMAS', this.width / 2, barY + 24);
+      ctx.fillRect(barX, barY, barWidth * Math.max(0, Math.min(1, cinematic.phaseElapsed / cinematic.phaseDuration)), 6);
+      ctx.fillStyle = '#91a9c2';
+      ctx.font = '9px ui-monospace, monospace';
+      ctx.fillText('CALIBRAÇÃO DE NAVEGAÇÃO E DEFESA', this.width / 2, barY + 22);
     } else {
-      dialogueBounds = this.renderTransitionDialogue(ctx, transition);
+      ctx.fillStyle = 'rgba(2, 8, 20, 0.19)';
+      ctx.fillRect(0, 0, this.width, this.height);
+      const cue = getBossCinematicDialogue(cinematic);
+      this.drawCinematicDialogue(ctx, cue);
+      this.drawCinematicAlert(ctx, getBossCinematicAlert(cinematic));
     }
     ctx.restore();
-    if (this.pilotReaction.remaining > 0) {
-      const zoom = Math.max(this.cameraMinZoom, transition.cameraZoom);
-      const playerScreenX = (this.player.x - this.cameraX - this.width / 2) * zoom + this.width / 2;
-      const playerScreenY = (this.player.y - this.cameraY - this.height / 2) * zoom + this.height / 2;
-      const reactionPosition = getPilotReactionPosition({
-        x: playerScreenX,
-        y: playerScreenY,
-        bubble: dialogueBounds ?? null,
-        width: this.width,
-        height: this.height
-      });
-      if (reactionPosition) this.drawPilotReaction(ctx, reactionPosition.x, reactionPosition.y);
-    }
+  }
+
+  renderRecurringBossDialogue(ctx) {
+    if (!this.bossEncounterDialogue || this.bossEncounterDialogueTimer <= 0 || this.bossCinematic) return;
+    const lines = this.bossEncounterDialogue.lines;
+    const elapsed = this.bossEncounterDialogue.duration - this.bossEncounterDialogueTimer;
+    const cue = lines[elapsed < this.bossEncounterDialogue.lineInterval ? 0 : 1];
+    if (!cue) return;
+    const width = Math.min(this.width - 24, 390);
+    const x = (this.width - width) / 2;
+    const y = Math.max(14, this.height - 112);
+    ctx.save();
+    ctx.fillStyle = 'rgba(4, 12, 25, 0.92)';
+    ctx.fillRect(x, y, width, 66);
+    ctx.strokeStyle = '#68dfe9';
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(x + 0.6, y + 0.6, width - 1.2, 64.8);
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#68dfe9';
+    ctx.font = '900 9px ui-monospace, monospace';
+    ctx.fillText('PILOTO // VANGUARD', x + 11, y + 17);
+    ctx.fillStyle = '#f0f5ff';
+    ctx.font = `${this.width < 520 ? 10 : 12}px ui-monospace, monospace`;
+    ctx.fillText(cue, x + 11, y + 41, width - 22);
+    ctx.restore();
   }
 
   update(dt) {
