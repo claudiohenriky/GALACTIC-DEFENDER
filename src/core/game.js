@@ -1375,7 +1375,7 @@ export class Game {
         cinematic.anomalyReactionShown = true;
       }
       if (cinematic.phase === 'distant-contact' && !cinematic.bossReactionShown) {
-        triggerPilotReaction(this.pilotReaction, '❗', 2.6);
+        triggerPilotReaction(this.pilotReaction, '❗', 19.5);
         cinematic.bossReactionShown = true;
       }
     }
@@ -1829,7 +1829,7 @@ export class Game {
       }
       if (isElite && !this.eliteAlertsShown.has(type)) {
         this.eliteAlertsShown.add(type);
-        triggerPilotReaction(this.pilotReaction, '❓', 1.55);
+        triggerPilotReaction(this.pilotReaction, '❓❗', 2.2);
         const alerts = {
           artillery: ['AMEAÇA DE ARTILHARIA DETECTADA', 'A nave detectou um Artilheiro de Elite. Blindagem e poder de fogo acima do padrão.'],
           sentinel: ['AMEAÇA TÁTICA DETECTADA', 'A nave detectou uma Sentinela de Elite. Disparos de plasma em salva dupla.'],
