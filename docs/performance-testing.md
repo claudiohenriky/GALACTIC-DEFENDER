@@ -2,6 +2,15 @@
 
 Esta rotina compara versões no mesmo dispositivo e cenário. Verificações estáticas não substituem testes reais no navegador.
 
+## Revisão visual do armamento do DREADNOUGHT — candidata v0.44.0
+
+- As armas foram redesenhadas com formas vetoriais Canvas 2D mais distintas e ligeiramente maiores: metralhadoras de dois canos, lançadores de três tubos, lasers de emissores duplos e canhões de plasma com câmara e bocal.
+- Os hardpoints continuam em posições fixas e o desenho das armas permanece na camada superior do casco; não foram alterados a simulação, os arcos de mira, os disparos, dano ou colisões.
+- O refinamento evita adicionar gradientes, blur ou filtros de sombra por arma. Isso limita o custo visual adicional, mas não prova melhoria de FPS.
+- O DREADNOUGHT usa composição vetorial 2D no Canvas para sugerir volume; esta etapa não introduz malhas 3D ou pipeline WebGL.
+- **Verificação estática:** confirmar que o bloco de desenho mantém save/restore balanceados, não cria arrays/objetos por quadro e não altera IDs/posições dos módulos.
+- **Validação manual pendente:** comparar a mesma partida e dispositivo com ?fps=1; observar média/estabilidade de FPS, tempo de quadro, legibilidade a zoom 0,5 e possíveis sobreposições. Registrar resultados reais antes de afirmar qualquer ganho.
+
 ## Diagnóstico opcional
 
 1. Abra a branch de prévia pelo navegador e acrescente `?profile=1` ao endereço.
