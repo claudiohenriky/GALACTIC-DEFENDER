@@ -1500,7 +1500,7 @@ export class Game {
         width: this.width,
         height: this.height
       });
-      this.drawPilotReaction(ctx, reactionPosition.x, reactionPosition.y);
+      if (reactionPosition) this.drawPilotReaction(ctx, reactionPosition.x, reactionPosition.y);
     }
   }
 
