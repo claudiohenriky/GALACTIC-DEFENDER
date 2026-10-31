@@ -1424,7 +1424,7 @@ export class Game {
         cinematic.anomalyReactionShown = true;
       }
       if (cinematic.phase === 'distant-contact' && !cinematic.bossReactionShown) {
-        triggerPilotReaction(this.pilotReaction, '❗', 26);
+        triggerPilotReaction(this.pilotReaction, '❗', 30);
         cinematic.bossReactionShown = true;
       }
     }
@@ -1453,7 +1453,7 @@ export class Game {
     if (cinematic.boss) {
       const progress = cinematic.phase === 'distant-contact'
         ? Math.max(0, Math.min(1, cinematic.phaseElapsed / Math.max(0.001, cinematic.phaseDuration)))
-        : ['boss-identification', 'handoff', 'complete'].includes(cinematic.phase) ? 1 : 0;
+        : ['boss-identification', 'arena-reveal', 'handoff', 'complete'].includes(cinematic.phase) ? 1 : 0;
       const eased = progress * progress * (3 - 2 * progress);
       cinematic.boss.x = cinematic.bossStartX + (cinematic.bossTargetX - cinematic.bossStartX) * eased;
       cinematic.boss.y = cinematic.bossStartY + (cinematic.bossTargetY - cinematic.bossStartY) * eased;
