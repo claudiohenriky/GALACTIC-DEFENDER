@@ -14,10 +14,10 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity, wrapBossCinematicDialogue, getBossDialogueVisualState } from './boss-cinematic.js?v=0.54.4-dialogue-polish';
+import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity, wrapBossCinematicDialogue, getBossDialogueVisualState, getBossDialoguePlacement } from './boss-cinematic.js?v=0.54.5-dialogue-placement';
 import { getBossCinematicCameraFrame, prepareBossForCombatHandoff, BOSS_CINEMATIC_ARENA_ZOOM } from './boss-cinematic-camera.js?v=0.54.1-camera-rebuild';
 import { getBossCinematicSpawnPositions, preparePlayerForBossCinematic } from './boss-positioning.js?v=0.54.2-combat-aligned-entry';
-import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.1-red-question';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.5-threat-redesign';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -1506,8 +1506,11 @@ export class Game {
     const anchorY = this.height / 2 + (actor.y - this.height / 2 - this.cameraY) * zoom;
     const isPilot = cue.actor === 'pilot';
     const isSystem = cue.actor === 'system';
+    const isBossDialogue = cue.actor === 'boss';
     const sideLeft = isPilot;
-    const boxWidth = Math.min(360, Math.max(248, this.width * 0.62), this.width - 24);
+    const boxWidth = isBossDialogue
+      ? Math.min(280, Math.max(220, this.width * 0.34), this.width - 24)
+      : Math.min(360, Math.max(248, this.width * 0.62), this.width - 24);
     const fontSize = this.width < 520 ? 10 : 11;
     const maxWidth = boxWidth - 38;
     ctx.save();
@@ -1519,12 +1522,21 @@ export class Game {
       4
     );
     const boxHeight = Math.max(61, 39 + visibleRows.length * (fontSize + 4));
+    const bossPlacement = isBossDialogue ? getBossDialoguePlacement({
+      anchorX, anchorY,
+      viewportWidth: this.width,
+      viewportHeight: this.height,
+      boxWidth,
+      boxHeight,
+      bossRadius: actor?.radius ?? 100,
+      zoom
+    }) : null;
     const preferredX = isPilot ? anchorX - boxWidth - 18
       : isSystem ? anchorX + 18
         : anchorX - boxWidth / 2;
-    const x = Math.max(12, Math.min(this.width - boxWidth - 12, preferredX));
-    const preferredY = cue.actor === 'boss' ? anchorY + 30 : anchorY - boxHeight - 22;
-    const y = Math.max(14, Math.min(this.height - boxHeight - 14, preferredY));
+    const x = bossPlacement?.x ?? Math.max(12, Math.min(this.width - boxWidth - 12, preferredX));
+    const preferredY = anchorY - boxHeight - 22;
+    const y = bossPlacement?.y ?? Math.max(14, Math.min(this.height - boxHeight - 14, preferredY));
     const age = Math.max(0, cinematic.phaseElapsed - (cue.at || 0));
     const enter = Math.min(1, age / 0.24);
     const eased = enter * enter * (3 - 2 * enter);
@@ -1707,7 +1719,7 @@ export class Game {
         const reactionPosition = getPilotReactionPosition({
           x: screenX, y: screenY, bubble: this.cinematicDialogueRect,
           width: this.width, height: this.height,
-          radius: this.pilotReaction.symbol === '❓❗' ? 14 : 11, offset: 23
+          radius: this.pilotReaction.symbol === '❓❗' ? 14 : 11, offset: 27
         });
         if (reactionPosition) drawPilotReaction(ctx, this.pilotReaction, reactionPosition.x, reactionPosition.y);
       }
@@ -2533,7 +2545,7 @@ export class Game {
       const screenY = this.height / 2 + (this.player.y - this.height / 2 - this.cameraY) * zoom;
       const reactionPosition = getPilotReactionPosition({
         x: screenX, y: screenY, width: this.width, height: this.height,
-        radius: this.pilotReaction.symbol === '❓❗' ? 14 : 11, offset: 23
+        radius: this.pilotReaction.symbol === '❓❗' ? 14 : 11, offset: 27
       });
       if (reactionPosition) drawPilotReaction(ctx, this.pilotReaction, reactionPosition.x, reactionPosition.y);
     }
