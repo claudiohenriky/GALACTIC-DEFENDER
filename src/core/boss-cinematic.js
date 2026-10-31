@@ -40,7 +40,7 @@ export function wrapBossCinematicDialogue(text, measureText, maxWidth, maxRows =
   if (typeof measureText !== 'function' || !Number.isFinite(maxWidth) || maxWidth <= 0) return [];
   const rows = [];
   let row = '';
-  for (const word of String(text ?? '').split(/\\s+/).filter(Boolean)) {
+  for (const word of String(text ?? '').split(/\s+/).filter(Boolean)) {
     const candidate = row ? `${row} ${word}` : word;
     if (row && measureText(candidate) > maxWidth) {
       rows.push(row);
