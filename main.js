@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.57.0-elite-callouts';
+import { Game } from './src/core/game.js?v=0.57.1-dreadnought-flank-balance';
 import { gameAudio } from './src/audio/game-audio.js?v=0.54.0-cinematic-rebuild';
 
 // Entry point: connect the game engine to the page UI.
