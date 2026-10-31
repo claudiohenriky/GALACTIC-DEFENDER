@@ -1124,7 +1124,9 @@ export class Game {
       : null;
     // During the DREADNOUGHT encounter, bias the camera toward the space between
     // the pilot and the boss so the long hull stays visible without changing the arena.
-    const focusY = boss ? (this.player.y + boss.y) / 2 : this.player.y;
+    const focusY = boss
+      ? (boss.y - boss.collisionRadius * 1.5 + this.player.y + (this.player.radius ?? 12)) / 2
+      : this.player.y;
     const targetX = Math.max(minX, Math.min(maxX, this.player.x - this.width / 2));
     const targetY = Math.max(minY, Math.min(maxY, focusY - this.height / 2));
     if (snap) {
