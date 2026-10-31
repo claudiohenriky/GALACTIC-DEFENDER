@@ -14,10 +14,10 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nin
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
-import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity } from './boss-cinematic.js?v=0.54.1-slow-reveal';
-import { getBossCinematicCameraFrame } from './boss-cinematic-camera.js?v=0.54.1-cinematic-correction';
-import { prepareBossForCombatHandoff } from './boss-cinematic-camera.js?v=0.55.0-centered-framing';
-import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.1-slow-reveal';
+import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity } from './boss-cinematic.js?v=0.54.1-arena-reveal';
+import { getBossCinematicCameraFrame, prepareBossForCombatHandoff, BOSS_CINEMATIC_ARENA_ZOOM } from './boss-cinematic-camera.js?v=0.54.1-camera-rebuild';
+import { getBossCinematicSpawnPositions } from './boss-positioning.js?v=0.54.1-cinematic-standoff';
+import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.1-red-question';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -32,6 +32,7 @@ export class Game {
     // The simulation world is larger than the visible canvas; the camera follows the pilot.
     this.arenaScale = 2.4;
     this.cameraMinZoom = 1 / this.arenaScale;
+    this.bossCombatZoom = BOSS_CINEMATIC_ARENA_ZOOM;
     this.worldWidth = this.width * this.arenaScale;
     this.worldHeight = this.height * this.arenaScale;
     this.cameraX = 0;
@@ -1173,7 +1174,7 @@ export class Game {
     // During the DREADNOUGHT encounter, bias the camera toward the space between
     // the pilot and the boss so the long hull stays visible without changing the arena.
     const focusY = boss
-      ? (boss.y - boss.collisionRadius * 1.5 + this.player.y + (this.player.radius ?? 12)) / 2
+      ? (boss.y - (boss.radius || 100) * 2.1 + this.player.y) / 2
       : this.player.y;
     const targetX = Math.max(minX, Math.min(maxX, this.player.x - this.width / 2));
     const targetY = Math.max(minY, Math.min(maxY, focusY - this.height / 2));
@@ -1350,17 +1351,61 @@ export class Game {
     this.player.knockbackX = 0;
     this.player.knockbackY = 0;
     this.continuousLaserHeld = false;
+    this.bossCinematic = createBossCinematic();
+    this.bossCinematic.cameraZoom = this.cameraZoom || 1;
+    this.bossCinematic.worldResetDone = false;
+    this.cinematicDialogueRect = null;
+    this.setCinematicHudOpacity(1, true);
+    this.bossEncounterDialogue = null;
+    this.bossEncounterDialogueTimer = 0;
+  }
+
+  prepareBossCinematicArena() {
+    // This runs only after the loading screen fully covers the arena.
+    // Keep progression, XP, score, ship class, and all acquired upgrades intact.
+    this.clearInput();
+    this.player.x = this.worldWidth / 2;
+    this.player.y = this.worldHeight * 0.70;
+    this.player.velocityX = 0;
+    this.player.velocityY = 0;
+    this.player.knockbackX = 0;
+    this.player.knockbackY = 0;
+    this.player.health = this.player.maxHealth;
+    this.player.shieldHealth = this.player.shieldMaxHealth;
+    this.player.shieldRechargeTimer = 0;
+    this.player.invulnerabilityTimer = 2.5;
+    this.player.rotation = -Math.PI / 2;
+    this.player.guidedMissileCooldown = 0;
+    this.continuousLaserHeld = false;
+
     this.projectiles.length = 0;
     this.enemyProjectiles.length = 0;
     this.guidedMissiles.length = 0;
     this.guidedMissileEffects.length = 0;
     this.enemies.length = 0;
-    this.bossCinematic = createBossCinematic();
-    this.bossCinematic.cameraZoom = this.cameraZoom || 1;
-    this.cinematicDialogueRect = null;
-    this.setCinematicHudOpacity(1, true);
-    this.bossEncounterDialogue = null;
-    this.bossEncounterDialogueTimer = 0;
+    this.levelUpParticles.length = 0;
+    this.damageSparks.length = 0;
+    this.shieldBreakEffects.length = 0;
+    this.damageImpactPulse = null;
+    this.shieldPulseWave = null;
+    this.pendingGuidedMissileLaunch = null;
+    this.guidedMissileCooldown = 0;
+    this.shieldPulseCooldown = 0;
+    this.overload = 0;
+    this.overloadLockTimer = 0;
+
+    this.cameraZoom = 1;
+    this.cameraX = 0;
+    this.cameraY = 0;
+    this.updateCamera(0, true);
+    this.bossCinematic.cameraZoom = 1;
+    this.pilotReaction.remaining = 0;
+    this.pilotReaction.symbol = '';
+    this.pilotReaction.duration = 0;
+    this.waveManager.enemyCount = 1;
+    this.waveManager.spawnedCount = 0;
+    this.waveManager.state = 'spawning';
+    this.waveManager.timer = 0.75;
   }
 
   updateBossCinematic(dt) {
@@ -1370,6 +1415,10 @@ export class Game {
     advanceBossCinematic(cinematic, dt);
 
     if (cinematic.phase !== previousPhase) {
+      if (cinematic.phase === 'loading' && !cinematic.worldResetDone) {
+        this.prepareBossCinematicArena();
+        cinematic.worldResetDone = true;
+      }
       if (cinematic.phase === 'anomaly-scan' && !cinematic.anomalyReactionShown) {
         triggerPilotReaction(this.pilotReaction, '❓', 8.5);
         cinematic.anomalyReactionShown = true;
@@ -1381,16 +1430,15 @@ export class Game {
     }
 
     if (!cinematic.bossSpawned && cinematic.phase === 'distant-contact') {
-      // The DREADNOUGHT emerges from above, aligned with the pilot's forward axis.
-      // It remains distant throughout the approach; no lateral spawn or close-range pop-in.
+      // The DREADNOUGHT descends on the pilot's vertical axis and stops with a hull-sized safety gap.
       const boss = new Enemy(0, 0, 10, 'boss');
-      const margin = boss.collisionRadius + 24;
-      const clampX = (value) => Math.max(margin, Math.min(this.worldWidth - margin, value));
-      const clampY = (value) => Math.max(margin, Math.min(this.worldHeight - margin, value));
-      cinematic.bossTargetX = clampX(this.player.x);
-      cinematic.bossTargetY = clampY(this.player.y - this.height * 1.28);
-      cinematic.bossStartX = cinematic.bossTargetX;
-      cinematic.bossStartY = cinematic.bossTargetY - this.height * 0.72;
+      const spawn = getBossCinematicSpawnPositions(
+        this.player, boss, this.height, this.worldWidth, this.worldHeight
+      );
+      cinematic.bossStartX = spawn.startX;
+      cinematic.bossStartY = spawn.startY;
+      cinematic.bossTargetX = spawn.targetX;
+      cinematic.bossTargetY = spawn.targetY;
       boss.x = cinematic.bossStartX;
       boss.y = cinematic.bossStartY;
       boss.bossEntranceTimer = 0;
@@ -1447,8 +1495,10 @@ export class Game {
         this.waveManager.enemyCount = 1;
         this.waveManager.spawnedCount = 1;
       }
-      this.cameraZoom = this.cameraMinZoom;
+      this.cameraZoom = BOSS_CINEMATIC_ARENA_ZOOM;
+      this.bossCombatZoom = BOSS_CINEMATIC_ARENA_ZOOM;
       this.updateCamera(0, true);
+      this.waveManager.state = 'spawning';
       this.waveManager.timer = 1.0;
       this.clearInput();
       this.bossCinematic = null;
@@ -1703,7 +1753,7 @@ export class Game {
     if (bossPresent) this.bossEncounterSeen = true;
     // The 2.4x world is fully visible at its calculated minimum zoom (1 / arenaScale).
     // Keep the tactical overview after the boss is defeated until the next run.
-    const targetCameraZoom = this.bossEncounterSeen ? this.cameraMinZoom : 1;
+    const targetCameraZoom = this.bossEncounterSeen ? this.bossCombatZoom : 1;
     this.cameraZoom += (targetCameraZoom - this.cameraZoom) * Math.min(1, dt * 1.65);
 
     for (let index = 0; index < this.stars.length; index += 1) {
