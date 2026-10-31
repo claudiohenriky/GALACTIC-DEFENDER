@@ -829,3 +829,10 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 - A sequência preserva pontuação, jogador e progressão; limpa apenas entidades e projéteis transitórios antes da entrada do chefe.
 - A candidata está isolada em branch própria. A progressão normal continua disponível em uma branch de comparação, sem alterações na versão oficial.
 - Validação automatizada da máquina de estados adicionada; teste visual e de gameplay ainda pendente.
+
+
+## [Unreleased] — Balanceamento do Sentinela e preparação do teste da onda 9
+- Reduz a mobilidade evasiva do Sentinela básico: velocidade máxima e aceleração menores, esquiva lateral menos intensa/curta e deslocamento de patrulha mais contido. O perfil Elite permanece inalterado nesta rodada.
+- Adiciona início de onda configurável apenas por URL de teste; a campanha normal continua iniciando na onda 1.
+- A branch da cutscene aceita testStartWave=9 para jogar a onda inteira antes da transição; a branch de gameplay normal não usa esse atalho.
+- Testes automatizados adicionados para o perfil do Sentinela e a configuração da onda de teste. A validação em navegador e o ajuste fino de dificuldade continuam pendentes.
