@@ -51,6 +51,53 @@ export function getBossDialogueVisualState(actor, elapsed = 0) {
   };
 }
 
+// Place the DREADNOUGHT's transmission outside its hull whenever the viewport allows it.
+// The boss is elongated along its local vertical axis, so its screen-space bounds are asymmetric.
+export function getBossDialoguePlacement({
+  anchorX, anchorY, viewportWidth, viewportHeight, boxWidth, boxHeight,
+  bossRadius = 100, zoom = 1, gap = 12
+}) {
+  const halfWidth = bossRadius * 1.52 * 0.82 * zoom + 8;
+  const halfHeight = bossRadius * 2.22 * zoom + 8;
+  const safe = 12;
+  const candidates = [
+    { side: 'left', x: anchorX - halfWidth - gap - boxWidth },
+    { side: 'right', x: anchorX + halfWidth + gap }
+  ].filter((item) => item.x >= safe && item.x + boxWidth <= viewportWidth - safe);
+  if (candidates.length) {
+    const chosen = candidates.reduce((best, item) => {
+      const free = item.side === 'left' ? item.x : viewportWidth - safe - (item.x + boxWidth);
+      const bestFree = best.side === 'left' ? best.x : viewportWidth - safe - (best.x + boxWidth);
+      return free > bestFree ? item : best;
+    });
+    return {
+      x: chosen.x,
+      y: Math.max(safe, Math.min(viewportHeight - boxHeight - safe, anchorY - boxHeight / 2)),
+      side: chosen.side
+    };
+  }
+
+  // On narrow phones there may be no horizontal lane wide enough for the card.
+  // Prefer the clearer vertical lane; the fallback is edge-aligned rather than centered on the hull.
+  const aboveY = anchorY - halfHeight - gap - boxHeight;
+  if (aboveY >= safe) {
+    return { x: Math.max(safe, (viewportWidth - boxWidth) / 2), y: aboveY, side: 'above' };
+  }
+  const belowY = anchorY + halfHeight + gap;
+  if (belowY + boxHeight <= viewportHeight - safe) {
+    return { x: Math.max(safe, (viewportWidth - boxWidth) / 2), y: belowY, side: 'below' };
+  }
+  const leftX = safe;
+  const rightX = viewportWidth - boxWidth - safe;
+  const leftOverlap = Math.max(0, leftX + boxWidth - (anchorX - halfWidth));
+  const rightOverlap = Math.max(0, (anchorX + halfWidth) - rightX);
+  return {
+    x: Math.max(safe, Math.min(viewportWidth - boxWidth - safe, leftOverlap <= rightOverlap ? leftX : rightX)),
+    y: safe,
+    side: 'edge-fallback'
+  };
+}
+
 // Wrap dialogue without silently discarding words on narrow mobile screens.
 export function wrapBossCinematicDialogue(text, measureText, maxWidth, maxRows = 4) {
   if (typeof measureText !== 'function' || !Number.isFinite(maxWidth) || maxWidth <= 0) return [];
