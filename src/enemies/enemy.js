@@ -65,6 +65,12 @@ export class Enemy {
     this.bank = 0;
     this.thrust = 0;
     this.lateralThrust = 0;
+    // Elite flanking is a timed reposition order coordinated by Game; it never changes attack damage.
+    this.flankTimer = 0;
+    this.flankCooldown = 0;
+    this.flankTargetX = x;
+    this.flankTargetY = y;
+    this.flankSide = 0;
   }
 
   applyDisruption(impulseX, impulseY, duration = 0.82) {
@@ -104,6 +110,9 @@ export class Enemy {
     this.contactCooldown = Math.max(0, this.contactCooldown - dt);
     this.dodgeCooldown = Math.max(0, this.dodgeCooldown - dt);
     this.dodgeTimer = Math.max(0, this.dodgeTimer - dt);
+    this.flankCooldown = Math.max(0, this.flankCooldown - dt);
+    this.flankTimer = Math.max(0, this.flankTimer - dt);
+    const flankActive = this.isElite && this.flankTimer > 0 && this.type !== 'guardian';
     this.phase += dt * (this.type === 'sentinel' ? 1.4 : this.type === 'artillery' ? (this.isElite ? 1.25 : 0.9) : this.type === 'guardian' ? 1.1 : this.type === 'interceptor' ? 3.2 : 2);
     this.eliteSpawnTimer = Math.max(0, this.eliteSpawnTimer - dt);
     this.eliteShieldFlash = Math.max(0, this.eliteShieldFlash - dt);
@@ -419,11 +428,16 @@ export class Enemy {
     } else if (this.type === 'artillery') {
       // Artillery keeps a distant firing lane and uses a readable three-shot fan.
       const eliteStrafe = this.isElite ? Math.sin(this.phase * 0.82) * Math.min(width * 0.18, 88) : 0;
-      const desiredX = targetX + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150) + eliteStrafe + dodgeStrength;
-      const desiredY = Math.max(36, targetY - Math.min(235, height * 0.42));
+      const desiredX = flankActive
+        ? this.flankTargetX
+        : targetX + Math.sin(this.phase * 0.65) * Math.min(width * 0.3, 150) + eliteStrafe + dodgeStrength;
+      const desiredY = flankActive
+        ? this.flankTargetY
+        : Math.max(36, targetY - Math.min(235, height * 0.42));
       steerToPoint(this, desiredX, desiredY, this.motionProfile, dt);
-      this.fireCooldown -= dt;
-      if (this.fireCooldown <= 0 && this.y > 18) {
+      if (flankActive) this.fireCooldown = Math.max(this.fireCooldown, 0.2);
+      else this.fireCooldown -= dt;
+      if (!flankActive && this.fireCooldown <= 0 && this.y > 18) {
         this.fireCooldown = this.isElite ? 2.95 : 3.4;
         const baseAngle = Math.atan2(targetY - this.y, targetX - this.x);
         const spread = this.isElite ? 0.19 : 0.22;
@@ -447,8 +461,12 @@ export class Enemy {
       const laneOffset = Math.sin(this.phase * (this.isElite ? 1.05 : 0.72)) * Math.min(this.isElite ? 125 : 70, width * (this.isElite ? 0.27 : 0.16));
       let desiredX = Math.max(this.radius, Math.min(width - this.radius, targetX + laneOffset + dodgeStrength));
       let desiredY = Math.max(42, targetY - Math.min(this.isElite ? 195 : 160, height * (this.isElite ? 0.34 : 0.28)));
+      if (flankActive) {
+        desiredX = this.flankTargetX;
+        desiredY = this.flankTargetY;
+      }
 
-      if (supportAlly && supportDistance < 230) {
+      if (!flankActive && supportAlly && supportDistance < 230) {
         const awayX = supportAlly.x - targetX;
         const awayY = supportAlly.y - targetY;
         const awayDistance = Math.hypot(awayX, awayY) || 1;
@@ -460,9 +478,10 @@ export class Enemy {
       }
 
       steerToPoint(this, desiredX, desiredY, this.motionProfile, dt);
-      this.fireCooldown -= dt;
+      if (flankActive) this.fireCooldown = Math.max(this.fireCooldown, 0.2);
+      else this.fireCooldown -= dt;
 
-      if (this.fireCooldown <= 0 && this.y > 18) {
+      if (!flankActive && this.fireCooldown <= 0 && this.y > 18) {
         if (this.isElite) {
           // A compact two-shot plasma burst gives this variant a distinct attack without a shield.
           this.fireCooldown = 2.65;
@@ -508,7 +527,9 @@ export class Enemy {
         centerX += ally.x;
         centerY += ally.y;
       }
-      if (formationCount > 0) {
+      if (this.isElite && this.flankTimer > 0 && formationCount === 0) {
+        steerToPoint(this, this.flankTargetX, this.flankTargetY, this.motionProfile, dt);
+      } else if (formationCount > 0) {
         centerX /= formationCount;
         centerY /= formationCount;
         const screenX = centerX + (targetX - centerX) * 0.45;
