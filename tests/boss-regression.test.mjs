@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { circlesOverlap, orientedEllipseOverlapsCircle } from '../src/combat/collision.js';
 import { BossSystems, getBossBeamSegment, getBossMissileProfile, selectBossAttack, selectBossMissileLauncher } from '../src/enemies/boss-systems.js';
 import { Enemy } from '../src/enemies/enemy.js';
+import { ENEMY_MOTION_PROFILES } from '../src/movement/motion.js';
 import { BOSS_TEST_MODE, WaveManager } from '../src/core/wave-manager.js';
 
 test('circle collision preserves strict overlap boundary',()=>{
@@ -205,4 +206,31 @@ test('elite variants are limited to Sentinel, Guardian and Artillery; Intercepto
   const elite=new Enemy(100,100,12,type,true);
   assert.equal(elite.isElite,true,`${type} should support an Elite variant`);
  }
+});
+
+
+test('basic Sentinel has reduced mobility while Elite remains a distinct faster variant',()=>{
+ const basic=new Enemy(100,100,1,'sentinel');
+ const elite=new Enemy(100,100,1,'sentinel',true);
+ assert.equal(basic.isElite,false);
+ assert.equal(basic.speed,40);
+ assert.equal(ENEMY_MOTION_PROFILES.sentinel.maxSpeed,112);
+ assert.equal(ENEMY_MOTION_PROFILES.sentinel.acceleration,240);
+ assert.ok(ENEMY_MOTION_PROFILES.sentinelElite.maxSpeed>ENEMY_MOTION_PROFILES.sentinel.maxSpeed);
+ assert.ok(ENEMY_MOTION_PROFILES.sentinelElite.acceleration>ENEMY_MOTION_PROFILES.sentinel.acceleration);
+ assert.equal(elite.isElite,true);
+});
+
+test('test-only wave start sets the requested wave without changing normal reset defaults',()=>{
+ const waves=new WaveManager();
+ assert.equal(waves.wave,1);
+ assert.equal(waves.enemyCount,5);
+ waves.startAtWaveForTesting(9);
+ assert.equal(waves.wave,9);
+ assert.equal(waves.enemyCount,18);
+ assert.equal(waves.spawnedCount,0);
+ assert.equal(waves.state,'spawning');
+ waves.reset();
+ assert.equal(waves.wave,1);
+ assert.equal(waves.enemyCount,5);
 });
