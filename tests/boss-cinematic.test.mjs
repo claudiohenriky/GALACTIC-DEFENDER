@@ -9,7 +9,8 @@ import {
   getBossCinematicAlert,
   getBossCinematicDialogue,
   getBossCinematicBossOpacity,
-  wrapBossCinematicDialogue
+  wrapBossCinematicDialogue,
+  getBossDialogueVisualState
 } from '../src/core/boss-cinematic.js';
 
 function advance(state, seconds) {
@@ -171,5 +172,20 @@ test('every cinematic line fits the responsive mobile dialogue card without losi
       assert.ok(rows.length > 0 && rows.length <= 4, cue.text);
       assert.equal(rows.join(' '), cue.text, cue.text);
     }
+  }
+});
+
+
+test('dialogue card visual state keeps communication muted and animation bounded', () => {
+  const pilot = getBossDialogueVisualState('pilot', 1.25);
+  const system = getBossDialogueVisualState('system', 1.25);
+  const boss = getBossDialogueVisualState('boss', 1.25);
+  assert.equal(pilot.accent, '#579eac');
+  assert.equal(pilot.tag, '#8db8c0');
+  assert.notEqual(pilot.accent, system.accent);
+  assert.notEqual(pilot.accent, boss.accent);
+  for (const visual of [pilot, system, boss]) {
+    assert.ok(visual.pulse >= 0 && visual.pulse <= 1);
+    assert.ok(visual.scan >= 0 && visual.scan < 1);
   }
 });
