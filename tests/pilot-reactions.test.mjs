@@ -58,6 +58,20 @@ test('pilot reaction renderer accepts the state and screen position without thro
   assert.doesNotThrow(() => drawPilotReaction(context, state, 40, 50));
 });
 
+
+test('question indicator renders red text without a blue circular badge', () => {
+  const state = createPilotReactionState();
+  triggerPilotReaction(state, '❓', 2);
+  const calls = [];
+  const context = new Proxy({}, {
+    get: (_target, property) => (...args) => calls.push([property, ...args]),
+    set: () => true
+  });
+  drawPilotReaction(context, state, 40, 50);
+  assert.equal(calls.some(([name]) => name === 'arc'), false);
+  assert.ok(calls.some(([name, symbol]) => name === 'fillText' && symbol === '❓'));
+});
+
 test('game renders pilot reactions through the imported renderer with the state argument', async () => {
   const source = await readFile(new URL('../src/core/game.js', import.meta.url), 'utf8');
   assert.equal(source.includes('this.drawPilotReaction('), false);
