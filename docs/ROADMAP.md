@@ -432,3 +432,15 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Usar desenho determinístico sem criar coleções, entidades ou partículas por quadro.
 - [ ] Validar em gameplay a leitura dos fragmentos com o zoom tático e a deriva do casco.
 - [ ] Confirmar que os fragmentos não parecem projéteis ativos nem interferem em colisões ou recompensas.
+
+
+## Proa aberta e condutores de energia do DREADNOUGHT — 30/10/2026
+- [x] Remover a representação de canhão/barrel físico na ponta da nave.
+- [x] Preservar a abertura central como cavidade oca e permanentemente aberta; o módulo lógico principal continua existindo sem cobrir o vão.
+- [x] Preparar a boca emissora com borda de contenção mecânica e centro escuro desobstruído.
+- [x] Adicionar condutores/manifolds laterais com nós capacitivos como base visual para a futura animação de carga do laser.
+- [x] Remover o destaque quase branco dos bocais dos propulsores e manter ciano/azul-petróleo.
+- [ ] Validar em navegador que a abertura permanece visível em diferentes zooms e orientações do casco.
+- [ ] Validar leitura dos condutores laterais em celular e desktop, sem competir visualmente com as dez armas.
+- [ ] Em etapa futura, animar a carga percorrendo os condutores e culminando na emissão do laser diretamente pela abertura; não adicionar barrel retrátil nem fechar a cavidade.
+- [ ] Manter o laser principal sem projétil/dano até que telegraph, janela de reação e contra-jogo sejam implementados e testados.
