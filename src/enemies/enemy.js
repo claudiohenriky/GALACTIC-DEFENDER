@@ -483,6 +483,10 @@ export class Enemy {
             glowColor: options.glowColor ?? '#36aee8',
             homing: options.homing ?? false,
             turnRate: options.turnRate ?? 1.8,
+            guidedStyle: options.guidedStyle ?? false,
+            lifetime: options.lifetime,
+            curveAmplitude: options.curveAmplitude ?? 0,
+            curveFrequency: options.curveFrequency ?? 0,
             heavyImpact: options.heavyImpact ?? false,
             plasmaImpact: options.plasmaImpact ?? false
           };
