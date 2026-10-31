@@ -98,7 +98,7 @@ test('boss identity appears only in the final identification phase', () => {
 test('pilot intro line completes before the phase advances', () => {
   const state = createBossCinematic();
   advance(state, 15.5);
-  advance(state, 8.8);
+  advance(state, 8.3);
   const dialogue = getBossCinematicDialogue(state);
   assert.equal(state.phase, 'pilot-intro');
   assert.match(dialogue.text, /parece tranquilo/i);
@@ -107,7 +107,7 @@ test('pilot intro line completes before the phase advances', () => {
 
 test('anomaly and system dialogue cues leave enough time for each complete line', () => {
   const state = createBossCinematic();
-  advance(state, 24.5);
+  advance(state, 24);
   assert.equal(state.phase, 'anomaly-scan');
   advance(state, 3.1);
   const pilot = getBossCinematicDialogue(state);
@@ -117,7 +117,10 @@ test('anomaly and system dialogue cues leave enough time for each complete line'
   const system = getBossCinematicDialogue(state);
   assert.equal(system.actor, 'system');
   assert.equal(system.typingComplete, false);
-  advance(state, 2.9);
+  advance(state, 2.6);
+  assert.equal(getBossCinematicDialogue(state).actor, 'system');
+  assert.equal(getBossCinematicDialogue(state).typingComplete, true);
+  advance(state, 2.7);
   const finalPilot = getBossCinematicDialogue(state);
   assert.equal(finalPilot.actor, 'pilot');
   assert.equal(finalPilot.typingComplete, true);
