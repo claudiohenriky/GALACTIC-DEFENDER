@@ -13,6 +13,7 @@ import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.44.0-boss-tes
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
+import { createWaveTenTransition, advanceWaveTenTransition } from './wave-ten-transition.js?v=0.46.0-wave10-cutscene';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -39,6 +40,7 @@ export class Game {
     this.achievements = new AchievementTracker();
     this.mission = new Mission();
     this.waveManager = new WaveManager();
+    this.waveTenTransition = null;
     this.enemies = [];
     // The visible viewport moves through a larger world; boss zoom remains a separate camera effect.
     this.cameraZoom = 1;
@@ -1256,7 +1258,118 @@ export class Game {
     this.performanceProfileSamples = [];
   }
 
+  beginWaveTenTransition() {
+    this.clearInput();
+    this.continuousLaserHeld = false;
+    this.projectiles.length = 0;
+    this.enemyProjectiles.length = 0;
+    this.guidedMissiles.length = 0;
+    this.guidedMissileEffects.length = 0;
+    this.enemies.length = 0;
+    this.waveTenTransition = createWaveTenTransition();
+    this.waveTenTransition.boss = null;
+    this.waveTenTransition.bossStartY = this.player.y - this.height * 1.12;
+    this.waveTenTransition.bossEndY = this.player.y - this.height * 0.62;
+    this.cameraX = this.player.x - this.width / 2;
+    this.cameraY = this.player.y - this.height / 2;
+    this.cameraZoom = 1.18;
+  }
+
+  updateWaveTenTransition(dt) {
+    const transition = this.waveTenTransition;
+    if (!transition) return;
+    const previousPhase = transition.phase;
+    advanceWaveTenTransition(transition, dt);
+    if (previousPhase !== 'boss-entry' && transition.phase === 'boss-entry') {
+      transition.boss = new Enemy(this.player.x, transition.bossStartY, 10, 'boss');
+    }
+    if (transition.phase === 'boss-entry' && transition.boss) {
+      const progress = Math.max(0, Math.min(1, transition.phaseElapsed / transition.phaseDuration));
+      const eased = progress * progress * (3 - 2 * progress);
+      transition.boss.y = transition.bossStartY + (transition.bossEndY - transition.bossStartY) * eased;
+    }
+    if (transition.phase === 'complete') {
+      this.waveTenTransition = null;
+      this.cameraZoom = 1;
+      this.updateCamera(0, true);
+      this.waveManager.timer = 1.0;
+      this.clearInput();
+    }
+  }
+
+  renderWaveTenTransition(ctx) {
+    const transition = this.waveTenTransition;
+    if (!transition) return;
+    ctx.save();
+    ctx.fillStyle = 'rgba(3, 8, 20, 0.88)';
+    ctx.fillRect(0, 0, this.width, this.height);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    if (transition.phase === 'loading') {
+      const facts = [
+        'SISTEMAS DE NAVEGAÇÃO: recalibrando a região...',
+        'REGISTRO DE COMBATE: todas as unidades hostis foram neutralizadas.',
+        'LEITURA TÁTICA: uma assinatura desconhecida permanece fora do alcance.',
+        'PROTOCOLO DE DEFESA: sensores e armamentos em sincronização.'
+      ];
+      const factIndex = Math.min(facts.length - 1, Math.floor(transition.elapsed / 2.5));
+      ctx.fillStyle = '#79e9ff';
+      ctx.font = '900 11px ui-monospace, monospace';
+      ctx.fillText('GALACTIC DEFENDER // OPERAÇÃO 010', this.width / 2, this.height * 0.39);
+      ctx.fillStyle = '#f1f6ff';
+      ctx.font = '900 26px ui-monospace, monospace';
+      ctx.fillText('RECONFIGURANDO SETOR', this.width / 2, this.height * 0.47);
+      ctx.fillStyle = '#b8c8dc';
+      ctx.font = '12px ui-monospace, monospace';
+      ctx.fillText(facts[factIndex], this.width / 2, this.height * 0.56, this.width * 0.86);
+      const barWidth = Math.min(this.width * 0.68, 420);
+      const barX = (this.width - barWidth) / 2;
+      const barY = this.height * 0.64;
+      ctx.fillStyle = '#17263a';
+      ctx.fillRect(barX, barY, barWidth, 7);
+      ctx.fillStyle = '#65e6ef';
+      ctx.fillRect(barX, barY, barWidth * Math.max(0, Math.min(1, transition.elapsed / 10)), 7);
+      ctx.fillStyle = '#8da8c2';
+      ctx.font = '10px ui-monospace, monospace';
+      ctx.fillText('SINCRONIZANDO SISTEMAS', this.width / 2, barY + 24);
+    } else {
+      const dialogue = {
+        'pilot-report': { speaker: 'PILOTO // VANGUARD', lines: ['Setor completamente limpo. Não detecto mais hostis nas proximidades.', 'Finalmente conseguimos controlar esta região.'] },
+        'pilot-warning': { speaker: 'PILOTO // VANGUARD', lines: ['Espere... estou detectando uma assinatura energética desconhecida.', 'A leitura está aumentando. Isso não parece ser uma unidade comum.'] },
+        'boss-entry': { speaker: 'SISTEMA DE BORDO', lines: ['ALERTA MÁXIMO: contato colossal identificado.', 'Assinatura energética e armamentos em escala desconhecida.'] },
+        'boss-taunt': { speaker: 'DREADNOUGHT', lines: ['Observei seu avanço desde o início.', 'Você eliminou todas as unidades que enviei.', 'Mas seu avanço termina aqui.'] }
+      }[transition.phase];
+      if (dialogue) {
+        const boxWidth = Math.min(this.width * 0.88, 720);
+        const boxHeight = Math.min(this.height * 0.25, 142);
+        const x = (this.width - boxWidth) / 2;
+        const y = this.height - boxHeight - Math.max(16, this.height * 0.045);
+        ctx.fillStyle = 'rgba(5, 13, 28, 0.94)';
+        ctx.fillRect(x, y, boxWidth, boxHeight);
+        ctx.strokeStyle = transition.phase === 'boss-taunt' ? '#bd6c91' : '#4d9fb8';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x, y, boxWidth, boxHeight);
+        ctx.textAlign = 'left';
+        ctx.fillStyle = transition.phase === 'boss-taunt' ? '#ffb4cf' : '#83eaff';
+        ctx.font = '900 10px ui-monospace, monospace';
+        ctx.fillText(dialogue.speaker, x + 16, y + 22);
+        ctx.fillStyle = '#edf5ff';
+        ctx.font = ` ${this.width < 520 ? 11 : 13}px ui-monospace, monospace`;
+        dialogue.lines.forEach((line, index) => ctx.fillText(line, x + 16, y + 49 + index * 22, boxWidth - 32));
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#718aa4';
+        ctx.font = '9px ui-monospace, monospace';
+        ctx.fillText('TRANSMISSÃO DE ÁUDIO // REGISTRO DE CAMPANHA', x + boxWidth - 14, y + boxHeight - 12);
+      }
+    }
+    ctx.restore();
+  }
+
   update(dt) {
+    if (this.waveTenTransition) {
+      this.updateWaveTenTransition(dt);
+      return;
+    }
     let bossPresent = false;
     for (let index = 0; index < this.enemies.length; index += 1) {
       const enemy = this.enemies[index];
@@ -1343,8 +1456,15 @@ export class Game {
       this.shotClock = .22 / (1 + this.player.fireRateLevel * 0.1);
     }
 
-    // WaveManager decides when an enemy should spawn and when the next wave begins.
-    if (this.waveManager.update(dt, this.enemies.length)) {
+    // The wave-9 clear is the only entry point for the experimental campaign transition.
+    const previousWave = this.waveManager.wave;
+    const previousWaveState = this.waveManager.state;
+    const spawnRequested = this.waveManager.update(dt, this.enemies.length);
+    if (previousWave === 9 && previousWaveState === 'intermission' && this.waveManager.wave === 10 && this.waveManager.state === 'spawning') {
+      this.beginWaveTenTransition();
+      return;
+    }
+    if (spawnRequested) {
       const bossWave = (BOSS_TEST_MODE && this.waveManager.wave === 1) || (this.waveManager.wave >= 10 && this.waveManager.wave % 5 === 0);
       const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
       const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * zoom);
@@ -1719,7 +1839,7 @@ export class Game {
     if (!this.ctx || !this.width || !this.height) return;
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
-    const cameraZoom = Math.max(this.cameraMinZoom, Math.min(1, this.cameraZoom || 1));
+    const cameraZoom = this.waveTenTransition ? Math.max(this.cameraMinZoom, this.waveTenTransition.cameraZoom) : Math.max(this.cameraMinZoom, Math.min(1, this.cameraZoom || 1));
     ctx.save();
     ctx.translate(this.width / 2, this.height / 2);
     ctx.scale(cameraZoom, cameraZoom);
@@ -1742,6 +1862,7 @@ export class Game {
     for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
     for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx);
     for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx);
+    if (this.waveTenTransition?.boss) this.waveTenTransition.boss.draw(ctx);
     // Main-cannon telegraph and beam use the exact same world-space segment as collision.
     for (const boss of this.enemies) {
       if (!boss.active || boss.type !== 'boss' || boss.bossDying) continue;
@@ -1952,5 +2073,6 @@ export class Game {
       ctx.restore();
     }
     ctx.restore();
+    this.renderWaveTenTransition(ctx);
   }
 }
