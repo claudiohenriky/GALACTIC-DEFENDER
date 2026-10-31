@@ -373,10 +373,10 @@ test('Guardian does not abandon its formation to protect distant allies or doubl
 
 test('boss camera frames keep the pilot and DREADNOUGHT in a shared cinematic view',()=>{
  const player={x:600,y:1100};
- const boss={x:600,y:720};
+ const boss={x:600,y:720,collisionRadius:145};
  const frame=getBossCameraFrame({phase:'boss-entry',player,boss,width:900,height:500,minZoom:1/2.4});
  assert.equal(frame.x,150);
- assert.equal(frame.y,660);
+ assert.equal(frame.y,555);
  assert.equal(frame.zoom,0.52);
  const loading=getBossCameraFrame({phase:'loading',player,width:900,height:500,minZoom:1/2.4});
  assert.equal(loading.zoom,0.72);
@@ -384,7 +384,7 @@ test('boss camera frames keep the pilot and DREADNOUGHT in a shared cinematic vi
 });
 
 test('boss camera respects the calculated minimum zoom on narrow viewports',()=>{
- const frame=getBossCameraFrame({phase:'boss-taunt',player:{x:180,y:500},boss:{x:180,y:200},width:360,height:740,minZoom:0.55});
+ const frame=getBossCameraFrame({phase:'boss-taunt',player:{x:180,y:500,radius:12},boss:{x:180,y:200,collisionRadius:145},width:360,height:740,minZoom:0.55});
  assert.equal(frame.zoom,0.55);
  assert.equal(frame.x,0);
 });
