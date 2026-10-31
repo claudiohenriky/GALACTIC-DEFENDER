@@ -508,3 +508,12 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Aumentar visualmente plasma (28%), lançadores de mísseis (24%), canhão pesado (18%) e metralhadoras (10%), sem alterar colisões ou dano.
 - [ ] Validar em gameplay se o ponto de impacto coincide com a arma pretendida e se a taxa de dano aos módulos está justa.
 - [ ] Ajustar intensidade do escudo e escala das armas após observação em zoom tático mobile/desktop.
+
+
+## Balanceamento do Sentinela — revisão experimental (31/10/2026)
+- [x] Reduzir a velocidade máxima e aceleração do Sentinela básico, preservando o perfil Elite.
+- [x] Diminuir amplitude e intensidade da esquiva lateral do Sentinela básico e espaçar as esquivas.
+- [x] Reduzir levemente a oscilação lateral da rota de patrulha do Sentinela básico.
+- [x] Adicionar teste automatizado para o perfil básico/Elite e para o início de teste na onda 9.
+- [ ] Validar em gameplay se o Sentinela ficou acertável sem perder sua identidade tática; revisar Elite somente após esse teste.
+- Na branch de cutscene, o parâmetro testStartWave=9 inicia diretamente na onda 9; a branch normal permanece na onda 1.
