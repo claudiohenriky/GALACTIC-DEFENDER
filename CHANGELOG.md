@@ -5,7 +5,7 @@
 - Adiciona entrada rápida, pulsação leve e desaparecimento suave; preserva os gatilhos de alerta e o disparo único por transição de ameaça.
 - Reposiciona o cartão de fala do DREADNOUGHT para uma lateral livre do casco em telas largas; em telas estreitas, escolhe uma posição vertical ou de borda adaptativa.
 - Preserva a cutscene, os diálogos, a câmera, a arena e a lógica de combate.
-- Validação automatizada e visual desta etapa pendentes.
+- **Validação automatizada:** 72/72 testes aprovados, sintaxe JavaScript, imports relativos e whitespace aprovados. Validação visual em Android/desktop ainda pendente.
 
 ## [0.54.4] — refinamento visual dos cartões de diálogo
 
