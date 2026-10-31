@@ -1,3 +1,12 @@
+## [0.59.0] — árvore de habilidades e progressão do piloto
+
+- Adiciona uma árvore permanente com cinco ramificações (Integridade, Mobilidade, Arsenal, Energia e Tecnologia) e 15 tecnologias com custos e pré-requisitos.
+- Concede um ponto inicial de pesquisa, pontos adicionais por missões concluídas e um bônus a cada três missões.
+- Salva pesquisa e tecnologias desbloqueadas no navegador; aplica os atributos permanentes ao iniciar ou reiniciar uma partida.
+- Adiciona melhorias permanentes moderadas para integridade, velocidade, aceleração, dano, cadência, escudos, recarga de habilidades e XP.
+- Expande as escolhas durante a partida com especializações para rastreamento e carga de mísseis, fragmentação, capacidade e recarga do escudo e formação de disparo.
+- Cria um painel de pesquisa responsivo no menu e adiciona testes automatizados para compras, dependências, recompensas, atributos e integração.
+
 ## [0.58.0] — padronização das tropas Elite e falas de primeiro contato
 
 - Reequilibra velocidade, aceleração, esquiva e vida das tropas Elite para que sigam os padrões de suas classes normais, com bônus moderados em vez de deslocamentos extremos.
