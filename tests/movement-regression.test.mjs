@@ -185,3 +185,29 @@ test('common troop reposition waits while an Elite flank is active', () => {
   new EnemyTacticalCoordinator().update(1 / 60, enemies, player, 1200, 1600, true);
   assert.ok(enemies.every(enemy => enemy.repositionTimer === 0));
 });
+
+test('Dreadnought uses a heavy reposition state when the pilot leaves its forward arc', () => {
+  const boss = new Enemy(500, 300, 10, 'boss');
+  boss.bossEntranceTimer = 0;
+  boss.facingRotation = 0;
+  boss.bossRepositionCooldown = 0;
+  boss.update(1 / 60, 200, 300, 1200, 1600, [], [], 0, 0, 0);
+  assert.equal(boss.bossMovementState, 'reposition');
+  assert.ok(Number.isFinite(boss.bossMoveTargetX) && Number.isFinite(boss.bossMoveTargetY));
+  assert.ok(Math.hypot(boss.velocityX, boss.velocityY) <= ENEMY_MOTION_PROFILES.boss.maxSpeed + 1e-6);
+  assert.ok(Math.hypot(boss.bossMoveTargetX - 200, boss.bossMoveTargetY - 300) > 250);
+});
+
+test('Dreadnought turret tracking leads a moving pilot instead of aiming only at its current position', () => {
+  const stationaryBoss = new Enemy(500, 200, 10, 'boss');
+  const leadingBoss = new Enemy(500, 200, 10, 'boss');
+  stationaryBoss.bossEntranceTimer = 0;
+  leadingBoss.bossEntranceTimer = 0;
+  stationaryBoss.facingRotation = Math.PI / 2;
+  leadingBoss.facingRotation = Math.PI / 2;
+  stationaryBoss.update(1 / 60, 500, 900, 1200, 1600, [], [], 0, 0, 0);
+  leadingBoss.update(1 / 60, 500, 900, 1200, 1600, [], [], 0, 120, 0);
+  const stationaryAngle = stationaryBoss.bossSystems.getModule('machine-gun-left').turretAngle;
+  const leadingAngle = leadingBoss.bossSystems.getModule('machine-gun-left').turretAngle;
+  assert.notEqual(leadingAngle, stationaryAngle);
+});
