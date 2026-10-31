@@ -16,7 +16,7 @@ import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity } from './boss-cinematic.js?v=0.54.1-arena-reveal';
 import { getBossCinematicCameraFrame, prepareBossForCombatHandoff, BOSS_CINEMATIC_ARENA_ZOOM } from './boss-cinematic-camera.js?v=0.54.1-camera-rebuild';
-import { getBossCinematicSpawnPositions } from './boss-positioning.js?v=0.54.1-cinematic-standoff';
+import { getBossCinematicSpawnPositions, preparePlayerForBossCinematic } from './boss-positioning.js?v=0.54.1-loading-reset';
 import { createPilotReactionState, triggerPilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.54.1-red-question';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
@@ -1364,18 +1364,7 @@ export class Game {
     // This runs only after the loading screen fully covers the arena.
     // Keep progression, XP, score, ship class, and all acquired upgrades intact.
     this.clearInput();
-    this.player.x = this.worldWidth / 2;
-    this.player.y = this.worldHeight * 0.70;
-    this.player.velocityX = 0;
-    this.player.velocityY = 0;
-    this.player.knockbackX = 0;
-    this.player.knockbackY = 0;
-    this.player.health = this.player.maxHealth;
-    this.player.shieldHealth = this.player.shieldMaxHealth;
-    this.player.shieldRechargeTimer = 0;
-    this.player.invulnerabilityTimer = 2.5;
-    this.player.rotation = -Math.PI / 2;
-    this.player.guidedMissileCooldown = 0;
+    preparePlayerForBossCinematic(this.player, this.worldWidth, this.worldHeight);
     this.continuousLaserHeld = false;
 
     this.projectiles.length = 0;
