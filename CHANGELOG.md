@@ -1,3 +1,10 @@
+## [Unreleased] — v0.48.0 · transição cinematográfica do DREADNOUGHT
+
+- Corrige a passagem da cutscene para o combate: o temporizador interno de entrada do chefe é finalizado no handoff, impedindo que a IA reproduza a descida cinematográfica depois do diálogo final.
+- Amplia a área vertical das caixas de diálogo e adapta tamanho de fonte/entrelinha à altura da tela, reduzindo o risco de texto cortado em celulares na horizontal.
+- Adiciona teste de regressão para o handoff entre apresentação e IA normal do chefe.
+- **Validação pendente:** executar a suíte automatizada e testar a transição em celular e desktop; nenhuma validação de navegador foi realizada nesta alteração.
+
 ## [Unreleased] — Rebalanceamento de combate e IA do DREADNOUGHT
 
 - Reduz a pressão geral das tropas comuns: deslocamento do Interceptador e do perseguidor mais contido, Guardião menos veloz e perfis básicos de Sentinela/Artilheiro revistos.
