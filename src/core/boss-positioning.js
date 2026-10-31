@@ -24,7 +24,7 @@ export function getBossCinematicSpawnPositions(player, boss, viewportHeight, wor
   };
 }
 
- 
+
 // Reposition and restore combat readiness without replacing the Player instance or its progression.
 export function preparePlayerForBossCinematic(player, worldWidth, worldHeight) {
   if (!player) return null;
