@@ -1,16 +1,16 @@
 import { Player } from '../player/player.js?v=0.45.0-motion-core';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.50.0-ai-balance';
-import { Enemy } from '../enemies/enemy.js?v=0.57.1-boss-flank-movement';
+import { Enemy } from '../enemies/enemy.js?v=0.57.2-boss-weapon-pass';
 import { EliteTacticalCoordinator } from '../ai/elite-tactics.js?v=0.45.0-elite-flanking';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.44.0';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.44.0';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.56.0-siege-impact';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.57.2-guided-darts';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
-import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.57.1-plasma-cooldown';
+import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.57.2-boss-weapon-pass';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { Mission } from '../missions/missions.js?v=0.44.0';
-import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.46.1-wave-nine-test-start';
+import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.57.2-boss-wave-15';
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.44.0';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
@@ -1808,12 +1808,12 @@ export class Game {
     const previousWave = this.waveManager.wave;
     const previousWaveState = this.waveManager.state;
     const spawnRequested = this.waveManager.update(dt, this.enemies.length);
-    if (previousWave === 9 && previousWaveState === 'intermission' && this.waveManager.wave === 10 && this.waveManager.state === 'spawning') {
+    if (previousWave === 14 && previousWaveState === 'intermission' && this.waveManager.wave === 15 && this.waveManager.state === 'spawning') {
       this.beginBossCinematic();
       return;
     }
     if (spawnRequested) {
-      const bossWave = (BOSS_TEST_MODE && this.waveManager.wave === 1) || (this.waveManager.wave >= 10 && this.waveManager.wave % 10 === 0);
+      const bossWave = (BOSS_TEST_MODE && this.waveManager.wave === 1) || (this.waveManager.wave >= 15 && this.waveManager.wave % 15 === 0);
       const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
       const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * zoom);
       const viewTop = this.height / 2 + this.cameraY - this.height / (2 * zoom);
@@ -1841,8 +1841,8 @@ export class Game {
       this.enemies.push(new Enemy(spawnX, spawnY, this.waveManager.wave, type, isElite));
       if (bossWave) {
         this.bossEncounterCount += 1;
-        if (this.waveManager.wave >= 20) {
-          const firstReturn = this.waveManager.wave === 20;
+        if (this.waveManager.wave >= 30) {
+          const firstReturn = this.waveManager.wave === 30;
           this.bossEncounterDialogue = {
             duration: 9,
             lineInterval: 4.5,
