@@ -2189,6 +2189,11 @@ export class Game {
       // Elite Guardians receive assignments first; protection priority is then
       // based on ally class/rank, with distance as the tie-breaker.
       const assignedAllies = new Set();
+      // Sentinels keep a direct reverse link to their assigned Guardian, avoiding
+      // a full enemy-roster scan in every Sentinel's periodic support update.
+      for (const unit of this.enemies) {
+        if (unit.type === 'sentinel') unit.supportGuardianCache = null;
+      }
       for (let priorityPass = 0; priorityPass < 2; priorityPass += 1) {
         const elitePass = priorityPass === 0;
         for (const guardian of this.enemies) {
@@ -2199,7 +2204,10 @@ export class Game {
           guardian.protectedAllies = selectGuardianProtectionTargets(
             guardian, nearbyAllies, assignedAllies, 360
           );
-          for (const ally of guardian.protectedAllies) assignedAllies.add(ally);
+          for (const ally of guardian.protectedAllies) {
+            assignedAllies.add(ally);
+            if (ally.type === 'sentinel') ally.supportGuardianCache = guardian;
+          }
         }
       }
     }
