@@ -11,7 +11,7 @@ export const SHIP_APPEARANCE_DEFAULTS = Object.freeze({
   vanguard: Object.freeze({ primary: '#58e4e8', secondary: '#d9ffff', core: '#f4ffff', accent: '#7c9cff', glow: true }),
   phantom: Object.freeze({ primary: '#a78bfa', secondary: '#f0eaff', core: '#ffffff', accent: '#ff77b7', glow: true }),
   aegis: Object.freeze({ primary: '#f5b85d', secondary: '#fff0c9', core: '#fff9e8', accent: '#ff718d', glow: true }),
-  wraith: Object.freeze({ primary: '#70e0bd', secondary: '#d5fff0', core: '#f4fff9', accent: '#75a7ff', glow: true })
+  wraith: Object.freeze({ primary: '#76279b', secondary: '#e5a0ff', core: '#f04cff', accent: '#b52be8', glow: true })
 });
 const isHexColor = value => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value);
 
@@ -232,40 +232,141 @@ export class Player {
       ctx.save(); ctx.globalAlpha = Math.min(0.42, this.phaseDriveTimer * 0.18);
       ctx.strokeStyle = wing; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 1, 25, 31, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
     }
-    ctx.fillStyle = hull; ctx.strokeStyle = edge; ctx.lineWidth = 1.5; ctx.beginPath();
-    if (wraith) { ctx.moveTo(0,-23);ctx.lineTo(5,-8);ctx.lineTo(19,2);ctx.lineTo(11,5);ctx.lineTo(7,13);ctx.lineTo(2,8);ctx.lineTo(0,18);ctx.lineTo(-2,8);ctx.lineTo(-7,13);ctx.lineTo(-11,5);ctx.lineTo(-19,2);ctx.lineTo(-5,-8); }
-    else if (phantom) { ctx.moveTo(0,-20);ctx.lineTo(6,-5);ctx.lineTo(17,8);ctx.lineTo(9,9);ctx.lineTo(4,5);ctx.lineTo(0,15);ctx.lineTo(-4,5);ctx.lineTo(-9,9);ctx.lineTo(-17,8);ctx.lineTo(-6,-5); }
-    else if (aegis) { ctx.moveTo(0,-18);ctx.lineTo(10,-9);ctx.lineTo(17,3);ctx.lineTo(13,12);ctx.lineTo(5,10);ctx.lineTo(0,16);ctx.lineTo(-5,10);ctx.lineTo(-13,12);ctx.lineTo(-17,3);ctx.lineTo(-10,-9); }
-    else { ctx.moveTo(0,-22);ctx.lineTo(7,-8);ctx.lineTo(16,7);ctx.lineTo(11,11);ctx.lineTo(4,7);ctx.lineTo(0,15);ctx.lineTo(-4,7);ctx.lineTo(-11,11);ctx.lineTo(-16,7);ctx.lineTo(-7,-8); }
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = wing; ctx.beginPath();ctx.moveTo(-5,-4);ctx.lineTo(-13,7);ctx.lineTo(-9,8);ctx.lineTo(-3,3);ctx.closePath();ctx.fill();
-    ctx.beginPath();ctx.moveTo(5,-4);ctx.lineTo(13,7);ctx.lineTo(9,8);ctx.lineTo(3,3);ctx.closePath();ctx.fill();
-    // Twin missile pods are part of the ship only while the missile ability is ready.
-    // They use the same local coordinates as Game.createGuidedMissileFromWing().
-    if (this.guidedMissileLevel > 0 && this.guidedMissileCooldown <= 0) {
-      ctx.save();
-      ctx.fillStyle = '#24364d';
-      ctx.strokeStyle = '#ffdca4';
+    if (wraith) {
+      // Wraith: asymmetric-looking stealth silhouette built from a broad swept delta wing,
+      // raised rear fins, layered graphite armor and a bright violet reactor.
+      ctx.fillStyle = '#090711';
+      ctx.strokeStyle = edge;
+      ctx.lineWidth = 1.25;
+      ctx.beginPath();
+      ctx.moveTo(0, -27);
+      ctx.lineTo(5, -15);
+      ctx.lineTo(27, -2);
+      ctx.lineTo(20, 2);
+      ctx.lineTo(29, 12);
+      ctx.lineTo(13, 8);
+      ctx.lineTo(7, 17);
+      ctx.lineTo(0, 22);
+      ctx.lineTo(-7, 17);
+      ctx.lineTo(-13, 8);
+      ctx.lineTo(-29, 12);
+      ctx.lineTo(-20, 2);
+      ctx.lineTo(-27, -2);
+      ctx.lineTo(-5, -15);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Deep-purple wing armor and sharp magenta edge channels.
+      ctx.fillStyle = hull;
+      ctx.beginPath();
+      ctx.moveTo(0, -24); ctx.lineTo(4, -13); ctx.lineTo(22, -2);
+      ctx.lineTo(14, 1); ctx.lineTo(7, 10); ctx.lineTo(0, 15);
+      ctx.lineTo(-7, 10); ctx.lineTo(-14, 1); ctx.lineTo(-22, -2);
+      ctx.lineTo(-4, -13); ctx.closePath(); ctx.fill();
+
+      ctx.fillStyle = '#100b19';
+      ctx.beginPath();
+      ctx.moveTo(-5, -12); ctx.lineTo(-23, -1); ctx.lineTo(-15, 1);
+      ctx.lineTo(-7, 7); ctx.lineTo(-2, 3); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(5, -12); ctx.lineTo(23, -1); ctx.lineTo(15, 1);
+      ctx.lineTo(7, 7); ctx.lineTo(2, 3); ctx.closePath(); ctx.fill();
+
+      ctx.strokeStyle = wing;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(-24, 1); ctx.lineTo(-12, 5); ctx.lineTo(-5, 13);
+      ctx.moveTo(24, 1); ctx.lineTo(12, 5); ctx.lineTo(5, 13);
+      ctx.stroke();
+
+      // Twin raised engine housings at the rear distinguish the Wraith from standard fighters.
+      ctx.fillStyle = '#171020';
+      ctx.strokeStyle = edge;
       ctx.lineWidth = 1;
       for (const side of [-1, 1]) {
         ctx.beginPath();
-        ctx.rect(side * 17 - 2.5, 1, 5, 10);
+        ctx.moveTo(side * 5, -12);
+        ctx.lineTo(side * 10, -21);
+        ctx.lineTo(side * 15, -17);
+        ctx.lineTo(side * 12, -5);
+        ctx.lineTo(side * 7, 1);
+        ctx.closePath();
         ctx.fill();
         ctx.stroke();
-        ctx.fillStyle = '#ffb45e';
-        ctx.fillRect(side * 17 - 1, 3, 2, 4);
-        ctx.fillStyle = '#24364d';
+        ctx.fillStyle = wing;
+        ctx.fillRect(side * 10 - 1, -16, 2, 8);
+        ctx.fillStyle = '#171020';
+      }
+
+      // Central armored spine and reactor aperture.
+      ctx.fillStyle = '#21132c';
+      ctx.beginPath();
+      ctx.moveTo(0, -23); ctx.lineTo(7, -9); ctx.lineTo(5, 8);
+      ctx.lineTo(0, 16); ctx.lineTo(-5, 8); ctx.lineTo(-7, -9);
+      ctx.closePath(); ctx.fill();
+      ctx.save();
+      ctx.shadowColor = appearance.core;
+      ctx.shadowBlur = appearance.glow ? 13 : 0;
+      ctx.fillStyle = appearance.core;
+      ctx.beginPath();
+      ctx.moveTo(0, -17); ctx.lineTo(3.8, -5); ctx.lineTo(2.5, 5);
+      ctx.lineTo(0, 9); ctx.lineTo(-2.5, 5); ctx.lineTo(-3.8, -5);
+      ctx.closePath(); ctx.fill();
+      ctx.restore();
+
+      // Small violet exhaust apertures are deliberately low-cost canvas shapes.
+      ctx.fillStyle = wing;
+      ctx.fillRect(-11, 8, 3, 5);
+      ctx.fillRect(8, 8, 3, 5);
+    } else {
+      ctx.fillStyle = hull; ctx.strokeStyle = edge; ctx.lineWidth = 1.5; ctx.beginPath();
+      if (phantom) { ctx.moveTo(0,-20);ctx.lineTo(6,-5);ctx.lineTo(17,8);ctx.lineTo(9,9);ctx.lineTo(4,5);ctx.lineTo(0,15);ctx.lineTo(-4,5);ctx.lineTo(-9,9);ctx.lineTo(-17,8);ctx.lineTo(-6,-5); }
+      else if (aegis) { ctx.moveTo(0,-18);ctx.lineTo(10,-9);ctx.lineTo(17,3);ctx.lineTo(13,12);ctx.lineTo(5,10);ctx.lineTo(0,16);ctx.lineTo(-5,10);ctx.lineTo(-13,12);ctx.lineTo(-17,3);ctx.lineTo(-10,-9); }
+      else { ctx.moveTo(0,-22);ctx.lineTo(7,-8);ctx.lineTo(16,7);ctx.lineTo(11,11);ctx.lineTo(4,7);ctx.lineTo(0,15);ctx.lineTo(-4,7);ctx.lineTo(-11,11);ctx.lineTo(-16,7);ctx.lineTo(-7,-8); }
+      ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = wing; ctx.beginPath();ctx.moveTo(-5,-4);ctx.lineTo(-13,7);ctx.lineTo(-9,8);ctx.lineTo(-3,3);ctx.closePath();ctx.fill();
+      ctx.beginPath();ctx.moveTo(5,-4);ctx.lineTo(13,7);ctx.lineTo(9,8);ctx.lineTo(3,3);ctx.closePath();ctx.fill();
+      ctx.save();
+      ctx.shadowColor = appearance.core;
+      ctx.shadowBlur = appearance.glow ? 8 : 0;
+      ctx.fillStyle = appearance.core;
+      ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(4,2);ctx.lineTo(0,7);ctx.lineTo(-4,2);ctx.closePath();ctx.fill();
+      ctx.restore();
+    }
+    // Twin missile pods are part of the ship only while the missile ability is ready.
+    if (this.guidedMissileLevel > 0 && this.guidedMissileCooldown <= 0) {
+      ctx.save();
+      ctx.fillStyle = wraith ? '#21132d' : '#24364d';
+      ctx.strokeStyle = wraith ? edge : '#ffdca4';
+      ctx.lineWidth = 1;
+      for (const side of [-1, 1]) {
+        ctx.beginPath();
+        ctx.rect(side * (wraith ? 21 : 17) - 2.5, 1, 5, 10);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = wraith ? wing : '#ffb45e';
+        ctx.fillRect(side * (wraith ? 21 : 17) - 1, 3, 2, 4);
+        ctx.fillStyle = wraith ? '#21132d' : '#24364d';
       }
       ctx.restore();
     }
-    ctx.save();
-    ctx.shadowColor = appearance.core;
-    ctx.shadowBlur = appearance.glow ? 8 : 0;
-    ctx.fillStyle = appearance.core;
-    ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(4,2);ctx.lineTo(0,7);ctx.lineTo(-4,2);ctx.closePath();ctx.fill();
-    ctx.restore();
     ctx.fillStyle='#142e48';ctx.fillRect(-2,-3,4,9);ctx.fillStyle=edge;ctx.fillRect(-1,-2,2,6);
     const flame = 4 + Math.sin(this.flamePhase * 18) * 0.8 + this.thrust * 8;
+    if (wraith) {
+      ctx.save();
+      ctx.globalAlpha = 0.28 + this.thrust * 0.35;
+      ctx.shadowColor = wing; ctx.shadowBlur = appearance.glow ? 7 : 0;
+      ctx.fillStyle = wing;
+      for (const side of [-1, 1]) {
+        ctx.beginPath();
+        ctx.moveTo(side * 9 - 2, 12);
+        ctx.lineTo(side * 9, 17 + flame * 0.75);
+        ctx.lineTo(side * 9 + 2, 12);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+    }
     ctx.globalAlpha = 0.18 + this.thrust * 0.22;
     ctx.fillStyle = wing;
     ctx.beginPath(); ctx.ellipse(0, 14 + flame * 0.35, 2.5 + this.thrust * 1.6, 3 + flame * 0.55, 0, 0, Math.PI * 2); ctx.fill();
