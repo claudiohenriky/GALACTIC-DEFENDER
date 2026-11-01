@@ -600,7 +600,7 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 #boss-health-fill{height:100%;border-radius:0;background:repeating-linear-gradient(90deg,#ff9a9f 0 9px,#d64e70 9px 11px);transition:width .18s steps(16,end)}
 .boss-section-heading{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:7px 0 4px;color:#bda8c5;font-size:6px;font-weight:900;letter-spacing:.1em}
 .boss-section-heading small{color:#f2d5e5;font-size:6px;font-weight:900;letter-spacing:.04em;text-align:right}
-.boss-shield-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.boss-shield-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
 .boss-shield-cell{min-width:0;padding:4px 4px 3px;border:1px solid #42556a;background:#0b1522;color:#b9cce0}
 .boss-shield-cell>span{display:block;overflow:hidden;font-size:6px;font-weight:900;letter-spacing:.04em;text-overflow:ellipsis;white-space:nowrap}
 .boss-shield-track{height:5px;margin:4px 0 2px;overflow:hidden;border:1px solid #34445a;background:#080e18}
