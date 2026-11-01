@@ -73,7 +73,9 @@ export class Mission {
     if (this.current.type === 'kills' || (this.current.type === 'elite-kills' && isElite && !isBoss) ||
         (this.current.type === 'boss' && isBoss)) {
       this.progress = Math.min(this.current.target, this.progress + 1);
-      return this.checkCompletion();
+      const completion = this.checkCompletion();
+      if (!completion) this.save();
+      return completion;
     }
     return null;
   }
@@ -81,7 +83,9 @@ export class Mission {
   registerAbilityUse() {
     if (this.current.type !== 'abilities') return null;
     this.progress = Math.min(this.current.target, this.progress + 1);
-    return this.checkCompletion();
+    const completion = this.checkCompletion();
+    if (!completion) this.save();
+    return completion;
   }
 
   update(dt, wave) {
