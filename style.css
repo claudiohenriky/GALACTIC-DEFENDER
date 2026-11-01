@@ -731,3 +731,10 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .canvas-frame .ability-card-class .ability-cooldown-fill{background:#bd83ff}
 @media(max-width:520px){.canvas-frame .ability-card-class{top:auto;bottom:194px;transform:none}}
 @media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.canvas-frame .ability-card-class{top:calc(50% + 75px);bottom:auto;transform:translateY(-50%)}}
+
+
+/* v0.77.0 — Wraith's exclusive offensive ability uses its violet-magenta palette. */
+.canvas-frame .ability-card-class[data-ability-class="wraith"]{border-color:#d77cff;background:linear-gradient(145deg,#3c174ff2,#101322f2);color:#f7e6ff}
+.canvas-frame .ability-card-class[data-ability-class="wraith"] .ability-card-icon{border-color:#d77cff99;background:#4b1d62;color:#f0c1ff}
+.canvas-frame .ability-card-class[data-ability-class="wraith"] .ability-card-copy small{color:#e5b0ff}
+.canvas-frame .ability-card-class[data-ability-class="wraith"] .ability-cooldown-fill{background:#d77cff}
