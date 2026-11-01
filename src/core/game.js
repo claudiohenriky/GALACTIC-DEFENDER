@@ -288,7 +288,7 @@ export class Game {
     this.cameraZoom = 1;
     this.bossEncounterSeen = false;
     this.bossCinematic = null;
-    gameAudio.setMusicMode('combat');
+    gameAudio.setMusicMode('ambient');
     this.activeDialogueCueKey = '';
     this.activeRecurringDialogueCue = '';
     this.activeReactionDialogueKey = '';
