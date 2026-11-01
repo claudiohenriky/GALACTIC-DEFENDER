@@ -141,6 +141,8 @@ friendShipUnlockButton?.addEventListener('click', () => {
   friendShipCard.disabled = false;
   friendShipCard.setAttribute('aria-disabled', 'false');
   friendShipCard.classList.remove('is-locked');
+  const status = friendShipCard.querySelector('.friend-ship-card-status');
+  if (status) status.textContent = 'DISPONÍVEL · ALIADO AUTORIZADO';
   friendShipUnlockNote.textContent = 'Acesso autorizado. A nave especial está disponível no hangar.';
   friendShipUnlockNote.dataset.state = 'success';
   friendShipCodeInput.value = '';
