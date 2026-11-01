@@ -419,7 +419,7 @@ export class Player {
     if (wraith) {
       ctx.save();
       ctx.globalAlpha = 0.28 + this.thrust * 0.35;
-      ctx.shadowColor = wing; ctx.shadowBlur = appearance.glow ? 7 : 0;
+      ctx.shadowColor = wing; ctx.shadowBlur = 0;
       ctx.fillStyle = wing;
       for (const side of [-1, 1]) {
         ctx.beginPath();
