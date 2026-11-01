@@ -55,6 +55,13 @@ const isShipUnlocked = shipClass => commonShipClasses.includes(shipClass) || (sh
 if (friendShipUnlocked && friendShipCard) {
   friendShipCard.disabled = false;
   friendShipCard.setAttribute('aria-disabled', 'false');
+  friendShipCard.classList.remove('is-locked');
+  const status = friendShipCard.querySelector('.friend-ship-card-status');
+  if (status) status.textContent = 'DISPONÍVEL · ALIADO AUTORIZADO';
+  if (friendShipUnlockNote) {
+    friendShipUnlockNote.textContent = 'Acesso já autorizado neste navegador. A nave especial está disponível.';
+    friendShipUnlockNote.dataset.state = 'success';
+  }
 }
 const appearanceInputs = {
   primary: document.querySelector('#ship-primary-color'),
