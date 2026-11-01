@@ -758,6 +758,8 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .canvas-frame .shader-output-canvas{position:absolute;inset:0;z-index:1;display:none;width:100%;height:100%;max-height:none;aspect-ratio:auto;object-fit:fill;pointer-events:none}
 .canvas-frame.shader-enabled .shader-output-canvas{display:block}
 .canvas-frame.shader-enabled #game-canvas{opacity:0}
+.canvas-frame>.overlay{z-index:2}
+#settings-panel{max-height:calc(100% - 20px);overflow-y:auto;overscroll-behavior:contain}
 .setting-toggle-row input[type="checkbox"]{width:20px;min-width:20px;height:20px;accent-color:var(--cyan);cursor:pointer}
 .setting-toggle-row{min-height:58px}
 #shader-support-note{padding:8px 0;border-bottom:1px solid var(--line)}
