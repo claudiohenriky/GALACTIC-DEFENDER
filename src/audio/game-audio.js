@@ -1,5 +1,5 @@
 // Procedural audiovisual system: no external assets, network requests or large audio buffers.
-class GameAudio {
+export class GameAudio {
   constructor() {
     this.context = null;
     this.master = null;
@@ -201,7 +201,28 @@ class GameAudio {
   }
 
   playUiConfirm() {
-    this.tone(620, 0.08, 'triangle', 0.035, 920);
+    if (!this.voiceGain) return;
+    this.tone(620, 0.075, 'triangle', 0.032, 920, this.voiceGain);
+    this.tone(930, 0.055, 'sine', 0.018, 1180, this.voiceGain);
+  }
+
+  playNavigationCue(direction = 'forward') {
+    if (!this.voiceGain) return;
+    const reverse = direction === 'back';
+    const first = reverse ? 470 : 560;
+    const second = reverse ? 350 : 820;
+    this.tone(first, 0.055, 'square', 0.018, first * 0.96, this.voiceGain);
+    this.tone(second, 0.07, 'sine', 0.022, second * 0.92, this.voiceGain);
+  }
+
+  playSystemAlert(kind = 'notice') {
+    if (!this.voiceGain) return;
+    if (kind === 'warning') {
+      this.tone(740, 0.12, 'square', 0.038, 430, this.voiceGain);
+      this.tone(370, 0.16, 'triangle', 0.026, 250, this.voiceGain);
+      return;
+    }
+    this.tone(520, 0.09, 'sine', 0.025, 690, this.voiceGain);
   }
 }
 
