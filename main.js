@@ -80,7 +80,7 @@ const defaultShipAppearance = {
   aegis: { primary: '#f5b85d', secondary: '#fff0c9', core: '#fff9e8', accent: '#ff718d', glow: true },
   wraith: { primary: '#76279b', secondary: '#e5a0ff', core: '#f04cff', accent: '#b52be8', glow: true }
 };
-const savedAppearances = {};
+const sessionAppearances = {};
 let selectedShip = 'vanguard';
 if (!allShipClasses.includes(selectedShip) || !isShipUnlocked(selectedShip)) selectedShip = 'vanguard';
 function syncAppearanceControls() {
@@ -96,7 +96,7 @@ function syncAppearanceControls() {
   }
 }
 function applyShipAppearance() {
-  const appearance = { ...defaultShipAppearance[selectedShip], ...(savedAppearances[selectedShip] || {}) };
+  const appearance = { ...defaultShipAppearance[selectedShip], ...(sessionAppearances[selectedShip] || {}) };
   game.player.setShipAppearance(appearance);
   game.selectedShipAppearance = { ...appearance };
   syncAppearanceControls();
@@ -120,7 +120,7 @@ function updateShipAppearance() {
     accent: appearanceInputs.accent.value,
     glow: appearanceInputs.glow.checked
   };
-  savedAppearances[selectedShip] = appearance;
+  sessionAppearances[selectedShip] = appearance;
   game.player.setShipAppearance(appearance);
   game.selectedShipAppearance = { ...appearance };
   syncAppearanceControls();
