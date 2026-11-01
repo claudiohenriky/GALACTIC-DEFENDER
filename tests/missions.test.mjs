@@ -2,6 +2,26 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Mission, MISSION_ROTATION } from '../src/missions/missions.js';
 
+function completeCurrent(mission) {
+  const type = mission.current.type;
+  const target = mission.current.target;
+  if (type === 'survive') {
+    for (let i = 0; i < target * 4; i++) mission.update(0.25, 1);
+    return;
+  }
+  if (type === 'wave') { mission.update(0.01, target); return; }
+  if (type === 'elite-kills') {
+    for (let i = 0; i < target; i++) mission.registerKill({ isElite: true });
+    return;
+  }
+  if (type === 'abilities') {
+    for (let i = 0; i < target; i++) mission.registerAbilityUse();
+    return;
+  }
+  if (type === 'boss') { mission.registerKill({ isBoss: true }); return; }
+  for (let i = 0; i < target; i++) mission.registerKill();
+}
+
 function withStorage(run, initial = null) {
   const values = new Map();
   if (initial !== null) values.set('gd-missions-v2', JSON.stringify(initial));
@@ -43,7 +63,7 @@ test('kill, survival, and wave objectives complete and rotate', () => withStorag
 
 test('elite, boss, and ability objectives only count their matching events', () => withStorage(() => {
   const mission = new Mission();
-  for (let i = 0; i < 3; i++) mission.registerKill();
+  for (let i = 0; i < 3; i++) completeCurrent(mission);
   assert.equal(mission.current.type, 'elite-kills');
   assert.equal(mission.registerKill(), null);
   assert.equal(mission.registerKill({ isElite: true }), null);
@@ -72,9 +92,10 @@ test('mission progress and rotation persist after creating a new instance', () =
 }));
 
 test('survival progress persists with fractional elapsed time', () => withStorage(() => {
-  let mission = new Mission({} );
+  let mission = new Mission();
   for (let i = 0; i < 5; i++) mission.registerKill();
-  mission.update(12.7, 1);
+  for (let i = 0; i < 50; i++) mission.update(0.25, 1);
+  mission.update(0.2, 1);
   mission = new Mission();
   assert.equal(mission.current.id, 'survivor');
   assert.equal(mission.progress, 12);
@@ -83,17 +104,10 @@ test('survival progress persists with fractional elapsed time', () => withStorag
 
 test('cycle difficulty increases targets without changing boss target', () => withStorage(() => {
   const mission = new Mission();
-  for (let i = 0; i < 18; i++) {
-    const target = mission.current.target;
-    if (mission.current.type === 'survive') mission.update(target, 1);
-    else if (mission.current.type === 'wave') mission.update(0.1, target);
-    else if (mission.current.type === 'elite-kills') {
-      for (let n = 0; n < target; n++) mission.registerKill({ isElite: true });
-    } else if (mission.current.type === 'abilities') {
-      for (let n = 0; n < target; n++) mission.registerAbilityUse();
-    } else if (mission.current.type === 'boss') mission.registerKill({ isBoss: true });
-    else for (let n = 0; n < target; n++) mission.registerKill();
-  }
+  for (let i = 0; i < 5; i++) completeCurrent(mission);
+  assert.equal(mission.current.type, 'boss');
+  assert.equal(mission.current.target, 1);
+  completeCurrent(mission);
   assert.equal(mission.current.id, 'first-contact');
   assert.equal(mission.current.target, 7);
 }));
