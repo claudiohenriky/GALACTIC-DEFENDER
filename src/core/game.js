@@ -228,7 +228,11 @@ export class Game {
 
   createAsteroidField() {
     this.asteroids.length = 0;
-    const count = Math.max(9, Math.min(16, Math.round((this.worldWidth * this.worldHeight) / 52000)));
+    const mobileDevice = window.matchMedia('(pointer: coarse)').matches;
+    const density = (this.worldWidth * this.worldHeight) / 76000;
+    const count = mobileDevice
+      ? Math.max(6, Math.min(9, Math.round(density)))
+      : Math.max(9, Math.min(13, Math.round(density)));
     for (let i = 0; i < count; i += 1) {
       const x = 70 + ((i * 173 + 91) % Math.max(120, this.worldWidth - 140));
       const y = 90 + ((i * 257 + 47) % Math.max(160, this.worldHeight - 180));
@@ -2345,15 +2349,24 @@ export class Game {
       ctx.drawImage(this.backgroundCanvas, viewLeft, viewTop, this.width / cameraZoom, this.height / cameraZoom);
     }
 
+    const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * cameraZoom);
+    const viewTop = this.height / 2 + this.cameraY - this.height / (2 * cameraZoom);
+    const viewRight = viewLeft + this.width / cameraZoom;
+    const viewBottom = viewTop + this.height / cameraZoom;
     for (let index = 0; index < this.stars.length; index += 1) {
       const star = this.stars[index];
+      if (star.x < viewLeft - 8 || star.x > viewRight + 8 || star.y < viewTop - 8 || star.y > viewBottom + 8) continue;
       ctx.globalAlpha = star.alpha;
       ctx.fillStyle = star.layer === 2 ? '#d5e4ff' : '#8faecb';
       ctx.beginPath(); ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2); ctx.fill();
     }
 
     ctx.globalAlpha = 1;
-    for (const rock of this.asteroids) rock.draw(ctx);
+    for (const rock of this.asteroids) {
+      if (!rock.active || rock.x + rock.radius < viewLeft - 12 || rock.x - rock.radius > viewRight + 12 ||
+          rock.y + rock.radius < viewTop - 12 || rock.y - rock.radius > viewBottom + 12) continue;
+      rock.draw(ctx);
+    }
     for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
     for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx, this.effectsScale);
     for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx, this.effectsScale);
