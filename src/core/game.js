@@ -2430,7 +2430,9 @@ export class Game {
           rock.y + rock.radius < viewTop - 12 || rock.y - rock.radius > viewBottom + 12) continue;
       rock.draw(ctx);
     }
-    // Batch shots into a few paths: avoids per-shot save/restore, transforms and draw calls.
+    // Batch player shots and skip objects outside the camera viewport.
+    // Culling is especially valuable in the expanded 2.4x arena on mobile.
+    const cullMargin = 48;
     if (this.projectiles.length) for (const palette of ['standard', 'wraith']) {
       for (let pass = 0; pass < 2; pass += 1) {
         ctx.beginPath();
@@ -2443,7 +2445,9 @@ export class Game {
         ctx.lineWidth = pass === 0 ? 5.5 : 2.8;
         for (let index = 0; index < this.projectiles.length; index += 1) {
           const shot = this.projectiles[index];
-          if (shot.palette !== palette) continue;
+          if (shot.palette !== palette || shot.x < viewLeft - cullMargin ||
+              shot.x > viewRight + cullMargin || shot.y < viewTop - cullMargin ||
+              shot.y > viewBottom + cullMargin) continue;
           const halfLength = (shot.piercing ? 20 : 12) * 0.5;
           const dx = Math.cos(shot.angle) * halfLength;
           const dy = Math.sin(shot.angle) * halfLength;
@@ -2454,8 +2458,23 @@ export class Game {
       }
     }
     ctx.globalAlpha = 1;
-    for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx, this.effectsScale);
-    for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx, this.effectsScale);
+    for (let index = 0; index < this.enemyProjectiles.length; index += 1) {
+      const shot = this.enemyProjectiles[index];
+      const margin = Math.max(cullMargin, shot.radius * 4);
+      if (shot.x < viewLeft - margin || shot.x > viewRight + margin ||
+          shot.y < viewTop - margin || shot.y > viewBottom + margin) continue;
+      shot.draw(ctx, this.effectsScale);
+    }
+    for (let index = 0; index < this.enemies.length; index += 1) {
+      const enemy = this.enemies[index];
+      // Never cull the boss: its oversized hull and weapon modules can extend far beyond its center.
+      if (enemy.type !== 'boss') {
+        const margin = Math.max(72, (enemy.radius || enemy.collisionRadius || 12) * 3);
+        if (enemy.x < viewLeft - margin || enemy.x > viewRight + margin ||
+            enemy.y < viewTop - margin || enemy.y > viewBottom + margin) continue;
+      }
+      enemy.draw(ctx, this.effectsScale);
+    }
     if (this.bossCinematic?.boss) {
       const cinematic = this.bossCinematic;
       const revealAlpha = getBossCinematicBossOpacity(cinematic);
