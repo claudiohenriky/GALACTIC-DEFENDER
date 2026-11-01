@@ -7,7 +7,9 @@ const LEGACY_PREFIX = 'gd-';
  * are left untouched.
  */
 export function clearLegacyGameStorage() {
-  for (const storage of [globalThis.localStorage, globalThis.sessionStorage]) {
+  for (const getStorage of [() => globalThis.localStorage, () => globalThis.sessionStorage]) {
+    let storage;
+    try { storage = getStorage(); } catch { continue; }
     if (!storage) continue;
     try {
       const legacyKeys = [];
