@@ -20,9 +20,10 @@ test('all selectable ships have distinct base profiles', () => {
   assert.equal(player.maxHealth, 125);
 
   player.setShipClass('wraith');
-  assert.equal(player.speed, 265);
-  assert.equal(player.movementAcceleration, 2600);
-  assert.equal(player.maxHealth, 95);
+  assert.equal(player.speed, 285);
+  assert.equal(player.movementAcceleration, 2750);
+  assert.equal(player.maxHealth, 105);
+  assert.equal(player.shipDamageMultiplier, 1.08);
 });
 
 test('ship profile changes restore base stats and full integrity before a run', () => {
@@ -114,4 +115,15 @@ test('Wraith uses its signature violet and graphite default appearance', () => {
   assert.deepEqual(player.shipAppearance, {
     primary: '#76279b', secondary: '#e5a0ff', core: '#f04cff', accent: '#b52be8', glow: true
   });
+});
+
+
+test('Wraith is the strongest generalist while Aegis remains the toughest hull', () => {
+  const player = new Player(800, 600);
+  player.setShipClass('wraith');
+  const wraith = { speed: player.speed, acceleration: player.movementAcceleration, health: player.maxHealth };
+  player.setShipClass('aegis');
+  assert.ok(wraith.speed > player.speed);
+  assert.ok(wraith.acceleration > player.movementAcceleration);
+  assert.ok(wraith.health < player.maxHealth);
 });
