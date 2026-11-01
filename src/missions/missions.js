@@ -1,5 +1,3 @@
-const STORAGE_KEY = 'gd-missions-v2';
-
 export const MISSION_ROTATION = [
   { id: 'first-contact', name: 'Primeiro contato', description: 'Destrua 5 inimigos', type: 'kills', target: 5, difficulty: 'FÁCIL', xp: 40, score: 150 },
   { id: 'survivor', name: 'Sobrevivente', description: 'Sobreviva por 45 segundos', type: 'survive', target: 45, difficulty: 'MÉDIA', xp: 70, score: 300 },
@@ -25,48 +23,15 @@ function createMission(rotationIndex, completedCount) {
   return mission;
 }
 
-function loadState() {
-  const fallback = { completedCount: 0, progress: 0, elapsed: 0 };
-  try {
-    if (typeof localStorage === 'undefined') return fallback;
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return fallback;
-    return {
-      completedCount: integer(saved.completedCount),
-      progress: integer(saved.progress),
-      elapsed: Number.isFinite(Number(saved.elapsed)) ? Math.max(0, Number(saved.elapsed)) : 0
-    };
-  } catch {
-    return fallback;
-  }
-}
 
 export class Mission {
   constructor() {
-    const saved = loadState();
-    this.completedCount = saved.completedCount;
-    this.rotationIndex = this.completedCount % MISSION_ROTATION.length;
+    this.completedCount = 0;
+    this.rotationIndex = 0;
     this.current = createMission(this.rotationIndex, this.completedCount);
-    this.progress = Math.min(this.current.target, saved.progress);
-    this.elapsed = this.current.type === 'survive'
-      ? Math.min(this.current.target, Math.max(saved.elapsed, this.progress))
-      : 0;
-    if (this.current.type === 'survive') this.progress = Math.min(this.current.target, Math.floor(this.elapsed));
+    this.progress = 0;
+    this.elapsed = 0;
     this.completed = false;
-  }
-
-  save() {
-    try {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          completedCount: this.completedCount,
-          progress: this.progress,
-          elapsed: this.elapsed
-        }));
-      }
-    } catch {
-      // Keep mission progress in memory when browser storage is unavailable.
-    }
   }
 
   registerKill({ isElite = false, isBoss = false } = {}) {
@@ -74,7 +39,6 @@ export class Mission {
         (this.current.type === 'boss' && isBoss)) {
       this.progress = Math.min(this.current.target, this.progress + 1);
       const completion = this.checkCompletion();
-      if (!completion) this.save();
       return completion;
     }
     return null;
@@ -84,12 +48,10 @@ export class Mission {
     if (this.current.type !== 'abilities') return null;
     this.progress = Math.min(this.current.target, this.progress + 1);
     const completion = this.checkCompletion();
-    if (!completion) this.save();
     return completion;
   }
 
   update(dt, wave) {
-    const previousProgress = this.progress;
     if (this.current.type === 'survive') {
       const delta = Number.isFinite(dt) ? Math.max(0, Math.min(dt, 0.25)) : 0;
       this.elapsed = Math.min(this.current.target, this.elapsed + delta);
@@ -98,7 +60,6 @@ export class Mission {
       this.progress = Math.min(this.current.target, integer(wave));
     }
     const completion = this.checkCompletion();
-    if (!completion && this.progress !== previousProgress) this.save();
     return completion;
   }
 
@@ -112,7 +73,6 @@ export class Mission {
     this.progress = 0;
     this.elapsed = 0;
     this.completed = false;
-    this.save();
     return result;
   }
 
