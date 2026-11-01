@@ -2684,7 +2684,7 @@ export class Game {
       ctx.restore();
     }
     for (let index = 0; index < this.guidedMissileEffects.length; index += 1) {
-      if (this.effectsScale < 0.75 && index % 2) continue;
+      if (this.effectsScale <= 0.55 && index % 2) continue;
       const effect = this.guidedMissileEffects[index];
       const effectMargin = effect.radius + 8;
       if (effect.x + effectMargin < viewLeft || effect.x - effectMargin > viewRight ||
@@ -2749,7 +2749,7 @@ export class Game {
 
     // Lightweight dual-ring shockwave without per-frame shadow blur.
     for (let index = 0; index < this.shieldBreakEffects.length; index += 1) {
-      if (this.effectsScale < 0.75 && index % 2) continue;
+      if (this.effectsScale <= 0.55 && index % 2) continue;
       const effect = this.shieldBreakEffects[index];
       if (effect.x + effect.radius < viewLeft || effect.x - effect.radius > viewRight ||
           effect.y + effect.radius < viewTop || effect.y - effect.radius > viewBottom) continue;
@@ -2768,7 +2768,7 @@ export class Game {
     // Red circuit sparks and a brief edge flash make incoming damage easier to notice.
     // Indexed iteration avoids allocating a callback on every rendered frame.
     for (let index = 0; index < this.damageSparks.length; index += 1) {
-      if (this.effectsScale < 0.75 && index % 2) continue;
+      if (this.effectsScale <= 0.55 && index % 2) continue;
       const spark = this.damageSparks[index];
       const sparkMargin = (spark.size ?? 2) + (spark.length ?? 0) + 4;
       if (spark.x + sparkMargin < viewLeft || spark.x - sparkMargin > viewRight ||
@@ -2843,7 +2843,7 @@ export class Game {
 
     // Short-lived gold particles make level gains visible without blocking play.
     for (let index = 0; index < this.levelUpParticles.length; index += 1) {
-      if (this.effectsScale < 0.75 && index % 2) continue;
+      if (this.effectsScale <= 0.55 && index % 2) continue;
       const particle = this.levelUpParticles[index];
       const particleMargin = (particle.size ?? 4) * 2;
       if (particle.x + particleMargin < viewLeft || particle.x - particleMargin > viewRight ||
