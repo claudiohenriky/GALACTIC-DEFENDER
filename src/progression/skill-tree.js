@@ -96,7 +96,7 @@ export class SkillTree {
     player.maxHealth = player.baseMaxHealth * (1 + b.maxHealth);
     player.health = player.maxHealth;
     player.speed = player.baseSpeed * (1 + b.speed);
-    player.movementAcceleration = 2400 * (1 + b.acceleration);
+    player.movementAcceleration = (player.baseMovementAcceleration || 2400) * (1 + b.acceleration);
     player.weaponDamage = 1 * (1 + b.damage);
     player.permanentFireRateBonus = b.fireRate;
     player.permanentShieldBonus = b.shieldCapacity;
