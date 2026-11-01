@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.65.0-wraith-render-optimization-r1';
+import { Game } from './src/core/game.js?v=0.66.0-viewport-culling-r1';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
