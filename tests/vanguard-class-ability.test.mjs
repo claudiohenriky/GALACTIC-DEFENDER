@@ -36,7 +36,7 @@ test('Vanguard class ability grants its timed damage effect and cooldown', () =>
 test('Vanguard ability cannot activate for another class or during cooldown', () => {
   const game = {
     status: 'running',
-    player: { shipClass: 'aegis', vanguardSyncTimer: 0 },
+    player: { shipClass: 'unassigned', vanguardSyncTimer: 0 },
     classAbilityCooldown: 0,
     overloadLockTimer: 0
   };

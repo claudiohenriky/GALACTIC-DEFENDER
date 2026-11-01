@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.78.0-vanguard-tactical-protocol-r1';
+import { Game } from './src/core/game.js?v=0.79.0-aegis-bastion-protocol-r1';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
