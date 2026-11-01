@@ -336,7 +336,7 @@ export class Game {
       ctx.fillRect(x, y, size, size);
     }
   }
-}
+
   start() {
     if (this.status === 'running') return;
     if (this.status === 'gameover') this.reset();
