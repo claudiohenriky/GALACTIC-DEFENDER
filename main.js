@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.73.0-graphics-quality-presets-r1';
+import { Game } from './src/core/game.js?v=0.74.0-performance-diagnostics-r1';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
@@ -369,6 +369,7 @@ document.querySelector('#settings-reset-button').addEventListener('click', () =>
   applySettings();
 });
 applySettings();
+if (new URLSearchParams(window.location.search).get('fps') === '1') game.setFpsDisplayEnabled(true);
 
 
 // Mouse controls aim on PC; touch dragging sets the mobile facing direction when no enemy is available.
