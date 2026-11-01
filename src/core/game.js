@@ -1,4 +1,5 @@
 import { Player } from '../player/player.js?v=0.79.0-aegis-bastion-protocol-r1';
+import { ShaderPipeline } from '../rendering/shader-pipeline.js?v=0.80.0-configurable-shader-pipeline-r1';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.69.0-support-link-cache-r1';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
@@ -27,6 +28,7 @@ export class Game {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
+    this.shaderPipeline = new ShaderPipeline(canvas);
 
     const rect = this.canvas.getBoundingClientRect();
     this.width = Math.max(1, rect.width);
@@ -153,6 +155,10 @@ export class Game {
     this.effectsScale = nextMode === 'low' || nextMode === 'reduced' ? 0.55
       : nextMode === 'medium' ? 0.72
         : 1;
+  }
+
+  setShaderSettings(settings = {}) {
+    return this.shaderPipeline?.setSettings(settings) ?? false;
   }
 
   getEffectLimit(baseLimit) {
@@ -2985,5 +2991,6 @@ export class Game {
     }
     this.renderBossCinematic(ctx);
     this.renderRecurringBossDialogue(ctx);
+    this.shaderPipeline?.render(this.canvas);
   }
 }
