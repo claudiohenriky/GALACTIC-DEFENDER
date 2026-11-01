@@ -1479,17 +1479,29 @@ export class Game {
     const samples = this.performanceProfileSamples;
     if (!samples.length) return;
     const average = (key) => samples.reduce((sum, sample) => sum + sample[key], 0) / samples.length;
+    const percentile = (values, ratio) => {
+      if (!values.length) return 0;
+      const sorted = values.slice().sort((a, b) => a - b);
+      return sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * ratio) - 1)];
+    };
+    const valuesFor = (key) => samples.map((sample) => sample[key]).filter(Number.isFinite);
     const frameSamples = samples.filter((sample) => sample.frame > 0);
-    const averageFrame = frameSamples.length
-      ? frameSamples.reduce((sum, sample) => sum + sample.frame, 0) / frameSamples.length
-      : 0;
+    const frameValues = frameSamples.map((sample) => sample.frame);
     console.info('[GALACTIC-DEFENDER profile]', {
       samples: samples.length,
-      averageFrameMs: Number(averageFrame.toFixed(2)),
-      estimatedFps: averageFrame > 0 ? Number((1000 / averageFrame).toFixed(1)) : null,
+      averageFrameMs: Number((frameValues.length ? frameValues.reduce((sum, value) => sum + value, 0) / frameValues.length : 0).toFixed(2)),
+      p95FrameMs: Number(percentile(frameValues, 0.95).toFixed(2)),
+      maxFrameMs: Number(Math.max(0, ...frameValues).toFixed(2)),
+      estimatedFps: frameValues.length ? Number((1000 / (frameValues.reduce((sum, value) => sum + value, 0) / frameValues.length)).toFixed(1)) : null,
       averageUpdateMs: Number(average('update').toFixed(2)),
+      p95UpdateMs: Number(percentile(valuesFor('update'), 0.95).toFixed(2)),
+      maxUpdateMs: Number(Math.max(0, ...valuesFor('update')).toFixed(2)),
       averageRenderMs: Number(average('render').toFixed(2)),
+      p95RenderMs: Number(percentile(valuesFor('render'), 0.95).toFixed(2)),
+      maxRenderMs: Number(Math.max(0, ...valuesFor('render')).toFixed(2)),
       averageGameWorkMs: Number(average('work').toFixed(2)),
+      p95GameWorkMs: Number(percentile(valuesFor('work'), 0.95).toFixed(2)),
+      maxGameWorkMs: Number(Math.max(0, ...valuesFor('work')).toFixed(2)),
       effectsQuality: { mode: this.effectsMode, scale: this.effectsScale },
       entities: {
         enemies: this.enemies.length,
