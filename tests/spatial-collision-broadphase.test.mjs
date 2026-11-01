@@ -25,6 +25,7 @@ test('spatial broadphase returns nearby enemies and excludes distant cells', () 
   const boss = new Enemy(520, 350, 1, 'boss');
   const game = createCollisionGridHarness([nearby, distant, boss]);
 
+  Game.prototype.initializeEnemyCollisionGrid.call(game);
   Game.prototype.rebuildEnemyCollisionGrid.call(game);
   const candidates = Game.prototype.getEnemyCollisionCandidates.call(game, 100, 100, 80);
 
@@ -38,11 +39,13 @@ test('spatial broadphase refreshes buckets after enemies move between cells', ()
   const enemy = new Enemy(110, 110, 1, 'sentinel');
   const game = createCollisionGridHarness([enemy]);
 
+  Game.prototype.initializeEnemyCollisionGrid.call(game);
   Game.prototype.rebuildEnemyCollisionGrid.call(game);
   assert.ok(Game.prototype.getEnemyCollisionCandidates.call(game, 100, 100, 40).includes(enemy));
 
   enemy.x = 520;
   enemy.y = 360;
+  Game.prototype.initializeEnemyCollisionGrid.call(game);
   Game.prototype.rebuildEnemyCollisionGrid.call(game);
 
   assert.ok(!Game.prototype.getEnemyCollisionCandidates.call(game, 100, 100, 40).includes(enemy));
