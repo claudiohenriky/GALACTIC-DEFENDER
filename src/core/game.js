@@ -3,7 +3,7 @@ import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=
 import { Enemy } from '../enemies/enemy.js?v=0.58.0-elite-standardization';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
-import { Projectile } from '../combat/projectile.js?v=0.65.0-projectile-render-optimization';
+import { Projectile } from '../combat/projectile.js?v=0.65.0-mobile-performance-audit-r1';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.64.4-wraith-reference-design';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.58.0-elite-standardization';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
@@ -74,6 +74,7 @@ export class Game {
     this.enemyProjectiles = [];
     this.asteroids = [];
     this.asteroidCollisionCooldown = 0;
+    this.asteroidEnemyScanTimer = 0;
     this.stars = Array.from({ length: 150 }, (_, index) => ({
       x: Math.random() * this.worldWidth,
       y: Math.random() * this.worldHeight,
@@ -244,24 +245,29 @@ export class Game {
   updateAsteroids(dt) {
     this.asteroidCollisionCooldown = Math.max(0, this.asteroidCollisionCooldown - dt);
     for (const asteroid of this.asteroids) asteroid.update(dt, this.worldWidth, this.worldHeight);
-    // Ships steer around nearby rocks; the large battleship can crush them with its mass.
-    for (const enemy of this.enemies) {
-      if (!enemy.active || enemy.bossDying) continue;
-      for (const rock of this.asteroids) {
-        if (!rock.active) continue;
-        const dx = enemy.x - rock.x, dy = enemy.y - rock.y;
-        const safe = rock.radius + (enemy.collisionRadius ?? enemy.radius ?? 10) + (enemy.type === 'boss' ? 18 : 24);
-        if (Math.abs(dx) >= safe || Math.abs(dy) >= safe) continue;
-        const d2 = dx * dx + dy * dy;
-        if (d2 >= safe * safe) continue;
-        const distance = Math.sqrt(Math.max(1, d2));
-        const nx = dx / distance, ny = dy / distance;
-        if (enemy.type === 'boss') {
-          rock.damage(Math.max(3, (enemy.velocity ?? 0) * dt * 2 + 5));
-          enemy.x += nx * 2; enemy.y += ny * 2;
-        } else {
-          const push = (safe - distance) * Math.min(1, dt * 5);
-          enemy.x += nx * push; enemy.y += ny * push;
+    // Enemy/asteroid steering is sampled at 10 Hz; rocks still move every frame.
+    // This avoids repeating the full enemy × asteroid collision scan on every render tick.
+    this.asteroidEnemyScanTimer -= dt;
+    if (this.asteroidEnemyScanTimer <= 0) {
+      this.asteroidEnemyScanTimer = 0.1;
+      for (const enemy of this.enemies) {
+        if (!enemy.active || enemy.bossDying) continue;
+        for (const rock of this.asteroids) {
+          if (!rock.active) continue;
+          const dx = enemy.x - rock.x, dy = enemy.y - rock.y;
+          const safe = rock.radius + (enemy.collisionRadius ?? enemy.radius ?? 10) + (enemy.type === 'boss' ? 18 : 24);
+          if (Math.abs(dx) >= safe || Math.abs(dy) >= safe) continue;
+          const d2 = dx * dx + dy * dy;
+          if (d2 >= safe * safe) continue;
+          const distance = Math.sqrt(Math.max(1, d2));
+          const nx = dx / distance, ny = dy / distance;
+          if (enemy.type === 'boss') {
+            rock.damage(Math.max(3, (enemy.velocity ?? 0) * 0.1 * 2 + 5));
+            enemy.x += nx * 2; enemy.y += ny * 2;
+          } else {
+            const push = (safe - distance) * 0.35;
+            enemy.x += nx * push; enemy.y += ny * push;
+          }
         }
       }
     }
@@ -2293,7 +2299,7 @@ export class Game {
       }
       if (!shot.active) continue;
       for (const enemy of this.enemies) {
-        if (!enemy.active || enemy.bossDying || shot.hitEnemies.has(enemy)) continue;
+        if (!enemy.active || enemy.bossDying || shot.hitEnemies?.has(enemy)) continue;
         // Cheap axis-aligned rejection avoids the squared-distance test for
         // pairs that cannot overlap; the exact circle test remains authoritative.
         const bossHull = enemy.type === 'boss';
@@ -2303,8 +2309,12 @@ export class Game {
           ? orientedEllipseOverlapsCircle(enemy, shot, enemy.radius * 1.42, enemy.radius * 2.18, enemy.facingRotation + Math.PI / 2)
           : circlesOverlap(shot, enemy, shot.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0);
         if (overlaps) {
-          shot.hitEnemies.add(enemy);
-          if (!shot.piercing) shot.active = false;
+          if (shot.piercing) {
+            if (!shot.hitEnemies) shot.hitEnemies = new Set();
+            shot.hitEnemies.add(enemy);
+          } else {
+            shot.active = false;
+          }
           this.damageEnemy(enemy, shot.damage ?? 1, shot.x, shot.y);
           if (!shot.piercing) break;
         }
@@ -2450,21 +2460,59 @@ export class Game {
     const viewTop = this.height / 2 + this.cameraY - this.height / (2 * cameraZoom);
     const viewRight = viewLeft + this.width / cameraZoom;
     const viewBottom = viewTop + this.height / cameraZoom;
+    // Batch star paths by depth layer instead of issuing one canvas fill per star.
+    ctx.globalAlpha = 0.28;
+    ctx.fillStyle = '#8faecb';
+    ctx.beginPath();
     for (let index = 0; index < this.stars.length; index += 1) {
       const star = this.stars[index];
-      if (star.x < viewLeft - 8 || star.x > viewRight + 8 || star.y < viewTop - 8 || star.y > viewBottom + 8) continue;
-      ctx.globalAlpha = star.alpha;
-      ctx.fillStyle = star.layer === 2 ? '#d5e4ff' : '#8faecb';
-      ctx.beginPath(); ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2); ctx.fill();
+      if (star.layer !== 1 || star.x < viewLeft - 8 || star.x > viewRight + 8 ||
+          star.y < viewTop - 8 || star.y > viewBottom + 8) continue;
+      ctx.moveTo(star.x + star.size, star.y);
+      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
     }
-
+    ctx.fill();
+    ctx.globalAlpha = 0.52;
+    ctx.fillStyle = '#d5e4ff';
+    ctx.beginPath();
+    for (let index = 0; index < this.stars.length; index += 1) {
+      const star = this.stars[index];
+      if (star.layer !== 2 || star.x < viewLeft - 8 || star.x > viewRight + 8 ||
+          star.y < viewTop - 8 || star.y > viewBottom + 8) continue;
+      ctx.moveTo(star.x + star.size, star.y);
+      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+    }
+    ctx.fill();
     ctx.globalAlpha = 1;
     for (const rock of this.asteroids) {
       if (!rock.active || rock.x + rock.radius < viewLeft - 12 || rock.x - rock.radius > viewRight + 12 ||
           rock.y + rock.radius < viewTop - 12 || rock.y - rock.radius > viewBottom + 12) continue;
       rock.draw(ctx);
     }
-    for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
+    // Batch shots into a few paths: avoids per-shot save/restore, transforms and draw calls.
+    for (const palette of ['standard', 'wraith']) {
+      for (let pass = 0; pass < 2; pass += 1) {
+        ctx.beginPath();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = palette === 'wraith'
+          ? (pass === 0 ? '#c43cff' : '#e88cff')
+          : (pass === 0 ? '#58e4e8' : '#c4ffff');
+        ctx.globalAlpha = pass === 0 ? 0.28 : 1;
+        ctx.lineWidth = pass === 0 ? 5.5 : 2.8;
+        for (let index = 0; index < this.projectiles.length; index += 1) {
+          const shot = this.projectiles[index];
+          if (shot.palette !== palette) continue;
+          const halfLength = (shot.piercing ? 20 : 12) * 0.5;
+          const dx = Math.cos(shot.angle) * halfLength;
+          const dy = Math.sin(shot.angle) * halfLength;
+          ctx.moveTo(shot.x - dx, shot.y - dy);
+          ctx.lineTo(shot.x + dx, shot.y + dy);
+        }
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
     for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx, this.effectsScale);
     for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx, this.effectsScale);
     if (this.bossCinematic?.boss) {
