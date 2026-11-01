@@ -2258,14 +2258,15 @@ export class Game {
     }
 
     // Reuse the spatial broadphase for enemy separation instead of scanning every pair.
-    // The grid is rebuilt before the correction pass, and again afterward for exact combat queries.
-    this.rebuildEnemyCollisionGrid();
-    for (let index = 0; index < this.enemies.length; index += 1) {
-      this.enemies[index].separationIndex = index;
-    }
+    // Rebuild a second time only on the 10 Hz correction tick; the regular post-pass
+    // rebuild below remains the single per-frame grid update for combat queries.
     this.enemySeparationTimer -= dt;
     if (this.enemySeparationTimer <= 0) {
       this.enemySeparationTimer = 0.1;
+      this.rebuildEnemyCollisionGrid();
+      for (let index = 0; index < this.enemies.length; index += 1) {
+        this.enemies[index].separationIndex = index;
+      }
       for (let i = 0; i < this.enemies.length; i += 1) {
         const first = this.enemies[i];
         if (!first.active || first.bossDying) continue;
