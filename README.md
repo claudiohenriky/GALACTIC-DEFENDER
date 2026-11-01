@@ -4,7 +4,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Candidata em desenvolvimento:** `0.64.1` — redesign visual da nave especial Wraith na branch `feature/v0.64.0-friend-ship-unlock` (PR em preparação). Atualiza a Wraith para um caça furtivo angular, com asas agressivas, armadura grafite/roxa e núcleo violeta brilhante. Mantém desbloqueio por código local, seleção separada das três classes comuns e habilidade passiva de Impulso de Fase: ao ativar mísseis teleguiados, a Wraith recebe 22% de velocidade adicional por 2,2 segundos. Perfil-base: 265 velocidade, 2600 aceleração e 95 integridade. Código de teste do projeto: `ORBITAL-ALLY`. O desbloqueio é salvo neste navegador; por ser um projeto aberto, o código não é proteção de segurança real. Não mesclada em `main`.
+**Candidata em desenvolvimento:** `0.64.2` — arsenal violeta e superioridade da Wraith na branch `feature/v0.64.0-friend-ship-unlock` (PR em preparação). Atualiza a Wraith para um caça furtivo angular, com asas agressivas, armadura grafite/roxa e núcleo violeta brilhante; tiros básicos, mísseis, fragmentos e explosões usam efeitos violetas próprios. Mantém desbloqueio por código local, seleção separada das três classes comuns e habilidade passiva de Impulso de Fase: ao ativar mísseis teleguiados, a Wraith recebe 22% de velocidade adicional por 2,2 segundos. Perfil-base: 285 velocidade, 2750 aceleração, 105 integridade e dano 8% maior. Aegis mantém a maior integridade com 125. Código de teste do projeto: `ORBITAL-ALLY`. O desbloqueio é salvo neste navegador; por ser um projeto aberto, o código não é proteção de segurança real. Não mesclada em `main`.
 
 
 
