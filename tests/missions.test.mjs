@@ -50,8 +50,8 @@ test('kill, survival, and wave objectives complete and rotate', () => withStorag
   assert.equal(first.completionNumber, 1);
   assert.equal(mission.current.id, 'survivor');
 
-  assert.equal(mission.update(44.5, 1), null);
-  const survivor = mission.update(0.5, 1);
+  for (let i = 0; i < 179; i++) assert.equal(mission.update(0.25, 1), null);
+  const survivor = mission.update(0.25, 1);
   assert.equal(survivor.id, 'survivor');
   assert.equal(mission.current.id, 'sector-breaker');
 
