@@ -4,6 +4,10 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
+**Candidata em desenvolvimento:** `0.64.0` — nave especial Wraith na branch `feature/v0.64.0-friend-ship-unlock` (PR em preparação). Adiciona desbloqueio por código local, seleção separada das três classes comuns e habilidade passiva de Impulso de Fase: ao ativar mísseis teleguiados, a Wraith recebe 22% de velocidade adicional por 2,2 segundos. Perfil-base: 265 velocidade, 2600 aceleração e 95 integridade. Código de teste do projeto: `ORBITAL-ALLY`. O desbloqueio é salvo neste navegador; por ser um projeto aberto, o código não é proteção de segurança real. Não mesclada em `main`.
+
+
+
 **Candidata em desenvolvimento:** `0.63.0` — personalização visual por nave na branch `feature/v0.63.0-ship-customization` (PR em preparação). O hangar permite alterar cor principal, detalhes, núcleo e brilho, com salvamento independente para Vanguard, Phantom e Aegis. O perfil Phantom foi ajustado para 275 de velocidade, 2500 de aceleração e 90 de integridade para reforçar seu custo defensivo em relação à Vanguard. Não mesclada em `main`.
 
 
