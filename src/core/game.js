@@ -82,6 +82,7 @@ export class Game {
       alpha: index % 7 === 0 ? rand(.5, .9) : rand(.16, .55),
       layer: index % 7 === 0 ? 2 : 1
     }));
+    this.createAsteroidField();
     this.keys = new Set();
     this.joystick = { x: 0, y: 0 };
     // Mouse aim is optional: until a mouse moves over the arena, shots keep their original upward direction.
@@ -300,7 +301,7 @@ export class Game {
     ctx.fillStyle = nebulaB; ctx.fillRect(0, 0, this.width, this.height);
     const dust = ctx.createLinearGradient(0, 0, this.width, this.height);
     dust.addColorStop(0, '#0b142400'); dust.addColorStop(.5, '#26354a22'); dust.addColorStop(1, '#080e1a00');
-    ctx.fillStyle = dust; ctx.fillRect(0, 0, this.width, this.height;
+    ctx.fillStyle = dust; ctx.fillRect(0, 0, this.width, this.height);
   }
 
   start() {
