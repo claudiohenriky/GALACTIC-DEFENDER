@@ -2257,19 +2257,30 @@ export class Game {
       }
     }
 
-    // Enemy separation is a corrective pass, not core movement. Run it at 10 Hz
-    // instead of every frame; this caps the quadratic pair scan while preserving
-    // per-frame movement, aiming, firing, and all damage/collision checks.
+    // Reuse the spatial broadphase for enemy separation instead of scanning every pair.
+    // Rebuild a second time only on the 10 Hz correction tick; the regular post-pass
+    // rebuild below remains the single per-frame grid update for combat queries.
     this.enemySeparationTimer -= dt;
     if (this.enemySeparationTimer <= 0) {
       this.enemySeparationTimer = 0.1;
+      this.rebuildEnemyCollisionGrid();
+      for (let index = 0; index < this.enemies.length; index += 1) {
+        this.enemies[index].separationIndex = index;
+      }
       for (let i = 0; i < this.enemies.length; i += 1) {
         const first = this.enemies[i];
         if (!first.active || first.bossDying) continue;
-        for (let j = i + 1; j < this.enemies.length; j += 1) {
-          const second = this.enemies[j];
-          if (!second.active || second.bossDying) continue;
-          const firstRadius = first.collisionRadius ?? first.radius;
+        const firstRadius = first.collisionRadius ?? first.radius;
+        // Query from the pre-correction position. Any newly created overlap is
+        // corrected on the next 10 Hz pass, avoiding stale-cell misses this pass.
+        const nearby = this.getEnemyCollisionCandidates(
+          first.x,
+          first.y,
+          firstRadius + this.enemyCollisionMaxRadius + 4
+        );
+        for (let candidateIndex = 0; candidateIndex < nearby.length; candidateIndex += 1) {
+          const second = nearby[candidateIndex];
+          if (second.separationIndex <= i || !second.active || second.bossDying) continue;
           const secondRadius = second.collisionRadius ?? second.radius;
           const minimumDistance = firstRadius + secondRadius + 4;
           let dx = second.x - first.x;
