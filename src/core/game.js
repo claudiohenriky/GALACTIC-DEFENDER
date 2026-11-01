@@ -1,4 +1,4 @@
-import { Player } from '../player/player.js?v=0.63.0-ship-customization';
+import { Player } from '../player/player.js?v=0.64.0-friend-ship-unlock';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.58.0-elite-standardization';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
@@ -911,6 +911,7 @@ export class Game {
     }
     this.guidedMissileCooldownMax = (level >= 3 ? 9 : level >= 2 ? 10 : 12) * (this.player.abilityCooldownMultiplier || 1);
     this.guidedMissileCooldown = this.guidedMissileCooldownMax;
+    if (this.player.shipClass === 'wraith') this.player.activatePhaseDrive(2.2);
     this.addOverload(20);
     this.handleMissionCompletion(this.mission.registerAbilityUse());
     this.updateGuidedMissileButton();
