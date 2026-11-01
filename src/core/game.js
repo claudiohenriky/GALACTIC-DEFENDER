@@ -1,4 +1,4 @@
-import { Player } from '../player/player.js?v=0.78.0-vanguard-tactical-protocol-r1';
+import { Player } from '../player/player.js?v=0.79.0-aegis-bastion-protocol-r1';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.69.0-support-link-cache-r1';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
@@ -815,9 +815,10 @@ export class Game {
       player.shieldRechargeTimer = player.shieldRechargeDuration;
       this.triggerShieldBreak();
     } else if (player.invulnerabilityTimer <= 0 && player.health > 0) {
-      player.health = Math.max(0, player.health - shot.damage);
+      const appliedDamage = shot.damage * player.getDamageTakenMultiplier();
+      player.health = Math.max(0, player.health - appliedDamage);
       player.invulnerabilityTimer = player.invulnerabilityDuration;
-      this.triggerDamageFeedback(shot.damage);
+      this.triggerDamageFeedback(appliedDamage);
       gameAudio.playDamage();
     }
     const dx = player.x - shot.x, dy = player.y - shot.y;
@@ -840,9 +841,10 @@ export class Game {
         this.triggerShieldBreak();
       }
     } else if (player.invulnerabilityTimer <= 0 && player.health > 0) {
-      player.health = Math.max(0, player.health - shot.damage);
+      const appliedDamage = shot.damage * player.getDamageTakenMultiplier();
+      player.health = Math.max(0, player.health - appliedDamage);
       player.invulnerabilityTimer = player.invulnerabilityDuration;
-      this.triggerDamageFeedback(shot.damage);
+      this.triggerDamageFeedback(appliedDamage);
       gameAudio.playDamage();
     }
     const dx = player.x - shot.x, dy = player.y - shot.y;
@@ -903,10 +905,13 @@ export class Game {
 
   activateClassAbility() {
     const shipClass = this.player.shipClass;
-    if (this.status !== 'running' || !['vanguard', 'phantom', 'wraith'].includes(shipClass) ||
+    if (this.status !== 'running' || !['aegis', 'vanguard', 'phantom', 'wraith'].includes(shipClass) ||
         this.classAbilityCooldown > 0 || this.overloadLockTimer > 0) return false;
 
-    if (shipClass === 'vanguard') {
+    if (shipClass === 'aegis') {
+      this.player.aegisBastionTimer = 3.5;
+      this.classAbilityCooldownMax = 20 * (this.player.abilityCooldownMultiplier || 1);
+    } else if (shipClass === 'vanguard') {
       this.player.vanguardSyncTimer = 3;
       this.classAbilityCooldownMax = 18 * (this.player.abilityCooldownMultiplier || 1);
     } else if (shipClass === 'phantom') {
@@ -927,16 +932,17 @@ export class Game {
     const button = document.querySelector('#class-ability-button');
     if (!button) return;
     const shipClass = this.player.shipClass;
-    const available = ['vanguard', 'phantom', 'wraith'].includes(shipClass);
+    const available = ['aegis', 'vanguard', 'phantom', 'wraith'].includes(shipClass);
+    const isAegis = shipClass === 'aegis';
     const isVanguard = shipClass === 'vanguard';
     const isWraith = shipClass === 'wraith';
     button.classList.toggle('hidden', !available);
     button.dataset.abilityClass = available ? shipClass : '';
-    const abilityName = isVanguard ? 'Protocolo de Sincronia' : isWraith ? 'Sobrecarga Predatória' : 'Evasão Espectral';
+    const abilityName = isAegis ? 'Protocolo Bastião' : isVanguard ? 'Protocolo de Sincronia' : isWraith ? 'Sobrecarga Predatória' : 'Evasão Espectral';
     button.setAttribute('aria-label', `Ativar ${abilityName} da ${shipClass}`);
     const title = document.querySelector('#class-ability-title');
     if (title) {
-      const label = isVanguard ? 'PROTOCOLO DE SINCRONIA' : isWraith ? 'SOBRECARGA PREDATÓRIA' : 'EVASÃO ESPECTRAL';
+      const label = isAegis ? 'PROTOCOLO BASTIÃO' : isVanguard ? 'PROTOCOLO DE SINCRONIA' : isWraith ? 'SOBRECARGA PREDATÓRIA' : 'EVASÃO ESPECTRAL';
       if (title.textContent !== label) title.textContent = label;
     }
     const blocked = this.status !== 'running' || this.classAbilityCooldown > 0 || this.overloadLockTimer > 0;
@@ -944,7 +950,7 @@ export class Game {
     const status = document.querySelector('#class-ability-status');
     const fill = document.querySelector('#class-ability-cooldown-fill');
     if (status) {
-      const exclusive = isVanguard ? 'EXCLUSIVA VANGUARD' : isWraith ? 'EXCLUSIVA WRAITH' : 'EXCLUSIVA PHANTOM';
+      const exclusive = isAegis ? 'EXCLUSIVA AEGIS' : isVanguard ? 'EXCLUSIVA VANGUARD' : isWraith ? 'EXCLUSIVA WRAITH' : 'EXCLUSIVA PHANTOM';
       const label = !available ? 'EXCLUSIVA DA CLASSE'
         : this.classAbilityCooldown > 0 ? 'RECARGA · ' + Math.ceil(this.classAbilityCooldown) + 's'
         : this.overloadLockTimer > 0 ? 'SISTEMA EM SOBRECARGA'
