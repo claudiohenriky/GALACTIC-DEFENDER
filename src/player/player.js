@@ -234,93 +234,97 @@ export class Player {
       ctx.strokeStyle = wing; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 1, 25, 31, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
     }
     if (wraith) {
-      // Wraith: asymmetric-looking stealth silhouette built from a broad swept delta wing,
-      // raised rear fins, layered graphite armor and a bright violet reactor.
+      // Wraith: streamlined stealth interceptor with one continuous swept wing,
+      // a long central fuselage and compact twin rear engines (no insect-like fins).
       ctx.fillStyle = '#090711';
       ctx.strokeStyle = edge;
       ctx.lineWidth = 1.25;
       ctx.beginPath();
-      ctx.moveTo(0, -27);
-      ctx.lineTo(5, -15);
-      ctx.lineTo(27, -2);
-      ctx.lineTo(20, 2);
-      ctx.lineTo(29, 12);
-      ctx.lineTo(13, 8);
-      ctx.lineTo(7, 17);
-      ctx.lineTo(0, 22);
-      ctx.lineTo(-7, 17);
-      ctx.lineTo(-13, 8);
-      ctx.lineTo(-29, 12);
-      ctx.lineTo(-20, 2);
-      ctx.lineTo(-27, -2);
-      ctx.lineTo(-5, -15);
+      ctx.moveTo(0, -31);
+      ctx.lineTo(7, -12);
+      ctx.lineTo(30, 5);
+      ctx.lineTo(26, 9);
+      ctx.lineTo(13, 7);
+      ctx.lineTo(8, 17);
+      ctx.lineTo(0, 24);
+      ctx.lineTo(-8, 17);
+      ctx.lineTo(-13, 7);
+      ctx.lineTo(-26, 9);
+      ctx.lineTo(-30, 5);
+      ctx.lineTo(-7, -12);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
-      // Deep-purple wing armor and sharp magenta edge channels.
+      // Continuous purple wing panels keep the silhouette clean and aerodynamic.
       ctx.fillStyle = hull;
       ctx.beginPath();
-      ctx.moveTo(0, -24); ctx.lineTo(4, -13); ctx.lineTo(22, -2);
-      ctx.lineTo(14, 1); ctx.lineTo(7, 10); ctx.lineTo(0, 15);
-      ctx.lineTo(-7, 10); ctx.lineTo(-14, 1); ctx.lineTo(-22, -2);
-      ctx.lineTo(-4, -13); ctx.closePath(); ctx.fill();
+      ctx.moveTo(0, -27);
+      ctx.lineTo(5, -11);
+      ctx.lineTo(25, 5);
+      ctx.lineTo(13, 4);
+      ctx.lineTo(7, 13);
+      ctx.lineTo(0, 20);
+      ctx.lineTo(-7, 13);
+      ctx.lineTo(-13, 4);
+      ctx.lineTo(-25, 5);
+      ctx.lineTo(-5, -11);
+      ctx.closePath();
+      ctx.fill();
 
+      // Recessed graphite panels add armor depth without breaking the wing outline.
       ctx.fillStyle = '#100b19';
       ctx.beginPath();
-      ctx.moveTo(-5, -12); ctx.lineTo(-23, -1); ctx.lineTo(-15, 1);
-      ctx.lineTo(-7, 7); ctx.lineTo(-2, 3); ctx.closePath(); ctx.fill();
+      ctx.moveTo(-6, -10); ctx.lineTo(-23, 5); ctx.lineTo(-13, 3); ctx.lineTo(-5, 8); ctx.closePath();
+      ctx.fill();
       ctx.beginPath();
-      ctx.moveTo(5, -12); ctx.lineTo(23, -1); ctx.lineTo(15, 1);
-      ctx.lineTo(7, 7); ctx.lineTo(2, 3); ctx.closePath(); ctx.fill();
+      ctx.moveTo(6, -10); ctx.lineTo(23, 5); ctx.lineTo(13, 3); ctx.lineTo(5, 8); ctx.closePath();
+      ctx.fill();
 
+      // Fine violet channels follow the swept wings.
       ctx.strokeStyle = wing;
-      ctx.lineWidth = 1.8;
+      ctx.lineWidth = 1.7;
       ctx.beginPath();
-      ctx.moveTo(-24, 1); ctx.lineTo(-12, 5); ctx.lineTo(-5, 13);
-      ctx.moveTo(24, 1); ctx.lineTo(12, 5); ctx.lineTo(5, 13);
+      ctx.moveTo(-26, 5); ctx.lineTo(-14, 6); ctx.lineTo(-7, 13);
+      ctx.moveTo(26, 5); ctx.lineTo(14, 6); ctx.lineTo(7, 13);
       ctx.stroke();
 
-      // Twin raised engine housings at the rear distinguish the Wraith from standard fighters.
+      // Compact, integrated twin engine housings at the tail.
       ctx.fillStyle = '#171020';
       ctx.strokeStyle = edge;
       ctx.lineWidth = 1;
       for (const side of [-1, 1]) {
         ctx.beginPath();
-        ctx.moveTo(side * 5, -12);
-        ctx.lineTo(side * 10, -21);
-        ctx.lineTo(side * 15, -17);
-        ctx.lineTo(side * 12, -5);
-        ctx.lineTo(side * 7, 1);
+        ctx.moveTo(side * 3, 8);
+        ctx.lineTo(side * 7, 13);
+        ctx.lineTo(side * 6, 21);
+        ctx.lineTo(side * 2, 19);
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
         ctx.fillStyle = wing;
-        ctx.fillRect(side * 10 - 1, -16, 2, 8);
+        ctx.fillRect(side * 4 - 1, 14, 2, 5);
         ctx.fillStyle = '#171020';
       }
 
-      // Central armored spine and reactor aperture.
+      // Armored central spine and elongated violet reactor.
       ctx.fillStyle = '#21132c';
       ctx.beginPath();
-      ctx.moveTo(0, -23); ctx.lineTo(7, -9); ctx.lineTo(5, 8);
-      ctx.lineTo(0, 16); ctx.lineTo(-5, 8); ctx.lineTo(-7, -9);
-      ctx.closePath(); ctx.fill();
+      ctx.moveTo(0, -28); ctx.lineTo(5, -10); ctx.lineTo(4, 10);
+      ctx.lineTo(0, 20); ctx.lineTo(-4, 10); ctx.lineTo(-5, -10);
+      ctx.closePath();
+      ctx.fill();
       ctx.save();
       ctx.shadowColor = appearance.core;
       ctx.shadowBlur = appearance.glow ? 13 : 0;
       ctx.fillStyle = appearance.core;
       ctx.beginPath();
-      ctx.moveTo(0, -17); ctx.lineTo(3.8, -5); ctx.lineTo(2.5, 5);
-      ctx.lineTo(0, 9); ctx.lineTo(-2.5, 5); ctx.lineTo(-3.8, -5);
-      ctx.closePath(); ctx.fill();
+      ctx.moveTo(0, -22); ctx.lineTo(3.2, -7); ctx.lineTo(2.2, 6);
+      ctx.lineTo(0, 12); ctx.lineTo(-2.2, 6); ctx.lineTo(-3.2, -7);
+      ctx.closePath();
+      ctx.fill();
       ctx.restore();
-
-      // Small violet exhaust apertures are deliberately low-cost canvas shapes.
-      ctx.fillStyle = wing;
-      ctx.fillRect(-11, 8, 3, 5);
-      ctx.fillRect(8, 8, 3, 5);
-    } else {
+    }else {
       ctx.fillStyle = hull; ctx.strokeStyle = edge; ctx.lineWidth = 1.5; ctx.beginPath();
       if (phantom) { ctx.moveTo(0,-20);ctx.lineTo(6,-5);ctx.lineTo(17,8);ctx.lineTo(9,9);ctx.lineTo(4,5);ctx.lineTo(0,15);ctx.lineTo(-4,5);ctx.lineTo(-9,9);ctx.lineTo(-17,8);ctx.lineTo(-6,-5); }
       else if (aegis) { ctx.moveTo(0,-18);ctx.lineTo(10,-9);ctx.lineTo(17,3);ctx.lineTo(13,12);ctx.lineTo(5,10);ctx.lineTo(0,16);ctx.lineTo(-5,10);ctx.lineTo(-13,12);ctx.lineTo(-17,3);ctx.lineTo(-10,-9); }
