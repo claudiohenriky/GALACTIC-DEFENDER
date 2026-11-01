@@ -28,7 +28,7 @@ export class EnemyProjectile {
     this.vy = (dy / distance) * this.speed;
   }
 
-  update(dt) {
+  update(dt, width = Infinity, height = Infinity) {
     this.age += dt;
     if (Number.isFinite(this.life)) {
       this.life -= dt;
@@ -52,6 +52,11 @@ export class EnemyProjectile {
     }
     this.x += this.vx * dt;
     this.y += this.vy * dt;
+    // Remove expired spatial work before the asteroid/player collision passes.
+    if (this.x < -20 || this.x > width + 20 || this.y < -20 || this.y > height + 20) {
+      this.active = false;
+      this.target = null;
+    }
   }
 
   draw(ctx, effectsScale = 1) {
