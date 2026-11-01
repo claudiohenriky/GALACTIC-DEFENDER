@@ -1,4 +1,4 @@
-import { Player } from '../player/player.js?v=0.76.0-phantom-evasion-r1';
+import { Player } from '../player/player.js?v=0.77.0-wraith-predatory-overdrive-r1';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.69.0-support-link-cache-r1';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
@@ -902,12 +902,18 @@ export class Game {
   }
 
   activateClassAbility() {
-    if (this.status !== 'running' || this.player.shipClass !== 'phantom' ||
+    const shipClass = this.player.shipClass;
+    if (this.status !== 'running' || !['phantom', 'wraith'].includes(shipClass) ||
         this.classAbilityCooldown > 0 || this.overloadLockTimer > 0) return false;
 
-    this.player.phantomEvasionTimer = 0.68;
-    this.player.invulnerabilityTimer = Math.max(this.player.invulnerabilityTimer, 0.38);
-    this.classAbilityCooldownMax = 14 * (this.player.abilityCooldownMultiplier || 1);
+    if (shipClass === 'phantom') {
+      this.player.phantomEvasionTimer = 0.68;
+      this.player.invulnerabilityTimer = Math.max(this.player.invulnerabilityTimer, 0.38);
+      this.classAbilityCooldownMax = 14 * (this.player.abilityCooldownMultiplier || 1);
+    } else {
+      this.player.wraithPredatorTimer = 2.5;
+      this.classAbilityCooldownMax = 16 * (this.player.abilityCooldownMultiplier || 1);
+    }
     this.classAbilityCooldown = this.classAbilityCooldownMax;
     this.handleMissionCompletion(this.mission.registerAbilityUse());
     this.updateClassAbilityButton();
@@ -917,18 +923,29 @@ export class Game {
   updateClassAbilityButton() {
     const button = document.querySelector('#class-ability-button');
     if (!button) return;
-    const available = this.player.shipClass === 'phantom';
+    const shipClass = this.player.shipClass;
+    const available = shipClass === 'phantom' || shipClass === 'wraith';
+    const isWraith = shipClass === 'wraith';
     button.classList.toggle('hidden', !available);
+    button.dataset.abilityClass = available ? shipClass : '';
+    button.setAttribute('aria-label', isWraith ? 'Ativar Sobrecarga Predatória da Wraith' : 'Ativar Evasão Espectral da Phantom');
+    const title = document.querySelector('#class-ability-title');
+    if (title) {
+      const label = isWraith ? 'SOBRECARGA PREDATÓRIA' : 'EVASÃO ESPECTRAL';
+      if (title.textContent !== label) title.textContent = label;
+    }
     const blocked = this.status !== 'running' || this.classAbilityCooldown > 0 || this.overloadLockTimer > 0;
     button.disabled = !available || blocked;
     const status = document.querySelector('#class-ability-status');
     const fill = document.querySelector('#class-ability-cooldown-fill');
     if (status) {
-      const label = !available ? 'EXCLUSIVA PHANTOM'
+      const exclusive = isWraith ? 'EXCLUSIVA WRAITH' : 'EXCLUSIVA PHANTOM';
+      const label = !available ? 'EXCLUSIVA DA CLASSE'
         : this.classAbilityCooldown > 0 ? 'RECARGA · ' + Math.ceil(this.classAbilityCooldown) + 's'
         : this.overloadLockTimer > 0 ? 'SISTEMA EM SOBRECARGA'
         : this.status === 'running' ? 'PRONTA PARA ATIVAR' : 'AGUARDANDO MISSÃO';
-      if (status.textContent !== label) status.textContent = label;
+      const displayLabel = !available ? label : label === 'PRONTA PARA ATIVAR' || label === 'AGUARDANDO MISSÃO' ? `${label} · ${exclusive}` : label;
+      if (status.textContent !== displayLabel) status.textContent = displayLabel;
     }
     if (fill) {
       const width = this.classAbilityCooldown <= 0 ? '0%' : (Math.min(1, this.classAbilityCooldown / this.classAbilityCooldownMax) * 100) + '%';
@@ -2124,7 +2141,7 @@ export class Game {
       }
       gameAudio.playPlayerShot();
       this.addOverload(0.15);
-      this.shotClock = .22 / (1 + this.player.fireRateLevel * 0.1 + (this.player.permanentFireRateBonus || 0));
+      this.shotClock = .22 / ((1 + this.player.fireRateLevel * 0.1 + (this.player.permanentFireRateBonus || 0)) * this.player.getWeaponFireRateMultiplier());
     }
 
     // The wave-9 clear is the only entry point for the experimental campaign transition.
