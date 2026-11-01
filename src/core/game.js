@@ -3,7 +3,7 @@ import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=
 import { Enemy } from '../enemies/enemy.js?v=0.58.0-elite-standardization';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
-import { Projectile } from '../combat/projectile.js?v=0.65.0-mobile-performance-audit-r1';
+import { Projectile } from '../combat/projectile.js?v=0.65.0-mobile-performance-audit-r2';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.64.4-wraith-reference-design';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.58.0-elite-standardization';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
@@ -340,7 +340,7 @@ export class Game {
     ctx.arc(0, 0, radius * 2.35, 0, Math.PI * 2);
     ctx.fill();
 
-    // A thin bright arc on the far side suggests light bending around the event horizon.
+    // Thin far-side lensing arcs and restrained disk lanes add depth without runtime effects.
     ctx.strokeStyle = 'rgba(203, 222, 239, .78)';
     ctx.lineWidth = Math.max(2, radius * .055);
     ctx.beginPath();
@@ -350,6 +350,16 @@ export class Game {
     ctx.lineWidth = Math.max(1, radius * .025);
     ctx.beginPath();
     ctx.ellipse(0, 0, radius * 1.7, radius * 1.7, 0, Math.PI * 1.03, Math.PI * 1.97);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(226, 238, 249, .22)';
+    ctx.lineWidth = Math.max(1, radius * .012);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, radius * 1.92, radius * 1.92, 0, Math.PI * 1.12, Math.PI * 1.88);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(83, 137, 190, .24)';
+    ctx.lineWidth = Math.max(1, radius * .018);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, radius * 2.08, radius * 2.08, 0, Math.PI * 1.15, Math.PI * 1.85);
     ctx.stroke();
     ctx.restore();
 
@@ -2490,7 +2500,7 @@ export class Game {
       rock.draw(ctx);
     }
     // Batch shots into a few paths: avoids per-shot save/restore, transforms and draw calls.
-    for (const palette of ['standard', 'wraith']) {
+    if (this.projectiles.length) for (const palette of ['standard', 'wraith']) {
       for (let pass = 0; pass < 2; pass += 1) {
         ctx.beginPath();
         ctx.lineCap = 'round';
