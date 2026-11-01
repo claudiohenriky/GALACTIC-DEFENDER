@@ -12,7 +12,8 @@ export class Player {
     this.baseSpeed = 250;
     this.speed = this.baseSpeed;
     // Higher acceleration shortens reversals and stopping response without raising top speed.
-    this.movementAcceleration = 2400;
+    this.baseMovementAcceleration = 2400;
+    this.movementAcceleration = this.baseMovementAcceleration;
     this.baseMaxHealth = 100;
     this.maxHealth = this.baseMaxHealth;
     this.health = this.maxHealth;
@@ -66,6 +67,7 @@ export class Player {
     this.shipClass = normalized;
     this.baseSpeed = config.speed;
     this.speed = config.speed;
+    this.baseMovementAcceleration = config.acceleration;
     this.movementAcceleration = config.acceleration;
     this.baseMaxHealth = config.maxHealth;
     this.maxHealth = config.maxHealth;
