@@ -287,88 +287,72 @@ export class Game {
   cacheBackground() {
     const ratio = this.pixelRatio || 1;
     const canvas = this.backgroundCanvas;
-    // One viewport-sized static scene: wreck silhouettes are rasterized once, not every frame.
+    // The black-hole scene is rasterized once per resize; gameplay never animates this artwork.
     canvas.width = this.canvas.width;
     canvas.height = this.canvas.height;
     const ctx = canvas.getContext('2d');
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    const bg = ctx.createLinearGradient(0, 0, this.width * .35, this.height);
-    bg.addColorStop(0, '#050a14');
-    bg.addColorStop(.55, '#080f1c');
-    bg.addColorStop(1, '#030711');
-    ctx.fillStyle = bg;
+
+    const background = ctx.createLinearGradient(0, 0, this.width, this.height);
+    background.addColorStop(0, '#02040b');
+    background.addColorStop(.48, '#070b16');
+    background.addColorStop(1, '#01030a');
+    ctx.fillStyle = background;
     ctx.fillRect(0, 0, this.width, this.height);
 
-    // Very restrained distant star haze; no full-screen nebula gradients or animated particles.
-    ctx.fillStyle = '#17263a';
-    ctx.fillRect(0, this.height * .18, this.width, 1);
-    ctx.fillStyle = '#111d30';
-    ctx.fillRect(0, this.height * .78, this.width, 1);
+    // A distant black hole with a restrained accretion disk. All gradients are baked into this cache.
+    const cx = this.width * .72;
+    const cy = this.height * .43;
+    const radius = Math.max(52, Math.min(this.width, this.height) * .205);
 
-    const drawWreck = (x, y, scale, rotation, alpha, variant = 0) => {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(rotation);
-      ctx.scale(scale, scale);
-      ctx.globalAlpha = alpha;
-      // Broken elongated hull.
-      ctx.fillStyle = '#101b2b';
-      ctx.strokeStyle = '#34445a';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(-92, -17); ctx.lineTo(-48, -28); ctx.lineTo(58, -19);
-      ctx.lineTo(88, -4); ctx.lineTo(42, 12); ctx.lineTo(-62, 22);
-      ctx.lineTo(-104, 8); ctx.closePath(); ctx.fill(); ctx.stroke();
-      // Exposed inner structure and torn plating.
-      ctx.fillStyle = '#1c2b3d';
-      ctx.beginPath();
-      ctx.moveTo(-55, -17); ctx.lineTo(22, -12); ctx.lineTo(53, -2);
-      ctx.lineTo(12, 8); ctx.lineTo(-48, 12); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#26364a';
-      ctx.beginPath();
-      if (variant % 2 === 0) {
-        ctx.moveTo(-72, -21); ctx.lineTo(-42, -43); ctx.lineTo(-19, -24); ctx.closePath();
-        ctx.moveTo(44, 11); ctx.lineTo(73, 31); ctx.lineTo(27, 18); ctx.closePath();
-      } else {
-        ctx.moveTo(42, -18); ctx.lineTo(71, -39); ctx.lineTo(78, -9); ctx.closePath();
-        ctx.moveTo(-45, 18); ctx.lineTo(-78, 35); ctx.lineTo(-65, 12); ctx.closePath();
-      }
-      ctx.fill();
-      // A few dim structural ribs, no glow or blur.
-      ctx.strokeStyle = '#53647a';
-      ctx.globalAlpha = alpha * .65;
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(-35, -17); ctx.lineTo(-24, 14);
-      ctx.moveTo(4, -14); ctx.lineTo(14, 10);
-      ctx.moveTo(37, -11); ctx.lineTo(46, 7);
-      ctx.stroke();
-      // Small cold reactor remnant.
-      ctx.fillStyle = '#527f9b';
-      ctx.globalAlpha = alpha * .45;
-      ctx.fillRect(-5, -3, 8, 5);
-      ctx.restore();
-    };
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-.16);
+    ctx.scale(1, .43);
 
-    // Large silhouettes stay near the margins to preserve combat readability.
-    drawWreck(this.width * .12, this.height * .24, .72, -.28, .34, 0);
-    drawWreck(this.width * .88, this.height * .76, .9, 2.72, .3, 1);
-    drawWreck(this.width * .79, this.height * .16, .38, .18, .2, 0);
+    const disk = ctx.createRadialGradient(0, 0, radius * .52, 0, 0, radius * 2.05);
+    disk.addColorStop(0, 'rgba(4, 7, 15, 0)');
+    disk.addColorStop(.48, 'rgba(12, 22, 39, .12)');
+    disk.addColorStop(.62, 'rgba(67, 111, 157, .5)');
+    disk.addColorStop(.72, 'rgba(174, 190, 205, .88)');
+    disk.addColorStop(.79, 'rgba(222, 139, 82, .76)');
+    disk.addColorStop(.88, 'rgba(82, 105, 143, .32)');
+    disk.addColorStop(1, 'rgba(3, 7, 15, 0)');
+    ctx.fillStyle = disk;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 2.05, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Sparse floating plates add scale without turning the arena into visual noise.
-    ctx.fillStyle = '#26364a';
-    ctx.globalAlpha = .26;
-    const fragments = [
-      [this.width * .29, this.height * .13, 18, 5, -.3],
-      [this.width * .68, this.height * .88, 22, 6, .5],
-      [this.width * .94, this.height * .43, 14, 4, -.7],
-      [this.width * .06, this.height * .69, 12, 4, .2]
-    ];
-    for (const [x, y, w, h, angle] of fragments) {
-      ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.fillRect(-w / 2, -h / 2, w, h); ctx.restore();
+    ctx.strokeStyle = 'rgba(130, 174, 210, .36)';
+    ctx.lineWidth = Math.max(2, radius * .045);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, radius * 1.62, radius * 1.62, 0, Math.PI * 1.04, Math.PI * 1.96);
+    ctx.stroke();
+    ctx.restore();
+
+    // Event horizon and a narrow photon rim, deliberately without per-frame glow effects.
+    const horizon = ctx.createRadialGradient(cx - radius * .22, cy - radius * .28, radius * .08, cx, cy, radius * 1.12);
+    horizon.addColorStop(0, '#000000');
+    horizon.addColorStop(.82, '#010207');
+    horizon.addColorStop(.94, '#080e19');
+    horizon.addColorStop(1, 'rgba(99, 145, 187, .62)');
+    ctx.fillStyle = horizon;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius * 1.08, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Sparse, deterministic stars keep the scene readable behind combat.
+    for (let i = 0; i < 54; i += 1) {
+      const x = ((i * 97 + 31) % 997) / 997 * this.width;
+      const y = ((i * 193 + 71) % 991) / 991 * this.height;
+      const size = i % 9 === 0 ? 1.35 : .65;
+      ctx.globalAlpha = i % 9 === 0 ? .62 : .32;
+      ctx.fillStyle = '#b9cce0';
+      ctx.fillRect(x, y, size, size);
     }
     ctx.globalAlpha = 1;
   }
+
   start() {
     if (this.status === 'running') return;
     if (this.status === 'gameover') this.reset();
