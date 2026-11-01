@@ -15,9 +15,13 @@ export class Projectile {
     this.palette = 'standard';
   }
 
-  update(dt) {
+  update(dt, width = Infinity, height = Infinity) {
     this.x += this.vx * dt;
     this.y += this.vy * dt;
+    // Cull shots before collision resolution; off-arena projectiles cannot hit anything.
+    if (this.x < -20 || this.x > width + 20 || this.y < -20 || this.y > height + 20) {
+      this.active = false;
+    }
   }
 
   draw(ctx) {
