@@ -1,3 +1,15 @@
+## [0.65.0] — reformulação inicial do ambiente espacial
+
+- Substitui a grade quadriculada por um campo de destroços distante, com silhuetas de cascos destruídos e placas flutuantes pré-renderizadas em cache.
+- Remove os gradientes de nebulosa dominantes; mantém o espaço escuro e limpo para priorizar a leitura do combate.
+- Mantém os destroços decorativos estáticos e separados dos asteroides interativos, evitando custo de atualização por quadro.
+- Substitui estrelas quadradas por pontos circulares em duas camadas de profundidade e velocidades distintas.
+- Adiciona campo de asteroides rochosos com geometria determinística, deriva lenta, rotação e colisões.
+- Disparos do jogador podem danificar e destruir asteroides.
+- Inimigos comuns desviam de asteroides próximos; o Encouraçado pode esmagá-los durante o deslocamento.
+- Colisão do jogador com asteroides causa dano moderado e reposiciona a nave para fora do obstáculo.
+- Mantém a HUD e o layout das telas sem alterações; campo limitado a 16 rochas para controlar custo de CPU/renderização.
+
 ## [0.64.4] — Wraith baseada na referência original
 
 - Reconstrói a silhueta com asas largas e agressivas, placas de blindagem em camadas e motores duplos elevados integrados à traseira.

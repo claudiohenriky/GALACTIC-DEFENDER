@@ -314,7 +314,7 @@ export class Player {
 
         ctx.save();
         ctx.shadowColor = wing;
-        ctx.shadowBlur = appearance.glow ? 8 : 0;
+        ctx.shadowBlur = 0;
         ctx.fillStyle = wing;
         ctx.beginPath();
         ctx.moveTo(side * 13, -22); ctx.lineTo(side * 15, -25);
@@ -334,7 +334,7 @@ export class Player {
       // Wing-edge energy rails and inset magenta emitters.
       ctx.save();
       ctx.shadowColor = wing;
-      ctx.shadowBlur = appearance.glow ? 7 : 0;
+      ctx.shadowBlur = 0;
       ctx.strokeStyle = wing;
       ctx.lineWidth = 1.8;
       ctx.beginPath();
@@ -366,7 +366,7 @@ export class Player {
 
       ctx.save();
       ctx.shadowColor = appearance.core;
-      ctx.shadowBlur = appearance.glow ? 15 : 0;
+      ctx.shadowBlur = 0;
       ctx.fillStyle = appearance.core;
       ctx.beginPath();
       ctx.moveTo(0, -25); ctx.lineTo(4, -14); ctx.lineTo(3, -2);
@@ -419,7 +419,7 @@ export class Player {
     if (wraith) {
       ctx.save();
       ctx.globalAlpha = 0.28 + this.thrust * 0.35;
-      ctx.shadowColor = wing; ctx.shadowBlur = appearance.glow ? 7 : 0;
+      ctx.shadowColor = wing; ctx.shadowBlur = 0;
       ctx.fillStyle = wing;
       for (const side of [-1, 1]) {
         ctx.beginPath();

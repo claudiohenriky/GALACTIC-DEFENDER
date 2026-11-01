@@ -1,8 +1,9 @@
-import { Player } from '../player/player.js?v=0.64.4-wraith-reference-design';
+import { Player } from '../player/player.js?v=0.65.0-wraith-render-optimization-r1';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.58.0-elite-standardization';
+import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
-import { Projectile } from '../combat/projectile.js?v=0.64.4-wraith-reference-design';
+import { Projectile } from '../combat/projectile.js?v=0.65.0-mobile-performance-audit-r2';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.64.4-wraith-reference-design';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.58.0-elite-standardization';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
@@ -71,13 +72,18 @@ export class Game {
     this.pendingGuidedMissileLaunch = null;
     this.guidedMissileEffects = [];
     this.enemyProjectiles = [];
-    this.stars = Array.from({ length: 95 }, () => ({
+    this.asteroids = [];
+    this.asteroidCollisionCooldown = 0;
+    this.asteroidEnemyScanTimer = 0;
+    this.stars = Array.from({ length: 150 }, (_, index) => ({
       x: Math.random() * this.worldWidth,
       y: Math.random() * this.worldHeight,
-      size: rand(.5, 1.8),
-      speed: rand(.012, .06),
-      alpha: rand(.2, .9)
+      size: index % 7 === 0 ? rand(1.4, 2.2) : rand(.45, 1.2),
+      speed: index % 7 === 0 ? rand(.025, .055) : rand(.008, .025),
+      alpha: index % 7 === 0 ? rand(.5, .9) : rand(.16, .55),
+      layer: index % 7 === 0 ? 2 : 1
     }));
+    this.createAsteroidField();
     this.keys = new Set();
     this.joystick = { x: 0, y: 0 };
     // Mouse aim is optional: until a mouse moves over the arena, shots keep their original upward direction.
@@ -221,35 +227,114 @@ export class Game {
     this.renderFrame(0);
   }
 
+  createAsteroidField() {
+    this.asteroids.length = 0;
+    const mobileDevice = window.matchMedia('(pointer: coarse)').matches;
+    const density = (this.worldWidth * this.worldHeight) / 76000;
+    const count = mobileDevice
+      ? Math.max(6, Math.min(9, Math.round(density)))
+      : Math.max(9, Math.min(13, Math.round(density)));
+    for (let i = 0; i < count; i += 1) {
+      const x = 70 + ((i * 173 + 91) % Math.max(120, this.worldWidth - 140));
+      const y = 90 + ((i * 257 + 47) % Math.max(160, this.worldHeight - 180));
+      const radius = 15 + ((i * 13) % 22);
+      this.asteroids.push(new Asteroid(x, y, radius, i + 3));
+    }
+  }
+
+  updateAsteroids(dt) {
+    this.asteroidCollisionCooldown = Math.max(0, this.asteroidCollisionCooldown - dt);
+    for (const asteroid of this.asteroids) asteroid.update(dt, this.worldWidth, this.worldHeight);
+    // Enemy/asteroid steering is sampled at 10 Hz; rocks still move every frame.
+    // This avoids repeating the full enemy × asteroid collision scan on every render tick.
+    this.asteroidEnemyScanTimer -= dt;
+    if (this.asteroidEnemyScanTimer <= 0) {
+      this.asteroidEnemyScanTimer = 0.1;
+      for (const enemy of this.enemies) {
+        if (!enemy.active || enemy.bossDying) continue;
+        for (const rock of this.asteroids) {
+          if (!rock.active) continue;
+          const dx = enemy.x - rock.x, dy = enemy.y - rock.y;
+          const safe = rock.radius + (enemy.collisionRadius ?? enemy.radius ?? 10) + (enemy.type === 'boss' ? 18 : 24);
+          if (Math.abs(dx) >= safe || Math.abs(dy) >= safe) continue;
+          const d2 = dx * dx + dy * dy;
+          if (d2 >= safe * safe) continue;
+          const distance = Math.sqrt(Math.max(1, d2));
+          const nx = dx / distance, ny = dy / distance;
+          if (enemy.type === 'boss') {
+            rock.damage(Math.max(3, (enemy.velocity ?? 0) * 0.1 * 2 + 5));
+            enemy.x += nx * 2; enemy.y += ny * 2;
+          } else {
+            const push = (safe - distance) * 0.35;
+            enemy.x += nx * push; enemy.y += ny * push;
+          }
+        }
+      }
+    }
+    const player = this.player;
+    if (player && this.asteroidCollisionCooldown <= 0) {
+      for (const rock of this.asteroids) {
+        if (!rock.active) continue;
+        const dx = player.x - rock.x, dy = player.y - rock.y;
+        const safe = rock.radius + (player.radius ?? 10);
+        if (Math.abs(dx) >= safe || Math.abs(dy) >= safe || dx * dx + dy * dy >= safe * safe) continue;
+        const distance = Math.sqrt(Math.max(1, dx * dx + dy * dy));
+        const nx = dx / distance, ny = dy / distance;
+        const overlap = safe - distance;
+        player.x = Math.max(player.radius, Math.min(this.worldWidth - player.radius, player.x + nx * overlap));
+        player.y = Math.max(player.radius, Math.min(this.worldHeight - player.radius, player.y + ny * overlap));
+        this.resolveIncomingDamage(7, rock.x, rock.y, false);
+        this.asteroidCollisionCooldown = .65;
+        break;
+      }
+    }
+  }
+
   cacheBackground() {
     const ratio = this.pixelRatio || 1;
     const canvas = this.backgroundCanvas;
-    // Cache only one viewport-sized background; the world is larger, but must not multiply offscreen memory.
+    // Fundo estático em cache: o desenho só é refeito quando a tela muda de tamanho.
     canvas.width = this.canvas.width;
     canvas.height = this.canvas.height;
     const ctx = canvas.getContext('2d');
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    const bg = ctx.createLinearGradient(0, 0, 0, this.height);
-    bg.addColorStop(0, '#071126');
-    bg.addColorStop(1, '#050813');
-    ctx.fillStyle = bg;
+
+    const background = ctx.createLinearGradient(0, 0, 0, this.height);
+    background.addColorStop(0, '#09172b');
+    background.addColorStop(.55, '#071126');
+    background.addColorStop(1, '#040914');
+    ctx.fillStyle = background;
     ctx.fillRect(0, 0, this.width, this.height);
-    ctx.strokeStyle = '#1a3450';
-    ctx.globalAlpha = 0.45;
+
+    // Dois campos de luz muito discretos dão profundidade sem animações ou partículas.
+    const glow = ctx.createRadialGradient(this.width * .72, this.height * .24, 0, this.width * .72, this.height * .24, Math.max(this.width, this.height) * .72);
+    glow.addColorStop(0, 'rgba(32, 83, 126, .14)');
+    glow.addColorStop(1, 'rgba(7, 17, 38, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    // Grade original preservada, agora mais suave e desenhada em poucos traços.
+    ctx.strokeStyle = 'rgba(55, 100, 143, .22)';
     ctx.lineWidth = 1;
-    for (let x = 0; x < this.width; x += 42) {
-      ctx.beginPath();
+    ctx.beginPath();
+    for (let x = 0; x <= this.width; x += 42) {
       ctx.moveTo(x, 0);
       ctx.lineTo(x, this.height);
-      ctx.stroke();
     }
-    for (let y = 0; y < this.height; y += 42) {
-      ctx.beginPath();
+    for (let y = 0; y <= this.height; y += 42) {
       ctx.moveTo(0, y);
       ctx.lineTo(this.width, y);
-      ctx.stroke();
     }
-    ctx.globalAlpha = 1;
+    ctx.stroke();
+
+    // Pontos de luz fixos e esparsos: pequenos detalhes, sem custo por frame.
+    ctx.fillStyle = 'rgba(178, 211, 238, .48)';
+    for (let i = 0; i < 26; i += 1) {
+      const x = ((i * 83 + 19) % 997) / 997 * this.width;
+      const y = ((i * 157 + 43) % 991) / 991 * this.height;
+      const size = i % 7 === 0 ? 1.4 : .8;
+      ctx.fillRect(x, y, size, size);
+    }
   }
 
   start() {
@@ -319,6 +404,7 @@ export class Game {
     this.pendingGuidedMissileLaunch = null;
     this.guidedMissileEffects = [];
     this.enemyProjectiles = [];
+    this.createAsteroidField();
     this.score = 0;
     this.destroyed = 0;
     this.shotClock = 0;
@@ -1830,6 +1916,7 @@ export class Game {
     const aimAngle = this.getAimAngle(mobileMode);
     this.player.update(dt, this.keys, this.worldWidth, this.worldHeight, this.joystick, aimAngle, !mobileMode);
     this.updateCamera(dt);
+    this.updateAsteroids(dt);
     this.levelUpToastTimer = Math.max(0, this.levelUpToastTimer - dt);
     const previousDamageFeedbackTimer = this.damageFeedbackTimer;
     this.damageFeedbackTimer = Math.max(0, this.damageFeedbackTimer - dt);
@@ -2143,8 +2230,17 @@ export class Game {
     // Resolve projectile hits once, awarding score, XP, and mission progress.
     for (const shot of this.projectiles) {
       if (!shot.active) continue;
+      for (const rock of this.asteroids) {
+        if (!rock.active) continue;
+        const reach = rock.radius + (shot.radius ?? 0);
+        const dx = shot.x - rock.x, dy = shot.y - rock.y;
+        if (Math.abs(dx) < reach && Math.abs(dy) < reach && dx * dx + dy * dy < reach * reach) {
+          shot.active = false; rock.damage(shot.damage ?? 1); break;
+        }
+      }
+      if (!shot.active) continue;
       for (const enemy of this.enemies) {
-        if (!enemy.active || enemy.bossDying || shot.hitEnemies.has(enemy)) continue;
+        if (!enemy.active || enemy.bossDying || shot.hitEnemies?.has(enemy)) continue;
         // Cheap axis-aligned rejection avoids the squared-distance test for
         // pairs that cannot overlap; the exact circle test remains authoritative.
         const bossHull = enemy.type === 'boss';
@@ -2154,8 +2250,12 @@ export class Game {
           ? orientedEllipseOverlapsCircle(enemy, shot, enemy.radius * 1.42, enemy.radius * 2.18, enemy.facingRotation + Math.PI / 2)
           : circlesOverlap(shot, enemy, shot.radius ?? 0, enemy.collisionRadius ?? enemy.radius ?? 0);
         if (overlaps) {
-          shot.hitEnemies.add(enemy);
-          if (!shot.piercing) shot.active = false;
+          if (shot.piercing) {
+            if (!shot.hitEnemies) shot.hitEnemies = new Set();
+            shot.hitEnemies.add(enemy);
+          } else {
+            shot.active = false;
+          }
           this.damageEnemy(enemy, shot.damage ?? 1, shot.x, shot.y);
           if (!shot.piercing) break;
         }
@@ -2200,10 +2300,25 @@ export class Game {
       }
     }
 
-    // Enemy shots deal damage on direct impact and respect the player's invulnerability window.
+    // Enemy fire can be intercepted by the environment: asteroids absorb shots
+    // that cross their surface, giving hostile fire a visible interaction with the field.
     for (const shot of this.enemyProjectiles) {
       if (!shot.active) continue;
-      const impactRadius = (this.player.radius ?? 0) + (shot.radius ?? 0);
+      const shotRadius = shot.radius ?? 0;
+      let intercepted = false;
+      for (const rock of this.asteroids) {
+        if (!rock.active) continue;
+        const impactRadius = rock.radius + shotRadius;
+        const dx = rock.x - shot.x, dy = rock.y - shot.y;
+        if (Math.abs(dx) >= impactRadius || Math.abs(dy) >= impactRadius ||
+            dx * dx + dy * dy >= impactRadius * impactRadius) continue;
+        rock.damage(Math.max(1, (shot.damage ?? 4) * 0.55));
+        shot.active = false;
+        intercepted = true;
+        break;
+      }
+      if (intercepted) continue;
+      const impactRadius = (this.player.radius ?? 0) + shotRadius;
       if (Math.abs(this.player.x - shot.x) >= impactRadius ||
           Math.abs(this.player.y - shot.y) >= impactRadius) continue;
       if (circlesOverlap(this.player, shot)) {
@@ -2282,15 +2397,63 @@ export class Game {
       ctx.drawImage(this.backgroundCanvas, viewLeft, viewTop, this.width / cameraZoom, this.height / cameraZoom);
     }
 
+    const viewLeft = this.width / 2 + this.cameraX - this.width / (2 * cameraZoom);
+    const viewTop = this.height / 2 + this.cameraY - this.height / (2 * cameraZoom);
+    const viewRight = viewLeft + this.width / cameraZoom;
+    const viewBottom = viewTop + this.height / cameraZoom;
+    // Batch star paths by depth layer instead of issuing one canvas fill per star.
+    ctx.globalAlpha = 0.28;
+    ctx.fillStyle = '#8faecb';
+    ctx.beginPath();
     for (let index = 0; index < this.stars.length; index += 1) {
       const star = this.stars[index];
-      ctx.globalAlpha = star.alpha;
-      ctx.fillStyle = '#a9d7ff';
-      ctx.fillRect(star.x, star.y, star.size, star.size);
+      if (star.layer !== 1 || star.x < viewLeft - 8 || star.x > viewRight + 8 ||
+          star.y < viewTop - 8 || star.y > viewBottom + 8) continue;
+      ctx.moveTo(star.x + star.size, star.y);
+      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
     }
-
+    ctx.fill();
+    ctx.globalAlpha = 0.52;
+    ctx.fillStyle = '#d5e4ff';
+    ctx.beginPath();
+    for (let index = 0; index < this.stars.length; index += 1) {
+      const star = this.stars[index];
+      if (star.layer !== 2 || star.x < viewLeft - 8 || star.x > viewRight + 8 ||
+          star.y < viewTop - 8 || star.y > viewBottom + 8) continue;
+      ctx.moveTo(star.x + star.size, star.y);
+      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+    }
+    ctx.fill();
     ctx.globalAlpha = 1;
-    for (let index = 0; index < this.projectiles.length; index += 1) this.projectiles[index].draw(ctx);
+    for (const rock of this.asteroids) {
+      if (!rock.active || rock.x + rock.radius < viewLeft - 12 || rock.x - rock.radius > viewRight + 12 ||
+          rock.y + rock.radius < viewTop - 12 || rock.y - rock.radius > viewBottom + 12) continue;
+      rock.draw(ctx);
+    }
+    // Batch shots into a few paths: avoids per-shot save/restore, transforms and draw calls.
+    if (this.projectiles.length) for (const palette of ['standard', 'wraith']) {
+      for (let pass = 0; pass < 2; pass += 1) {
+        ctx.beginPath();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.strokeStyle = palette === 'wraith'
+          ? (pass === 0 ? '#c43cff' : '#e88cff')
+          : (pass === 0 ? '#58e4e8' : '#c4ffff');
+        ctx.globalAlpha = pass === 0 ? 0.28 : 1;
+        ctx.lineWidth = pass === 0 ? 5.5 : 2.8;
+        for (let index = 0; index < this.projectiles.length; index += 1) {
+          const shot = this.projectiles[index];
+          if (shot.palette !== palette) continue;
+          const halfLength = (shot.piercing ? 20 : 12) * 0.5;
+          const dx = Math.cos(shot.angle) * halfLength;
+          const dy = Math.sin(shot.angle) * halfLength;
+          ctx.moveTo(shot.x - dx, shot.y - dy);
+          ctx.lineTo(shot.x + dx, shot.y + dy);
+        }
+        ctx.stroke();
+      }
+    }
+    ctx.globalAlpha = 1;
     for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx, this.effectsScale);
     for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx, this.effectsScale);
     if (this.bossCinematic?.boss) {
