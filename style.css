@@ -336,12 +336,12 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .hangar-screen{max-width:1240px;margin:26px auto;padding:clamp(20px,4vw,46px);border:1px solid var(--line);border-radius:14px;background:radial-gradient(ellipse at 80% 0%,#182b4b 0%,#0b1427 45%,#080e1d 100%);box-shadow:0 22px 70px #0002}
 .hangar-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding-bottom:24px;border-bottom:1px solid var(--line)}
 .hangar-heading h2{margin:0;font-size:clamp(30px,4vw,48px);letter-spacing:-.055em;line-height:1.05}.hangar-heading h2 span{color:var(--cyan)}.hangar-heading .menu-description{max-width:680px;margin-bottom:0}
-.hangar-ship-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:26px 0}
+.hangar-ship-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:26px 0}
 .hangar-ship-card{display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-width:0;padding:16px;border:1px solid #2a3b58;border-radius:11px;background:linear-gradient(160deg,#111e34,#0a1222);color:var(--text);text-align:left;cursor:pointer;transition:border-color .16s,background .16s,transform .16s}
 .hangar-ship-card:hover{transform:translateY(-2px);border-color:#55718f}.hangar-ship-card.is-selected{border-color:var(--cyan);background:linear-gradient(155deg,#143348,#0d1729);box-shadow:inset 0 0 24px #58e4e80b}.hangar-ship-card:focus-visible{outline:2px solid white;outline-offset:3px}
 .hangar-ship-preview{display:grid;place-items:center;width:100%;min-height:150px;border:1px solid #253653;border-radius:8px;background:radial-gradient(ellipse at center,#1b2b46 0%,#0a1120 70%);overflow:hidden}.hangar-ship-preview svg{width:min(100%,160px);height:130px;filter:drop-shadow(0 8px 12px #0008)}
 .hangar-ship-tag{font-size:8px;font-weight:850;letter-spacing:.13em;color:var(--cyan)}.hangar-ship-card strong{font-size:20px;letter-spacing:-.03em}.hangar-ship-description{font-size:11px;line-height:1.6;color:#a8b7d0}.hangar-ship-card small{margin-top:auto;padding-top:6px;font-size:8px;font-weight:850;letter-spacing:.08em;color:var(--green)}
-.ship-preview-phantom{background:radial-gradient(ellipse at center,#2b2148 0%,#0a1120 70%)}.ship-preview-aegis{background:radial-gradient(ellipse at center,#3a2933 0%,#0a1120 70%)}
+.ship-preview-phantom{background:radial-gradient(ellipse at center,#2b2148 0%,#0a1120 70%)}.ship-preview-aegis{background:radial-gradient(ellipse at center,#3a2933 0%,#0a1120 70%)}.ship-preview-wraith{background:radial-gradient(ellipse at center,#183e45 0%,#0a1120 72%)}
 .hangar-footer{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:20px;border-top:1px solid var(--line)}.hangar-footer p{margin:0;color:var(--muted);font-size:11px;line-height:1.6}.hangar-footer .primary-button{min-height:48px}
 @media(max-width:760px){.hangar-screen{margin:18px 0;padding:20px 16px}.hangar-heading{flex-direction:column;gap:14px}.hangar-ship-grid{grid-template-columns:1fr;padding:20px 0;gap:10px}.hangar-ship-card{display:grid;grid-template-columns:92px minmax(0,1fr);grid-template-rows:auto auto 1fr auto;column-gap:13px;align-items:start;padding:12px}.hangar-ship-preview{grid-column:1;grid-row:1/5;min-height:116px;height:100%}.hangar-ship-preview svg{height:100px}.hangar-ship-tag,.hangar-ship-card strong,.hangar-ship-description,.hangar-ship-card small{grid-column:2}.hangar-ship-card strong{font-size:18px}.hangar-footer{align-items:stretch;flex-direction:column}.hangar-footer .primary-button{width:100%}}
 @media(max-width:390px){.hangar-ship-card{grid-template-columns:76px minmax(0,1fr);column-gap:10px}.hangar-ship-preview{min-height:110px}.hangar-ship-tag{font-size:7px}.hangar-ship-description{font-size:10px}}
@@ -695,3 +695,21 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .hangar-ship-preview svg path{transition:fill .12s,stroke .12s}
 @media(max-width:760px){.hangar-customizer{padding:15px}.ship-color-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ship-color-control,.ship-glow-control{padding:9px;font-size:10px}}
 @media(max-width:390px){.ship-color-controls{grid-template-columns:1fr}.ship-color-control{min-height:44px}}
+
+
+/* v0.64.0 — restricted ally ship and unlock flow. */
+.hangar-ship-card.is-locked{opacity:.7;filter:saturate(.62);cursor:not-allowed}
+.hangar-ship-card.is-locked:hover{transform:none;border-color:#2a3b58}
+.hangar-ship-card:disabled{pointer-events:none}
+.hangar-ship-card.is-locked .friend-ship-card-status{color:#e5b86a}
+.friend-ship-unlock{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.85fr);gap:22px;align-items:center;margin:0 0 18px;padding:20px;border:1px solid #35465f;border-radius:10px;background:linear-gradient(145deg,#17243a,#0a1221)}
+.friend-ship-unlock h3{margin:0;font-size:17px}
+.friend-ship-unlock p{margin:7px 0 0;color:#a8b7d0;font-size:11px;line-height:1.6}
+.friend-ship-unlock-controls>label{display:block;margin-bottom:7px;color:#dce8f8;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.friend-ship-unlock-controls>div{display:flex;gap:8px}
+.friend-ship-unlock-controls input{flex:1;min-width:0;min-height:42px;padding:0 12px;border:1px solid #354963;border-radius:7px;background:#07101d;color:#f0f5ff;font:inherit;letter-spacing:.08em}
+.friend-ship-unlock-controls button{min-height:42px;padding:0 14px;font-size:9px;white-space:nowrap}
+#friend-ship-unlock-note[data-state="error"]{color:#ff9a9a}
+#friend-ship-unlock-note[data-state="success"]{color:#83e4bd}
+@media(max-width:980px){.hangar-ship-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.friend-ship-unlock{grid-template-columns:1fr;gap:14px;padding:15px}.friend-ship-unlock-controls>div{flex-direction:column}.friend-ship-unlock-controls button{width:100%}}
