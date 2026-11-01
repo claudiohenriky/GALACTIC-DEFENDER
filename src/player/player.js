@@ -75,6 +75,7 @@ export class Player {
     const normalized = Object.hasOwn(SHIP_CLASS_CONFIG, shipClass) ? shipClass : 'vanguard';
     const config = SHIP_CLASS_CONFIG[normalized];
     this.shipClass = normalized;
+    this.phaseDriveTimer = 0;
     this.shipAppearance = { ...SHIP_APPEARANCE_DEFAULTS[normalized] };
     this.baseSpeed = config.speed;
     this.speed = config.speed;
