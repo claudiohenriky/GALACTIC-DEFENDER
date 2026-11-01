@@ -12,8 +12,10 @@ test('audio mixer exposes independent bounded channels', () => {
   assert.equal(audio.channelVolumes.voice, 0.35);
 });
 
-test('music mode switches between combat and boss arrangements', () => {
+test('music mode switches between ambient, combat and boss arrangements', () => {
   const audio = new GameAudio();
+  audio.setMusicMode('ambient');
+  assert.equal(audio.musicMode, 'ambient');
   audio.setMusicMode('boss');
   assert.equal(audio.musicMode, 'boss');
   audio.setMusicMode('unknown');
