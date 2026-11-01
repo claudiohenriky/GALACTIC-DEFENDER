@@ -43,3 +43,25 @@ test('ship configuration is immutable and exposes the three intended classes', (
   assert.equal(Object.isFrozen(SHIP_CLASS_CONFIG), true);
   for (const config of Object.values(SHIP_CLASS_CONFIG)) assert.equal(Object.isFrozen(config), true);
 });
+
+test('permanent mobility research scales the selected hull acceleration baseline', async () => {
+  const { SkillTree } = await import('../src/progression/skill-tree.js');
+  const previous = globalThis.localStorage;
+  globalThis.localStorage = {
+    getItem: key => key === 'gd-skill-tree-v1'
+      ? JSON.stringify({ researchPoints: 0, purchased: ['mobility-1', 'mobility-2', 'mobility-3'], missionsCompleted: 0 })
+      : null,
+    setItem: () => {}
+  };
+  try {
+    const tree = new SkillTree();
+    const player = new Player(800, 600);
+    player.setShipClass('aegis');
+    tree.applyToPlayer(player);
+    assert.equal(player.baseMovementAcceleration, 1900);
+    assert.equal(player.movementAcceleration, 1900 * 1.08);
+  } finally {
+    if (previous === undefined) delete globalThis.localStorage;
+    else globalThis.localStorage = previous;
+  }
+});
