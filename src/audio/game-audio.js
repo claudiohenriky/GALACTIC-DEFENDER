@@ -16,6 +16,7 @@ export class GameAudio {
     this.lastVoiceLength = 0;
     this.lastVoiceKey = '';
     this.lastExplosionAt = 0;
+    this.ambientNotes = [164.81, 196, 220, 174.61, 146.83, 196, 246.94, 174.61];
     this.notes = [110, 146.83, 164.81, 130.81, 98, 146.83, 174.61, 130.81];
     this.bossNotes = [82.41, 98, 110, 73.42, 87.31, 98, 65.41, 82.41];
     this.voiceProfiles = {
@@ -87,7 +88,7 @@ export class GameAudio {
   }
 
   setMusicMode(mode = 'combat') {
-    this.musicMode = mode === 'boss' ? 'boss' : 'combat';
+    this.musicMode = mode === 'boss' ? 'boss' : mode === 'ambient' ? 'ambient' : 'combat';
     this.musicStep = 0;
   }
 
@@ -110,7 +111,7 @@ export class GameAudio {
 
   playMusicStep() {
     if (!this.enabled || !this.context || this.context.state !== 'running') return;
-    const sequence = this.musicMode === 'boss' ? this.bossNotes : this.notes;
+    const sequence = this.musicMode === 'boss' ? this.bossNotes : this.musicMode === 'ambient' ? this.ambientNotes : this.notes;
     const note = sequence[this.musicStep % sequence.length];
     this.tone(note, 0.42, 'triangle', 0.043, note * 1.006, this.musicGain);
     this.tone(note * 1.5, 0.78, 'sine', 0.014, note * 1.49, this.musicGain);
