@@ -111,10 +111,10 @@ test('runtime modules never read or write persistent browser state', async () =>
   ];
   for (const path of files) {
     const source = await readFile(path, 'utf8');
-    assert.doesNotMatch(source, /\\b(localStorage|sessionStorage)\\.(getItem|setItem|clear)\\s*\\(/, path);
-    assert.doesNotMatch(source, /\\bindexedDB\\.open\\s*\\(/, path);
+    assert.doesNotMatch(source, /(localStorage|sessionStorage)\.(getItem|setItem|clear)\s*\(/, path);
+    assert.doesNotMatch(source, /indexedDB\.open\s*\(/, path);
   }
   const entry = await readFile(new URL('../main.js', import.meta.url), 'utf8');
-  assert.match(entry, /friendShipUnlockCode = 'ORBITAL-ALLY'/);
-  assert.match(entry, /replace\\(\\/[\\\\s#]\\/g/);
+  assert.ok(entry.includes("friendShipUnlockCode = 'ORBITAL-ALLY'"));
+  assert.ok(entry.includes("replace(/[\\s#]/g"));
 });
