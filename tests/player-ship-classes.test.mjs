@@ -43,7 +43,7 @@ test('invalid ship identifiers safely fall back to Vanguard', () => {
   assert.equal(config, SHIP_CLASS_CONFIG.vanguard);
 });
 
-test('ship configuration is immutable and exposes the three intended classes', () => {
+test('ship configuration is immutable and exposes the three standard classes plus the special ship', () => {
   assert.deepEqual(Object.keys(SHIP_CLASS_CONFIG), ['vanguard', 'phantom', 'aegis', 'wraith']);
   assert.equal(Object.isFrozen(SHIP_CLASS_CONFIG), true);
   for (const config of Object.values(SHIP_CLASS_CONFIG)) assert.equal(Object.isFrozen(config), true);
