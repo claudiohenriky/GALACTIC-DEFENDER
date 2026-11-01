@@ -10,9 +10,9 @@ test('all three selectable ships have distinct balanced base profiles', () => {
   assert.equal(player.maxHealth, 100);
 
   player.setShipClass('phantom');
-  assert.equal(player.speed, 285);
+  assert.equal(player.speed, 275);
   assert.equal(player.movementAcceleration, 2500);
-  assert.equal(player.maxHealth, 95);
+  assert.equal(player.maxHealth, 90);
 
   player.setShipClass('aegis');
   assert.equal(player.speed, 215);
@@ -64,4 +64,19 @@ test('permanent mobility research scales the selected hull acceleration baseline
     if (previous === undefined) delete globalThis.localStorage;
     else globalThis.localStorage = previous;
   }
+});
+
+
+test('ship appearance accepts custom colors and safely falls back for invalid values', () => {
+  const player = new Player(800, 600);
+  const appearance = player.setShipAppearance({
+    primary: '#123456', secondary: '#abcdef', core: '#fedcba', accent: '#654321', glow: false
+  });
+  assert.deepEqual(appearance, {
+    primary: '#123456', secondary: '#abcdef', core: '#fedcba', accent: '#654321', glow: false
+  });
+  const fallback = player.setShipAppearance({ primary: 'red', core: '#fff', glow: 'yes' });
+  assert.equal(fallback.primary, '#58e4e8');
+  assert.equal(fallback.core, '#f4ffff');
+  assert.equal(fallback.glow, true);
 });
