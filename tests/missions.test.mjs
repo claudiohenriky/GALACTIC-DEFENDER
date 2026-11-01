@@ -78,28 +78,25 @@ test('elite, boss, and ability objectives only count their matching events', () 
   assert.equal(mission.registerKill({ isBoss: true }).id, 'dreadnought-hunter');
 }));
 
-test('mission progress and rotation persist after creating a new instance', () => withStorage(() => {
+test('mission progress and rotation reset when a new session starts', () => withStorage(() => {
   let mission = new Mission();
   mission.registerKill();
   mission.registerKill();
   mission = new Mission();
   assert.equal(mission.current.id, 'first-contact');
-  assert.equal(mission.progress, 2);
-  for (let i = 0; i < 3; i++) mission.registerKill();
-  mission = new Mission();
-  assert.equal(mission.current.id, 'survivor');
-  assert.equal(mission.completedCount, 1);
+  assert.equal(mission.progress, 0);
+  assert.equal(mission.completedCount, 0);
 }));
 
-test('survival progress persists with fractional elapsed time', () => withStorage(() => {
+test('survival progress is session-only and resets on a new instance', () => withStorage(() => {
   let mission = new Mission();
   for (let i = 0; i < 5; i++) mission.registerKill();
   for (let i = 0; i < 50; i++) mission.update(0.25, 1);
   mission.update(0.2, 1);
   mission = new Mission();
-  assert.equal(mission.current.id, 'survivor');
-  assert.equal(mission.progress, 12);
-  assert.equal(mission.getDisplayProgress(), '12s / 45s');
+  assert.equal(mission.current.id, 'first-contact');
+  assert.equal(mission.progress, 0);
+  assert.equal(mission.getDisplayProgress(), '0 / 5');
 }));
 
 test('cycle difficulty increases targets without changing boss target', () => withStorage(() => {
@@ -112,9 +109,9 @@ test('cycle difficulty increases targets without changing boss target', () => wi
   assert.equal(mission.current.target, 7);
 }));
 
-test('corrupted storage safely falls back to the first mission', () => {
+test('legacy saved mission data is ignored and the first mission starts clean', () => {
   const previous = globalThis.localStorage;
-  globalThis.localStorage = { getItem: () => '{bad json', setItem: () => {} };
+  globalThis.localStorage = { getItem: () => JSON.stringify({ completedCount: 5, progress: 4, elapsed: 40 }), setItem: () => {} };
   try {
     const mission = new Mission();
     assert.equal(mission.current.id, 'first-contact');
