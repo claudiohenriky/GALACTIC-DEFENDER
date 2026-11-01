@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.65.0-black-hole-test-r1';
+import { Game } from './src/core/game.js?v=0.65.0-black-hole-immersion-r2';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
