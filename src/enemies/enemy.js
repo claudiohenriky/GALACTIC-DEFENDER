@@ -218,24 +218,27 @@ export class Enemy {
       if (this.supportScanTimer <= 0 || !this.supportAllyCache?.active) {
         this.supportScanTimer = 1 / 3;
         let selectedAlly = null;
-        let selectedPriority = Infinity;
-        let selectedDistanceSquared = Infinity;
-        for (const ally of allies) {
-          if (ally === this || !ally.active) continue;
-          const isPreferredSupport = this.type === 'guardian'
-            ? (this.protectedAllies || []).includes(ally) &&
-              getGuardianProtectionPriority(ally) < Infinity
-            : ally.type === 'guardian' && (ally.protectedAllies || []).includes(this);
-          if (!isPreferredSupport) continue;
-          const offsetX = ally.x - this.x;
-          const offsetY = ally.y - this.y;
-          const distanceSquared = offsetX * offsetX + offsetY * offsetY;
-          const priority = this.type === 'guardian' ? getGuardianProtectionPriority(ally) : 0;
-          if (priority < selectedPriority || (priority === selectedPriority && distanceSquared < selectedDistanceSquared)) {
-            selectedPriority = priority;
-            selectedDistanceSquared = distanceSquared;
-            selectedAlly = ally;
+        if (this.type === 'guardian') {
+          let selectedPriority = Infinity;
+          let selectedDistanceSquared = Infinity;
+          // A Guardian protects at most two assigned allies, so inspect that
+          // compact list instead of scanning every active enemy.
+          for (const ally of this.protectedAllies || []) {
+            if (!ally?.active) continue;
+            const priority = getGuardianProtectionPriority(ally);
+            if (!Number.isFinite(priority)) continue;
+            const offsetX = ally.x - this.x;
+            const offsetY = ally.y - this.y;
+            const distanceSquared = offsetX * offsetX + offsetY * offsetY;
+            if (priority < selectedPriority || (priority === selectedPriority && distanceSquared < selectedDistanceSquared)) {
+              selectedPriority = priority;
+              selectedDistanceSquared = distanceSquared;
+              selectedAlly = ally;
+            }
           }
+        } else {
+          const guardian = this.supportGuardianCache;
+          if (guardian?.active && (guardian.protectedAllies || []).includes(this)) selectedAlly = guardian;
         }
         this.supportAllyCache = selectedAlly;
       }
