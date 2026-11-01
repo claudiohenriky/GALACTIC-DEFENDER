@@ -211,31 +211,39 @@ export class Enemy {
     // First tactical-cooperation pass: Guardians screen nearby Sentinels;
     // Sentinels use that cover to keep a firing lane behind the Guardian.
     // This changes positioning only, not health, damage, collision, or firing rules.
-    let supportAlly = null;
-    let supportDistanceSquared = Infinity;
+    // Support assignments change at a much lower cadence than movement.
+    // Re-select the formation partner at 3 Hz, but refresh its live distance every frame.
     if (this.type === 'guardian' || this.type === 'sentinel') {
-      let supportPriority = Infinity;
-      for (const ally of allies) {
-        if (ally === this || !ally.active) continue;
-        const isPreferredSupport = this.type === 'guardian'
-          ? (this.protectedAllies || []).includes(ally) &&
-            getGuardianProtectionPriority(ally) < Infinity
-          : ally.type === 'guardian' && (ally.protectedAllies || []).includes(this);
-        if (!isPreferredSupport) continue;
-        const offsetX = ally.x - this.x;
-        const offsetY = ally.y - this.y;
-        const allyDistanceSquared = offsetX * offsetX + offsetY * offsetY;
-        const priority = this.type === 'guardian'
-          ? getGuardianProtectionPriority(ally)
-          : 0;
-        if (priority < supportPriority || (priority === supportPriority && allyDistanceSquared < supportDistanceSquared)) {
-          supportPriority = priority;
-          supportDistanceSquared = allyDistanceSquared;
-          supportAlly = ally;
+      this.supportScanTimer = Math.max(0, (this.supportScanTimer || 0) - dt);
+      if (this.supportScanTimer <= 0 || !this.supportAllyCache?.active) {
+        this.supportScanTimer = 1 / 3;
+        let selectedAlly = null;
+        let selectedPriority = Infinity;
+        let selectedDistanceSquared = Infinity;
+        for (const ally of allies) {
+          if (ally === this || !ally.active) continue;
+          const isPreferredSupport = this.type === 'guardian'
+            ? (this.protectedAllies || []).includes(ally) &&
+              getGuardianProtectionPriority(ally) < Infinity
+            : ally.type === 'guardian' && (ally.protectedAllies || []).includes(this);
+          if (!isPreferredSupport) continue;
+          const offsetX = ally.x - this.x;
+          const offsetY = ally.y - this.y;
+          const distanceSquared = offsetX * offsetX + offsetY * offsetY;
+          const priority = this.type === 'guardian' ? getGuardianProtectionPriority(ally) : 0;
+          if (priority < selectedPriority || (priority === selectedPriority && distanceSquared < selectedDistanceSquared)) {
+            selectedPriority = priority;
+            selectedDistanceSquared = distanceSquared;
+            selectedAlly = ally;
+          }
         }
+        this.supportAllyCache = selectedAlly;
       }
     }
-    const supportDistance = supportAlly ? Math.sqrt(supportDistanceSquared) : Infinity;
+    const supportAlly = this.supportAllyCache?.active ? this.supportAllyCache : null;
+    const supportDx = supportAlly ? supportAlly.x - this.x : 0;
+    const supportDy = supportAlly ? supportAlly.y - this.y : 0;
+    const supportDistance = supportAlly ? Math.hypot(supportDx, supportDy) : Infinity;
 
     const drift = Math.sin(this.phase) * (this.type === 'sentinel' ? 14 : this.type === 'artillery' ? 2 : this.type === 'guardian' ? 2 : this.type === 'interceptor' ? 4 : 7);
     let shot = null;
