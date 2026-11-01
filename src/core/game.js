@@ -432,6 +432,7 @@ export class Game {
     updateHud(this);
     this.updateGuidedMissileButton();
     this.updateShieldPulseButton();
+    this.updateClassAbilityButton();
   }
 
   resume() {
