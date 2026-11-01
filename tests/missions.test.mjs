@@ -124,3 +124,9 @@ test('corrupted storage safely falls back to the first mission', () => {
     else globalThis.localStorage = previous;
   }
 });
+
+test('game wires Elite, boss, and special-ability events into mission progress', async () => {
+  const source = await (await import('node:fs/promises')).readFile(new URL('../src/core/game.js', import.meta.url), 'utf8');
+  assert.match(source, /registerKill\(\{ isElite: Boolean\(enemy\.isElite\), isBoss: enemy\.type === 'boss' \}\)/);
+  assert.equal((source.match(/registerAbilityUse\(\)/g) || []).length, 2);
+});
