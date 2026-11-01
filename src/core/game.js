@@ -1,4 +1,4 @@
-import { Player } from '../player/player.js?v=0.64.4-wraith-reference-design';
+import { Player } from '../player/player.js?v=0.65.0-wraith-render-optimization-r1';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.58.0-elite-standardization';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
