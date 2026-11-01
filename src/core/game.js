@@ -2,8 +2,8 @@ import { Player } from '../player/player.js?v=0.64.1-wraith-redesign';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.58.0-elite-standardization';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
-import { Projectile } from '../combat/projectile.js?v=0.44.0';
-import { GuidedMissile } from '../combat/guided-missile.js?v=0.58.0-missile-balance';
+import { Projectile } from '../combat/projectile.js?v=0.64.2-wraith-arsenal';
+import { GuidedMissile } from '../combat/guided-missile.js?v=0.64.2-wraith-arsenal';
 import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.58.0-elite-standardization';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
 import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.58.0-plasma-telegraph';
@@ -869,6 +869,8 @@ export class Game {
     const fallbackAngle = Number.isFinite(this.player.rotation) ? this.player.rotation : -Math.PI / 2;
     const initialAngle = target && target.active ? Math.atan2(target.y - launchY, target.x - launchX) : fallbackAngle;
     const missile = new GuidedMissile(launchX, launchY, target, level, initialAngle, side);
+    missile.palette = this.player.shipClass === 'wraith' ? 'wraith' : 'standard';
+    missile.damage *= this.player.shipDamageMultiplier || 1;
     missile.turnRate += this.player.upgradeSpecializations.guidedMissileGuidance * 0.65;
     const payloadMultiplier = 1 + this.player.upgradeSpecializations.guidedMissilePayload * 0.08;
     missile.damage *= payloadMultiplier;
@@ -943,7 +945,7 @@ export class Game {
     gameAudio.playExplosion(false);
     const radius = missile.blastRadius;
     if (this.guidedMissileEffects.length >= this.getEffectLimit(6)) this.guidedMissileEffects.shift();
-    this.guidedMissileEffects.push({ x: missile.x, y: missile.y, radius, life: 0.48, maxLife: 0.48 });
+    this.guidedMissileEffects.push({ x: missile.x, y: missile.y, radius, life: 0.48, maxLife: 0.48, palette: missile.palette });
     const radiusSquared = radius * radius;
     for (const enemy of this.enemies) {
       if (!enemy.active) continue;
@@ -974,6 +976,7 @@ export class Game {
           missile.y + Math.sin(angle) * 12,
           target, 1, angle, index - 1
         );
+        fragment.palette = missile.palette;
         fragment.damage = missile.damage * 0.32;
         fragment.blastRadius = 28;
         fragment.speed = 275;
@@ -1883,7 +1886,8 @@ export class Game {
           projectileAngle,
           1 + this.player.projectileSpeedLevel * 0.15
         );
-        projectile.damage = this.player.weaponDamage * (this.overload >= 70 ? 0.72 : 1);
+        projectile.palette = this.player.shipClass === 'wraith' ? 'wraith' : 'standard';
+        projectile.damage = this.player.weaponDamage * (this.player.shipDamageMultiplier || 1) * (this.overload >= 70 ? 0.72 : 1);
         this.projectiles.push(projectile);
       }
       gameAudio.playPlayerShot();
@@ -2392,11 +2396,12 @@ export class Game {
       const fade = Math.max(0, effect.life / effect.maxLife);
       const radius = effect.radius * (0.35 + progress * 0.65);
       ctx.save();
-      ctx.globalAlpha = fade * 0.18; ctx.fillStyle = '#ffb45e';
+      const wraithEffect = effect.palette === 'wraith';
+      ctx.globalAlpha = fade * 0.18; ctx.fillStyle = wraithEffect ? '#a43bd1' : '#ffb45e';
       ctx.beginPath(); ctx.arc(effect.x, effect.y, radius, 0, Math.PI * 2); ctx.fill();
-      ctx.globalAlpha = fade * 0.9; ctx.strokeStyle = '#ffb45e'; ctx.lineWidth = 3 * fade + 0.5;
+      ctx.globalAlpha = fade * 0.9; ctx.strokeStyle = wraithEffect ? '#d45aff' : '#ffb45e'; ctx.lineWidth = 3 * fade + 0.5;
       ctx.beginPath(); ctx.arc(effect.x, effect.y, radius, 0, Math.PI * 2); ctx.stroke();
-      ctx.globalAlpha = fade * 0.72; ctx.strokeStyle = '#fff0c8'; ctx.lineWidth = 1.5;
+      ctx.globalAlpha = fade * 0.72; ctx.strokeStyle = wraithEffect ? '#f2caff' : '#fff0c8'; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(effect.x, effect.y, radius * 0.68, 0, Math.PI * 2); ctx.stroke();
       ctx.restore();
     }
