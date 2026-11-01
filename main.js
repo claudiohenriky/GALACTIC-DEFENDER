@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.64.0-friend-ship-unlock';
+import { Game } from './src/core/game.js?v=0.64.1-wraith-redesign';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
