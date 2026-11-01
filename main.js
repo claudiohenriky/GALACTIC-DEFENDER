@@ -50,10 +50,13 @@ game.selectedShip = selectedShip;
 game.player.shipClass = selectedShip;
 function selectShip(shipClass) {
   if (!validShipClasses.includes(shipClass)) return;
-  selectedShip = shipClass; game.selectedShip = shipClass; game.player.shipClass = shipClass;
+  selectedShip = shipClass; game.selectedShip = shipClass; game.player.setShipClass(shipClass);
   localStorage.setItem('gd-ship-class', shipClass);
   shipChoiceButtons.forEach((button) => { const selected = button.dataset.shipChoice === shipClass; button.classList.toggle('is-selected', selected); button.setAttribute('aria-pressed', String(selected)); });
-  shipSelectionNote.textContent = `${shipClass.charAt(0).toUpperCase() + shipClass.slice(1)} selecionada. A escolha é salva neste navegador.`;
+  const config = game.player.constructor && game.player.setShipClass(shipClass);
+  const stats = document.querySelector(`[data-ship-stats="${shipClass}"]`);
+  if (stats) stats.textContent = `${config.speed} velocidade · ${config.maxHealth} integridade · ${config.acceleration} aceleração`;
+  shipSelectionNote.textContent = `${config.name} selecionada — classe ${config.label.toLowerCase()}. A escolha é salva neste navegador.`;
 }
 shipChoiceButtons.forEach((button) => button.addEventListener('click', () => selectShip(button.dataset.shipChoice)));
 selectShip(selectedShip);
