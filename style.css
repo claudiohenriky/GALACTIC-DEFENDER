@@ -722,3 +722,12 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .hangar-ship-card[data-ship-choice="wraith"] .hangar-ship-tag,
 .hangar-ship-card[data-ship-choice="wraith"] small{color:#df9aff}
 .hangar-ship-card[data-ship-choice="wraith"] .hangar-ship-stats{border-color:#71438a;color:#f0d5ff}
+
+
+/* v0.76.0: Phantom-only class ability, matching the ship's violet identity. */
+.canvas-frame .ability-card-class{top:calc(50% + 87px);right:8px;bottom:auto;transform:translateY(-50%);border-color:#bd83ff;background:linear-gradient(145deg,#35204df2,#10182bf2);color:#f4e6ff}
+.canvas-frame .ability-card-class .ability-card-icon{border-color:#bd83ff88;background:#42235f;color:#e5baff}
+.canvas-frame .ability-card-class .ability-card-copy small{color:#d9b4ff}
+.canvas-frame .ability-card-class .ability-cooldown-fill{background:#bd83ff}
+@media(max-width:520px){.canvas-frame .ability-card-class{top:auto;bottom:194px;transform:none}}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.canvas-frame .ability-card-class{top:calc(50% + 75px);bottom:auto;transform:translateY(-50%)}}
