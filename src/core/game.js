@@ -1,4 +1,4 @@
-import { Player } from '../player/player.js?v=0.62.0-ship-classes';
+import { Player } from '../player/player.js?v=0.63.0-ship-customization';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.58.0-elite-standardization';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
@@ -297,6 +297,7 @@ export class Game {
     this.cameraY = 0;
     this.updateCamera(0, true);
     this.player.setShipClass(this.selectedShip || 'vanguard');
+    if (this.selectedShipAppearance) this.player.setShipAppearance(this.selectedShipAppearance);
     this.applyPermanentSkillBonuses();
     this.progression = new Progression();
     this.mission = new Mission();
