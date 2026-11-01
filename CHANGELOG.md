@@ -6,7 +6,8 @@
 - Dá a cada voz um retrato vetorial pixel-inspired próprio nos cartões de diálogo e nas falas de primeiro contato.
 - Cada classe Elite apresenta uma fala própria apenas na primeira aparição da partida; o efeito de chegada e a comunicação são disparados uma única vez por classe.
 - Mantém os efeitos sintetizados localmente, sem baixar arquivos de áudio ou depender de serviços externos; limita a cadência de sons de explosão para reduzir sobreposição.
-- Adiciona controles separados de volume para música, efeitos e comunicações e testes automatizados para os retratos e identidade dos interlocutores.
+- Adiciona controles separados de volume para música, efeitos e comunicações, sinais de navegação do sistema nos menus e alerta sonoro para desestabilização dos sistemas da nave.
+- Inclui testes automatizados para retratos, identidade dos interlocutores, canais de mixagem, alternância de trilha e segurança dos sinais de navegação.
 - O pacote de combate Elite, o Devastador Elite e o design do Encouraçado permanecem sem alterações de balanceamento.
 
 ## [0.59.0] — árvore de habilidades e progressão do piloto
