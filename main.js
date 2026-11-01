@@ -349,7 +349,7 @@ function returnToMainMenu() {
 document.querySelector('#pause-menu-button').addEventListener('click', returnToMainMenu);
 document.querySelector('#gameover-menu-button').addEventListener('click', returnToMainMenu);
 
-const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'camera-zoom-setting': '75', 'effects-setting': 'auto', 'fps-setting': 'off', 'sound-setting': 'on', 'sound-volume-setting': '75', 'music-volume-setting': '65', 'effects-volume-setting': '85', 'voice-volume-setting': '80' };
+const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'camera-zoom-setting': '75', 'effects-setting': 'auto', 'shader-setting': 'off', 'shader-color-grade-setting': true, 'shader-vignette-setting': true, 'shader-scanlines-setting': false, 'shader-chromatic-setting': false, 'fps-setting': 'off', 'sound-setting': 'on', 'sound-volume-setting': '75', 'music-volume-setting': '65', 'effects-volume-setting': '85', 'voice-volume-setting': '80' };
 function applySettings() {
   const scale = Number(document.querySelector('#hud-scale-setting').value) / 100;
   const opacity = Number(document.querySelector('#hud-opacity-setting').value) / 100;
@@ -358,6 +358,19 @@ function applySettings() {
   game.setCameraZoomPreference(Number(document.querySelector('#camera-zoom-setting').value) / 100);
   document.documentElement.dataset.effects = document.querySelector('#effects-setting').value;
   game.setEffectsMode(document.querySelector('#effects-setting').value);
+  const shaderSettings = {
+    mode: document.querySelector('#shader-setting').value,
+    colorGrade: document.querySelector('#shader-color-grade-setting').checked,
+    vignette: document.querySelector('#shader-vignette-setting').checked,
+    scanlines: document.querySelector('#shader-scanlines-setting').checked,
+    chromaticAberration: document.querySelector('#shader-chromatic-setting').checked
+  };
+  document.documentElement.dataset.shader = shaderSettings.mode;
+  const shaderAvailable = game.setShaderSettings(shaderSettings);
+  const shaderNote = document.querySelector('#shader-support-note');
+  if (shaderNote) shaderNote.textContent = shaderAvailable
+    ? 'Os shaders são opcionais. Baixo limita o custo gráfico; Médio e Alto liberam efeitos adicionais.'
+    : 'WebGL não está disponível neste navegador ou dispositivo. O jogo continua usando a renderização normal.';
   game.setFpsDisplayEnabled(document.querySelector('#fps-setting').value === 'on');
   document.documentElement.dataset.sound = document.querySelector('#sound-setting').value;
   gameAudio.setVolume(Number(document.querySelector('#sound-volume-setting').value) / 100);
@@ -365,7 +378,11 @@ function applySettings() {
   gameAudio.setChannelVolume('effects', Number(document.querySelector('#effects-volume-setting').value) / 100);
   gameAudio.setChannelVolume('voice', Number(document.querySelector('#voice-volume-setting').value) / 100);
   gameAudio.setEnabled(document.querySelector('#sound-setting').value === 'on');
-  Object.entries(settingDefaults).forEach(([id]) => localStorage.setItem('gd-setting-' + id, document.querySelector('#' + id).value));
+  Object.entries(settingDefaults).forEach(([id]) => {
+    const element = document.querySelector('#' + id);
+    const value = element.type === 'checkbox' ? (element.checked ? '1' : '0') : element.value;
+    localStorage.setItem('gd-setting-' + id, value);
+  });
 }
 Object.keys(settingDefaults).forEach((id) => {
   const element = document.querySelector('#' + id);
@@ -373,13 +390,20 @@ Object.keys(settingDefaults).forEach((id) => {
   const migratedValue = id === 'effects-setting'
     ? (savedValue === 'full' ? 'high' : savedValue === 'reduced' ? 'low' : savedValue)
     : savedValue;
-  element.value = migratedValue ?? settingDefaults[id];
-  if (!element.value) element.value = settingDefaults[id];
+  if (element.type === 'checkbox') element.checked = savedValue == null ? settingDefaults[id] : savedValue === '1';
+  else {
+    element.value = migratedValue ?? settingDefaults[id];
+    if (!element.value) element.value = settingDefaults[id];
+  }
   element.addEventListener('input', applySettings);
   element.addEventListener('change', applySettings);
 });
 document.querySelector('#settings-reset-button').addEventListener('click', () => {
-  Object.entries(settingDefaults).forEach(([id, value]) => { document.querySelector('#' + id).value = value; });
+  Object.entries(settingDefaults).forEach(([id, value]) => {
+    const element = document.querySelector('#' + id);
+    if (element.type === 'checkbox') element.checked = value;
+    else element.value = value;
+  });
   applySettings();
 });
 applySettings();
