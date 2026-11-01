@@ -15,6 +15,7 @@ export class GuidedMissile {
     this.active = true;
     this.trail = [];
     this.trailTimer = 0;
+    this.palette = 'standard';
   }
 
   update(dt, enemies, width, height, missiles = [], reservedTargets = null) {
@@ -106,7 +107,7 @@ export class GuidedMissile {
     if (this.trail.length > 1) {
       ctx.save();
       ctx.globalAlpha = 0.48;
-      ctx.strokeStyle = this.formationSide < 0 ? '#ff9b4a' : '#ffd166';
+      ctx.strokeStyle = this.palette === 'wraith' ? '#b52be8' : (this.formationSide < 0 ? '#ff9b4a' : '#ffd166');
       ctx.lineWidth = 2.5;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
@@ -123,10 +124,11 @@ export class GuidedMissile {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
-    ctx.fillStyle = '#ffb45e';
-    ctx.strokeStyle = '#fff0c8';
+    const wraith = this.palette === 'wraith';
+    ctx.fillStyle = wraith ? '#8d35bd' : '#ffb45e';
+    ctx.strokeStyle = wraith ? '#f0b4ff' : '#fff0c8';
     ctx.lineWidth = 1.5;
-    ctx.shadowColor = '#ff8a3d';
+    ctx.shadowColor = wraith ? '#c43cff' : '#ff8a3d';
     ctx.shadowBlur = 0;
     ctx.beginPath();
     ctx.moveTo(12, 0);
@@ -139,7 +141,7 @@ export class GuidedMissile {
     ctx.fill();
     ctx.stroke();
     ctx.shadowBlur = 0;
-    ctx.fillStyle = '#ff744d';
+    ctx.fillStyle = wraith ? '#e34cff' : '#ff744d';
     ctx.beginPath();
     ctx.moveTo(-5, 0);
     ctx.lineTo(-13, -3.5);

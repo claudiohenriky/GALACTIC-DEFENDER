@@ -1,3 +1,42 @@
+## [0.64.4] — Wraith baseada na referência original
+
+- Reconstrói a silhueta com asas largas e agressivas, placas de blindagem em camadas e motores duplos elevados integrados à traseira.
+- Adiciona canais luminosos nas asas, entradas de ar e núcleo central violeta alongado, aproximando o desenho da imagem de referência enviada pelo usuário.
+- Atualiza a prévia do hangar para acompanhar a silhueta de combate.
+- Preserva arsenal violeta, atributos, desbloqueio e Impulso de Fase.
+
+## [0.64.3] — refinamento da silhueta da Wraith
+
+- Refina a silhueta de combate para um caça furtivo mais alongado, com asas contínuas e varridas, fuselagem central e motores traseiros integrados.
+- Remove as estruturas traseiras elevadas e segmentadas que davam aparência insetoide.
+- Atualiza a prévia vetorial do hangar para acompanhar o desenho de combate.
+- Preserva paleta roxo-grafite, núcleo violeta, arsenal violeta, atributos, desbloqueio e Impulso de Fase.
+
+## [0.64.2] — arsenal violeta e superioridade da Wraith
+
+- Colore os disparos básicos da Wraith em violeta/magenta, incluindo variações de disparo aprimorado.
+- Aplica identidade roxa aos mísseis teleguiados, rastros, fragmentos e explosões, sem alterar a aparência das outras naves.
+- Buffa o perfil da Wraith para 285 de velocidade, 2750 de aceleração, 105 de integridade e multiplicador de dano de 1,08×.
+- Mantém a Aegis como a nave de maior integridade (125), enquanto a Wraith passa a ser a melhor em mobilidade e dano geral.
+- Atualiza os identificadores de cache dos módulos de combate e adiciona testes de hierarquia dos atributos.
+
+## [0.64.1] — redesign visual da Wraith
+
+- Substitui a silhueta simples por um caça furtivo angular, com asas largas e varridas, blindagem em camadas e motores traseiros elevados.
+- Define a identidade padrão em roxo profundo, grafite/preto e núcleo violeta brilhante.
+- Atualiza a prévia do hangar para refletir a nova silhueta e paleta.
+- Mantém atributos, desbloqueio, habilidade Impulso de Fase e compatibilidade com a oficina de pintura.
+- Adiciona teste automatizado para a paleta padrão exclusiva da Wraith.
+
+## [0.64.0] — nave especial Wraith
+
+- Adiciona a Wraith como quarta nave, separada das três classes comuns e bloqueada por padrão.
+- Implementa validação do código de aliado no hangar e persistência do desbloqueio no navegador.
+- Cria silhueta e paleta exclusivas, mantendo compatibilidade com a oficina de pintura.
+- Adiciona a habilidade passiva Impulso de Fase: ao ativar mísseis teleguiados, recebe 22% de velocidade adicional por 2,2 segundos.
+- Perfil-base: 265 velocidade, 2600 aceleração e 95 integridade.
+- Adiciona testes para atributos, ativação/expiração do impulso e troca de classe.
+
 ## [0.63.0] — personalização visual do hangar
 
 - Adiciona controles de cor principal, contorno/detalhes e núcleo, além da opção de brilho.

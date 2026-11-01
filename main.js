@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.63.0-ship-customization';
+import { Game } from './src/core/game.js?v=0.64.2-wraith-arsenal';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
@@ -43,7 +43,26 @@ const missionPrep = document.querySelector('#mission-prep');
 const hangarScreen = document.querySelector('#hangar-screen');
 const shipChoiceButtons = [...document.querySelectorAll('[data-ship-choice]')];
 const shipSelectionNote = document.querySelector('#hangar-selection-note');
-const validShipClasses = ['vanguard', 'phantom', 'aegis'];
+const commonShipClasses = ['vanguard', 'phantom', 'aegis'];
+const allShipClasses = [...commonShipClasses, 'wraith'];
+const friendShipUnlockCode = 'ORBITAL-ALLY';
+const friendShipCard = document.querySelector('[data-ship-choice="wraith"]');
+const friendShipCodeInput = document.querySelector('#friend-ship-code');
+const friendShipUnlockButton = document.querySelector('#friend-ship-unlock-button');
+const friendShipUnlockNote = document.querySelector('#friend-ship-unlock-note');
+let friendShipUnlocked = localStorage.getItem('gd-friend-ship-unlocked') === 'true';
+const isShipUnlocked = shipClass => commonShipClasses.includes(shipClass) || (shipClass === 'wraith' && friendShipUnlocked);
+if (friendShipUnlocked && friendShipCard) {
+  friendShipCard.disabled = false;
+  friendShipCard.setAttribute('aria-disabled', 'false');
+  friendShipCard.classList.remove('is-locked');
+  const status = friendShipCard.querySelector('.friend-ship-card-status');
+  if (status) status.textContent = 'DISPONÍVEL · ALIADO AUTORIZADO';
+  if (friendShipUnlockNote) {
+    friendShipUnlockNote.textContent = 'Acesso já autorizado neste navegador. A nave especial está disponível.';
+    friendShipUnlockNote.dataset.state = 'success';
+  }
+}
 const appearanceInputs = {
   primary: document.querySelector('#ship-primary-color'),
   secondary: document.querySelector('#ship-secondary-color'),
@@ -54,12 +73,13 @@ const appearanceInputs = {
 const defaultShipAppearance = {
   vanguard: { primary: '#58e4e8', secondary: '#d9ffff', core: '#f4ffff', accent: '#7c9cff', glow: true },
   phantom: { primary: '#a78bfa', secondary: '#f0eaff', core: '#ffffff', accent: '#ff77b7', glow: true },
-  aegis: { primary: '#f5b85d', secondary: '#fff0c9', core: '#fff9e8', accent: '#ff718d', glow: true }
+  aegis: { primary: '#f5b85d', secondary: '#fff0c9', core: '#fff9e8', accent: '#ff718d', glow: true },
+  wraith: { primary: '#76279b', secondary: '#e5a0ff', core: '#f04cff', accent: '#b52be8', glow: true }
 };
 let savedAppearances = {};
 try { savedAppearances = JSON.parse(localStorage.getItem('gd-ship-appearances') || '{}') || {}; } catch { savedAppearances = {}; }
 let selectedShip = localStorage.getItem('gd-ship-class');
-if (!validShipClasses.includes(selectedShip)) selectedShip = 'vanguard';
+if (!allShipClasses.includes(selectedShip) || !isShipUnlocked(selectedShip)) selectedShip = 'vanguard';
 function persistShipAppearance() {
   localStorage.setItem('gd-ship-appearances', JSON.stringify(savedAppearances));
 }
@@ -82,7 +102,7 @@ function applySavedShipAppearance() {
   syncAppearanceControls();
 }
 function selectShip(shipClass) {
-  if (!validShipClasses.includes(shipClass)) return;
+  if (!allShipClasses.includes(shipClass) || !isShipUnlocked(shipClass)) return;
   selectedShip = shipClass; game.selectedShip = shipClass;
   const config = game.player.setShipClass(shipClass);
   applySavedShipAppearance();
@@ -109,6 +129,28 @@ function updateShipAppearance() {
 }
 for (const input of Object.values(appearanceInputs)) input?.addEventListener('input', updateShipAppearance);
 shipChoiceButtons.forEach((button) => button.addEventListener('click', () => selectShip(button.dataset.shipChoice)));
+friendShipUnlockButton?.addEventListener('click', () => {
+  const enteredCode = (friendShipCodeInput?.value || '').trim().toUpperCase();
+  if (enteredCode !== friendShipUnlockCode) {
+    friendShipUnlockNote.textContent = 'Código não reconhecido. Confira e tente novamente.';
+    friendShipUnlockNote.dataset.state = 'error';
+    return;
+  }
+  friendShipUnlocked = true;
+  localStorage.setItem('gd-friend-ship-unlocked', 'true');
+  friendShipCard.disabled = false;
+  friendShipCard.setAttribute('aria-disabled', 'false');
+  friendShipCard.classList.remove('is-locked');
+  const status = friendShipCard.querySelector('.friend-ship-card-status');
+  if (status) status.textContent = 'DISPONÍVEL · ALIADO AUTORIZADO';
+  friendShipUnlockNote.textContent = 'Acesso autorizado. A nave especial está disponível no hangar.';
+  friendShipUnlockNote.dataset.state = 'success';
+  friendShipCodeInput.value = '';
+  selectShip('wraith');
+});
+friendShipCodeInput?.addEventListener('keydown', event => {
+  if (event.key === 'Enter') friendShipUnlockButton?.click();
+});
 game.selectedShip = selectedShip;
 game.player.setShipClass(selectedShip);
 applySavedShipAppearance();

@@ -11,6 +11,7 @@ export class Projectile {
     this.active = true;
     this.piercing = false;
     this.hitEnemies = new Set();
+    this.palette = 'standard';
   }
 
   update(dt) {
@@ -23,9 +24,10 @@ export class Projectile {
     ctx.translate(this.x, this.y);
     // The projectile's long axis points upward at angle -PI/2 by default.
     ctx.rotate(this.angle + Math.PI / 2);
-    ctx.shadowBlur = this.piercing ? 9 : 5;
-    ctx.shadowColor = this.piercing ? '#a68cff' : '#58e4e8';
-    ctx.fillStyle = this.piercing ? '#e0d4ff' : '#c4ffff';
+    const wraith = this.palette === 'wraith';
+    ctx.shadowBlur = this.piercing ? 9 : (wraith ? 8 : 5);
+    ctx.shadowColor = wraith ? '#c43cff' : (this.piercing ? '#a68cff' : '#58e4e8');
+    ctx.fillStyle = wraith ? (this.piercing ? '#f4c7ff' : '#e88cff') : (this.piercing ? '#e0d4ff' : '#c4ffff');
     ctx.fillRect(this.piercing ? -2 : -1.5, this.piercing ? -12 : -8, this.piercing ? 4 : 3, this.piercing ? 20 : 12);
     ctx.restore();
   }
