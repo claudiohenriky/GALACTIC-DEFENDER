@@ -234,97 +234,155 @@ export class Player {
       ctx.strokeStyle = wing; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 1, 25, 31, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
     }
     if (wraith) {
-      // Wraith: streamlined stealth interceptor with one continuous swept wing,
-      // a long central fuselage and compact twin rear engines (no insect-like fins).
-      ctx.fillStyle = '#090711';
+      // Wraith reference-inspired silhouette: broad swept wings, layered shoulder armor,
+      // raised twin engine nacelles and a long luminous central cockpit.
+      ctx.fillStyle = '#080610';
       ctx.strokeStyle = edge;
-      ctx.lineWidth = 1.25;
+      ctx.lineWidth = 1.35;
       ctx.beginPath();
-      ctx.moveTo(0, -31);
-      ctx.lineTo(7, -12);
-      ctx.lineTo(30, 5);
-      ctx.lineTo(26, 9);
-      ctx.lineTo(13, 7);
-      ctx.lineTo(8, 17);
-      ctx.lineTo(0, 24);
-      ctx.lineTo(-8, 17);
-      ctx.lineTo(-13, 7);
-      ctx.lineTo(-26, 9);
-      ctx.lineTo(-30, 5);
-      ctx.lineTo(-7, -12);
+      ctx.moveTo(0, -34);
+      ctx.lineTo(5, -25);
+      ctx.lineTo(13, -18);
+      ctx.lineTo(34, -8);
+      ctx.lineTo(30, -2);
+      ctx.lineTo(18, -4);
+      ctx.lineTo(29, 8);
+      ctx.lineTo(24, 12);
+      ctx.lineTo(11, 8);
+      ctx.lineTo(8, 20);
+      ctx.lineTo(0, 27);
+      ctx.lineTo(-8, 20);
+      ctx.lineTo(-11, 8);
+      ctx.lineTo(-24, 12);
+      ctx.lineTo(-29, 8);
+      ctx.lineTo(-18, -4);
+      ctx.lineTo(-30, -2);
+      ctx.lineTo(-34, -8);
+      ctx.lineTo(-13, -18);
+      ctx.lineTo(-5, -25);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
 
-      // Continuous purple wing panels keep the silhouette clean and aerodynamic.
+      // Main wing armor: two broad swept surfaces with stepped outer tips.
       ctx.fillStyle = hull;
       ctx.beginPath();
-      ctx.moveTo(0, -27);
-      ctx.lineTo(5, -11);
-      ctx.lineTo(25, 5);
-      ctx.lineTo(13, 4);
-      ctx.lineTo(7, 13);
-      ctx.lineTo(0, 20);
-      ctx.lineTo(-7, 13);
-      ctx.lineTo(-13, 4);
-      ctx.lineTo(-25, 5);
-      ctx.lineTo(-5, -11);
-      ctx.closePath();
-      ctx.fill();
-
-      // Recessed graphite panels add armor depth without breaking the wing outline.
-      ctx.fillStyle = '#100b19';
-      ctx.beginPath();
-      ctx.moveTo(-6, -10); ctx.lineTo(-23, 5); ctx.lineTo(-13, 3); ctx.lineTo(-5, 8); ctx.closePath();
+      ctx.moveTo(0, -30); ctx.lineTo(10, -17); ctx.lineTo(30, -8);
+      ctx.lineTo(17, -6); ctx.lineTo(26, 7); ctx.lineTo(12, 4);
+      ctx.lineTo(6, 17); ctx.lineTo(0, 23); ctx.closePath();
       ctx.fill();
       ctx.beginPath();
-      ctx.moveTo(6, -10); ctx.lineTo(23, 5); ctx.lineTo(13, 3); ctx.lineTo(5, 8); ctx.closePath();
+      ctx.moveTo(0, -30); ctx.lineTo(-10, -17); ctx.lineTo(-30, -8);
+      ctx.lineTo(-17, -6); ctx.lineTo(-26, 7); ctx.lineTo(-12, 4);
+      ctx.lineTo(-6, 17); ctx.lineTo(0, 23); ctx.closePath();
       ctx.fill();
 
-      // Fine violet channels follow the swept wings.
+      // Dark inset armor plates give the wings the layered, aggressive profile of the reference.
+      ctx.fillStyle = '#100a19';
+      ctx.beginPath();
+      ctx.moveTo(-9, -15); ctx.lineTo(-29, -8); ctx.lineTo(-17, -5);
+      ctx.lineTo(-12, 1); ctx.lineTo(-5, -7); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(9, -15); ctx.lineTo(29, -8); ctx.lineTo(17, -5);
+      ctx.lineTo(12, 1); ctx.lineTo(5, -7); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#24132f';
+      ctx.beginPath();
+      ctx.moveTo(-15, -4); ctx.lineTo(-25, 7); ctx.lineTo(-13, 4); ctx.lineTo(-7, 10); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(15, -4); ctx.lineTo(25, 7); ctx.lineTo(13, 4); ctx.lineTo(7, 10); ctx.closePath(); ctx.fill();
+
+      // Twin dorsal engine nacelles sit high on the rear shoulders, integrated into the hull.
+      for (const side of [-1, 1]) {
+        ctx.fillStyle = '#090711';
+        ctx.strokeStyle = edge;
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.moveTo(side * 7, -11);
+        ctx.lineTo(side * 10, -24);
+        ctx.lineTo(side * 15, -29);
+        ctx.lineTo(side * 19, -26);
+        ctx.lineTo(side * 17, -12);
+        ctx.lineTo(side * 12, -5);
+        ctx.closePath();
+        ctx.fill(); ctx.stroke();
+
+        ctx.fillStyle = '#291436';
+        ctx.beginPath();
+        ctx.moveTo(side * 10, -13); ctx.lineTo(side * 12, -23);
+        ctx.lineTo(side * 15, -26); ctx.lineTo(side * 15, -13);
+        ctx.lineTo(side * 12, -8); ctx.closePath(); ctx.fill();
+
+        ctx.save();
+        ctx.shadowColor = wing;
+        ctx.shadowBlur = appearance.glow ? 8 : 0;
+        ctx.fillStyle = wing;
+        ctx.beginPath();
+        ctx.moveTo(side * 13, -22); ctx.lineTo(side * 15, -25);
+        ctx.lineTo(side * 15, -12); ctx.lineTo(side * 13, -9);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+
+        // Engine vent slots and rear exhaust.
+        ctx.strokeStyle = '#d879ff';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(side * 9, -10); ctx.lineTo(side * 11, -5);
+        ctx.moveTo(side * 13, -9); ctx.lineTo(side * 15, -4);
+        ctx.stroke();
+      }
+
+      // Wing-edge energy rails and inset magenta emitters.
+      ctx.save();
+      ctx.shadowColor = wing;
+      ctx.shadowBlur = appearance.glow ? 7 : 0;
       ctx.strokeStyle = wing;
-      ctx.lineWidth = 1.7;
+      ctx.lineWidth = 1.8;
       ctx.beginPath();
-      ctx.moveTo(-26, 5); ctx.lineTo(-14, 6); ctx.lineTo(-7, 13);
-      ctx.moveTo(26, 5); ctx.lineTo(14, 6); ctx.lineTo(7, 13);
+      ctx.moveTo(-31, -8); ctx.lineTo(-19, -5); ctx.lineTo(-10, 3);
+      ctx.moveTo(31, -8); ctx.lineTo(19, -5); ctx.lineTo(10, 3);
       ctx.stroke();
+      ctx.fillStyle = appearance.core;
+      ctx.beginPath();
+      ctx.moveTo(-22, -5); ctx.lineTo(-14, -2); ctx.lineTo(-10, 2); ctx.lineTo(-17, 0); ctx.closePath();
+      ctx.moveTo(22, -5); ctx.lineTo(14, -2); ctx.lineTo(10, 2); ctx.lineTo(17, 0); ctx.closePath();
+      ctx.fill();
+      ctx.restore();
 
-      // Compact, integrated twin engine housings at the tail.
+      // Layered central spine and bright elongated reactor/canopy.
       ctx.fillStyle = '#171020';
       ctx.strokeStyle = edge;
       ctx.lineWidth = 1;
-      for (const side of [-1, 1]) {
-        ctx.beginPath();
-        ctx.moveTo(side * 3, 8);
-        ctx.lineTo(side * 7, 13);
-        ctx.lineTo(side * 6, 21);
-        ctx.lineTo(side * 2, 19);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = wing;
-        ctx.fillRect(side * 4 - 1, 14, 2, 5);
-        ctx.fillStyle = '#171020';
-      }
-
-      // Armored central spine and elongated violet reactor.
-      ctx.fillStyle = '#21132c';
       ctx.beginPath();
-      ctx.moveTo(0, -28); ctx.lineTo(5, -10); ctx.lineTo(4, 10);
-      ctx.lineTo(0, 20); ctx.lineTo(-4, 10); ctx.lineTo(-5, -10);
-      ctx.closePath();
+      ctx.moveTo(0, -33); ctx.lineTo(8, -19); ctx.lineTo(7, 7);
+      ctx.lineTo(4, 20); ctx.lineTo(0, 25); ctx.lineTo(-4, 20);
+      ctx.lineTo(-7, 7); ctx.lineTo(-8, -19); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+
+      ctx.fillStyle = '#321642';
+      ctx.beginPath();
+      ctx.moveTo(0, -29); ctx.lineTo(5, -17); ctx.lineTo(4, 5);
+      ctx.lineTo(0, 17); ctx.lineTo(-4, 5); ctx.lineTo(-5, -17); ctx.closePath();
       ctx.fill();
+
       ctx.save();
       ctx.shadowColor = appearance.core;
-      ctx.shadowBlur = appearance.glow ? 13 : 0;
+      ctx.shadowBlur = appearance.glow ? 15 : 0;
       ctx.fillStyle = appearance.core;
       ctx.beginPath();
-      ctx.moveTo(0, -22); ctx.lineTo(3.2, -7); ctx.lineTo(2.2, 6);
-      ctx.lineTo(0, 12); ctx.lineTo(-2.2, 6); ctx.lineTo(-3.2, -7);
-      ctx.closePath();
+      ctx.moveTo(0, -25); ctx.lineTo(4, -14); ctx.lineTo(3, -2);
+      ctx.lineTo(0, 5); ctx.lineTo(-3, -2); ctx.lineTo(-4, -14); ctx.closePath();
       ctx.fill();
       ctx.restore();
-    }else {
+
+      // Lower armor blades frame the rear core and give the ship a strong tail silhouette.
+      ctx.fillStyle = '#0d0915';
+      ctx.strokeStyle = edge;
+      ctx.lineWidth = 0.9;
+      ctx.beginPath();
+      ctx.moveTo(-8, 5); ctx.lineTo(-13, 15); ctx.lineTo(-7, 13); ctx.lineTo(-3, 21); ctx.lineTo(-2, 9); ctx.closePath();
+      ctx.moveTo(8, 5); ctx.lineTo(13, 15); ctx.lineTo(7, 13); ctx.lineTo(3, 21); ctx.lineTo(2, 9); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+    }lse {
       ctx.fillStyle = hull; ctx.strokeStyle = edge; ctx.lineWidth = 1.5; ctx.beginPath();
       if (phantom) { ctx.moveTo(0,-20);ctx.lineTo(6,-5);ctx.lineTo(17,8);ctx.lineTo(9,9);ctx.lineTo(4,5);ctx.lineTo(0,15);ctx.lineTo(-4,5);ctx.lineTo(-9,9);ctx.lineTo(-17,8);ctx.lineTo(-6,-5); }
       else if (aegis) { ctx.moveTo(0,-18);ctx.lineTo(10,-9);ctx.lineTo(17,3);ctx.lineTo(13,12);ctx.lineTo(5,10);ctx.lineTo(0,16);ctx.lineTo(-5,10);ctx.lineTo(-13,12);ctx.lineTo(-17,3);ctx.lineTo(-10,-9); }
