@@ -101,6 +101,7 @@ setPlatform(detectPlatform(), false);
 document.addEventListener('click', (event) => {
   const control = event.target.closest('#main-menu button, #hangar-screen button, #mission-prep button');
   if (!control || control.disabled) return;
+  gameAudio.setMusicMode(control.id === 'prep-start-button' ? 'combat' : 'ambient');
   gameAudio.start();
   gameAudio.playUiConfirm();
 });
@@ -120,6 +121,7 @@ document.querySelector('#hangar-continue-button').addEventListener('click', () =
 });
 document.querySelector('#prep-back-button').addEventListener('click', () => { missionPrep.classList.add('is-hidden'); hangarScreen.classList.remove('is-hidden'); });
 document.querySelector('#prep-start-button').addEventListener('click', () => {
+  gameAudio.setMusicMode('combat');
   gameAudio.start();
   missionPrep.classList.add('is-hidden');
   mainMenu.classList.add('is-hidden');
