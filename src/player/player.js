@@ -65,6 +65,7 @@ export class Player {
     this.phantomEvasionTimer = 0;
     this.wraithPredatorTimer = 0;
     this.vanguardSyncTimer = 0;
+    this.aegisBastionTimer = 0;
     this.knockbackX = 0;
     this.knockbackY = 0;
     this.systemDisruptionTimer = 0;
@@ -82,6 +83,7 @@ export class Player {
     this.phantomEvasionTimer = 0;
     this.wraithPredatorTimer = 0;
     this.vanguardSyncTimer = 0;
+    this.aegisBastionTimer = 0;
     this.shipAppearance = { ...SHIP_APPEARANCE_DEFAULTS[normalized] };
     this.baseSpeed = config.speed;
     this.speed = config.speed;
@@ -112,6 +114,10 @@ export class Player {
     return this.shipClass === 'vanguard' && this.vanguardSyncTimer > 0 ? 1.2 : 1;
   }
 
+  getDamageTakenMultiplier() {
+    return this.shipClass === 'aegis' && this.aegisBastionTimer > 0 ? 0.7 : 1;
+  }
+
   setShipAppearance(appearance = {}) {
     const defaults = SHIP_APPEARANCE_DEFAULTS[this.shipClass] || SHIP_APPEARANCE_DEFAULTS.vanguard;
     this.shipAppearance = {
@@ -140,6 +146,7 @@ export class Player {
     this.phantomEvasionTimer = Math.max(0, this.phantomEvasionTimer - dt);
     this.wraithPredatorTimer = Math.max(0, this.wraithPredatorTimer - dt);
     this.vanguardSyncTimer = Math.max(0, this.vanguardSyncTimer - dt);
+    this.aegisBastionTimer = Math.max(0, this.aegisBastionTimer - dt);
     this.invulnerabilityTimer = Math.max(0, this.invulnerabilityTimer - dt);
     if (this.shieldLevel > 0 && this.shieldHealth <= 0) {
       this.shieldRechargeTimer = Math.max(0, this.shieldRechargeTimer - dt);
@@ -232,7 +239,7 @@ export class Player {
     }
     // A hit starts a short invulnerability window; repeated hits during it are ignored.
     if (this.invulnerabilityTimer > 0 || this.health <= 0) return false;
-    this.health = Math.max(0, this.health - amount);
+    this.health = Math.max(0, this.health - amount * this.getDamageTakenMultiplier());
     this.invulnerabilityTimer = this.invulnerabilityDuration;
     return true;
   }
@@ -273,6 +280,13 @@ export class Player {
       ctx.save(); ctx.globalAlpha = 0.18 + pulse * 0.16;
       ctx.strokeStyle = '#58e4e8'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.ellipse(0, 1, 24 + pulse * 2, 31 + pulse * 2, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+    }
+    if (aegis && this.aegisBastionTimer > 0) {
+      const pulse = 0.5 + Math.sin((3.5 - this.aegisBastionTimer) * 10) * 0.5;
+      ctx.save(); ctx.globalAlpha = 0.28 + pulse * 0.2;
+      ctx.strokeStyle = '#ffd36b'; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.ellipse(0, 1, 29 + pulse * 2, 37 + pulse * 2, 0, 0, Math.PI * 2); ctx.stroke();
       ctx.restore();
     }
     if (wraith) {
