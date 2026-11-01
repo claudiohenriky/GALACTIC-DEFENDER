@@ -64,6 +64,7 @@ export class Player {
     this.phaseDriveTimer = 0;
     this.phantomEvasionTimer = 0;
     this.wraithPredatorTimer = 0;
+    this.vanguardSyncTimer = 0;
     this.knockbackX = 0;
     this.knockbackY = 0;
     this.systemDisruptionTimer = 0;
@@ -80,6 +81,7 @@ export class Player {
     this.phaseDriveTimer = 0;
     this.phantomEvasionTimer = 0;
     this.wraithPredatorTimer = 0;
+    this.vanguardSyncTimer = 0;
     this.shipAppearance = { ...SHIP_APPEARANCE_DEFAULTS[normalized] };
     this.baseSpeed = config.speed;
     this.speed = config.speed;
@@ -104,6 +106,10 @@ export class Player {
 
   getWeaponFireRateMultiplier() {
     return this.shipClass === 'wraith' && this.wraithPredatorTimer > 0 ? 1.3 : 1;
+  }
+
+  getClassDamageMultiplier() {
+    return this.shipClass === 'vanguard' && this.vanguardSyncTimer > 0 ? 1.2 : 1;
   }
 
   setShipAppearance(appearance = {}) {
@@ -133,6 +139,7 @@ export class Player {
     this.phaseDriveTimer = Math.max(0, this.phaseDriveTimer - dt);
     this.phantomEvasionTimer = Math.max(0, this.phantomEvasionTimer - dt);
     this.wraithPredatorTimer = Math.max(0, this.wraithPredatorTimer - dt);
+    this.vanguardSyncTimer = Math.max(0, this.vanguardSyncTimer - dt);
     this.invulnerabilityTimer = Math.max(0, this.invulnerabilityTimer - dt);
     if (this.shieldLevel > 0 && this.shieldHealth <= 0) {
       this.shieldRechargeTimer = Math.max(0, this.shieldRechargeTimer - dt);
@@ -259,6 +266,13 @@ export class Player {
       ctx.save(); ctx.globalAlpha = 0.2 + pulse * 0.22;
       ctx.strokeStyle = wing; ctx.lineWidth = 2.4;
       ctx.beginPath(); ctx.ellipse(0, 1, 29 + pulse * 2, 36 + pulse * 2, 0, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+    }
+    if (this.shipClass === 'vanguard' && this.vanguardSyncTimer > 0) {
+      const pulse = 0.5 + Math.sin((3 - this.vanguardSyncTimer) * 12) * 0.5;
+      ctx.save(); ctx.globalAlpha = 0.18 + pulse * 0.16;
+      ctx.strokeStyle = '#58e4e8'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.ellipse(0, 1, 24 + pulse * 2, 31 + pulse * 2, 0, 0, Math.PI * 2); ctx.stroke();
       ctx.restore();
     }
     if (wraith) {

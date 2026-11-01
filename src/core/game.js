@@ -1,4 +1,4 @@
-import { Player } from '../player/player.js?v=0.77.0-wraith-predatory-overdrive-r1';
+import { Player } from '../player/player.js?v=0.78.0-vanguard-tactical-protocol-r1';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.69.0-support-link-cache-r1';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
@@ -903,10 +903,13 @@ export class Game {
 
   activateClassAbility() {
     const shipClass = this.player.shipClass;
-    if (this.status !== 'running' || !['phantom', 'wraith'].includes(shipClass) ||
+    if (this.status !== 'running' || !['vanguard', 'phantom', 'wraith'].includes(shipClass) ||
         this.classAbilityCooldown > 0 || this.overloadLockTimer > 0) return false;
 
-    if (shipClass === 'phantom') {
+    if (shipClass === 'vanguard') {
+      this.player.vanguardSyncTimer = 3;
+      this.classAbilityCooldownMax = 18 * (this.player.abilityCooldownMultiplier || 1);
+    } else if (shipClass === 'phantom') {
       this.player.phantomEvasionTimer = 0.68;
       this.player.invulnerabilityTimer = Math.max(this.player.invulnerabilityTimer, 0.38);
       this.classAbilityCooldownMax = 14 * (this.player.abilityCooldownMultiplier || 1);
@@ -924,14 +927,16 @@ export class Game {
     const button = document.querySelector('#class-ability-button');
     if (!button) return;
     const shipClass = this.player.shipClass;
-    const available = shipClass === 'phantom' || shipClass === 'wraith';
+    const available = ['vanguard', 'phantom', 'wraith'].includes(shipClass);
+    const isVanguard = shipClass === 'vanguard';
     const isWraith = shipClass === 'wraith';
     button.classList.toggle('hidden', !available);
     button.dataset.abilityClass = available ? shipClass : '';
-    button.setAttribute('aria-label', isWraith ? 'Ativar Sobrecarga Predatória da Wraith' : 'Ativar Evasão Espectral da Phantom');
+    const abilityName = isVanguard ? 'Protocolo de Sincronia' : isWraith ? 'Sobrecarga Predatória' : 'Evasão Espectral';
+    button.setAttribute('aria-label', `Ativar ${abilityName} da ${shipClass}`);
     const title = document.querySelector('#class-ability-title');
     if (title) {
-      const label = isWraith ? 'SOBRECARGA PREDATÓRIA' : 'EVASÃO ESPECTRAL';
+      const label = isVanguard ? 'PROTOCOLO DE SINCRONIA' : isWraith ? 'SOBRECARGA PREDATÓRIA' : 'EVASÃO ESPECTRAL';
       if (title.textContent !== label) title.textContent = label;
     }
     const blocked = this.status !== 'running' || this.classAbilityCooldown > 0 || this.overloadLockTimer > 0;
@@ -939,7 +944,7 @@ export class Game {
     const status = document.querySelector('#class-ability-status');
     const fill = document.querySelector('#class-ability-cooldown-fill');
     if (status) {
-      const exclusive = isWraith ? 'EXCLUSIVA WRAITH' : 'EXCLUSIVA PHANTOM';
+      const exclusive = isVanguard ? 'EXCLUSIVA VANGUARD' : isWraith ? 'EXCLUSIVA WRAITH' : 'EXCLUSIVA PHANTOM';
       const label = !available ? 'EXCLUSIVA DA CLASSE'
         : this.classAbilityCooldown > 0 ? 'RECARGA · ' + Math.ceil(this.classAbilityCooldown) + 's'
         : this.overloadLockTimer > 0 ? 'SISTEMA EM SOBRECARGA'
@@ -2136,7 +2141,7 @@ export class Game {
           1 + this.player.projectileSpeedLevel * 0.15
         );
         projectile.palette = this.player.shipClass === 'wraith' ? 'wraith' : 'standard';
-        projectile.damage = this.player.weaponDamage * (this.player.shipDamageMultiplier || 1) * (this.overload >= 70 ? 0.72 : 1);
+        projectile.damage = this.player.weaponDamage * (this.player.shipDamageMultiplier || 1) * this.player.getClassDamageMultiplier() * (this.overload >= 70 ? 0.72 : 1);
         this.projectiles.push(projectile);
       }
       gameAudio.playPlayerShot();
