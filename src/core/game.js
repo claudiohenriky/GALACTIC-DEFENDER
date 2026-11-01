@@ -1,6 +1,6 @@
 import { Player } from '../player/player.js?v=0.65.0-wraith-render-optimization-r1';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
-import { Enemy } from '../enemies/enemy.js?v=0.66.0-support-scan-r1';
+import { Enemy } from '../enemies/enemy.js?v=0.69.0-support-link-cache-r1';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.65.0-mobile-performance-audit-r2';
