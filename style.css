@@ -675,3 +675,8 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .game-layout.cinematic-active .orientation-hint {
   pointer-events: none;
 }
+
+/* v0.62.0 — real ship-class attributes in the hangar. */
+.hangar-ship-stats{display:block;padding:7px 9px;border:1px solid #31435e;border-radius:6px;background:#07101bc9;color:#d3e2f5;font-size:9px;font-weight:750;line-height:1.5;letter-spacing:.02em}
+.hangar-ship-card.is-selected .hangar-ship-stats{border-color:#4b8d9c;color:#baf6f0}
+@media(max-width:760px){.hangar-ship-stats{grid-column:2;font-size:8px;padding:6px 7px}}
