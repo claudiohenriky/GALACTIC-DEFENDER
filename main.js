@@ -1,7 +1,9 @@
-import { Game } from './src/core/game.js?v=0.79.0-aegis-bastion-protocol-r1';
-import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
+import { clearLegacyGameStorage } from './src/core/session-reset.js??v=1.0.0';
+import { Game } from './src/core/game.js??v=1.0.0';
+import { gameAudio } from './src/audio/game-audio.js??v=1.0.0';
 
-// Entry point: connect the game engine to the page UI.
+// Entry point: start with a clean, session-only game state.
+clearLegacyGameStorage();
 const canvas = document.querySelector('#game-canvas');
 const game = new Game(canvas);
 // Test-only query switch. The normal game remains wave 1 unless a test URL opts in.
@@ -63,19 +65,8 @@ const friendShipCard = document.querySelector('[data-ship-choice="wraith"]');
 const friendShipCodeInput = document.querySelector('#friend-ship-code');
 const friendShipUnlockButton = document.querySelector('#friend-ship-unlock-button');
 const friendShipUnlockNote = document.querySelector('#friend-ship-unlock-note');
-let friendShipUnlocked = localStorage.getItem('gd-friend-ship-unlocked') === 'true';
+let friendShipUnlocked = false;
 const isShipUnlocked = shipClass => commonShipClasses.includes(shipClass) || (shipClass === 'wraith' && friendShipUnlocked);
-if (friendShipUnlocked && friendShipCard) {
-  friendShipCard.disabled = false;
-  friendShipCard.setAttribute('aria-disabled', 'false');
-  friendShipCard.classList.remove('is-locked');
-  const status = friendShipCard.querySelector('.friend-ship-card-status');
-  if (status) status.textContent = 'DISPONÍVEL · ALIADO AUTORIZADO';
-  if (friendShipUnlockNote) {
-    friendShipUnlockNote.textContent = 'Acesso já autorizado neste navegador. A nave especial está disponível.';
-    friendShipUnlockNote.dataset.state = 'success';
-  }
-}
 const appearanceInputs = {
   primary: document.querySelector('#ship-primary-color'),
   secondary: document.querySelector('#ship-secondary-color'),
@@ -89,13 +80,9 @@ const defaultShipAppearance = {
   aegis: { primary: '#f5b85d', secondary: '#fff0c9', core: '#fff9e8', accent: '#ff718d', glow: true },
   wraith: { primary: '#76279b', secondary: '#e5a0ff', core: '#f04cff', accent: '#b52be8', glow: true }
 };
-let savedAppearances = {};
-try { savedAppearances = JSON.parse(localStorage.getItem('gd-ship-appearances') || '{}') || {}; } catch { savedAppearances = {}; }
-let selectedShip = localStorage.getItem('gd-ship-class');
+const savedAppearances = {};
+let selectedShip = 'vanguard';
 if (!allShipClasses.includes(selectedShip) || !isShipUnlocked(selectedShip)) selectedShip = 'vanguard';
-function persistShipAppearance() {
-  localStorage.setItem('gd-ship-appearances', JSON.stringify(savedAppearances));
-}
 function syncAppearanceControls() {
   const appearance = game.player.shipAppearance;
   for (const key of ['primary', 'secondary', 'core', 'accent']) appearanceInputs[key].value = appearance[key];
@@ -108,7 +95,7 @@ function syncAppearanceControls() {
     preview.style.setProperty('--ship-accent', appearance.accent);
   }
 }
-function applySavedShipAppearance() {
+function applyShipAppearance() {
   const appearance = { ...defaultShipAppearance[selectedShip], ...(savedAppearances[selectedShip] || {}) };
   game.player.setShipAppearance(appearance);
   game.selectedShipAppearance = { ...appearance };
@@ -118,13 +105,12 @@ function selectShip(shipClass) {
   if (!allShipClasses.includes(shipClass) || !isShipUnlocked(shipClass)) return;
   selectedShip = shipClass; game.selectedShip = shipClass;
   const config = game.player.setShipClass(shipClass);
-  applySavedShipAppearance();
+  applyShipAppearance();
   game.applyPermanentSkillBonuses();
-  localStorage.setItem('gd-ship-class', shipClass);
   shipChoiceButtons.forEach((button) => { const selected = button.dataset.shipChoice === shipClass; button.classList.toggle('is-selected', selected); button.setAttribute('aria-pressed', String(selected)); });
   const stats = document.querySelector(`[data-ship-stats="${shipClass}"]`);
   if (stats) stats.textContent = `${config.speed} velocidade · ${config.maxHealth} integridade · ${config.acceleration} aceleração`;
-  shipSelectionNote.textContent = `${config.name} selecionada — classe ${config.label.toLowerCase()}. Aparência salva por nave neste navegador.`;
+  shipSelectionNote.textContent = `${config.name} selecionada — classe ${config.label.toLowerCase()}. Aparência temporária nesta sessão.`;
 }
 function updateShipAppearance() {
   const appearance = {
@@ -137,20 +123,18 @@ function updateShipAppearance() {
   savedAppearances[selectedShip] = appearance;
   game.player.setShipAppearance(appearance);
   game.selectedShipAppearance = { ...appearance };
-  persistShipAppearance();
   syncAppearanceControls();
 }
 for (const input of Object.values(appearanceInputs)) input?.addEventListener('input', updateShipAppearance);
 shipChoiceButtons.forEach((button) => button.addEventListener('click', () => selectShip(button.dataset.shipChoice)));
 friendShipUnlockButton?.addEventListener('click', () => {
-  const enteredCode = (friendShipCodeInput?.value || '').trim().toUpperCase();
+  const enteredCode = (friendShipCodeInput?.value || '').replace(/[\s#]/g, '').toUpperCase();
   if (enteredCode !== friendShipUnlockCode) {
     friendShipUnlockNote.textContent = 'Código não reconhecido. Confira e tente novamente.';
     friendShipUnlockNote.dataset.state = 'error';
     return;
   }
   friendShipUnlocked = true;
-  localStorage.setItem('gd-friend-ship-unlocked', 'true');
   friendShipCard.disabled = false;
   friendShipCard.setAttribute('aria-disabled', 'false');
   friendShipCard.classList.remove('is-locked');
@@ -166,7 +150,7 @@ friendShipCodeInput?.addEventListener('keydown', event => {
 });
 game.selectedShip = selectedShip;
 game.player.setShipClass(selectedShip);
-applySavedShipAppearance();
+applyShipAppearance();
 game.applyPermanentSkillBonuses();
 selectShip(selectedShip);
 const platformButtons = [...document.querySelectorAll('[data-platform-choice]')];
@@ -182,11 +166,9 @@ document.querySelectorAll('[data-upgrade]').forEach((button) => button.addEventL
 document.querySelector('#dismiss-title-toast').addEventListener('click', () => document.querySelector('#title-unlock-toast').classList.add('hidden'));
 
 function detectPlatform() {
-  const saved = localStorage.getItem('gd-platform');
-  if (saved === 'pc' || saved === 'mobile') return saved;
   return window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0 ? 'mobile' : 'pc';
 }
-function setPlatform(platform, persist = true) {
+function setPlatform(platform) {
   document.documentElement.dataset.platform = platform;
   platformButtons.forEach((button) => {
     const selected = button.dataset.platformChoice === platform;
@@ -196,7 +178,6 @@ function setPlatform(platform, persist = true) {
   platformNote.textContent = platform === 'mobile'
     ? 'Modo mobile selecionado. Use o joystick para mover; a nave mira automaticamente no inimigo mais próximo e dispara pelo botão DISPARAR.'
     : 'Modo PC selecionado. Mouse para mirar; W/S avançam e recuam em relação à nave, A/D fazem strafe; botão direito ou Espaço para disparar.';
-  if (persist) localStorage.setItem('gd-platform', platform);
 }
 function closeMenuPanels() {
   settingsPanel.classList.add('hidden');
@@ -205,7 +186,7 @@ function closeMenuPanels() {
   achievementsPanel.classList.add('hidden');
   skillTreePanel.classList.add('hidden');
 }
-setPlatform(detectPlatform(), false);
+setPlatform(detectPlatform());
 
 // The ship's navigation computer confirms menu actions with short, non-intrusive cues.
 // Starting audio on the first menu interaction also allows the background score to begin
@@ -378,23 +359,12 @@ function applySettings() {
   gameAudio.setChannelVolume('effects', Number(document.querySelector('#effects-volume-setting').value) / 100);
   gameAudio.setChannelVolume('voice', Number(document.querySelector('#voice-volume-setting').value) / 100);
   gameAudio.setEnabled(document.querySelector('#sound-setting').value === 'on');
-  Object.entries(settingDefaults).forEach(([id]) => {
-    const element = document.querySelector('#' + id);
-    const value = element.type === 'checkbox' ? (element.checked ? '1' : '0') : element.value;
-    localStorage.setItem('gd-setting-' + id, value);
-  });
 }
 Object.keys(settingDefaults).forEach((id) => {
   const element = document.querySelector('#' + id);
-  const savedValue = localStorage.getItem('gd-setting-' + id);
-  const migratedValue = id === 'effects-setting'
-    ? (savedValue === 'full' ? 'high' : savedValue === 'reduced' ? 'low' : savedValue)
-    : savedValue;
-  if (element.type === 'checkbox') element.checked = savedValue == null ? settingDefaults[id] : savedValue === '1';
-  else {
-    element.value = migratedValue ?? settingDefaults[id];
-    if (!element.value) element.value = settingDefaults[id];
-  }
+  const defaultValue = settingDefaults[id];
+  if (element.type === 'checkbox') element.checked = Boolean(defaultValue);
+  else element.value = defaultValue;
   element.addEventListener('input', applySettings);
   element.addEventListener('change', applySettings);
 });
