@@ -62,6 +62,7 @@ export class Player {
     this.rotation = -Math.PI / 2;
     this.overloadSpeedFactor = 1;
     this.phaseDriveTimer = 0;
+    this.phantomEvasionTimer = 0;
     this.knockbackX = 0;
     this.knockbackY = 0;
     this.systemDisruptionTimer = 0;
@@ -76,6 +77,7 @@ export class Player {
     const config = SHIP_CLASS_CONFIG[normalized];
     this.shipClass = normalized;
     this.phaseDriveTimer = 0;
+    this.phantomEvasionTimer = 0;
     this.shipAppearance = { ...SHIP_APPEARANCE_DEFAULTS[normalized] };
     this.baseSpeed = config.speed;
     this.speed = config.speed;
@@ -94,6 +96,7 @@ export class Player {
   }
 
   getMovementSpeedMultiplier() {
+    if (this.shipClass === 'phantom' && this.phantomEvasionTimer > 0) return 1.42;
     return this.phaseDriveTimer > 0 ? 1.22 : 1;
   }
 
@@ -122,6 +125,7 @@ export class Player {
   update(dt, keys, width, height, joystick = null, targetAngle = this.rotation, relativeMovement = false) {
     this.systemDisruptionTimer = Math.max(0, this.systemDisruptionTimer - dt);
     this.phaseDriveTimer = Math.max(0, this.phaseDriveTimer - dt);
+    this.phantomEvasionTimer = Math.max(0, this.phantomEvasionTimer - dt);
     this.invulnerabilityTimer = Math.max(0, this.invulnerabilityTimer - dt);
     if (this.shieldLevel > 0 && this.shieldHealth <= 0) {
       this.shieldRechargeTimer = Math.max(0, this.shieldRechargeTimer - dt);
@@ -228,6 +232,16 @@ export class Player {
     const wing = appearance.accent;
     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rotation + Math.PI / 2);
     ctx.transform(1 - Math.abs(this.bank) * 0.08, 0, this.bank * 0.32, 1, 0, 0);
+    if (phantom && this.phantomEvasionTimer > 0) {
+      const pulse = Math.min(1, this.phantomEvasionTimer / 0.22);
+      ctx.save();
+      ctx.globalAlpha = 0.16 + pulse * 0.2;
+      ctx.strokeStyle = wing;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.ellipse(-7, 7, 18, 26, -0.12, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(7, 7, 18, 26, 0.12, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+    }
     ctx.fillStyle = '#030814'; ctx.beginPath(); ctx.ellipse(0, 4, aegis ? 16 : 14, 20, 0, 0, Math.PI * 2); ctx.fill();
     if (wraith && this.phaseDriveTimer > 0) {
       ctx.save(); ctx.globalAlpha = Math.min(0.42, this.phaseDriveTimer * 0.18);

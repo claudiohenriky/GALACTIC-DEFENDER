@@ -1,4 +1,4 @@
-import { Player } from '../player/player.js?v=0.65.0-wraith-render-optimization-r1';
+import { Player } from '../player/player.js?v=0.76.0-phantom-evasion-r1';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.69.0-support-link-cache-r1';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
@@ -62,7 +62,7 @@ export class Game {
     this.eliteAlertsShown = new Set();
     this.pilotReaction = createPilotReactionState();
     this.cinematicHudRoot = this.canvas.closest('.game-layout');
-    this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.side-panel, .arena-status, .arena-footer, .in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #reward-banner, #damage-feedback, #touch-controls, .fullscreen-button, .orientation-hint') ?? []);
+    this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.side-panel, .arena-status, .arena-footer, .in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #class-ability-button, #reward-banner, #damage-feedback, #touch-controls, .fullscreen-button, .orientation-hint') ?? []);
     this.guardianAssignmentTimer = 0;
     this.enemySeparationTimer = 0;
     this.enemyCollisionCellSize = 160;
@@ -115,6 +115,9 @@ export class Game {
     this.shieldPulseCooldown = 0;
     this.shieldPulseCooldownMax = 18;
     this.shieldPulseWave = null;
+    this.classAbilityCooldown = 0;
+    this.classAbilityCooldownMax = 14;
+    this.classAbilityHudTimer = 0;
     this.overload = 0;
     this.overloadLockTimer = 0;
     this.overloadMax = 100;
@@ -429,6 +432,7 @@ export class Game {
     updateHud(this);
     this.updateGuidedMissileButton();
     this.updateShieldPulseButton();
+    this.updateClassAbilityButton();
   }
 
   resume() {
@@ -494,6 +498,9 @@ export class Game {
     this.shieldPulseCooldown = 0;
     this.shieldPulseCooldownMax = 18;
     this.shieldPulseWave = null;
+    this.classAbilityCooldown = 0;
+    this.classAbilityCooldownMax = 14;
+    this.classAbilityHudTimer = 0;
     this.overload = 0;
     this.overloadLockTimer = 0;
     this.overloadMax = 100;
@@ -514,6 +521,7 @@ export class Game {
     updateHud(this);
     this.updateShieldPulseButton();
     this.updateGuidedMissileButton();
+    this.updateClassAbilityButton();
     this.updateOverloadHud();
     this.renderFrame(0);
   }
@@ -538,6 +546,10 @@ export class Game {
     }
     if (event.code === 'KeyQ' && this.status === 'running') {
       this.activateShieldPulse();
+      return;
+    }
+    if (event.code === 'KeyF' && this.status === 'running') {
+      this.activateClassAbility();
       return;
     }
 
@@ -886,6 +898,41 @@ export class Game {
         // Make the shockwave's impact visible on durable bosses as well as small enemies.
         this.damageEnemy(enemy, enemy.type === 'boss' ? 12 : 2);
       }
+    }
+  }
+
+  activateClassAbility() {
+    if (this.status !== 'running' || this.player.shipClass !== 'phantom' ||
+        this.classAbilityCooldown > 0 || this.overloadLockTimer > 0) return false;
+
+    this.player.phantomEvasionTimer = 0.68;
+    this.player.invulnerabilityTimer = Math.max(this.player.invulnerabilityTimer, 0.38);
+    this.classAbilityCooldownMax = 14 * (this.player.abilityCooldownMultiplier || 1);
+    this.classAbilityCooldown = this.classAbilityCooldownMax;
+    this.handleMissionCompletion(this.mission.registerAbilityUse());
+    this.updateClassAbilityButton();
+    return true;
+  }
+
+  updateClassAbilityButton() {
+    const button = document.querySelector('#class-ability-button');
+    if (!button) return;
+    const available = this.player.shipClass === 'phantom';
+    button.classList.toggle('hidden', !available);
+    const blocked = this.status !== 'running' || this.classAbilityCooldown > 0 || this.overloadLockTimer > 0;
+    button.disabled = !available || blocked;
+    const status = document.querySelector('#class-ability-status');
+    const fill = document.querySelector('#class-ability-cooldown-fill');
+    if (status) {
+      const label = !available ? 'EXCLUSIVA PHANTOM'
+        : this.classAbilityCooldown > 0 ? 'RECARGA · ' + Math.ceil(this.classAbilityCooldown) + 's'
+        : this.overloadLockTimer > 0 ? 'SISTEMA EM SOBRECARGA'
+        : this.status === 'running' ? 'PRONTA PARA ATIVAR' : 'AGUARDANDO MISSÃO';
+      if (status.textContent !== label) status.textContent = label;
+    }
+    if (fill) {
+      const width = this.classAbilityCooldown <= 0 ? '0%' : (Math.min(1, this.classAbilityCooldown / this.classAbilityCooldownMax) * 100) + '%';
+      if (fill.style.width !== width) fill.style.width = width;
     }
   }
 
@@ -2158,6 +2205,12 @@ export class Game {
     this.guidedMissileCooldown = Math.max(0, this.guidedMissileCooldown - dt);
     this.player.guidedMissileCooldown = this.guidedMissileCooldown;
     this.shieldPulseCooldown = Math.max(0, this.shieldPulseCooldown - dt);
+    this.classAbilityCooldown = Math.max(0, this.classAbilityCooldown - dt);
+    this.classAbilityHudTimer -= dt;
+    if (this.classAbilityHudTimer <= 0) {
+      this.classAbilityHudTimer = 0.1;
+      this.updateClassAbilityButton();
+    }
     this.overloadLockTimer = Math.max(0, this.overloadLockTimer - dt);
     this.overload = Math.max(0, this.overload - dt * (this.overloadLockTimer > 0 ? 16 : this.overload >= 70 ? 6 : 10));
     if (this.overloadLockTimer === 0 && this.overload >= this.overloadMax) this.overload = 68;
