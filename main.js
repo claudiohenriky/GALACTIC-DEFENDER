@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.75.0-mobile-camera-zoom-r1';
+import { Game } from './src/core/game.js?v=0.76.0-phantom-evasion-r1';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
@@ -34,6 +34,19 @@ function activateShieldPulseFromControl(event) {
 shieldPulseButton?.addEventListener('pointerdown', activateShieldPulseFromControl, { passive: false });
 shieldPulseButton?.addEventListener('click', (event) => {
   if (event.detail === 0) activateShieldPulseFromControl(event);
+  else { event.preventDefault(); event.stopPropagation(); }
+});
+
+const classAbilityButton = document.querySelector('#class-ability-button');
+function activateClassAbilityFromControl(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  if (event.type === 'pointerdown' && event.pointerType === 'mouse' && event.button !== 0) return;
+  game.activateClassAbility();
+}
+classAbilityButton?.addEventListener('pointerdown', activateClassAbilityFromControl, { passive: false });
+classAbilityButton?.addEventListener('click', (event) => {
+  if (event.detail === 0) activateClassAbilityFromControl(event);
   else { event.preventDefault(); event.stopPropagation(); }
 });
 
