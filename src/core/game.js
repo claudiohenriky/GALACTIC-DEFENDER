@@ -9,7 +9,7 @@ import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, g
 import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.58.0-plasma-telegraph';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { SkillTree } from '../progression/skill-tree.js?v=0.59.0-skill-tree';
-import { Mission } from '../missions/missions.js?v=0.44.0';
+import { Mission } from '../missions/missions.js?v=0.61.0-mission-persistence';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.57.2-boss-wave-15';
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.60.0-audiovisual-r3';
@@ -747,6 +747,7 @@ export class Game {
     this.shieldPulseCooldownMax = Math.max(15, 21 - level * 2) * (this.player.abilityCooldownMultiplier || 1);
     this.shieldPulseCooldown = this.shieldPulseCooldownMax;
     this.addOverload(28);
+    this.handleMissionCompletion(this.mission.registerAbilityUse());
     this.updateShieldPulseButton();
     if (this.performanceProfileEnabled) console.info('[GALACTIC-DEFENDER activation]', { ability: 'rupture-pulse', durationMs: Number((performance.now() - profileStartedAt).toFixed(2)), enemiesChecked: this.enemies.length, projectilesChecked: this.enemyProjectiles.length });
     return true;
@@ -910,6 +911,7 @@ export class Game {
     this.guidedMissileCooldownMax = (level >= 3 ? 9 : level >= 2 ? 10 : 12) * (this.player.abilityCooldownMultiplier || 1);
     this.guidedMissileCooldown = this.guidedMissileCooldownMax;
     this.addOverload(20);
+    this.handleMissionCompletion(this.mission.registerAbilityUse());
     this.updateGuidedMissileButton();
     if (this.performanceProfileEnabled) console.info('[GALACTIC-DEFENDER activation]', { ability: 'guided-missile', durationMs: Number((performance.now() - profileStartedAt).toFixed(2)), activeTargetsConsidered: targets.length });
     return true;
@@ -1079,7 +1081,7 @@ export class Game {
     const levelsGained = this.progression.addXp(xpGained);
     if (enemy.type === 'boss') this.showRewardBanner('CHEFE DERROTADO', `+${xpGained} XP · +1.000 PTS`, 'boss');
     if (levelsGained > 0) this.triggerLevelUp(levelsGained);
-    const missionCompletion = this.mission.registerKill();
+    const missionCompletion = this.mission.registerKill({ isElite: Boolean(enemy.isElite), isBoss: enemy.type === 'boss' });
     if (missionCompletion) this.handleMissionCompletion(missionCompletion, newlyUnlocked);
     else if (newlyUnlocked.length) this.showRewardBanner('CONQUISTA DESBLOQUEADA', newlyUnlocked.map(item => item.name).join(' · '), 'achievement');
   }
