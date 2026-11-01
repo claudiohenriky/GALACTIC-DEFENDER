@@ -1,6 +1,6 @@
 import { Player } from '../player/player.js?v=0.65.0-wraith-render-optimization-r1';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
-import { Enemy } from '../enemies/enemy.js?v=0.58.0-elite-standardization';
+import { Enemy } from '../enemies/enemy.js?v=0.66.0-support-scan-r1';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.65.0-mobile-performance-audit-r2';
@@ -63,6 +63,15 @@ export class Game {
     this.cinematicHudRoot = this.canvas.closest('.game-layout');
     this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.side-panel, .arena-status, .arena-footer, .in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #reward-banner, #damage-feedback, #touch-controls, .fullscreen-button, .orientation-hint') ?? []);
     this.guardianAssignmentTimer = 0;
+    this.enemySeparationTimer = 0;
+    this.enemyCollisionCellSize = 160;
+    this.enemyCollisionGrid = [];
+    this.enemyCollisionMaxRadius = 0;
+    this.enemyCollisionColumns = 0;
+    this.enemyCollisionRows = 0;
+    this.enemyCollisionQueryStamp = 0;
+    this.enemyCollisionCandidates = [];
+    this.enemyCollisionBosses = [];
     this.enemyTactics = new EnemyTacticalCoordinator();
     this.projectiles = [];
     this.guidedMissiles = [];
@@ -209,6 +218,7 @@ export class Game {
     const isLandscape = this.width > this.height;
     this.worldWidth = this.width * this.arenaScale;
     this.worldHeight = this.height * this.arenaScale;
+    this.initializeEnemyCollisionGrid();
     // The canvas may be measured while its parent menu hides it (1x1 px).
     // Reposition only when the real viewport appears or its orientation changes.
     if ((wasUninitialized || previousLandscape !== isLandscape) && !this.bossCinematic) {
@@ -240,6 +250,68 @@ export class Game {
       const radius = 15 + ((i * 13) % 22);
       this.asteroids.push(new Asteroid(x, y, radius, i + 3));
     }
+  }
+
+  initializeEnemyCollisionGrid() {
+    const cellSize = this.enemyCollisionCellSize;
+    const columns = Math.max(1, Math.ceil(this.worldWidth / cellSize));
+    const rows = Math.max(1, Math.ceil(this.worldHeight / cellSize));
+    if (columns === this.enemyCollisionColumns && rows === this.enemyCollisionRows && this.enemyCollisionGrid.length) return;
+    this.enemyCollisionColumns = columns;
+    this.enemyCollisionRows = rows;
+    this.enemyCollisionGrid = Array.from({ length: columns * rows }, () => []);
+  }
+
+  rebuildEnemyCollisionGrid() {
+    this.initializeEnemyCollisionGrid();
+    for (const bucket of this.enemyCollisionGrid) bucket.length = 0;
+    this.enemyCollisionBosses.length = 0;
+    const cellSize = this.enemyCollisionCellSize;
+    const columns = this.enemyCollisionColumns;
+    this.enemyCollisionMaxRadius = 0;
+    for (const enemy of this.enemies) {
+      if (!enemy.active || enemy.bossDying) continue;
+      if (enemy.type === 'boss' || enemy.type === 'megaboss') {
+        this.enemyCollisionBosses.push(enemy);
+        continue;
+      }
+      this.enemyCollisionMaxRadius = Math.max(
+        this.enemyCollisionMaxRadius,
+        enemy.collisionRadius ?? enemy.radius ?? 0
+      );
+      const column = Math.max(0, Math.min(columns - 1, Math.floor(enemy.x / cellSize)));
+      const row = Math.max(0, Math.min(this.enemyCollisionRows - 1, Math.floor(enemy.y / cellSize)));
+      this.enemyCollisionGrid[row * columns + column].push(enemy);
+    }
+  }
+
+  getEnemyCollisionCandidates(x, y, radius = 0) {
+    const candidates = this.enemyCollisionCandidates;
+    candidates.length = 0;
+    const cellSize = this.enemyCollisionCellSize;
+    const minColumn = Math.max(0, Math.floor((x - radius) / cellSize));
+    const maxColumn = Math.min(this.enemyCollisionColumns - 1, Math.floor((x + radius) / cellSize));
+    const minRow = Math.max(0, Math.floor((y - radius) / cellSize));
+    const maxRow = Math.min(this.enemyCollisionRows - 1, Math.floor((y + radius) / cellSize));
+    const stamp = ++this.enemyCollisionQueryStamp;
+    // Include large hulls separately: bosses span many grid cells and retain their exact ellipse test.
+    for (const enemy of this.enemyCollisionBosses) {
+      if (enemy.collisionQueryStamp !== stamp) {
+        enemy.collisionQueryStamp = stamp;
+        candidates.push(enemy);
+      }
+    }
+    for (let row = minRow; row <= maxRow; row += 1) {
+      for (let column = minColumn; column <= maxColumn; column += 1) {
+        const bucket = this.enemyCollisionGrid[row * this.enemyCollisionColumns + column];
+        for (const enemy of bucket) {
+          if (enemy.collisionQueryStamp === stamp) continue;
+          enemy.collisionQueryStamp = stamp;
+          candidates.push(enemy);
+        }
+      }
+    }
+    return candidates;
   }
 
   updateAsteroids(dt) {
@@ -396,6 +468,7 @@ export class Game {
     this.enemies = [];
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
+    this.enemySeparationTimer = 0;
     this.projectiles = [];
     this.guidedMissiles = [];
     this.guidedMissileTargetReservations.clear();
@@ -2184,47 +2257,54 @@ export class Game {
       }
     }
 
-    // Soft local separation prevents hostile ships from stacking while preserving their current tactics.
-    for (let i = 0; i < this.enemies.length; i += 1) {
-      const first = this.enemies[i];
-      if (!first.active || first.bossDying) continue;
-      for (let j = i + 1; j < this.enemies.length; j += 1) {
-        const second = this.enemies[j];
-        if (!second.active || second.bossDying) continue;
-        const firstRadius = first.collisionRadius ?? first.radius;
-        const secondRadius = second.collisionRadius ?? second.radius;
-        const minimumDistance = firstRadius + secondRadius + 4;
-        let dx = second.x - first.x;
-        let dy = second.y - first.y;
-        // Reject distant pairs on the cheap axis checks before multiplying.
-        if (Math.abs(dx) >= minimumDistance || Math.abs(dy) >= minimumDistance) continue;
-        let distanceSquared = dx * dx + dy * dy;
-        if (distanceSquared >= minimumDistance * minimumDistance) continue;
-        if (distanceSquared < 0.01) {
-          const angle = first.phase - second.phase || 0.5;
-          dx = Math.cos(angle);
-          dy = Math.sin(angle);
-          distanceSquared = 1;
+    // Enemy separation is a corrective pass, not core movement. Run it at 10 Hz
+    // instead of every frame; this caps the quadratic pair scan while preserving
+    // per-frame movement, aiming, firing, and all damage/collision checks.
+    this.enemySeparationTimer -= dt;
+    if (this.enemySeparationTimer <= 0) {
+      this.enemySeparationTimer = 0.1;
+      for (let i = 0; i < this.enemies.length; i += 1) {
+        const first = this.enemies[i];
+        if (!first.active || first.bossDying) continue;
+        for (let j = i + 1; j < this.enemies.length; j += 1) {
+          const second = this.enemies[j];
+          if (!second.active || second.bossDying) continue;
+          const firstRadius = first.collisionRadius ?? first.radius;
+          const secondRadius = second.collisionRadius ?? second.radius;
+          const minimumDistance = firstRadius + secondRadius + 4;
+          let dx = second.x - first.x;
+          let dy = second.y - first.y;
+          // Reject distant pairs on the cheap axis checks before multiplying.
+          if (Math.abs(dx) >= minimumDistance || Math.abs(dy) >= minimumDistance) continue;
+          let distanceSquared = dx * dx + dy * dy;
+          if (distanceSquared >= minimumDistance * minimumDistance) continue;
+          if (distanceSquared < 0.01) {
+            const angle = first.phase - second.phase || 0.5;
+            dx = Math.cos(angle);
+            dy = Math.sin(angle);
+            distanceSquared = 1;
+          }
+          const distance = Math.sqrt(distanceSquared);
+          const overlap = minimumDistance - distance;
+          const separation = Math.min(3.5, overlap * 0.32);
+          const totalRadius = Math.max(1, firstRadius + secondRadius);
+          const firstShare = secondRadius / totalRadius;
+          const secondShare = firstRadius / totalRadius;
+          const pushX = dx / distance * separation;
+          const pushY = dy / distance * separation;
+          first.x -= pushX * firstShare;
+          first.y -= pushY * firstShare;
+          second.x += pushX * secondShare;
+          second.y += pushY * secondShare;
+          first.x = Math.max(firstRadius, Math.min(this.worldWidth - firstRadius, first.x));
+          first.y = Math.max(firstRadius, Math.min(this.worldHeight - firstRadius, first.y));
+          second.x = Math.max(secondRadius, Math.min(this.worldWidth - secondRadius, second.x));
+          second.y = Math.max(secondRadius, Math.min(this.worldHeight - secondRadius, second.y));
         }
-        const distance = Math.sqrt(distanceSquared);
-        const overlap = minimumDistance - distance;
-        const separation = Math.min(3.5, overlap * 0.32);
-        const totalRadius = Math.max(1, firstRadius + secondRadius);
-        const firstShare = secondRadius / totalRadius;
-        const secondShare = firstRadius / totalRadius;
-        const pushX = dx / distance * separation;
-        const pushY = dy / distance * separation;
-        first.x -= pushX * firstShare;
-        first.y -= pushY * firstShare;
-        second.x += pushX * secondShare;
-        second.y += pushY * secondShare;
-        first.x = Math.max(firstRadius, Math.min(this.worldWidth - firstRadius, first.x));
-        first.y = Math.max(firstRadius, Math.min(this.worldHeight - firstRadius, first.y));
-        second.x = Math.max(secondRadius, Math.min(this.worldWidth - secondRadius, second.x));
-        second.y = Math.max(secondRadius, Math.min(this.worldHeight - secondRadius, second.y));
       }
     }
 
+    this.rebuildEnemyCollisionGrid();
     this.updateShieldThreats(dt);
 
     // Resolve projectile hits once, awarding score, XP, and mission progress.
@@ -2239,7 +2319,10 @@ export class Game {
         }
       }
       if (!shot.active) continue;
-      for (const enemy of this.enemies) {
+      const shotReach = shot.radius ?? 0;
+      const shotCandidates = this.getEnemyCollisionCandidates(shot.x, shot.y, shotReach + this.enemyCollisionMaxRadius);
+      for (let candidateIndex = 0; candidateIndex < shotCandidates.length; candidateIndex += 1) {
+        const enemy = shotCandidates[candidateIndex];
         if (!enemy.active || enemy.bossDying || shot.hitEnemies?.has(enemy)) continue;
         // Cheap axis-aligned rejection avoids the squared-distance test for
         // pairs that cannot overlap; the exact circle test remains authoritative.
@@ -2265,7 +2348,9 @@ export class Game {
     // Each guided missile detonates once and deals area damage to nearby enemies.
     for (const missile of this.guidedMissiles) {
       if (!missile.active) continue;
-      for (const enemy of this.enemies) {
+      const missileCandidates = this.getEnemyCollisionCandidates(missile.x, missile.y, (missile.radius ?? 0) + this.enemyCollisionMaxRadius);
+      for (let candidateIndex = 0; candidateIndex < missileCandidates.length; candidateIndex += 1) {
+        const enemy = missileCandidates[candidateIndex];
         if (!enemy.active || enemy.bossDying) continue;
         const bossHull = enemy.type === 'boss';
         const combinedRadius = (missile.radius ?? 0) + (bossHull ? enemy.radius * 2.18 : enemy.collisionRadius ?? enemy.radius ?? 0);
@@ -2283,7 +2368,9 @@ export class Game {
 
     // Contact damage is throttled per enemy. A charged shield absorbs contact
     // without instantly destroying enemies or losing all charge in a few frames.
-    for (const enemy of this.enemies) {
+    const contactCandidates = this.getEnemyCollisionCandidates(this.player.x, this.player.y, (this.player.radius ?? 0) + this.enemyCollisionMaxRadius);
+    for (let candidateIndex = 0; candidateIndex < contactCandidates.length; candidateIndex += 1) {
+      const enemy = contactCandidates[candidateIndex];
       if (!enemy.active || enemy.bossDying) continue;
       const bossHull = enemy.type === 'boss';
       const contactRadius = (this.player.radius ?? 0) + (bossHull ? enemy.radius * 2.18 : enemy.collisionRadius ?? enemy.radius ?? 0);
@@ -2430,7 +2517,9 @@ export class Game {
           rock.y + rock.radius < viewTop - 12 || rock.y - rock.radius > viewBottom + 12) continue;
       rock.draw(ctx);
     }
-    // Batch shots into a few paths: avoids per-shot save/restore, transforms and draw calls.
+    // Batch player shots and skip objects outside the camera viewport.
+    // Culling is especially valuable in the expanded 2.4x arena on mobile.
+    const cullMargin = 48;
     if (this.projectiles.length) for (const palette of ['standard', 'wraith']) {
       for (let pass = 0; pass < 2; pass += 1) {
         ctx.beginPath();
@@ -2443,7 +2532,9 @@ export class Game {
         ctx.lineWidth = pass === 0 ? 5.5 : 2.8;
         for (let index = 0; index < this.projectiles.length; index += 1) {
           const shot = this.projectiles[index];
-          if (shot.palette !== palette) continue;
+          if (shot.palette !== palette || shot.x < viewLeft - cullMargin ||
+              shot.x > viewRight + cullMargin || shot.y < viewTop - cullMargin ||
+              shot.y > viewBottom + cullMargin) continue;
           const halfLength = (shot.piercing ? 20 : 12) * 0.5;
           const dx = Math.cos(shot.angle) * halfLength;
           const dy = Math.sin(shot.angle) * halfLength;
@@ -2454,8 +2545,23 @@ export class Game {
       }
     }
     ctx.globalAlpha = 1;
-    for (let index = 0; index < this.enemyProjectiles.length; index += 1) this.enemyProjectiles[index].draw(ctx, this.effectsScale);
-    for (let index = 0; index < this.enemies.length; index += 1) this.enemies[index].draw(ctx, this.effectsScale);
+    for (let index = 0; index < this.enemyProjectiles.length; index += 1) {
+      const shot = this.enemyProjectiles[index];
+      const margin = Math.max(cullMargin, shot.radius * 4);
+      if (shot.x < viewLeft - margin || shot.x > viewRight + margin ||
+          shot.y < viewTop - margin || shot.y > viewBottom + margin) continue;
+      shot.draw(ctx, this.effectsScale);
+    }
+    for (let index = 0; index < this.enemies.length; index += 1) {
+      const enemy = this.enemies[index];
+      // Never cull the boss: its oversized hull and weapon modules can extend far beyond its center.
+      if (enemy.type !== 'boss') {
+        const margin = Math.max(72, (enemy.radius || enemy.collisionRadius || 12) * 3);
+        if (enemy.x < viewLeft - margin || enemy.x > viewRight + margin ||
+            enemy.y < viewTop - margin || enemy.y > viewBottom + margin) continue;
+      }
+      enemy.draw(ctx, this.effectsScale);
+    }
     if (this.bossCinematic?.boss) {
       const cinematic = this.bossCinematic;
       const revealAlpha = getBossCinematicBossOpacity(cinematic);
