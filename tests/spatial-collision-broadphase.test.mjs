@@ -8,6 +8,7 @@ function createCollisionGridHarness(enemies) {
     worldWidth: 640,
     worldHeight: 480,
     enemies,
+    initializeEnemyCollisionGrid: Game.prototype.initializeEnemyCollisionGrid,
     enemyCollisionCellSize: 160,
     enemyCollisionGrid: [],
     enemyCollisionMaxRadius: 0,
