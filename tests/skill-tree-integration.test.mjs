@@ -19,7 +19,7 @@ test('run specializations are gated by their unlocked base abilities', async () 
   assert.match(source, /guidedMissileFragmentation/);
 });
 
-test('skill-tree menu is connected to the persistent research interface', async () => {
+test('skill-tree menu is connected to the session-only research interface', async () => {
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   const main = await readFile(new URL('../main.js', import.meta.url), 'utf8');
   assert.match(html, /id="menu-skill-tree-button"/);
