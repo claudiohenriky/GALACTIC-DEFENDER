@@ -1,5 +1,3 @@
-const STORAGE_KEY = 'gd-skill-tree-v1';
-
 export const SKILL_TREE_BRANCHES = [
   { id: 'integrity', name: 'Integridade', icon: '⬡', subtitle: 'Blindagem e sobrevivência', nodes: [
     { id: 'integrity-1', title: 'Liga reforçada I', description: '+5% de integridade máxima', cost: 1, effect: { maxHealth: 0.05 } },
@@ -30,33 +28,12 @@ export const SKILL_TREE_BRANCHES = [
 const NODES = SKILL_TREE_BRANCHES.flatMap(branch => branch.nodes);
 const integer = value => Math.max(0, Math.floor(Number(value) || 0));
 
-function loadState() {
-  const fallback = { researchPoints: 1, purchased: [], missionsCompleted: 0 };
-  try {
-    if (typeof localStorage === 'undefined') return fallback;
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    if (!saved || typeof saved !== 'object') return fallback;
-    return {
-      researchPoints: integer(saved.researchPoints),
-      purchased: [...new Set(Array.isArray(saved.purchased) ? saved.purchased : [])].filter(id => NODES.some(node => node.id === id)),
-      missionsCompleted: integer(saved.missionsCompleted)
-    };
-  } catch { return fallback; }
-}
 
 export class SkillTree {
   constructor() {
-    const saved = loadState();
-    this.researchPoints = saved.researchPoints;
-    this.purchased = new Set(saved.purchased);
-    this.missionsCompleted = saved.missionsCompleted;
-  }
-  save() {
-    try {
-      if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        researchPoints: this.researchPoints, purchased: [...this.purchased], missionsCompleted: this.missionsCompleted
-      }));
-    } catch { /* Keep in-memory progress if storage is unavailable. */ }
+    this.researchPoints = 1;
+    this.purchased = new Set();
+    this.missionsCompleted = 0;
   }
   getNodeStatus(id) {
     const node = NODES.find(item => item.id === id);
@@ -71,7 +48,6 @@ export class SkillTree {
     if (!node || !this.getNodeStatus(id).canPurchase) return false;
     this.researchPoints -= node.cost;
     this.purchased.add(id);
-    this.save();
     return true;
   }
   awardMissionCompletion() {
@@ -80,7 +56,6 @@ export class SkillTree {
     const milestone = this.missionsCompleted % 3 === 0 ? 1 : 0;
     const earned = 1 + bonus + milestone;
     this.researchPoints += earned;
-    this.save();
     return earned;
   }
   getBonuses() {
