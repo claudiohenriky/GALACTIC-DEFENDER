@@ -47,13 +47,15 @@ const validShipClasses = ['vanguard', 'phantom', 'aegis'];
 let selectedShip = localStorage.getItem('gd-ship-class');
 if (!validShipClasses.includes(selectedShip)) selectedShip = 'vanguard';
 game.selectedShip = selectedShip;
-game.player.shipClass = selectedShip;
+game.player.setShipClass(selectedShip);
+game.applyPermanentSkillBonuses();
 function selectShip(shipClass) {
   if (!validShipClasses.includes(shipClass)) return;
-  selectedShip = shipClass; game.selectedShip = shipClass; game.player.setShipClass(shipClass);
+  selectedShip = shipClass; game.selectedShip = shipClass;
+  const config = game.player.setShipClass(shipClass);
+  game.applyPermanentSkillBonuses();
   localStorage.setItem('gd-ship-class', shipClass);
   shipChoiceButtons.forEach((button) => { const selected = button.dataset.shipChoice === shipClass; button.classList.toggle('is-selected', selected); button.setAttribute('aria-pressed', String(selected)); });
-  const config = game.player.constructor && game.player.setShipClass(shipClass);
   const stats = document.querySelector(`[data-ship-stats="${shipClass}"]`);
   if (stats) stats.textContent = `${config.speed} velocidade · ${config.maxHealth} integridade · ${config.acceleration} aceleração`;
   shipSelectionNote.textContent = `${config.name} selecionada — classe ${config.label.toLowerCase()}. A escolha é salva neste navegador.`;
