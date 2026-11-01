@@ -9,7 +9,7 @@ import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, g
 import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.58.0-plasma-telegraph';
 import { Progression } from '../progression/progression.js?v=0.44.0';
 import { SkillTree } from '../progression/skill-tree.js?v=0.59.0-skill-tree';
-import { Mission } from '../missions/missions.js?v=0.44.0';
+import { Mission } from '../missions/missions.js?v=0.61.0-mission-persistence';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.57.2-boss-wave-15';
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
 import { gameAudio } from '../audio/game-audio.js?v=0.60.0-audiovisual-r3';
