@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.62.0-hangar-ship-classes';
+import { Game } from './src/core/game.js?v=0.63.0-ship-customization';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
@@ -44,23 +44,75 @@ const hangarScreen = document.querySelector('#hangar-screen');
 const shipChoiceButtons = [...document.querySelectorAll('[data-ship-choice]')];
 const shipSelectionNote = document.querySelector('#hangar-selection-note');
 const validShipClasses = ['vanguard', 'phantom', 'aegis'];
+const appearanceInputs = {
+  primary: document.querySelector('#ship-primary-color'),
+  secondary: document.querySelector('#ship-secondary-color'),
+  core: document.querySelector('#ship-core-color'),
+  accent: document.querySelector('#ship-accent-color'),
+  glow: document.querySelector('#ship-glow-toggle')
+};
+const defaultShipAppearance = {
+  vanguard: { primary: '#58e4e8', secondary: '#d9ffff', core: '#f4ffff', accent: '#7c9cff', glow: true },
+  phantom: { primary: '#a78bfa', secondary: '#f0eaff', core: '#ffffff', accent: '#ff77b7', glow: true },
+  aegis: { primary: '#f5b85d', secondary: '#fff0c9', core: '#fff9e8', accent: '#ff718d', glow: true }
+};
+let savedAppearances = {};
+try { savedAppearances = JSON.parse(localStorage.getItem('gd-ship-appearances') || '{}') || {}; } catch { savedAppearances = {}; }
 let selectedShip = localStorage.getItem('gd-ship-class');
 if (!validShipClasses.includes(selectedShip)) selectedShip = 'vanguard';
-game.selectedShip = selectedShip;
-game.player.setShipClass(selectedShip);
-game.applyPermanentSkillBonuses();
+function persistShipAppearance() {
+  localStorage.setItem('gd-ship-appearances', JSON.stringify(savedAppearances));
+}
+function syncAppearanceControls() {
+  const appearance = game.player.shipAppearance;
+  for (const key of ['primary', 'secondary', 'core', 'accent']) appearanceInputs[key].value = appearance[key];
+  appearanceInputs.glow.checked = appearance.glow;
+  const preview = document.querySelector(`[data-ship-choice="${selectedShip}"] .hangar-ship-preview`);
+  if (preview) {
+    preview.style.setProperty('--ship-primary', appearance.primary);
+    preview.style.setProperty('--ship-secondary', appearance.secondary);
+    preview.style.setProperty('--ship-core', appearance.core);
+    preview.style.setProperty('--ship-accent', appearance.accent);
+  }
+}
+function applySavedShipAppearance() {
+  const appearance = { ...defaultShipAppearance[selectedShip], ...(savedAppearances[selectedShip] || {}) };
+  game.player.setShipAppearance(appearance);
+  game.selectedShipAppearance = { ...appearance };
+  syncAppearanceControls();
+}
 function selectShip(shipClass) {
   if (!validShipClasses.includes(shipClass)) return;
   selectedShip = shipClass; game.selectedShip = shipClass;
   const config = game.player.setShipClass(shipClass);
+  applySavedShipAppearance();
   game.applyPermanentSkillBonuses();
   localStorage.setItem('gd-ship-class', shipClass);
   shipChoiceButtons.forEach((button) => { const selected = button.dataset.shipChoice === shipClass; button.classList.toggle('is-selected', selected); button.setAttribute('aria-pressed', String(selected)); });
   const stats = document.querySelector(`[data-ship-stats="${shipClass}"]`);
   if (stats) stats.textContent = `${config.speed} velocidade · ${config.maxHealth} integridade · ${config.acceleration} aceleração`;
-  shipSelectionNote.textContent = `${config.name} selecionada — classe ${config.label.toLowerCase()}. A escolha é salva neste navegador.`;
+  shipSelectionNote.textContent = `${config.name} selecionada — classe ${config.label.toLowerCase()}. Aparência salva por nave neste navegador.`;
 }
+function updateShipAppearance() {
+  const appearance = {
+    primary: appearanceInputs.primary.value,
+    secondary: appearanceInputs.secondary.value,
+    core: appearanceInputs.core.value,
+    accent: appearanceInputs.accent.value,
+    glow: appearanceInputs.glow.checked
+  };
+  savedAppearances[selectedShip] = appearance;
+  game.player.setShipAppearance(appearance);
+  game.selectedShipAppearance = { ...appearance };
+  persistShipAppearance();
+  syncAppearanceControls();
+}
+for (const input of Object.values(appearanceInputs)) input?.addEventListener('input', updateShipAppearance);
 shipChoiceButtons.forEach((button) => button.addEventListener('click', () => selectShip(button.dataset.shipChoice)));
+game.selectedShip = selectedShip;
+game.player.setShipClass(selectedShip);
+applySavedShipAppearance();
+game.applyPermanentSkillBonuses();
 selectShip(selectedShip);
 const platformButtons = [...document.querySelectorAll('[data-platform-choice]')];
 const platformNote = document.querySelector('#platform-detection-note');

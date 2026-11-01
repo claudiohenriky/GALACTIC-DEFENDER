@@ -2,9 +2,16 @@ import { approachVelocity, integrateVelocity } from '../movement/motion.js?v=0.4
 
 export const SHIP_CLASS_CONFIG = Object.freeze({
   vanguard: Object.freeze({ name: 'Vanguard', speed: 250, acceleration: 2400, maxHealth: 100, label: 'Equilibrada' }),
-  phantom: Object.freeze({ name: 'Phantom', speed: 285, acceleration: 2500, maxHealth: 95, label: 'Ágil' }),
+  phantom: Object.freeze({ name: 'Phantom', speed: 275, acceleration: 2500, maxHealth: 90, label: 'Ágil' }),
   aegis: Object.freeze({ name: 'Aegis', speed: 215, acceleration: 1900, maxHealth: 125, label: 'Blindada' })
 });
+
+export const SHIP_APPEARANCE_DEFAULTS = Object.freeze({
+  vanguard: Object.freeze({ primary: '#58e4e8', secondary: '#d9ffff', core: '#f4ffff', accent: '#7c9cff', glow: true }),
+  phantom: Object.freeze({ primary: '#a78bfa', secondary: '#f0eaff', core: '#ffffff', accent: '#ff77b7', glow: true }),
+  aegis: Object.freeze({ primary: '#f5b85d', secondary: '#fff0c9', core: '#fff9e8', accent: '#ff718d', glow: true })
+});
+const isHexColor = value => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value);
 
 export class Player {
   constructor(width = 360, height = 780) {
@@ -65,6 +72,7 @@ export class Player {
     const normalized = Object.hasOwn(SHIP_CLASS_CONFIG, shipClass) ? shipClass : 'vanguard';
     const config = SHIP_CLASS_CONFIG[normalized];
     this.shipClass = normalized;
+    this.shipAppearance = { ...SHIP_APPEARANCE_DEFAULTS[normalized] };
     this.baseSpeed = config.speed;
     this.speed = config.speed;
     this.baseMovementAcceleration = config.acceleration;
@@ -73,6 +81,18 @@ export class Player {
     this.maxHealth = config.maxHealth;
     this.health = config.maxHealth;
     return config;
+  }
+
+  setShipAppearance(appearance = {}) {
+    const defaults = SHIP_APPEARANCE_DEFAULTS[this.shipClass] || SHIP_APPEARANCE_DEFAULTS.vanguard;
+    this.shipAppearance = {
+      primary: isHexColor(appearance.primary) ? appearance.primary : defaults.primary,
+      secondary: isHexColor(appearance.secondary) ? appearance.secondary : defaults.secondary,
+      core: isHexColor(appearance.core) ? appearance.core : defaults.core,
+      accent: isHexColor(appearance.accent) ? appearance.accent : defaults.accent,
+      glow: typeof appearance.glow === 'boolean' ? appearance.glow : defaults.glow
+    };
+    return this.shipAppearance;
   }
 
   fitToArena(width, height) {
@@ -187,9 +207,10 @@ export class Player {
   draw(ctx, visible = true) {
     if (!visible) return;
     const phantom = this.shipClass === 'phantom', aegis = this.shipClass === 'aegis';
-    const hull = phantom ? '#a78bfa' : aegis ? '#f5b85d' : '#58e4e8';
-    const edge = phantom ? '#f0eaff' : aegis ? '#fff0c9' : '#d9ffff';
-    const wing = phantom ? '#ff77b7' : aegis ? '#ff718d' : '#7c9cff';
+    const appearance = this.shipAppearance || SHIP_APPEARANCE_DEFAULTS[this.shipClass] || SHIP_APPEARANCE_DEFAULTS.vanguard;
+    const hull = appearance.primary;
+    const edge = appearance.secondary;
+    const wing = appearance.accent;
     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rotation + Math.PI / 2);
     ctx.transform(1 - Math.abs(this.bank) * 0.08, 0, this.bank * 0.32, 1, 0, 0);
     ctx.fillStyle = '#030814'; ctx.beginPath(); ctx.ellipse(0, 4, aegis ? 16 : 14, 20, 0, 0, Math.PI * 2); ctx.fill();
@@ -218,7 +239,12 @@ export class Player {
       }
       ctx.restore();
     }
-    ctx.fillStyle='#f4ffff';ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(4,2);ctx.lineTo(0,7);ctx.lineTo(-4,2);ctx.closePath();ctx.fill();
+    ctx.save();
+    ctx.shadowColor = appearance.core;
+    ctx.shadowBlur = appearance.glow ? 8 : 0;
+    ctx.fillStyle = appearance.core;
+    ctx.beginPath();ctx.moveTo(0,-14);ctx.lineTo(4,2);ctx.lineTo(0,7);ctx.lineTo(-4,2);ctx.closePath();ctx.fill();
+    ctx.restore();
     ctx.fillStyle='#142e48';ctx.fillRect(-2,-3,4,9);ctx.fillStyle=edge;ctx.fillRect(-1,-2,2,6);
     const flame = 4 + Math.sin(this.flamePhase * 18) * 0.8 + this.thrust * 8;
     ctx.globalAlpha = 0.18 + this.thrust * 0.22;
