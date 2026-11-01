@@ -48,6 +48,7 @@ const appearanceInputs = {
   primary: document.querySelector('#ship-primary-color'),
   secondary: document.querySelector('#ship-secondary-color'),
   core: document.querySelector('#ship-core-color'),
+  accent: document.querySelector('#ship-accent-color'),
   glow: document.querySelector('#ship-glow-toggle')
 };
 const defaultShipAppearance = {
@@ -64,7 +65,7 @@ function persistShipAppearance() {
 }
 function syncAppearanceControls() {
   const appearance = game.player.shipAppearance;
-  for (const key of ['primary', 'secondary', 'core']) appearanceInputs[key].value = appearance[key];
+  for (const key of ['primary', 'secondary', 'core', 'accent']) appearanceInputs[key].value = appearance[key];
   appearanceInputs.glow.checked = appearance.glow;
   const preview = document.querySelector(`[data-ship-choice="${selectedShip}"] .hangar-ship-preview`);
   if (preview) {
@@ -96,7 +97,7 @@ function updateShipAppearance() {
     primary: appearanceInputs.primary.value,
     secondary: appearanceInputs.secondary.value,
     core: appearanceInputs.core.value,
-    accent: game.player.shipAppearance.accent,
+    accent: appearanceInputs.accent.value,
     glow: appearanceInputs.glow.checked
   };
   savedAppearances[selectedShip] = appearance;
