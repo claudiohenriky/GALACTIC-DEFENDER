@@ -287,27 +287,88 @@ export class Game {
   cacheBackground() {
     const ratio = this.pixelRatio || 1;
     const canvas = this.backgroundCanvas;
-    // Cache only one viewport-sized background; the world is larger, but must not multiply offscreen memory.
+    // One viewport-sized static scene: wreck silhouettes are rasterized once, not every frame.
     canvas.width = this.canvas.width;
     canvas.height = this.canvas.height;
     const ctx = canvas.getContext('2d');
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    const bg = ctx.createLinearGradient(0, 0, 0, this.height);
-    bg.addColorStop(0, '#071126');
-    bg.addColorStop(1, '#050813');
+    const bg = ctx.createLinearGradient(0, 0, this.width * .35, this.height);
+    bg.addColorStop(0, '#050a14');
+    bg.addColorStop(.55, '#080f1c');
+    bg.addColorStop(1, '#030711');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, this.width, this.height);
-    const nebulaA = ctx.createRadialGradient(this.width * .22, this.height * .28, 0, this.width * .22, this.height * .28, this.width * .72);
-    nebulaA.addColorStop(0, '#182c49aa'); nebulaA.addColorStop(.42, '#101b32aa'); nebulaA.addColorStop(1, '#07101b00');
-    ctx.fillStyle = nebulaA; ctx.fillRect(0, 0, this.width, this.height);
-    const nebulaB = ctx.createRadialGradient(this.width * .82, this.height * .68, 0, this.width * .82, this.height * .68, this.width * .58);
-    nebulaB.addColorStop(0, '#30203c66'); nebulaB.addColorStop(.5, '#17203955'); nebulaB.addColorStop(1, '#07101b00');
-    ctx.fillStyle = nebulaB; ctx.fillRect(0, 0, this.width, this.height);
-    const dust = ctx.createLinearGradient(0, 0, this.width, this.height);
-    dust.addColorStop(0, '#0b142400'); dust.addColorStop(.5, '#26354a22'); dust.addColorStop(1, '#080e1a00');
-    ctx.fillStyle = dust; ctx.fillRect(0, 0, this.width, this.height);
-  }
 
+    // Very restrained distant star haze; no full-screen nebula gradients or animated particles.
+    ctx.fillStyle = '#17263a';
+    ctx.fillRect(0, this.height * .18, this.width, 1);
+    ctx.fillStyle = '#111d30';
+    ctx.fillRect(0, this.height * .78, this.width, 1);
+
+    const drawWreck = (x, y, scale, rotation, alpha, variant = 0) => {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+      ctx.scale(scale, scale);
+      ctx.globalAlpha = alpha;
+      // Broken elongated hull.
+      ctx.fillStyle = '#101b2b';
+      ctx.strokeStyle = '#34445a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-92, -17); ctx.lineTo(-48, -28); ctx.lineTo(58, -19);
+      ctx.lineTo(88, -4); ctx.lineTo(42, 12); ctx.lineTo(-62, 22);
+      ctx.lineTo(-104, 8); ctx.closePath(); ctx.fill(); ctx.stroke();
+      // Exposed inner structure and torn plating.
+      ctx.fillStyle = '#1c2b3d';
+      ctx.beginPath();
+      ctx.moveTo(-55, -17); ctx.lineTo(22, -12); ctx.lineTo(53, -2);
+      ctx.lineTo(12, 8); ctx.lineTo(-48, 12); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#26364a';
+      ctx.beginPath();
+      if (variant % 2 === 0) {
+        ctx.moveTo(-72, -21); ctx.lineTo(-42, -43); ctx.lineTo(-19, -24); ctx.closePath();
+        ctx.moveTo(44, 11); ctx.lineTo(73, 31); ctx.lineTo(27, 18); ctx.closePath();
+      } else {
+        ctx.moveTo(42, -18); ctx.lineTo(71, -39); ctx.lineTo(78, -9); ctx.closePath();
+        ctx.moveTo(-45, 18); ctx.lineTo(-78, 35); ctx.lineTo(-65, 12); ctx.closePath();
+      }
+      ctx.fill();
+      // A few dim structural ribs, no glow or blur.
+      ctx.strokeStyle = '#53647a';
+      ctx.globalAlpha = alpha * .65;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(-35, -17); ctx.lineTo(-24, 14);
+      ctx.moveTo(4, -14); ctx.lineTo(14, 10);
+      ctx.moveTo(37, -11); ctx.lineTo(46, 7);
+      ctx.stroke();
+      // Small cold reactor remnant.
+      ctx.fillStyle = '#527f9b';
+      ctx.globalAlpha = alpha * .45;
+      ctx.fillRect(-5, -3, 8, 5);
+      ctx.restore();
+    };
+
+    // Large silhouettes stay near the margins to preserve combat readability.
+    drawWreck(this.width * .12, this.height * .24, .72, -.28, .34, 0);
+    drawWreck(this.width * .88, this.height * .76, .9, 2.72, .3, 1);
+    drawWreck(this.width * .79, this.height * .16, .38, .18, .2, 0);
+
+    // Sparse floating plates add scale without turning the arena into visual noise.
+    ctx.fillStyle = '#26364a';
+    ctx.globalAlpha = .26;
+    const fragments = [
+      [this.width * .29, this.height * .13, 18, 5, -.3],
+      [this.width * .68, this.height * .88, 22, 6, .5],
+      [this.width * .94, this.height * .43, 14, 4, -.7],
+      [this.width * .06, this.height * .69, 12, 4, .2]
+    ];
+    for (const [x, y, w, h, angle] of fragments) {
+      ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.fillRect(-w / 2, -h / 2, w, h); ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+  }
   start() {
     if (this.status === 'running') return;
     if (this.status === 'gameover') this.reset();
