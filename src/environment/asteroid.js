@@ -82,8 +82,14 @@ export class Asteroid {
       ctx.rotate(this.rotation);
       ctx.drawImage(sprite, -size / 2, -size / 2, size, size);
       if (this.hitFlash > 0) {
+        ctx.beginPath();
+        for (let i = 0; i < this.vertices.length; i += 1) {
+          const vertex = this.vertices[i];
+          if (i === 0) ctx.moveTo(vertex.x, vertex.y); else ctx.lineTo(vertex.x, vertex.y);
+        }
+        ctx.closePath();
+        ctx.clip();
         ctx.globalAlpha = Math.min(0.42, this.hitFlash * 3.5);
-        ctx.globalCompositeOperation = 'source-atop';
         ctx.fillStyle = '#d7b7c4';
         ctx.fillRect(-size / 2, -size / 2, size, size);
       }
