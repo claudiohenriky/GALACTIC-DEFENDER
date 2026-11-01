@@ -4,7 +4,7 @@ export const SHIP_CLASS_CONFIG = Object.freeze({
   vanguard: Object.freeze({ name: 'Vanguard', speed: 250, acceleration: 2400, maxHealth: 100, label: 'Equilibrada' }),
   phantom: Object.freeze({ name: 'Phantom', speed: 275, acceleration: 2500, maxHealth: 90, label: 'Ágil' }),
   aegis: Object.freeze({ name: 'Aegis', speed: 215, acceleration: 1900, maxHealth: 125, label: 'Blindada' }),
-  wraith: Object.freeze({ name: 'Wraith', speed: 265, acceleration: 2600, maxHealth: 95, label: 'Fase experimental' })
+  wraith: Object.freeze({ name: 'Wraith', speed: 285, acceleration: 2750, maxHealth: 105, damageMultiplier: 1.08, label: 'Caça de superioridade' })
 });
 
 export const SHIP_APPEARANCE_DEFAULTS = Object.freeze({
@@ -79,6 +79,7 @@ export class Player {
     this.shipAppearance = { ...SHIP_APPEARANCE_DEFAULTS[normalized] };
     this.baseSpeed = config.speed;
     this.speed = config.speed;
+    this.shipDamageMultiplier = config.damageMultiplier || 1;
     this.baseMovementAcceleration = config.acceleration;
     this.movementAcceleration = config.acceleration;
     this.baseMaxHealth = config.maxHealth;
