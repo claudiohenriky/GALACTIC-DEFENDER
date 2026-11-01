@@ -186,13 +186,10 @@ export class ShaderPipeline {
         event.preventDefault();
         this.contextLost = true;
         this.available = false;
+        this.outputCanvas?.remove();
+        this.outputCanvas = null;
+        this.gl = null;
         this.frame?.classList.remove('shader-enabled');
-      });
-      output.addEventListener('webglcontextrestored', () => {
-        this.available = false;
-        this.contextLost = false;
-        this.initialize();
-        if (this.enabled && this.available) this.frame?.classList.add('shader-enabled');
       });
       return true;
     } catch (error) {
