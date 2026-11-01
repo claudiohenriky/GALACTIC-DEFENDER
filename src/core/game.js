@@ -1,4 +1,4 @@
-import { Player } from '../player/player.js?v=0.45.0-motion-core';
+import { Player } from '../player/player.js?v=0.62.0-ship-classes';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.58.0-elite-standardization';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
@@ -8,7 +8,7 @@ import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.58.0-elite-st
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
 import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.58.0-plasma-telegraph';
 import { Progression } from '../progression/progression.js?v=0.44.0';
-import { SkillTree } from '../progression/skill-tree.js?v=0.59.0-skill-tree';
+import { SkillTree } from '../progression/skill-tree.js?v=0.62.0-ship-classes';
 import { Mission } from '../missions/missions.js?v=0.61.0-mission-persistence';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.57.2-boss-wave-15';
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
