@@ -2190,8 +2190,11 @@ export class Game {
         const elitePass = priorityPass === 0;
         for (const guardian of this.enemies) {
           if (!guardian.active || guardian.type !== 'guardian' || Boolean(guardian.isElite) !== elitePass) continue;
+          // The collision grid was rebuilt after the previous frame's movement.
+          // Query only nearby units instead of rescanning the full enemy roster for every Guardian.
+          const nearbyAllies = this.getEnemyCollisionCandidates(guardian.x, guardian.y, 360);
           guardian.protectedAllies = selectGuardianProtectionTargets(
-            guardian, this.enemies, assignedAllies, 360
+            guardian, nearbyAllies, assignedAllies, 360
           );
           for (const ally of guardian.protectedAllies) assignedAllies.add(ally);
         }
