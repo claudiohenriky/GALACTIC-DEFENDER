@@ -40,7 +40,7 @@ export class Game {
     this.cameraY = 0;
     this.player = new Player(this.worldWidth, this.worldHeight);
     this.selectedShip = 'vanguard';
-    this.player.shipClass = this.selectedShip;
+    this.player.setShipClass(this.selectedShip);
 
     this.progression = new Progression();
     this.skillTree = new SkillTree();
@@ -296,7 +296,7 @@ export class Game {
     this.cameraX = 0;
     this.cameraY = 0;
     this.updateCamera(0, true);
-    this.player.shipClass = this.selectedShip || 'vanguard';
+    this.player.setShipClass(this.selectedShip || 'vanguard');
     this.applyPermanentSkillBonuses();
     this.progression = new Progression();
     this.mission = new Mission();
