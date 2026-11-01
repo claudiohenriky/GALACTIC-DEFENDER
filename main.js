@@ -1,5 +1,5 @@
-import { Game } from './src/core/game.js?v=0.59.0-skill-tree';
-import { gameAudio } from './src/audio/game-audio.js?v=0.54.0-cinematic-rebuild';
+import { Game } from './src/core/game.js?v=0.60.0-audiovisual-r3';
+import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
 const canvas = document.querySelector('#game-canvas');
@@ -94,6 +94,17 @@ function closeMenuPanels() {
   skillTreePanel.classList.add('hidden');
 }
 setPlatform(detectPlatform(), false);
+
+// The ship's navigation computer confirms menu actions with short, non-intrusive cues.
+// Starting audio on the first menu interaction also allows the background score to begin
+// under the browser's user-gesture audio policy.
+document.addEventListener('click', (event) => {
+  const control = event.target.closest('#main-menu button, #hangar-screen button, #mission-prep button');
+  if (!control || control.disabled) return;
+  gameAudio.setMusicMode(control.id === 'prep-start-button' ? 'combat' : 'ambient');
+  gameAudio.start();
+  gameAudio.playUiConfirm();
+});
 platformButtons.forEach((button) => button.addEventListener('click', () => setPlatform(button.dataset.platformChoice)));
 // JOGAR opens the hangar; gameplay remains stopped until mission confirmation.
 document.querySelector('#menu-play-button').addEventListener('click', () => {
@@ -110,6 +121,7 @@ document.querySelector('#hangar-continue-button').addEventListener('click', () =
 });
 document.querySelector('#prep-back-button').addEventListener('click', () => { missionPrep.classList.add('is-hidden'); hangarScreen.classList.remove('is-hidden'); });
 document.querySelector('#prep-start-button').addEventListener('click', () => {
+  gameAudio.setMusicMode('combat');
   gameAudio.start();
   missionPrep.classList.add('is-hidden');
   mainMenu.classList.add('is-hidden');
@@ -225,7 +237,7 @@ function returnToMainMenu() {
 document.querySelector('#pause-menu-button').addEventListener('click', returnToMainMenu);
 document.querySelector('#gameover-menu-button').addEventListener('click', returnToMainMenu);
 
-const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'effects-setting': 'auto', 'fps-setting': 'off', 'sound-setting': 'on', 'sound-volume-setting': '75' };
+const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'effects-setting': 'auto', 'fps-setting': 'off', 'sound-setting': 'on', 'sound-volume-setting': '75', 'music-volume-setting': '65', 'effects-volume-setting': '85', 'voice-volume-setting': '80' };
 function applySettings() {
   const scale = Number(document.querySelector('#hud-scale-setting').value) / 100;
   const opacity = Number(document.querySelector('#hud-opacity-setting').value) / 100;
@@ -236,6 +248,9 @@ function applySettings() {
   game.setFpsDisplayEnabled(document.querySelector('#fps-setting').value === 'on');
   document.documentElement.dataset.sound = document.querySelector('#sound-setting').value;
   gameAudio.setVolume(Number(document.querySelector('#sound-volume-setting').value) / 100);
+  gameAudio.setChannelVolume('music', Number(document.querySelector('#music-volume-setting').value) / 100);
+  gameAudio.setChannelVolume('effects', Number(document.querySelector('#effects-volume-setting').value) / 100);
+  gameAudio.setChannelVolume('voice', Number(document.querySelector('#voice-volume-setting').value) / 100);
   gameAudio.setEnabled(document.querySelector('#sound-setting').value === 'on');
   Object.entries(settingDefaults).forEach(([id]) => localStorage.setItem('gd-setting-' + id, document.querySelector('#' + id).value));
 }

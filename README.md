@@ -4,7 +4,9 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Candidata atual em desenvolvimento:** `0.58.0` — padronização do combate Elite e correções de combate na branch `fix/v0.54.1-cinematic-correction` ([PR #81](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/81)). Normaliza os atributos Elite em relação às classes comuns, adiciona habilidades próprias à Sentinela, Artilheiro e Devastador Elite, corrige a prioridade de proteção do Guardião, reduz o dano dos mísseis guiados do jogador e impede que atravessem escudos. Também corrige a janela de aviso dos canhões de plasma do DREADNOUGHT e limita as falas de Elite a uma por classe por partida, com seis segundos de duração. Testes automatizados adicionados; gameplay real ainda depende de validação. Não mesclada em `main`.
+**Candidata atual em desenvolvimento:** `0.60.0` — imersão audiovisual na branch `feature/v0.60.0-audiovisual-immersion` ([PR #82](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/82)). Expande a trilha procedural, adiciona efeitos de combate, perfis de comunicação sintetizados, retratos de interlocutores e controles independentes de volume. Sons gerados localmente, sem arquivos externos. A validação automatizada passou; teste manual de áudio, mixagem e desempenho em celular/desktop ainda pendente. Não mesclada em `main`.
+
+**Base funcional preservada:** `0.59.0` — árvore permanente com cinco ramificações e especializações de combate, no PR #81. A branch audiovisual parte do commit dessa candidata e mantém `main` intacta.
 
 **Versão oficial em `main`:** `0.27.0` — novo inimigo Guardião, lento e resistente, integrado às ondas a partir da terceira.
 
