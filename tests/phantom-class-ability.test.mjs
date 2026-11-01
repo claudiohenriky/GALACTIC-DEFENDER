@@ -43,7 +43,7 @@ test('Phantom class ability grants its timed effect and cooldown', () => {
 test('Phantom class ability cannot be activated by other classes or during cooldown', () => {
   const game = {
     status: 'running',
-    player: { shipClass: 'aegis', phantomEvasionTimer: 0, invulnerabilityTimer: 0 },
+    player: { shipClass: 'unassigned', phantomEvasionTimer: 0, invulnerabilityTimer: 0 },
     classAbilityCooldown: 0,
     overloadLockTimer: 0
   };
