@@ -1,3 +1,11 @@
+## [0.64.1] — redesign visual da Wraith
+
+- Substitui a silhueta simples por um caça furtivo angular, com asas largas e varridas, blindagem em camadas e motores traseiros elevados.
+- Define a identidade padrão em roxo profundo, grafite/preto e núcleo violeta brilhante.
+- Atualiza a prévia do hangar para refletir a nova silhueta e paleta.
+- Mantém atributos, desbloqueio, habilidade Impulso de Fase e compatibilidade com a oficina de pintura.
+- Adiciona teste automatizado para a paleta padrão exclusiva da Wraith.
+
 ## [0.64.0] — nave especial Wraith
 
 - Adiciona a Wraith como quarta nave, separada das três classes comuns e bloqueada por padrão.
