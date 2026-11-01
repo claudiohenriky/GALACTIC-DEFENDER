@@ -3,9 +3,9 @@ import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=
 import { Enemy } from '../enemies/enemy.js?v=0.69.0-support-link-cache-r1';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
-import { Projectile } from '../combat/projectile.js?v=0.65.0-mobile-performance-audit-r2';
+import { Projectile } from '../combat/projectile.js?v=0.70.0-projectile-bounds-culling';
 import { GuidedMissile } from '../combat/guided-missile.js?v=0.64.4-wraith-reference-design';
-import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.58.0-elite-standardization';
+import { EnemyProjectile } from '../combat/enemy-projectile.js?v=0.70.0-projectile-bounds-culling';
 import { circlesOverlap, circleOverlapsSegment, orientedEllipseOverlapsCircle, getIncomingProjectileShieldSector } from '../combat/collision.js?v=0.55.0-directional-shield';
 import { getBossBeamSegment, getBossPlasmaSegment, isBossPlasmaTelegraphActive } from '../enemies/boss-systems.js?v=0.58.0-plasma-telegraph';
 import { Progression } from '../progression/progression.js?v=0.44.0';
@@ -2128,7 +2128,7 @@ export class Game {
     }
 
     for (let index = 0; index < this.projectiles.length; index += 1) {
-      this.projectiles[index].update(dt);
+      this.projectiles[index].update(dt, this.worldWidth, this.worldHeight);
     }
     this.guidedMissileCooldown = Math.max(0, this.guidedMissileCooldown - dt);
     this.player.guidedMissileCooldown = this.guidedMissileCooldown;
@@ -2176,7 +2176,7 @@ export class Game {
     }
     this.guidedMissileEffects.length = effectWriteIndex;
     for (let index = 0; index < this.enemyProjectiles.length; index += 1) {
-      this.enemyProjectiles[index].update(dt);
+      this.enemyProjectiles[index].update(dt, this.worldWidth, this.worldHeight);
     }
 
     // Reassign formations at a low cadence to avoid sorting the enemy roster every frame.
