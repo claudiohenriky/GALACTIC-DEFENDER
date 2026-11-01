@@ -1,5 +1,11 @@
 import { approachVelocity, integrateVelocity } from '../movement/motion.js?v=0.45.0-motion-core';
 
+export const SHIP_CLASS_CONFIG = Object.freeze({
+  vanguard: Object.freeze({ name: 'Vanguard', speed: 250, acceleration: 2400, maxHealth: 100, label: 'Equilibrada' }),
+  phantom: Object.freeze({ name: 'Phantom', speed: 285, acceleration: 2500, maxHealth: 95, label: 'Ágil' }),
+  aegis: Object.freeze({ name: 'Aegis', speed: 215, acceleration: 1900, maxHealth: 125, label: 'Blindada' })
+});
+
 export class Player {
   constructor(width = 360, height = 780) {
     this.radius = 13;
@@ -41,7 +47,7 @@ export class Player {
     this.thrust = 0;
     this.lateralThrust = 0;
     this.bank = 0;
-    this.shipClass = 'vanguard';
+    this.setShipClass('vanguard');
     // The ship points upward by default; rotation is stored as a world-space angle.
     this.rotation = -Math.PI / 2;
     this.overloadSpeedFactor = 1;
@@ -52,6 +58,19 @@ export class Player {
     this.x = width / 2;
     this.y = height * (width > height ? 0.66 : 0.78);
     this.fitToArena(width, height);
+  }
+
+  setShipClass(shipClass = 'vanguard') {
+    const normalized = Object.hasOwn(SHIP_CLASS_CONFIG, shipClass) ? shipClass : 'vanguard';
+    const config = SHIP_CLASS_CONFIG[normalized];
+    this.shipClass = normalized;
+    this.baseSpeed = config.speed;
+    this.speed = config.speed;
+    this.movementAcceleration = config.acceleration;
+    this.baseMaxHealth = config.maxHealth;
+    this.maxHealth = config.maxHealth;
+    this.health = config.maxHealth;
+    return config;
   }
 
   fitToArena(width, height) {
