@@ -9,13 +9,13 @@
   <link rel="stylesheet" href="./style.css?v=0.65.0-menu-startup-fix-r2">
   <link rel="stylesheet" href="./src/ui/version-history.css?v=0.54.5">
   <link rel="stylesheet" href="./src/ui/skill-tree.css?v=0.59.0">
-  <script type="module" src="./main.js?v=0.74.0-performance-diagnostics-r1"></script>
+  <script type="module" src="./main.js?v=0.75.0-mobile-camera-zoom-r1"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PRÉ-ALFA · 0.74.0</span>
+      <span class="build-tag">PRÉ-ALFA · 0.75.0</span>
     </header>
 
     <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
@@ -45,6 +45,7 @@
         <div class="panel-heading"><div><p class="eyebrow">PREFERÊNCIAS DO PILOTO</p><h2 id="settings-title">Configurações</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar configurações">×</button></div>
         <label class="setting-row" for="hud-scale-setting"><span><strong>Tamanho da HUD</strong><small>Ajusta o tamanho dos indicadores.</small></span><input id="hud-scale-setting" type="range" min="80" max="130" value="100"></label>
         <label class="setting-row" for="hud-opacity-setting"><span><strong>Transparência da HUD</strong><small>Controla a opacidade da interface.</small></span><input id="hud-opacity-setting" type="range" min="35" max="100" value="100"></label>
+        <label class="setting-row" for="camera-zoom-setting"><span><strong>Visão da câmera</strong><small>Valores menores afastam a câmera e mostram mais área da arena.</small></span><input id="camera-zoom-setting" type="range" min="65" max="100" step="5" value="75"></label>
         <label class="setting-row" for="effects-setting"><span><strong>Qualidade dos efeitos</strong><small>Escolha um nível fixo ou deixe o jogo adaptar a qualidade ao desempenho.</small></span><select id="effects-setting"><option value="auto">Automática</option><option value="high">Alta</option><option value="medium">Média</option><option value="low">Baixa</option></select></label>
         <label class="setting-row" for="fps-setting"><span><strong>Medidor de FPS</strong><small>Mostra FPS estimado e tempo médio por quadro durante a partida.</small></span><select id="fps-setting"><option value="off">Desativado</option><option value="on">Ativado</option></select></label>
         <label class="setting-row" for="sound-setting"><span><strong>Áudio do jogo</strong><small>Ativa ou desativa a música e os efeitos sonoros.</small></span><select id="sound-setting"><option value="on">Ativado</option><option value="off">Desativado</option></select></label>
@@ -58,7 +59,7 @@
       <section id="about-panel" class="menu-panel hidden" aria-labelledby="about-title">
         <div class="panel-heading"><div><p class="eyebrow">SOBRE O PROJETO</p><h2 id="about-title">Construído para evoluir</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar informações">×</button></div>
         <p class="menu-description">GALACTIC-DEFENDER é um jogo de ação espacial para navegador, desenvolvido com HTML, CSS e JavaScript, sem frameworks externos.</p>
-        <p class="menu-note">Versão candidata 0.62.0 · classes de nave com atributos reais e perfis de combate distintos.</p>
+        <p class="menu-note">Versão candidata 0.75.0 · câmera ajustável para ampliar a área visível da arena.</p>
         <button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button>
       </section>
       <section id="achievements-panel" class="menu-panel achievements-panel hidden" aria-labelledby="achievements-title">
@@ -72,6 +73,7 @@
         <div class="panel-heading"><div><p class="eyebrow">REGISTRO DE DESENVOLVIMENTO</p><h2 id="version-history-title">Histórico de versões</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar histórico de versões">×</button></div>
         <p class="menu-description">Novidades, ajustes e correções do GALACTIC-DEFENDER, da versão mais recente para a mais antiga.</p>
         <div id="version-history-list" class="version-history-list">
+<article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.75.0</strong><span>CÂMERA · CAMPO DE VISÃO AJUSTÁVEL</span></div><ul><li>Adiciona controle de visão da câmera nas configurações, com ajuste entre 65% e 100%.</li><li>O padrão de 75% afasta a câmera para mostrar mais área da arena durante as ondas normais, preservando o zoom cinematográfico e o enquadramento de combate do Encouraçado.</li><li>A preferência fica salva neste navegador e é restaurada ao reiniciar a partida; o jogador pode retornar a 100% quando quiser.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.64.4</strong><span>WRAITH · DESIGN BASEADO NA REFERÊNCIA ORIGINAL</span></div><ul><li>Recupera uma silhueta mais elaborada: asas largas e agressivas, placas de blindagem em camadas e motores duplos elevados integrados à traseira.</li><li>Adiciona canais luminosos nas asas e núcleo central violeta alongado, seguindo a referência enviada.</li><li>Preserva arsenal violeta, atributos aprimorados, desbloqueio e Impulso de Fase.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.60.0</strong><span>IMERSÃO AUDIOVISUAL · MÚSICA, VOZES E IDENTIDADE</span></div><ul><li>Amplia a trilha espacial procedural e diferencia a música de combate da apresentação do Encouraçado.</li><li>Adiciona perfis sonoros próprios para piloto, sistema, Encouraçado e classes Elite, com pequenos sinais sincronizados à revelação das falas.</li><li>Adiciona retratos vetoriais originais aos diálogos e às apresentações Elite; cada classe fala uma vez por partida na primeira aparição.</li><li>Adiciona sons para tiros, impactos, escudos, Pulso de Ruptura, mísseis, chegadas Elite e explosões.</li><li>Permite ajustar separadamente música, efeitos e comunicações. Os sons são sintetizados localmente, sem arquivos externos.</li><li>Preserva o equilíbrio do combate Elite e o design do Encouraçado; validação manual de áudio e desempenho ainda pendente.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.59.0</strong><span>PROGRESSÃO · ÁRVORE PERMANENTE E ESPECIALIZAÇÕES</span></div><ul><li>Adiciona cinco ramificações permanentes com 15 tecnologias conectadas por pré-requisitos.</li><li>Adiciona pontos de pesquisa persistentes, obtidos ao concluir missões e com bônus a cada três conclusões.</li><li>Aplica melhorias permanentes de integridade, propulsão, dano, cadência, escudos, recarga de habilidades e experiência.</li><li>Amplia as escolhas durante a partida com especializações de mísseis, escudos e disparos múltiplos.</li><li>Adiciona testes automatizados para compras, dependências, recompensas e aplicação de atributos.</li></ul></article>

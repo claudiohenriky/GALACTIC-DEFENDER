@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.74.0-performance-diagnostics-r1';
+import { Game } from './src/core/game.js?v=0.75.0-mobile-camera-zoom-r1';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
@@ -336,12 +336,13 @@ function returnToMainMenu() {
 document.querySelector('#pause-menu-button').addEventListener('click', returnToMainMenu);
 document.querySelector('#gameover-menu-button').addEventListener('click', returnToMainMenu);
 
-const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'effects-setting': 'auto', 'fps-setting': 'off', 'sound-setting': 'on', 'sound-volume-setting': '75', 'music-volume-setting': '65', 'effects-volume-setting': '85', 'voice-volume-setting': '80' };
+const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'camera-zoom-setting': '75', 'effects-setting': 'auto', 'fps-setting': 'off', 'sound-setting': 'on', 'sound-volume-setting': '75', 'music-volume-setting': '65', 'effects-volume-setting': '85', 'voice-volume-setting': '80' };
 function applySettings() {
   const scale = Number(document.querySelector('#hud-scale-setting').value) / 100;
   const opacity = Number(document.querySelector('#hud-opacity-setting').value) / 100;
   document.documentElement.style.setProperty('--hud-scale', String(scale));
   document.documentElement.style.setProperty('--hud-opacity', String(opacity));
+  game.setCameraZoomPreference(Number(document.querySelector('#camera-zoom-setting').value) / 100);
   document.documentElement.dataset.effects = document.querySelector('#effects-setting').value;
   game.setEffectsMode(document.querySelector('#effects-setting').value);
   game.setFpsDisplayEnabled(document.querySelector('#fps-setting').value === 'on');

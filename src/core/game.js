@@ -34,6 +34,7 @@ export class Game {
     // The simulation world is larger than the visible canvas; the camera follows the pilot.
     this.arenaScale = 2.4;
     this.cameraMinZoom = 1 / this.arenaScale;
+    this.cameraBaseZoom = 1;
     this.bossCombatZoom = BOSS_CINEMATIC_ARENA_ZOOM;
     this.worldWidth = this.width * this.arenaScale;
     this.worldHeight = this.height * this.arenaScale;
@@ -445,7 +446,7 @@ export class Game {
       this.achievements.recordRun(this.score, this.waveManager.wave);
     }
     this.player = new Player(this.worldWidth, this.worldHeight);
-    this.cameraZoom = 1;
+    this.cameraZoom = this.cameraBaseZoom;
     this.bossEncounterSeen = false;
     this.bossCinematic = null;
     gameAudio.setMusicMode('ambient');
@@ -1358,6 +1359,15 @@ export class Game {
     this.cameraY += (targetY - this.cameraY) * follow;
   }
 
+  setCameraZoomPreference(zoom) {
+    const requestedZoom = Number(zoom);
+    this.cameraBaseZoom = Number.isFinite(requestedZoom)
+      ? Math.max(this.cameraMinZoom, Math.min(1, requestedZoom))
+      : 0.75;
+    this.cameraZoom = this.cameraBaseZoom;
+    this.updateCamera(0, true);
+  }
+
   screenToWorld(screenX, screenY) {
     const zoom = Math.max(this.cameraMinZoom, this.cameraZoom || 1);
     const centerX = this.width / 2;
@@ -1988,7 +1998,7 @@ export class Game {
     if (bossPresent) this.bossEncounterSeen = true;
     // The 2.4x world is fully visible at its calculated minimum zoom (1 / arenaScale).
     // Keep the tactical overview after the boss is defeated until the next run.
-    const targetCameraZoom = this.bossEncounterSeen ? this.bossCombatZoom : 1;
+    const targetCameraZoom = this.bossEncounterSeen ? this.bossCombatZoom : this.cameraBaseZoom;
     this.cameraZoom += (targetCameraZoom - this.cameraZoom) * Math.min(1, dt * 1.65);
 
     for (let index = 0; index < this.stars.length; index += 1) {
