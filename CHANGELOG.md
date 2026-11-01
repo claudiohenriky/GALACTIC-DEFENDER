@@ -1,3 +1,11 @@
+## [0.64.2] — arsenal violeta e superioridade da Wraith
+
+- Colore os disparos básicos da Wraith em violeta/magenta, incluindo variações de disparo aprimorado.
+- Aplica identidade roxa aos mísseis teleguiados, rastros, fragmentos e explosões, sem alterar a aparência das outras naves.
+- Buffa o perfil da Wraith para 285 de velocidade, 2750 de aceleração, 105 de integridade e multiplicador de dano de 1,08×.
+- Mantém a Aegis como a nave de maior integridade (125), enquanto a Wraith passa a ser a melhor em mobilidade e dano geral.
+- Atualiza os identificadores de cache dos módulos de combate e adiciona testes de hierarquia dos atributos.
+
 ## [0.64.1] — redesign visual da Wraith
 
 - Substitui a silhueta simples por um caça furtivo angular, com asas largas e varridas, blindagem em camadas e motores traseiros elevados.
