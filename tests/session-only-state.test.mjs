@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import { join } from 'node:path';
 import { SkillTree } from '../src/progression/skill-tree.js';
 import { Mission } from '../src/missions/missions.js';
 import { AchievementTracker } from '../src/progression/achievements.js';
@@ -92,7 +93,28 @@ test('legacy gd- keys are removed while unrelated browser data is preserved', ()
   }
 });
 
-test('application entry point contains no browser storage reads or writes', async () => {
-  const source = await readFile(new URL('../main.js', import.meta.url), 'utf8');
-  assert.doesNotMatch(source, /\b(localStorage|sessionStorage)\s*\./);
+async function collectJavaScriptFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) files.push(...await collectJavaScriptFiles(path));
+    else if (entry.isFile() && entry.name.endsWith('.js')) files.push(path);
+  }
+  return files;
+}
+
+test('runtime modules never read or write persistent browser state', async () => {
+  const files = [
+    new URL('../main.js', import.meta.url).pathname,
+    ...await collectJavaScriptFiles(new URL('../src/', import.meta.url).pathname)
+  ];
+  for (const path of files) {
+    const source = await readFile(path, 'utf8');
+    assert.doesNotMatch(source, /\\b(localStorage|sessionStorage)\\.(getItem|setItem|clear)\\s*\\(/, path);
+    assert.doesNotMatch(source, /\\bindexedDB\\.open\\s*\\(/, path);
+  }
+  const entry = await readFile(new URL('../main.js', import.meta.url), 'utf8');
+  assert.match(entry, /friendShipUnlockCode = 'ORBITAL-ALLY'/);
+  assert.match(entry, /replace\\(\\/[\\\\s#]\\/g/);
 });
