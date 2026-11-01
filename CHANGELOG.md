@@ -1,3 +1,10 @@
+## [0.64.3] — refinamento da silhueta da Wraith
+
+- Refina a silhueta de combate para um caça furtivo mais alongado, com asas contínuas e varridas, fuselagem central e motores traseiros integrados.
+- Remove as estruturas traseiras elevadas e segmentadas que davam aparência insetoide.
+- Atualiza a prévia vetorial do hangar para acompanhar o desenho de combate.
+- Preserva paleta roxo-grafite, núcleo violeta, arsenal violeta, atributos, desbloqueio e Impulso de Fase.
+
 ## [0.64.2] — arsenal violeta e superioridade da Wraith
 
 - Colore os disparos básicos da Wraith em violeta/magenta, incluindo variações de disparo aprimorado.
