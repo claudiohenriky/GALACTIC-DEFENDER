@@ -61,10 +61,15 @@ test('permanent bonuses are applied to player attributes', () => withStorage(() 
   assert.equal(player.xpMultiplier, 1.05);
 }));
 
-test('corrupted saved data falls back without throwing', () => {
+test('legacy saved research is ignored and the tree starts clean', () => {
   const previous = globalThis.localStorage;
-  globalThis.localStorage = { getItem: () => '{bad json', setItem: () => {} };
-  try { assert.equal(new SkillTree().researchPoints, 1); }
+  globalThis.localStorage = { getItem: () => JSON.stringify({ researchPoints: 999, purchased: ['integrity-1'], missionsCompleted: 99 }), setItem: () => {} };
+  try {
+    const tree = new SkillTree();
+    assert.equal(tree.researchPoints, 1);
+    assert.equal(tree.purchased.size, 0);
+    assert.equal(tree.missionsCompleted, 0);
+  }
   finally {
     if (previous === undefined) delete globalThis.localStorage;
     else globalThis.localStorage = previous;
