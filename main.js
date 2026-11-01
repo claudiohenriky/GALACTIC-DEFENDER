@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.60.0-audiovisual-r3';
+import { Game } from './src/core/game.js?v=0.61.0-mission-rework';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
