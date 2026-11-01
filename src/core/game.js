@@ -619,7 +619,9 @@ export class Game {
   }
 
   triggerSystemDisruption(duration = 1.4) {
+    const isNewDisruption = this.damageFeedbackTimer <= 0;
     this.player.applySystemDisruption(duration);
+    if (isNewDisruption) gameAudio.playSystemAlert('warning');
     // Keep the status message visible for the full recovery window; the canvas
     // border flash remains capped separately so a longer disruption stays subtle.
     this.damageFeedbackTimer = Math.max(this.damageFeedbackTimer, duration);
