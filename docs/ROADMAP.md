@@ -633,3 +633,18 @@ Este roteiro organiza a expansão em etapas pequenas. A versão oficial permanec
 - [x] Aplicar bônus permanentes de integridade, mobilidade, arsenal, energia e tecnologia.
 - [x] Integrar especializações temporárias às cartas de evolução durante a partida.
 - [ ] Ampliar futuramente os caminhos de especialização com novas habilidades e efeitos exclusivos.
+
+
+## v0.65.0 — Ambiente espacial dinâmico (candidata)
+- [x] Substituir a grade quadriculada por fundo espacial atmosférico em camadas, sem textura pesada.
+- [x] Criar estrelas circulares em duas camadas de profundidade com velocidades distintas.
+- [x] Adicionar asteroides rochosos com geometria determinística, rotação, deriva e colisão.
+- [x] Permitir que disparos do jogador danifiquem e destruam asteroides.
+- [x] Fazer unidades comuns ajustarem a posição para evitar asteroides próximos.
+- [x] Permitir que o Encouraçado esmague asteroides durante o deslocamento.
+- [x] Implementar colisão moderada entre jogador e asteroides, com reposicionamento e intervalo de dano.
+- [ ] Validar visual, distribuição e legibilidade do campo em celular e desktop.
+- [ ] Validar que inimigos desviam sem ficar presos ou se agruparem ao redor dos obstáculos.
+- [ ] Confirmar que o Encouraçado destrói rochas de modo perceptível durante uma luta real.
+- [ ] Medir FPS e tempo de quadro em aparelho real; testes automatizados não substituem medição mobile.
+- [ ] Próxima iteração: variação visual dos asteroides, destroços e pontos de interesse ambientais, após o primeiro teste do usuário.
