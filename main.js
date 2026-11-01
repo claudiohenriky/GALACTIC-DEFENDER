@@ -78,6 +78,7 @@ function syncAppearanceControls() {
 function applySavedShipAppearance() {
   const appearance = { ...defaultShipAppearance[selectedShip], ...(savedAppearances[selectedShip] || {}) };
   game.player.setShipAppearance(appearance);
+  game.selectedShipAppearance = { ...appearance };
   syncAppearanceControls();
 }
 function selectShip(shipClass) {
@@ -102,6 +103,7 @@ function updateShipAppearance() {
   };
   savedAppearances[selectedShip] = appearance;
   game.player.setShipAppearance(appearance);
+  game.selectedShipAppearance = { ...appearance };
   persistShipAppearance();
   syncAppearanceControls();
 }
