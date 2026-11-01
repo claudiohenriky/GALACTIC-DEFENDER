@@ -63,6 +63,7 @@ export class Game {
     this.cinematicHudRoot = this.canvas.closest('.game-layout');
     this.cinematicHudElements = Array.from(this.cinematicHudRoot?.querySelectorAll('.side-panel, .arena-status, .arena-footer, .in-game-hud, #boss-hud, #overload-panel, #fps-counter, #level-up-toast, #guided-missile-button, #shield-pulse-button, #reward-banner, #damage-feedback, #touch-controls, .fullscreen-button, .orientation-hint') ?? []);
     this.guardianAssignmentTimer = 0;
+    this.enemySeparationTimer = 0;
     this.enemyTactics = new EnemyTacticalCoordinator();
     this.projectiles = [];
     this.guidedMissiles = [];
@@ -396,6 +397,7 @@ export class Game {
     this.enemies = [];
     this.eliteAlertsShown = new Set();
     this.guardianAssignmentTimer = 0;
+    this.enemySeparationTimer = 0;
     this.projectiles = [];
     this.guidedMissiles = [];
     this.guidedMissileTargetReservations.clear();
@@ -2184,44 +2186,50 @@ export class Game {
       }
     }
 
-    // Soft local separation prevents hostile ships from stacking while preserving their current tactics.
-    for (let i = 0; i < this.enemies.length; i += 1) {
-      const first = this.enemies[i];
-      if (!first.active || first.bossDying) continue;
-      for (let j = i + 1; j < this.enemies.length; j += 1) {
-        const second = this.enemies[j];
-        if (!second.active || second.bossDying) continue;
-        const firstRadius = first.collisionRadius ?? first.radius;
-        const secondRadius = second.collisionRadius ?? second.radius;
-        const minimumDistance = firstRadius + secondRadius + 4;
-        let dx = second.x - first.x;
-        let dy = second.y - first.y;
-        // Reject distant pairs on the cheap axis checks before multiplying.
-        if (Math.abs(dx) >= minimumDistance || Math.abs(dy) >= minimumDistance) continue;
-        let distanceSquared = dx * dx + dy * dy;
-        if (distanceSquared >= minimumDistance * minimumDistance) continue;
-        if (distanceSquared < 0.01) {
-          const angle = first.phase - second.phase || 0.5;
-          dx = Math.cos(angle);
-          dy = Math.sin(angle);
-          distanceSquared = 1;
+    // Enemy separation is a corrective pass, not core movement. Run it at 10 Hz
+    // instead of every frame; this caps the quadratic pair scan while preserving
+    // per-frame movement, aiming, firing, and all damage/collision checks.
+    this.enemySeparationTimer -= dt;
+    if (this.enemySeparationTimer <= 0) {
+      this.enemySeparationTimer = 0.1;
+      for (let i = 0; i < this.enemies.length; i += 1) {
+        const first = this.enemies[i];
+        if (!first.active || first.bossDying) continue;
+        for (let j = i + 1; j < this.enemies.length; j += 1) {
+          const second = this.enemies[j];
+          if (!second.active || second.bossDying) continue;
+          const firstRadius = first.collisionRadius ?? first.radius;
+          const secondRadius = second.collisionRadius ?? second.radius;
+          const minimumDistance = firstRadius + secondRadius + 4;
+          let dx = second.x - first.x;
+          let dy = second.y - first.y;
+          // Reject distant pairs on the cheap axis checks before multiplying.
+          if (Math.abs(dx) >= minimumDistance || Math.abs(dy) >= minimumDistance) continue;
+          let distanceSquared = dx * dx + dy * dy;
+          if (distanceSquared >= minimumDistance * minimumDistance) continue;
+          if (distanceSquared < 0.01) {
+            const angle = first.phase - second.phase || 0.5;
+            dx = Math.cos(angle);
+            dy = Math.sin(angle);
+            distanceSquared = 1;
+          }
+          const distance = Math.sqrt(distanceSquared);
+          const overlap = minimumDistance - distance;
+          const separation = Math.min(3.5, overlap * 0.32);
+          const totalRadius = Math.max(1, firstRadius + secondRadius);
+          const firstShare = secondRadius / totalRadius;
+          const secondShare = firstRadius / totalRadius;
+          const pushX = dx / distance * separation;
+          const pushY = dy / distance * separation;
+          first.x -= pushX * firstShare;
+          first.y -= pushY * firstShare;
+          second.x += pushX * secondShare;
+          second.y += pushY * secondShare;
+          first.x = Math.max(firstRadius, Math.min(this.worldWidth - firstRadius, first.x));
+          first.y = Math.max(firstRadius, Math.min(this.worldHeight - firstRadius, first.y));
+          second.x = Math.max(secondRadius, Math.min(this.worldWidth - secondRadius, second.x));
+          second.y = Math.max(secondRadius, Math.min(this.worldHeight - secondRadius, second.y));
         }
-        const distance = Math.sqrt(distanceSquared);
-        const overlap = minimumDistance - distance;
-        const separation = Math.min(3.5, overlap * 0.32);
-        const totalRadius = Math.max(1, firstRadius + secondRadius);
-        const firstShare = secondRadius / totalRadius;
-        const secondShare = firstRadius / totalRadius;
-        const pushX = dx / distance * separation;
-        const pushY = dy / distance * separation;
-        first.x -= pushX * firstShare;
-        first.y -= pushY * firstShare;
-        second.x += pushX * secondShare;
-        second.y += pushY * secondShare;
-        first.x = Math.max(firstRadius, Math.min(this.worldWidth - firstRadius, first.x));
-        first.y = Math.max(firstRadius, Math.min(this.worldHeight - firstRadius, first.y));
-        second.x = Math.max(secondRadius, Math.min(this.worldWidth - secondRadius, second.x));
-        second.y = Math.max(secondRadius, Math.min(this.worldHeight - secondRadius, second.y));
       }
     }
 
