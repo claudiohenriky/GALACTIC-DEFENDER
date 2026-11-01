@@ -738,3 +738,10 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .canvas-frame .ability-card-class[data-ability-class="wraith"] .ability-card-icon{border-color:#d77cff99;background:#4b1d62;color:#f0c1ff}
 .canvas-frame .ability-card-class[data-ability-class="wraith"] .ability-card-copy small{color:#e5b0ff}
 .canvas-frame .ability-card-class[data-ability-class="wraith"] .ability-cooldown-fill{background:#d77cff}
+
+
+/* v0.78.0 — Vanguard tactical synchronization uses its cyan class palette. */
+.canvas-frame .ability-card-class[data-ability-class="vanguard"]{border-color:#58e4e8;background:linear-gradient(145deg,#123b49f2,#101322f2);color:#e8ffff}
+.canvas-frame .ability-card-class[data-ability-class="vanguard"] .ability-card-icon{border-color:#58e4e899;background:#164b59;color:#c9ffff}
+.canvas-frame .ability-card-class[data-ability-class="vanguard"] .ability-card-copy small{color:#9cf5f7}
+.canvas-frame .ability-card-class[data-ability-class="vanguard"] .ability-cooldown-fill{background:#58e4e8}
