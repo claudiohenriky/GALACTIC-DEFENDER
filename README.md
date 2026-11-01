@@ -4,6 +4,10 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
+**Candidata em desenvolvimento:** `0.63.0` — personalização visual por nave na branch `feature/v0.63.0-ship-customization` (PR em preparação). O hangar permite alterar cor principal, detalhes, núcleo e brilho, com salvamento independente para Vanguard, Phantom e Aegis. O perfil Phantom foi ajustado para 275 de velocidade, 2500 de aceleração e 90 de integridade para reforçar seu custo defensivo em relação à Vanguard. Não mesclada em `main`.
+
+
+
 **Candidata atual em desenvolvimento:** `0.62.0` — classes funcionais para as naves do hangar na branch `feature/v0.62.0-hangar-ship-classes` ([PR #84](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/84)). Vanguard, Phantom e Aegis agora possuem perfis próprios de velocidade, aceleração e integridade; a árvore de pesquisa aplica seus bônus sobre os atributos da classe selecionada. A candidata parte da expansão de missões v0.61.0 (PR #83), que ainda aguarda validação automatizada e teste manual. A validação desta etapa também está pendente. Não mesclada em `main`.
 
 **Base funcional preservada:** `0.59.0` — árvore permanente com cinco ramificações e especializações de combate, no PR #81. A branch audiovisual parte do commit dessa candidata e mantém `main` intacta.
