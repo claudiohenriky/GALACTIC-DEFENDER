@@ -2686,6 +2686,9 @@ export class Game {
     for (let index = 0; index < this.guidedMissileEffects.length; index += 1) {
       if (this.effectsScale < 0.75 && index % 2) continue;
       const effect = this.guidedMissileEffects[index];
+      const effectMargin = effect.radius + 8;
+      if (effect.x + effectMargin < viewLeft || effect.x - effectMargin > viewRight ||
+          effect.y + effectMargin < viewTop || effect.y - effectMargin > viewBottom) continue;
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
       const radius = effect.radius * (0.35 + progress * 0.65);
@@ -2748,6 +2751,8 @@ export class Game {
     for (let index = 0; index < this.shieldBreakEffects.length; index += 1) {
       if (this.effectsScale < 0.75 && index % 2) continue;
       const effect = this.shieldBreakEffects[index];
+      if (effect.x + effect.radius < viewLeft || effect.x - effect.radius > viewRight ||
+          effect.y + effect.radius < viewTop || effect.y - effect.radius > viewBottom) continue;
       const progress = 1 - effect.life / effect.maxLife;
       const fade = Math.max(0, effect.life / effect.maxLife);
       ctx.save();
@@ -2765,6 +2770,9 @@ export class Game {
     for (let index = 0; index < this.damageSparks.length; index += 1) {
       if (this.effectsScale < 0.75 && index % 2) continue;
       const spark = this.damageSparks[index];
+      const sparkMargin = (spark.size ?? 2) + (spark.length ?? 0) + 4;
+      if (spark.x + sparkMargin < viewLeft || spark.x - sparkMargin > viewRight ||
+          spark.y + sparkMargin < viewTop || spark.y - sparkMargin > viewBottom) continue;
       const fade = Math.max(0, spark.life / spark.maxLife);
       ctx.save();
       ctx.translate(spark.x, spark.y);
@@ -2837,6 +2845,9 @@ export class Game {
     for (let index = 0; index < this.levelUpParticles.length; index += 1) {
       if (this.effectsScale < 0.75 && index % 2) continue;
       const particle = this.levelUpParticles[index];
+      const particleMargin = (particle.size ?? 4) * 2;
+      if (particle.x + particleMargin < viewLeft || particle.x - particleMargin > viewRight ||
+          particle.y + particleMargin < viewTop || particle.y - particleMargin > viewBottom) continue;
       ctx.save();
       ctx.globalAlpha = Math.max(0, particle.life / particle.maxLife);
       ctx.translate(particle.x, particle.y);
