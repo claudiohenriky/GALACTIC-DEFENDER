@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.66.0-spatial-collision-r3';
+import { Game } from './src/core/game.js?v=0.67.0-enemy-separation-grid-r1';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
