@@ -106,3 +106,12 @@ test('changing away from Wraith clears its temporary phase drive', () => {
   assert.equal(player.phaseDriveTimer, 0);
   assert.equal(player.getMovementSpeedMultiplier(), 1);
 });
+
+
+test('Wraith uses its signature violet and graphite default appearance', () => {
+  const player = new Player(800, 600);
+  player.setShipClass('wraith');
+  assert.deepEqual(player.shipAppearance, {
+    primary: '#76279b', secondary: '#e5a0ff', core: '#f04cff', accent: '#b52be8', glow: true
+  });
+});
