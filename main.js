@@ -94,6 +94,16 @@ function closeMenuPanels() {
   skillTreePanel.classList.add('hidden');
 }
 setPlatform(detectPlatform(), false);
+
+// The ship's navigation computer confirms menu actions with short, non-intrusive cues.
+// Starting audio on the first menu interaction also allows the background score to begin
+// under the browser's user-gesture audio policy.
+document.addEventListener('click', (event) => {
+  const control = event.target.closest('#main-menu button, #hangar-screen button, #mission-prep button');
+  if (!control || control.disabled) return;
+  gameAudio.start();
+  gameAudio.playUiConfirm();
+});
 platformButtons.forEach((button) => button.addEventListener('click', () => setPlatform(button.dataset.platformChoice)));
 // JOGAR opens the hangar; gameplay remains stopped until mission confirmation.
 document.querySelector('#menu-play-button').addEventListener('click', () => {
