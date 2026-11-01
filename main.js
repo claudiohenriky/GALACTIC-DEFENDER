@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.65.0-dynamic-space-environment';
+import { Game } from './src/core/game.js?v=0.65.0-wreck-field-r1';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
