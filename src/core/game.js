@@ -70,6 +70,7 @@ export class Game {
     this.enemyCollisionRows = 0;
     this.enemyCollisionQueryStamp = 0;
     this.enemyCollisionCandidates = [];
+    this.enemyCollisionBosses = [];
     this.enemyTactics = new EnemyTacticalCoordinator();
     this.projectiles = [];
     this.guidedMissiles = [];
@@ -263,10 +264,15 @@ export class Game {
   rebuildEnemyCollisionGrid() {
     this.initializeEnemyCollisionGrid();
     for (const bucket of this.enemyCollisionGrid) bucket.length = 0;
+    this.enemyCollisionBosses.length = 0;
     const cellSize = this.enemyCollisionCellSize;
     const columns = this.enemyCollisionColumns;
     for (const enemy of this.enemies) {
-      if (!enemy.active || enemy.bossDying || enemy.type === 'boss' || enemy.type === 'megaboss') continue;
+      if (!enemy.active || enemy.bossDying) continue;
+      if (enemy.type === 'boss' || enemy.type === 'megaboss') {
+        this.enemyCollisionBosses.push(enemy);
+        continue;
+      }
       const column = Math.max(0, Math.min(columns - 1, Math.floor(enemy.x / cellSize)));
       const row = Math.max(0, Math.min(this.enemyCollisionRows - 1, Math.floor(enemy.y / cellSize)));
       this.enemyCollisionGrid[row * columns + column].push(enemy);
@@ -283,8 +289,7 @@ export class Game {
     const maxRow = Math.min(this.enemyCollisionRows - 1, Math.floor((y + radius) / cellSize));
     const stamp = ++this.enemyCollisionQueryStamp;
     // Include large hulls separately: bosses span many grid cells and retain their exact ellipse test.
-    for (const enemy of this.enemies) {
-      if (!enemy.active || enemy.bossDying || (enemy.type !== 'boss' && enemy.type !== 'megaboss')) continue;
+    for (const enemy of this.enemyCollisionBosses) {
       if (enemy.collisionQueryStamp !== stamp) {
         enemy.collisionQueryStamp = stamp;
         candidates.push(enemy);
