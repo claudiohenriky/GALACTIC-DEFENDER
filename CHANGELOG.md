@@ -1,3 +1,13 @@
+## [0.61.0] — expansão e persistência das missões
+
+- Salva no navegador a missão atual, o progresso, o tempo acumulado de sobrevivência e a posição da rotação; a partida pode ser reiniciada sem reiniciar o ciclo de objetivos.
+- Expande a rotação de três para seis categorias: eliminações, sobrevivência, ondas, tropas de Elite, ativações de habilidades especiais e derrota de chefe.
+- Integra os eventos reais de eliminação Elite, derrota do DREADNOUGHT e ativação de mísseis/Pulso de Ruptura ao progresso das missões.
+- Mantém XP, pontuação, pontos de pesquisa, títulos e conquistas como recompensas integradas; objetivos mais exigentes concedem valores maiores de XP e pontuação.
+- Adiciona testes para persistência, rotação, escalonamento de objetivos, dados corrompidos e integração dos eventos de gameplay.
+- A validação inicial aprovou sintaxe e 131 de 132 testes; o único teste que falhou tinha uma expectativa incorreta sobre a conclusão da missão Elite. A asserção foi corrigida; nova execução automatizada ainda pendente.
+- A candidata permanece na branch de desenvolvimento e não altera `main`.
+
 ## [0.60.0] — imersão audiovisual e identidade dos personagens
 
 - Expande o áudio procedural com três ambientes musicais: menu/hangar, combate e confronto com o DREADNOUGHT; cada transição troca a sequência sem reiniciar o contexto de áudio. Mantém canais independentes de música, efeitos e comunicações.
