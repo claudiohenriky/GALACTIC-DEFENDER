@@ -1,4 +1,4 @@
-import { Player } from '../player/player.js?v=0.64.1-wraith-redesign';
+import { Player } from '../player/player.js?v=0.64.2-wraith-arsenal';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
 import { Enemy } from '../enemies/enemy.js?v=0.58.0-elite-standardization';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
