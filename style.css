@@ -745,3 +745,10 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .canvas-frame .ability-card-class[data-ability-class="vanguard"] .ability-card-icon{border-color:#58e4e899;background:#164b59;color:#c9ffff}
 .canvas-frame .ability-card-class[data-ability-class="vanguard"] .ability-card-copy small{color:#9cf5f7}
 .canvas-frame .ability-card-class[data-ability-class="vanguard"] .ability-cooldown-fill{background:#58e4e8}
+
+
+/* v0.79.0 — Aegis Bastion Protocol uses the class's warm gold shield palette. */
+.canvas-frame .ability-card-class[data-ability-class="aegis"]{border-color:#ffd36b;background:linear-gradient(145deg,#4a3518f2,#171522f2);color:#fff5d8}
+.canvas-frame .ability-card-class[data-ability-class="aegis"] .ability-card-icon{border-color:#ffd36b99;background:#59421c;color:#ffe7a1}
+.canvas-frame .ability-card-class[data-ability-class="aegis"] .ability-card-copy small{color:#ffe2a0}
+.canvas-frame .ability-card-class[data-ability-class="aegis"] .ability-cooldown-fill{background:#ffd36b}
