@@ -680,3 +680,18 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .hangar-ship-stats{display:block;padding:7px 9px;border:1px solid #31435e;border-radius:6px;background:#07101bc9;color:#d3e2f5;font-size:9px;font-weight:750;line-height:1.5;letter-spacing:.02em}
 .hangar-ship-card.is-selected .hangar-ship-stats{border-color:#4b8d9c;color:#baf6f0}
 @media(max-width:760px){.hangar-ship-stats{grid-column:2;font-size:8px;padding:6px 7px}}
+
+
+/* v0.63.0 — per-ship paint customization in the hangar. */
+.hangar-customizer{padding:20px;border:1px solid #2a3b58;border-radius:10px;background:linear-gradient(145deg,#101c30,#0a1221)}
+.hangar-customizer-heading h3{margin:0;font-size:18px;letter-spacing:-.025em}
+.hangar-customizer-heading p:last-child{margin:7px 0 0;color:#a8b7d0;font-size:11px;line-height:1.6}
+.ship-color-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+.ship-color-control,.ship-glow-control{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;padding:10px 12px;border:1px solid #2b3c57;border-radius:8px;background:#081222;color:#dce8f8;font-size:11px}
+.ship-color-control input{width:38px;height:32px;padding:2px;border:1px solid #51627b;border-radius:6px;background:#0b1425;cursor:pointer}
+.ship-glow-control{justify-content:flex-start}
+.ship-glow-control input{width:17px;height:17px;accent-color:#65dce2}
+.hangar-ship-preview{--ship-primary:#58e4e8;--ship-secondary:#d9ffff;--ship-core:#f4ffff;--ship-accent:#7b9cff}
+.hangar-ship-preview svg path{transition:fill .12s,stroke .12s}
+@media(max-width:760px){.hangar-customizer{padding:15px}.ship-color-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ship-color-control,.ship-glow-control{padding:9px;font-size:10px}}
+@media(max-width:390px){.ship-color-controls{grid-template-columns:1fr}.ship-color-control{min-height:44px}}
