@@ -6,16 +6,16 @@
   <meta name="theme-color" content="#070b18">
   <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.63.0-ship-customization">
+  <link rel="stylesheet" href="./style.css?v=0.64.0-friend-ship-unlock">
   <link rel="stylesheet" href="./src/ui/version-history.css?v=0.54.5">
   <link rel="stylesheet" href="./src/ui/skill-tree.css?v=0.59.0">
-  <script type="module" src="./main.js?v=0.63.0-ship-customization"></script>
+  <script type="module" src="./main.js?v=0.64.0-friend-ship-unlock"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PRÉ-ALFA · 0.63.0</span>
+      <span class="build-tag">PRÉ-ALFA · 0.64.0</span>
     </header>
 
     <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
@@ -134,7 +134,18 @@
         <button class="hangar-ship-card is-selected" type="button" data-ship-choice="vanguard" aria-pressed="true"><span class="hangar-ship-preview ship-preview-vanguard" aria-hidden="true"><svg viewBox="0 0 120 100"><path d="M60 7 72 39 105 68 77 72 60 91 43 72 15 68 48 39Z" fill="var(--ship-primary,#54e4e8)" stroke="var(--ship-secondary,#d9ffff)" stroke-width="2"/><path d="M60 18 66 53 60 65 54 53Z" fill="var(--ship-core,#f4ffff)"/><path d="M25 66 45 60 42 72 25 75M95 66 75 60 78 72 95 75" fill="var(--ship-accent,#7b9cff)"/></svg></span><span class="hangar-ship-tag">CLASSE 01 · EQUILIBRADA</span><strong>Vanguard</strong><span class="hangar-ship-description">Perfil equilibrado, sem sacrificar mobilidade ou resistência.</span><span class="hangar-ship-stats" data-ship-stats="vanguard">250 velocidade · 100 integridade · 2400 aceleração</span><small>PERFIL EQUILIBRADO</small></button>
         <button class="hangar-ship-card" type="button" data-ship-choice="phantom" aria-pressed="false"><span class="hangar-ship-preview ship-preview-phantom" aria-hidden="true"><svg viewBox="0 0 120 100"><path d="M60 6 70 37 111 61 83 67 68 62 60 87 52 62 37 67 9 61 50 37Z" fill="var(--ship-primary,#a78bfa)" stroke="var(--ship-secondary,#eee7ff)" stroke-width="2"/><path d="M60 15 65 47 60 58 55 47Z" fill="var(--ship-core,#fff)"/><path d="M18 60 44 55 35 69 18 68M102 60 76 55 85 69 102 68" fill="var(--ship-accent,#ff77b7)"/></svg></span><span class="hangar-ship-tag">CLASSE 02 · ÁGIL</span><strong>Phantom</strong><span class="hangar-ship-description">Aceleração e velocidade superiores; casco menos resistente.</span><span class="hangar-ship-stats" data-ship-stats="phantom">275 velocidade · 90 integridade · 2500 aceleração</span><small>PERFIL DE INTERCEPTAÇÃO</small></button>
         <button class="hangar-ship-card" type="button" data-ship-choice="aegis" aria-pressed="false"><span class="hangar-ship-preview ship-preview-aegis" aria-hidden="true"><svg viewBox="0 0 120 100"><path d="M60 9 76 31 108 46 91 73 70 68 60 91 50 68 29 73 12 46 44 31Z" fill="var(--ship-primary,#f5b85d)" stroke="var(--ship-secondary,#fff0c9)" stroke-width="2"/><path d="M60 18 68 46 60 62 52 46Z" fill="var(--ship-core,#fff9e8)"/><path d="M20 48 44 45 39 66 29 64M100 48 76 45 81 66 91 64" fill="var(--ship-accent,#ff718d)"/></svg></span><span class="hangar-ship-tag">CLASSE 03 · PESADA</span><strong>Aegis</strong><span class="hangar-ship-description">Mais integridade e estabilidade, com menor velocidade e aceleração.</span><span class="hangar-ship-stats" data-ship-stats="aegis">215 velocidade · 125 integridade · 1900 aceleração</span><small>PERFIL DE RESISTÊNCIA</small></button>
+        <button class="hangar-ship-card is-locked" type="button" data-ship-choice="wraith" aria-pressed="false" aria-disabled="true" disabled>
+          <span class="hangar-ship-preview ship-preview-wraith" aria-hidden="true"><svg viewBox="0 0 120 100"><path d="M60 5 69 31 111 49 88 59 76 54 67 72 60 91 53 72 44 54 32 59 9 49 51 31Z" fill="var(--ship-primary,#70e0bd)" stroke="var(--ship-secondary,#d5fff0)" stroke-width="2"/><path d="M60 13 67 45 60 68 53 45Z" fill="var(--ship-core,#f4fff9)"/><path d="M15 48 46 46 35 64 19 60M105 48 74 46 85 64 101 60" fill="var(--ship-accent,#75a7ff)"/><path d="M60 4 60 17M8 49 25 49M112 49 95 49" stroke="var(--ship-secondary,#d5fff0)" stroke-width="2" opacity=".8"/></svg></span>
+          <span class="hangar-ship-tag">NAVE ESPECIAL · RESTRITA</span><strong>Wraith</strong>
+          <span class="hangar-ship-description">Protótipo de fase: aceleração elevada e impulso temporário após disparar mísseis.</span>
+          <span class="hangar-ship-stats" data-ship-stats="wraith">265 velocidade · 95 integridade · 2600 aceleração</span>
+          <small class="friend-ship-card-status">BLOQUEADA · CÓDIGO NECESSÁRIO</small>
+        </button>
       </div>
+      <section class="friend-ship-unlock" aria-labelledby="friend-ship-unlock-title">
+        <div><p class="eyebrow">ACESSO RESTRITO</p><h3 id="friend-ship-unlock-title">Protocolo de aliado</h3><p>Insira o código de acesso para liberar a nave especial vinculada ao seu amigo neste navegador.</p></div>
+        <div class="friend-ship-unlock-controls"><label for="friend-ship-code">Código de desbloqueio</label><div><input id="friend-ship-code" type="password" maxlength="32" autocomplete="off" placeholder="Digite o código"><button id="friend-ship-unlock-button" type="button" class="secondary-button">VALIDAR CÓDIGO</button></div><p id="friend-ship-unlock-note" role="status" aria-live="polite">A nave especial permanece bloqueada até a validação.</p></div>
+      </section>
       <section class="hangar-customizer" aria-labelledby="ship-customizer-title">
         <div class="hangar-customizer-heading"><p class="eyebrow">OFICINA DE PINTURA</p><h3 id="ship-customizer-title">Personalize sua nave</h3><p>As alterações são aplicadas à prévia e à nave durante a partida. Cada classe mantém sua própria pintura.</p></div>
         <div class="ship-color-controls">
