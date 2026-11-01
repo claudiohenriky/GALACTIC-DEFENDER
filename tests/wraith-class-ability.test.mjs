@@ -36,7 +36,7 @@ test('Wraith class ability grants its timed offensive effect and cooldown', () =
 test('Wraith class ability cannot be activated by other classes or during cooldown', () => {
   const game = {
     status: 'running',
-    player: { shipClass: 'aegis', wraithPredatorTimer: 0 },
+    player: { shipClass: 'unassigned', wraithPredatorTimer: 0 },
     classAbilityCooldown: 0,
     overloadLockTimer: 0
   };
