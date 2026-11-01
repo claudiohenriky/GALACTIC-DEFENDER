@@ -282,6 +282,14 @@ export class Game {
     const minRow = Math.max(0, Math.floor((y - radius) / cellSize));
     const maxRow = Math.min(this.enemyCollisionRows - 1, Math.floor((y + radius) / cellSize));
     const stamp = ++this.enemyCollisionQueryStamp;
+    // Include large hulls separately: bosses span many grid cells and retain their exact ellipse test.
+    for (const enemy of this.enemies) {
+      if (!enemy.active || enemy.bossDying || (enemy.type !== 'boss' && enemy.type !== 'megaboss')) continue;
+      if (enemy.collisionQueryStamp !== stamp) {
+        enemy.collisionQueryStamp = stamp;
+        candidates.push(enemy);
+      }
+    }
     for (let row = minRow; row <= maxRow; row += 1) {
       for (let column = minColumn; column <= maxColumn; column += 1) {
         const bucket = this.enemyCollisionGrid[row * this.enemyCollisionColumns + column];
@@ -2301,7 +2309,7 @@ export class Game {
       }
       if (!shot.active) continue;
       const shotReach = shot.radius ?? 0;
-      const shotCandidates = this.getEnemyCollisionCandidates(shot.x, shot.y, shotReach + 2);
+      const shotCandidates = this.getEnemyCollisionCandidates(shot.x, shot.y, shotReach + 128);
       for (let candidateIndex = 0; candidateIndex < shotCandidates.length; candidateIndex += 1) {
         const enemy = shotCandidates[candidateIndex];
         if (!enemy.active || enemy.bossDying || shot.hitEnemies?.has(enemy)) continue;
@@ -2329,7 +2337,7 @@ export class Game {
     // Each guided missile detonates once and deals area damage to nearby enemies.
     for (const missile of this.guidedMissiles) {
       if (!missile.active) continue;
-      const missileCandidates = this.getEnemyCollisionCandidates(missile.x, missile.y, missile.radius ?? 0);
+      const missileCandidates = this.getEnemyCollisionCandidates(missile.x, missile.y, (missile.radius ?? 0) + 128);
       for (let candidateIndex = 0; candidateIndex < missileCandidates.length; candidateIndex += 1) {
         const enemy = missileCandidates[candidateIndex];
         if (!enemy.active || enemy.bossDying) continue;
@@ -2349,7 +2357,7 @@ export class Game {
 
     // Contact damage is throttled per enemy. A charged shield absorbs contact
     // without instantly destroying enemies or losing all charge in a few frames.
-    const contactCandidates = this.getEnemyCollisionCandidates(this.player.x, this.player.y, this.player.radius ?? 0);
+    const contactCandidates = this.getEnemyCollisionCandidates(this.player.x, this.player.y, (this.player.radius ?? 0) + 128);
     for (let candidateIndex = 0; candidateIndex < contactCandidates.length; candidateIndex += 1) {
       const enemy = contactCandidates[candidateIndex];
       if (!enemy.active || enemy.bossDying) continue;
