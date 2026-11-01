@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Player, SHIP_CLASS_CONFIG } from '../src/player/player.js';
 
-test('all three selectable ships have distinct balanced base profiles', () => {
+test('all selectable ships have distinct base profiles', () => {
   const player = new Player(800, 600);
   player.setShipClass('vanguard');
   assert.equal(player.speed, 250);
@@ -18,6 +18,11 @@ test('all three selectable ships have distinct balanced base profiles', () => {
   assert.equal(player.speed, 215);
   assert.equal(player.movementAcceleration, 1900);
   assert.equal(player.maxHealth, 125);
+
+  player.setShipClass('wraith');
+  assert.equal(player.speed, 265);
+  assert.equal(player.movementAcceleration, 2600);
+  assert.equal(player.maxHealth, 95);
 });
 
 test('ship profile changes restore base stats and full integrity before a run', () => {
@@ -39,7 +44,7 @@ test('invalid ship identifiers safely fall back to Vanguard', () => {
 });
 
 test('ship configuration is immutable and exposes the three intended classes', () => {
-  assert.deepEqual(Object.keys(SHIP_CLASS_CONFIG), ['vanguard', 'phantom', 'aegis']);
+  assert.deepEqual(Object.keys(SHIP_CLASS_CONFIG), ['vanguard', 'phantom', 'aegis', 'wraith']);
   assert.equal(Object.isFrozen(SHIP_CLASS_CONFIG), true);
   for (const config of Object.values(SHIP_CLASS_CONFIG)) assert.equal(Object.isFrozen(config), true);
 });
@@ -79,4 +84,25 @@ test('ship appearance accepts custom colors and safely falls back for invalid va
   assert.equal(fallback.primary, '#58e4e8');
   assert.equal(fallback.core, '#f4ffff');
   assert.equal(fallback.glow, true);
+});
+
+
+test('Wraith phase drive temporarily increases movement speed and expires cleanly', () => {
+  const player = new Player(800, 600);
+  player.setShipClass('wraith');
+  assert.equal(player.getMovementSpeedMultiplier(), 1);
+  player.activatePhaseDrive(2.2);
+  assert.equal(player.getMovementSpeedMultiplier(), 1.22);
+  player.update(2.3, new Set(), 800, 600);
+  assert.equal(player.phaseDriveTimer, 0);
+  assert.equal(player.getMovementSpeedMultiplier(), 1);
+});
+
+test('changing away from Wraith clears its temporary phase drive', () => {
+  const player = new Player(800, 600);
+  player.setShipClass('wraith');
+  player.activatePhaseDrive();
+  player.setShipClass('vanguard');
+  assert.equal(player.phaseDriveTimer, 0);
+  assert.equal(player.getMovementSpeedMultiplier(), 1);
 });
