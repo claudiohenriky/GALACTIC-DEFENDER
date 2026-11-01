@@ -3,13 +3,15 @@ import { approachVelocity, integrateVelocity } from '../movement/motion.js?v=0.4
 export const SHIP_CLASS_CONFIG = Object.freeze({
   vanguard: Object.freeze({ name: 'Vanguard', speed: 250, acceleration: 2400, maxHealth: 100, label: 'Equilibrada' }),
   phantom: Object.freeze({ name: 'Phantom', speed: 275, acceleration: 2500, maxHealth: 90, label: 'Ágil' }),
-  aegis: Object.freeze({ name: 'Aegis', speed: 215, acceleration: 1900, maxHealth: 125, label: 'Blindada' })
+  aegis: Object.freeze({ name: 'Aegis', speed: 215, acceleration: 1900, maxHealth: 125, label: 'Blindada' }),
+  wraith: Object.freeze({ name: 'Wraith', speed: 265, acceleration: 2600, maxHealth: 95, label: 'Fase experimental' })
 });
 
 export const SHIP_APPEARANCE_DEFAULTS = Object.freeze({
   vanguard: Object.freeze({ primary: '#58e4e8', secondary: '#d9ffff', core: '#f4ffff', accent: '#7c9cff', glow: true }),
   phantom: Object.freeze({ primary: '#a78bfa', secondary: '#f0eaff', core: '#ffffff', accent: '#ff77b7', glow: true }),
-  aegis: Object.freeze({ primary: '#f5b85d', secondary: '#fff0c9', core: '#fff9e8', accent: '#ff718d', glow: true })
+  aegis: Object.freeze({ primary: '#f5b85d', secondary: '#fff0c9', core: '#fff9e8', accent: '#ff718d', glow: true }),
+  wraith: Object.freeze({ primary: '#70e0bd', secondary: '#d5fff0', core: '#f4fff9', accent: '#75a7ff', glow: true })
 });
 const isHexColor = value => typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value);
 
@@ -59,6 +61,7 @@ export class Player {
     // The ship points upward by default; rotation is stored as a world-space angle.
     this.rotation = -Math.PI / 2;
     this.overloadSpeedFactor = 1;
+    this.phaseDriveTimer = 0;
     this.knockbackX = 0;
     this.knockbackY = 0;
     this.systemDisruptionTimer = 0;
@@ -81,6 +84,15 @@ export class Player {
     this.maxHealth = config.maxHealth;
     this.health = config.maxHealth;
     return config;
+  }
+
+  activatePhaseDrive(duration = 2.2) {
+    this.phaseDriveTimer = Math.max(this.phaseDriveTimer, duration);
+    return this.phaseDriveTimer;
+  }
+
+  getMovementSpeedMultiplier() {
+    return this.phaseDriveTimer > 0 ? 1.22 : 1;
   }
 
   setShipAppearance(appearance = {}) {
@@ -107,6 +119,7 @@ export class Player {
 
   update(dt, keys, width, height, joystick = null, targetAngle = this.rotation, relativeMovement = false) {
     this.systemDisruptionTimer = Math.max(0, this.systemDisruptionTimer - dt);
+    this.phaseDriveTimer = Math.max(0, this.phaseDriveTimer - dt);
     this.invulnerabilityTimer = Math.max(0, this.invulnerabilityTimer - dt);
     if (this.shieldLevel > 0 && this.shieldHealth <= 0) {
       this.shieldRechargeTimer = Math.max(0, this.shieldRechargeTimer - dt);
@@ -161,7 +174,7 @@ export class Player {
     dy *= controlRecovery;
     inputStrength *= controlRecovery;
     // Movement velocity ramps up smoothly; the attribute improves acceleration without raising top speed.
-    const movementFactor = this.overloadSpeedFactor ?? 1;
+    const movementFactor = (this.overloadSpeedFactor ?? 1) * this.getMovementSpeedMultiplier();
     const targetVelocityX = dx * this.speed * movementFactor;
     const targetVelocityY = dy * this.speed * movementFactor;
     const acceleration = this.movementAcceleration * (1 + this.propulsionControlLevel * 0.08);
@@ -206,7 +219,7 @@ export class Player {
 
   draw(ctx, visible = true) {
     if (!visible) return;
-    const phantom = this.shipClass === 'phantom', aegis = this.shipClass === 'aegis';
+    const phantom = this.shipClass === 'phantom', aegis = this.shipClass === 'aegis', wraith = this.shipClass === 'wraith';
     const appearance = this.shipAppearance || SHIP_APPEARANCE_DEFAULTS[this.shipClass] || SHIP_APPEARANCE_DEFAULTS.vanguard;
     const hull = appearance.primary;
     const edge = appearance.secondary;
@@ -214,8 +227,13 @@ export class Player {
     ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.rotation + Math.PI / 2);
     ctx.transform(1 - Math.abs(this.bank) * 0.08, 0, this.bank * 0.32, 1, 0, 0);
     ctx.fillStyle = '#030814'; ctx.beginPath(); ctx.ellipse(0, 4, aegis ? 16 : 14, 20, 0, 0, Math.PI * 2); ctx.fill();
+    if (wraith && this.phaseDriveTimer > 0) {
+      ctx.save(); ctx.globalAlpha = Math.min(0.42, this.phaseDriveTimer * 0.18);
+      ctx.strokeStyle = wing; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(0, 1, 25, 31, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+    }
     ctx.fillStyle = hull; ctx.strokeStyle = edge; ctx.lineWidth = 1.5; ctx.beginPath();
-    if (phantom) { ctx.moveTo(0,-20);ctx.lineTo(6,-5);ctx.lineTo(17,8);ctx.lineTo(9,9);ctx.lineTo(4,5);ctx.lineTo(0,15);ctx.lineTo(-4,5);ctx.lineTo(-9,9);ctx.lineTo(-17,8);ctx.lineTo(-6,-5); }
+    if (wraith) { ctx.moveTo(0,-23);ctx.lineTo(5,-8);ctx.lineTo(19,2);ctx.lineTo(11,5);ctx.lineTo(7,13);ctx.lineTo(2,8);ctx.lineTo(0,18);ctx.lineTo(-2,8);ctx.lineTo(-7,13);ctx.lineTo(-11,5);ctx.lineTo(-19,2);ctx.lineTo(-5,-8); }
+    else if (phantom) { ctx.moveTo(0,-20);ctx.lineTo(6,-5);ctx.lineTo(17,8);ctx.lineTo(9,9);ctx.lineTo(4,5);ctx.lineTo(0,15);ctx.lineTo(-4,5);ctx.lineTo(-9,9);ctx.lineTo(-17,8);ctx.lineTo(-6,-5); }
     else if (aegis) { ctx.moveTo(0,-18);ctx.lineTo(10,-9);ctx.lineTo(17,3);ctx.lineTo(13,12);ctx.lineTo(5,10);ctx.lineTo(0,16);ctx.lineTo(-5,10);ctx.lineTo(-13,12);ctx.lineTo(-17,3);ctx.lineTo(-10,-9); }
     else { ctx.moveTo(0,-22);ctx.lineTo(7,-8);ctx.lineTo(16,7);ctx.lineTo(11,11);ctx.lineTo(4,7);ctx.lineTo(0,15);ctx.lineTo(-4,7);ctx.lineTo(-11,11);ctx.lineTo(-16,7);ctx.lineTo(-7,-8); }
     ctx.closePath(); ctx.fill(); ctx.stroke();
