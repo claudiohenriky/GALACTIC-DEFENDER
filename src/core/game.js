@@ -2183,6 +2183,9 @@ export class Game {
     this.guardianAssignmentTimer = Math.max(0, this.guardianAssignmentTimer - dt);
     if (this.guardianAssignmentTimer <= 0) {
       this.guardianAssignmentTimer = 0.35;
+      // Refresh on the assignment tick so first-frame spawns and game restarts
+      // cannot query stale buckets from the previous run.
+      this.rebuildEnemyCollisionGrid();
       // Elite Guardians receive assignments first; protection priority is then
       // based on ally class/rank, with distance as the tie-breaker.
       const assignedAllies = new Set();
