@@ -1,6 +1,6 @@
 ## [0.60.0] — imersão audiovisual e identidade dos personagens
 
-- Expande o áudio procedural com trilha espacial em camadas leves, variação de música para o confronto com o DREADNOUGHT e canais independentes de música, efeitos e comunicações.
+- Expande o áudio procedural com três ambientes musicais: menu/hangar, combate e confronto com o DREADNOUGHT; cada transição troca a sequência sem reiniciar o contexto de áudio. Mantém canais independentes de música, efeitos e comunicações.
 - Adiciona perfis sonoros originais para piloto, sistema da nave, Encouraçado e cada classe Elite; falas recebem sinais curtos sincronizados com a revelação do texto.
 - Adiciona efeitos para disparos, dano, absorção e ruptura de escudo, Pulso de Ruptura, lançamento de mísseis, chegadas Elite e explosões.
 - Dá a cada voz um retrato vetorial pixel-inspired próprio nos cartões de diálogo e nas falas de primeiro contato.
