@@ -1,3 +1,12 @@
+## [0.64.0] — nave especial Wraith
+
+- Adiciona a Wraith como quarta nave, separada das três classes comuns e bloqueada por padrão.
+- Implementa validação do código de aliado no hangar e persistência do desbloqueio no navegador.
+- Cria silhueta e paleta exclusivas, mantendo compatibilidade com a oficina de pintura.
+- Adiciona a habilidade passiva Impulso de Fase: ao ativar mísseis teleguiados, recebe 22% de velocidade adicional por 2,2 segundos.
+- Perfil-base: 265 velocidade, 2600 aceleração e 95 integridade.
+- Adiciona testes para atributos, ativação/expiração do impulso e troca de classe.
+
 ## [0.63.0] — personalização visual do hangar
 
 - Adiciona controles de cor principal, contorno/detalhes e núcleo, além da opção de brilho.
