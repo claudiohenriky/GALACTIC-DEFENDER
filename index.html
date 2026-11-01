@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#070b18">
-  <meta name="description" content="GALACTIC-DEFENDER — protótipo de ação espacial para navegador.">
+  <meta name="description" content="GALACTIC-DEFENDER 1.0.0 — jogo de ação espacial para navegador.">
   <title>GALACTIC-DEFENDER</title>
-  <link rel="stylesheet" href="./style.css?v=0.80.0-configurable-shader-pipeline-r1">
-  <link rel="stylesheet" href="./src/ui/version-history.css?v=0.54.5">
-  <link rel="stylesheet" href="./src/ui/skill-tree.css?v=0.59.0">
-  <script type="module" src="./main.js?v=0.80.0-configurable-shader-pipeline-r1"></script>
+  <link rel="stylesheet" href="./style.css?v=1.0.0">
+  <link rel="stylesheet" href="./src/ui/version-history.css?v=1.0.0">
+  <link rel="stylesheet" href="./src/ui/skill-tree.css?v=1.0.0">
+  <script type="module" src="./main.js?v=1.0.0"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PRÉ-ALFA · 0.80.0</span>
+      <span class="build-tag">VERSÃO ESTÁVEL · 1.0.0</span>
     </header>
 
     <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
@@ -65,12 +65,12 @@
       <section id="about-panel" class="menu-panel hidden" aria-labelledby="about-title">
         <div class="panel-heading"><div><p class="eyebrow">SOBRE O PROJETO</p><h2 id="about-title">Construído para evoluir</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar informações">×</button></div>
         <p class="menu-description">GALACTIC-DEFENDER é um jogo de ação espacial para navegador, desenvolvido com HTML, CSS e JavaScript, sem frameworks externos.</p>
-        <p class="menu-note">Versão candidata 0.80.0 · primeira camada opcional de pós-processamento WebGL.</p>
+        <p class="menu-note">Versão estável 1.0.0 · lançamento oficial do GALACTIC-DEFENDER.</p>
         <button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button>
       </section>
       <section id="achievements-panel" class="menu-panel achievements-panel hidden" aria-labelledby="achievements-title">
         <div class="panel-heading"><div><p class="eyebrow">PROGRESSO DO PILOTO</p><h2 id="achievements-title">Conquistas e recordes</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar conquistas e recordes">×</button></div>
-        <p class="menu-description">Conquistas desbloqueadas e melhores resultados ficam salvos neste navegador.</p>
+        <p class="menu-description">Conquistas e recordes valem apenas durante a sessão atual e são reiniciados ao recarregar o jogo.</p>
         <div id="achievement-summary" class="achievement-summary" aria-live="polite"></div>
         <div id="achievements-list" class="achievements-list"></div>
         <div class="panel-actions"><button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button></div>
@@ -79,6 +79,8 @@
         <div class="panel-heading"><div><p class="eyebrow">REGISTRO DE DESENVOLVIMENTO</p><h2 id="version-history-title">Histórico de versões</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar histórico de versões">×</button></div>
         <p class="menu-description">Novidades, ajustes e correções do GALACTIC-DEFENDER, da versão mais recente para a mais antiga.</p>
         <div id="version-history-list" class="version-history-list">
+<article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v1.0.0</strong><span>LANÇAMENTO ESTÁVEL · CONSOLIDAÇÃO GERAL</span></div><ul><li>Consolida a linha completa de desenvolvimento em uma versão oficial estável, com menu, hangar, quatro naves, habilidades, missões, árvore de pesquisa, conquistas, chefes, cutscene, áudio e ambiente espacial.</li><li>Remove a persistência local de progresso, recordes, títulos, missões, desbloqueio da Wraith, personalização e configurações; os dados começam limpos e existem apenas durante a sessão.</li><li>Apaga dados antigos do jogo identificados pelo prefixo gd- na primeira abertura, sem tocar em dados de outros aplicativos no mesmo domínio.</li><li>Mantém o código de aliado ORBITAL-ALLY para liberar a Wraith novamente em cada sessão.</li><li>Adiciona pós-processamento WebGL opcional com presets Desligado, Baixo, Médio e Alto e controles individuais de efeitos.</li><li>Preserva a renderização Canvas 2D como fallback e mantém shaders desligados por padrão para priorizar dispositivos móveis.</li></ul></article>
+<article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.80.0</strong><span>SHADERS CONFIGURÁVEIS · PÓS-PROCESSAMENTO WEBGL</span></div><ul><li>Adiciona pipeline WebGL opcional com gradação de cor, vinheta, linhas de varredura e aberração cromática.</li><li>Inclui quatro presets de qualidade e controles independentes para cada efeito, com fallback automático para Canvas 2D.</li><li>O processamento fica desligado por padrão e não altera a simulação, colisões ou lógica de combate.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.79.0</strong><span>AEGIS · HABILIDADE EXCLUSIVA</span></div><ul><li>Adiciona Protocolo Bastião: reduz em 30% o dano recebido pela Aegis durante 3,5 segundos.</li><li>Recarga de 20 segundos, ajustada pelos bônus permanentes de redução de recarga; usa o controle dedicado e a tecla F.</li><li>Adiciona um contorno energético dourado de baixo custo durante a proteção.</li><li>Completa a primeira versão das habilidades exclusivas das quatro classes, sem alterar inimigos ou seus atributos.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.78.0</strong><span>VANGUARD · HABILIDADE EXCLUSIVA</span></div><ul><li>Adiciona Protocolo de Sincronia: aumenta em 20% o dano dos disparos básicos da Vanguard por 3 segundos.</li><li>Recarga de 18 segundos, ajustada pelos bônus permanentes de redução de recarga; usa o controle dedicado e a tecla F.</li><li>Adiciona sinalização ciano de baixo custo e preserva o perfil equilibrado da nave.</li><li>Não altera atributos-base, outras classes, inimigos ou balanceamento geral.</li></ul></article>
 <article class="version-entry version-entry-current"><div class="version-entry-heading"><strong>v0.77.0</strong><span>WRAITH · HABILIDADE EXCLUSIVA</span></div><ul><li>Adiciona Sobrecarga Predatória: aumenta em 30% a cadência dos disparos básicos da Wraith por 2,5 segundos.</li><li>Recarga de 16 segundos, ajustada pelos bônus permanentes de redução de recarga; inclui controle dedicado e atalho F.</li><li>Adiciona feedback visual violeta de baixo custo e mantém o Impulso de Fase associado aos mísseis guiados.</li><li>Preserva atributos, dano-base, mísseis, outras naves, inimigos e balanceamento geral.</li></ul></article>
@@ -133,8 +135,8 @@
         <div class="panel-actions"><button class="primary-button" type="button" data-close-panel>VOLTAR AO MENU</button></div>
       </section>
       <section id="skill-tree-panel" class="menu-panel skill-tree-panel hidden" aria-labelledby="skill-tree-title">
-        <div class="panel-heading"><div><p class="eyebrow">CENTRO DE PESQUISA · PROGRESSÃO PERMANENTE</p><h2 id="skill-tree-title">Árvore de <span>habilidades.</span></h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar árvore de habilidades">×</button></div>
-        <p class="menu-description">Invista pontos de pesquisa em melhorias permanentes. Cada ramificação possui três tecnologias conectadas por pré-requisitos.</p>
+        <div class="panel-heading"><div><p class="eyebrow">CENTRO DE PESQUISA · PROGRESSÃO DA SESSÃO</p><h2 id="skill-tree-title">Árvore de <span>habilidades.</span></h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar árvore de habilidades">×</button></div>
+        <p class="menu-description">Invista pontos de pesquisa em melhorias válidas durante a sessão atual. Cada ramificação possui três tecnologias conectadas por pré-requisitos; tudo recomeça ao recarregar o jogo.</p>
         <div id="skill-tree-summary" class="skill-tree-summary" aria-live="polite">1 PONTO DE PESQUISA DISPONÍVEL · 0/15 TECNOLOGIAS</div>
         <div id="skill-tree-branches" class="skill-tree-branches" aria-label="Ramificações de pesquisa"></div>
         <p class="menu-note">Você recebe pontos ao concluir missões. A cada três missões, ganha um ponto extra. As melhorias são salvas neste navegador e aplicadas no início de cada partida.</p>
@@ -156,7 +158,7 @@
         </button>
       </div>
       <section class="friend-ship-unlock" aria-labelledby="friend-ship-unlock-title">
-        <div><p class="eyebrow">ACESSO RESTRITO</p><h3 id="friend-ship-unlock-title">Protocolo de aliado</h3><p>Insira o código de acesso para liberar a nave especial vinculada ao seu amigo neste navegador.</p></div>
+        <div><p class="eyebrow">ACESSO RESTRITO</p><h3 id="friend-ship-unlock-title">Protocolo de aliado</h3><p>Insira o código de aliado para liberar a nave especial vinculada ao seu amigo durante esta sessão.</p></div>
         <div class="friend-ship-unlock-controls"><label for="friend-ship-code">Código de desbloqueio</label><div><input id="friend-ship-code" type="password" maxlength="32" autocomplete="off" placeholder="Digite o código"><button id="friend-ship-unlock-button" type="button" class="secondary-button">VALIDAR CÓDIGO</button></div><p id="friend-ship-unlock-note" role="status" aria-live="polite">A nave especial permanece bloqueada até a validação.</p></div>
       </section>
       <section class="hangar-customizer" aria-labelledby="ship-customizer-title">
