@@ -4,7 +4,7 @@ Jogo de ação espacial para navegador, desenvolvido do zero com HTML, CSS e Jav
 
 ## Estado do projeto
 
-**Candidata atual em desenvolvimento:** `0.61.0` — expansão e persistência das missões na branch `feature/v0.61.0-mission-rework` ([PR #83](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/83)). Mantém a base audiovisual v0.60.0, salva o objetivo e o progresso da missão no navegador e amplia a rotação para seis tipos: eliminações, sobrevivência, ondas, tropas de Elite, uso de habilidades e chefe. A validação automatizada inicial encontrou uma expectativa incorreta em um teste recém-adicionado; a asserção foi corrigida e aguarda nova execução. Não mesclada em `main`.
+**Candidata atual em desenvolvimento:** `0.62.0` — classes funcionais para as naves do hangar na branch `feature/v0.62.0-hangar-ship-classes` ([PR #84](https://github.com/claudiohenriky/GALACTIC-DEFENDER/pull/84)). Vanguard, Phantom e Aegis agora possuem perfis próprios de velocidade, aceleração e integridade; a árvore de pesquisa aplica seus bônus sobre os atributos da classe selecionada. A candidata parte da expansão de missões v0.61.0 (PR #83), que ainda aguarda validação automatizada e teste manual. A validação desta etapa também está pendente. Não mesclada em `main`.
 
 **Base funcional preservada:** `0.59.0` — árvore permanente com cinco ramificações e especializações de combate, no PR #81. A branch audiovisual parte do commit dessa candidata e mantém `main` intacta.
 

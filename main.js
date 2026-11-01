@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.61.0-mission-rework';
+import { Game } from './src/core/game.js?v=0.62.0-hangar-ship-classes';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
@@ -47,13 +47,18 @@ const validShipClasses = ['vanguard', 'phantom', 'aegis'];
 let selectedShip = localStorage.getItem('gd-ship-class');
 if (!validShipClasses.includes(selectedShip)) selectedShip = 'vanguard';
 game.selectedShip = selectedShip;
-game.player.shipClass = selectedShip;
+game.player.setShipClass(selectedShip);
+game.applyPermanentSkillBonuses();
 function selectShip(shipClass) {
   if (!validShipClasses.includes(shipClass)) return;
-  selectedShip = shipClass; game.selectedShip = shipClass; game.player.shipClass = shipClass;
+  selectedShip = shipClass; game.selectedShip = shipClass;
+  const config = game.player.setShipClass(shipClass);
+  game.applyPermanentSkillBonuses();
   localStorage.setItem('gd-ship-class', shipClass);
   shipChoiceButtons.forEach((button) => { const selected = button.dataset.shipChoice === shipClass; button.classList.toggle('is-selected', selected); button.setAttribute('aria-pressed', String(selected)); });
-  shipSelectionNote.textContent = `${shipClass.charAt(0).toUpperCase() + shipClass.slice(1)} selecionada. A escolha é salva neste navegador.`;
+  const stats = document.querySelector(`[data-ship-stats="${shipClass}"]`);
+  if (stats) stats.textContent = `${config.speed} velocidade · ${config.maxHealth} integridade · ${config.acceleration} aceleração`;
+  shipSelectionNote.textContent = `${config.name} selecionada — classe ${config.label.toLowerCase()}. A escolha é salva neste navegador.`;
 }
 shipChoiceButtons.forEach((button) => button.addEventListener('click', () => selectShip(button.dataset.shipChoice)));
 selectShip(selectedShip);
