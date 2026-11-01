@@ -19,7 +19,7 @@ test('Aegis ability activates for 3.5 seconds with a 20-second cooldown', () => 
   let uses = 0;
   const game = {
     status: 'running',
-    player: { shipClass: 'unassigned', aegisBastionTimer: 0, abilityCooldownMultiplier: 1 },
+    player: { shipClass: 'aegis', aegisBastionTimer: 0, abilityCooldownMultiplier: 1 },
     classAbilityCooldown: 0,
     classAbilityCooldownMax: 14,
     overloadLockTimer: 0,
@@ -36,7 +36,7 @@ test('Aegis ability activates for 3.5 seconds with a 20-second cooldown', () => 
 test('Aegis ability is exclusive and respects cooldown', () => {
   const game = {
     status: 'running',
-    player: { shipClass: 'vanguard', aegisBastionTimer: 0 },
+    player: { shipClass: 'unassigned', aegisBastionTimer: 0 },
     classAbilityCooldown: 0,
     overloadLockTimer: 0
   };
