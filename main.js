@@ -74,7 +74,7 @@ const defaultShipAppearance = {
   vanguard: { primary: '#58e4e8', secondary: '#d9ffff', core: '#f4ffff', accent: '#7c9cff', glow: true },
   phantom: { primary: '#a78bfa', secondary: '#f0eaff', core: '#ffffff', accent: '#ff77b7', glow: true },
   aegis: { primary: '#f5b85d', secondary: '#fff0c9', core: '#fff9e8', accent: '#ff718d', glow: true },
-  wraith: { primary: '#70e0bd', secondary: '#d5fff0', core: '#f4fff9', accent: '#75a7ff', glow: true }
+  wraith: { primary: '#76279b', secondary: '#e5a0ff', core: '#f04cff', accent: '#b52be8', glow: true }
 };
 let savedAppearances = {};
 try { savedAppearances = JSON.parse(localStorage.getItem('gd-ship-appearances') || '{}') || {}; } catch { savedAppearances = {}; }
