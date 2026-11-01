@@ -1,3 +1,15 @@
+## [0.62.0] — classes funcionais para as naves do hangar
+
+- Converte Vanguard, Phantom e Aegis de variações apenas visuais em classes com parâmetros reais de velocidade, aceleração e integridade.
+- Vanguard mantém o perfil equilibrado: velocidade 250, aceleração 2400 e integridade 100.
+- Phantom adota perfil ágil: velocidade 285, aceleração 2500 e integridade 95.
+- Aegis adota perfil blindado: velocidade 215, aceleração 1900 e integridade 125.
+- Atualiza o hangar para explicar os trade-offs e exibir os parâmetros-base de cada nave.
+- Aplica a classe selecionada ao iniciar uma partida e preserva os bônus permanentes da árvore de pesquisa.
+- Ajusta a aplicação da árvore para escalar aceleração a partir do perfil-base da nave, em vez de usar um valor fixo.
+- Adiciona testes de perfis, fallback para identificador inválido e integração com os bônus de mobilidade.
+- A candidata aguarda validação automatizada e testes manuais de balanceamento em dispositivos móveis; não mesclada em `main`.
+
 ## [0.61.0] — expansão e persistência das missões
 
 - Salva no navegador a missão atual, o progresso, o tempo acumulado de sobrevivência e a posição da rotação; a partida pode ser reiniciada sem reiniciar o ciclo de objetivos.
