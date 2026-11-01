@@ -1,4 +1,4 @@
-import { Game } from './src/core/game.js?v=0.72.0-adaptive-effects-balance-r1';
+import { Game } from './src/core/game.js?v=0.73.0-graphics-quality-presets-r1';
 import { gameAudio } from './src/audio/game-audio.js?v=0.60.0-audiovisual-r3';
 
 // Entry point: connect the game engine to the page UI.
@@ -355,7 +355,12 @@ function applySettings() {
 }
 Object.keys(settingDefaults).forEach((id) => {
   const element = document.querySelector('#' + id);
-  element.value = localStorage.getItem('gd-setting-' + id) ?? settingDefaults[id];
+  const savedValue = localStorage.getItem('gd-setting-' + id);
+  const migratedValue = id === 'effects-setting'
+    ? (savedValue === 'full' ? 'high' : savedValue === 'reduced' ? 'low' : savedValue)
+    : savedValue;
+  element.value = migratedValue ?? settingDefaults[id];
+  if (!element.value) element.value = settingDefaults[id];
   element.addEventListener('input', applySettings);
   element.addEventListener('change', applySettings);
 });
