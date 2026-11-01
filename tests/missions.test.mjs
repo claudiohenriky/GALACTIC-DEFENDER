@@ -67,7 +67,7 @@ test('elite, boss, and ability objectives only count their matching events', () 
   assert.equal(mission.current.type, 'elite-kills');
   assert.equal(mission.registerKill(), null);
   assert.equal(mission.registerKill({ isElite: true }), null);
-  assert.equal(mission.registerKill({ isElite: true }), null);
+  assert.equal(mission.registerKill({ isElite: true }).id, 'elite-hunter');
   assert.equal(mission.current.type, 'abilities');
 
   assert.equal(mission.registerAbilityUse(), null);
