@@ -293,119 +293,50 @@ export class Game {
   cacheBackground() {
     const ratio = this.pixelRatio || 1;
     const canvas = this.backgroundCanvas;
-    // Static artwork is baked once per resize; no black-hole effects run during gameplay frames.
+    // Fundo estático em cache: o desenho só é refeito quando a tela muda de tamanho.
     canvas.width = this.canvas.width;
     canvas.height = this.canvas.height;
     const ctx = canvas.getContext('2d');
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-    const background = ctx.createLinearGradient(0, 0, this.width, this.height);
-    background.addColorStop(0, '#01030a');
-    background.addColorStop(.5, '#070b16');
-    background.addColorStop(1, '#01030a');
+    const background = ctx.createLinearGradient(0, 0, 0, this.height);
+    background.addColorStop(0, '#09172b');
+    background.addColorStop(.55, '#071126');
+    background.addColorStop(1, '#040914');
     ctx.fillStyle = background;
     ctx.fillRect(0, 0, this.width, this.height);
 
-    // Sparse stars are painted first so the lensing artwork sits naturally in front of them.
-    for (let i = 0; i < 72; i += 1) {
-      const x = ((i * 97 + 31) % 997) / 997 * this.width;
-      const y = ((i * 193 + 71) % 991) / 991 * this.height;
-      const size = i % 11 === 0 ? 1.3 : .65;
-      ctx.globalAlpha = i % 11 === 0 ? .58 : .3;
-      ctx.fillStyle = '#c5d6e8';
+    // Dois campos de luz muito discretos dão profundidade sem animações ou partículas.
+    const glow = ctx.createRadialGradient(this.width * .72, this.height * .24, 0, this.width * .72, this.height * .24, Math.max(this.width, this.height) * .72);
+    glow.addColorStop(0, 'rgba(32, 83, 126, .14)');
+    glow.addColorStop(1, 'rgba(7, 17, 38, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, this.width, this.height);
+
+    // Grade original preservada, agora mais suave e desenhada em poucos traços.
+    ctx.strokeStyle = 'rgba(55, 100, 143, .22)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 0; x <= this.width; x += 42) {
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, this.height);
+    }
+    for (let y = 0; y <= this.height; y += 42) {
+      ctx.moveTo(0, y);
+      ctx.lineTo(this.width, y);
+    }
+    ctx.stroke();
+
+    // Pontos de luz fixos e esparsos: pequenos detalhes, sem custo por frame.
+    ctx.fillStyle = 'rgba(178, 211, 238, .48)';
+    for (let i = 0; i < 26; i += 1) {
+      const x = ((i * 83 + 19) % 997) / 997 * this.width;
+      const y = ((i * 157 + 43) % 991) / 991 * this.height;
+      const size = i % 7 === 0 ? 1.4 : .8;
       ctx.fillRect(x, y, size, size);
     }
-    ctx.globalAlpha = 1;
-
-    const cx = this.width * .72;
-    const cy = this.height * .43;
-    const radius = Math.max(48, Math.min(this.width, this.height) * .19);
-
-    // Broad, flattened accretion disk with an uneven hot side: this gives it a true orbital silhouette.
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(-.13);
-    ctx.scale(1, .38);
-    const disk = ctx.createRadialGradient(0, 0, radius * .62, 0, 0, radius * 2.35);
-    disk.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    disk.addColorStop(.46, 'rgba(15, 27, 46, .08)');
-    disk.addColorStop(.58, 'rgba(54, 91, 133, .35)');
-    disk.addColorStop(.67, 'rgba(146, 177, 204, .86)');
-    disk.addColorStop(.72, 'rgba(241, 190, 135, .94)');
-    disk.addColorStop(.78, 'rgba(160, 113, 91, .58)');
-    disk.addColorStop(.9, 'rgba(49, 68, 101, .2)');
-    disk.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = disk;
-    ctx.beginPath();
-    ctx.arc(0, 0, radius * 2.35, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Thin far-side lensing arcs and restrained disk lanes add depth without runtime effects.
-    ctx.strokeStyle = 'rgba(203, 222, 239, .78)';
-    ctx.lineWidth = Math.max(2, radius * .055);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, radius * 1.45, radius * 1.45, 0, Math.PI * 1.08, Math.PI * 1.92);
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(102, 157, 205, .55)';
-    ctx.lineWidth = Math.max(1, radius * .025);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, radius * 1.7, radius * 1.7, 0, Math.PI * 1.03, Math.PI * 1.97);
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(226, 238, 249, .22)';
-    ctx.lineWidth = Math.max(1, radius * .012);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, radius * 1.92, radius * 1.92, 0, Math.PI * 1.12, Math.PI * 1.88);
-    ctx.stroke();
-    ctx.strokeStyle = 'rgba(83, 137, 190, .24)';
-    ctx.lineWidth = Math.max(1, radius * .018);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, radius * 2.08, radius * 2.08, 0, Math.PI * 1.15, Math.PI * 1.85);
-    ctx.stroke();
-    ctx.restore();
-
-    // A soft, static halo separates the silhouette from the dark background.
-    const halo = ctx.createRadialGradient(cx, cy, radius * .86, cx, cy, radius * 1.55);
-    halo.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    halo.addColorStop(.55, 'rgba(8, 15, 28, .22)');
-    halo.addColorStop(.82, 'rgba(94, 143, 190, .2)');
-    halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
-    ctx.fillStyle = halo;
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius * 1.55, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Event horizon: a near-perfect black disk with a narrow photon rim.
-    ctx.fillStyle = '#000000';
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(181, 207, 230, .72)';
-    ctx.lineWidth = Math.max(2, radius * .045);
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius * 1.015, Math.PI * 1.03, Math.PI * 1.97);
-    ctx.stroke();
-
-    // Foreground part of the disk crosses the lower edge of the shadow, enhancing depth.
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(-.13);
-    ctx.scale(1, .38);
-    const foreground = ctx.createLinearGradient(-radius * 1.7, 0, radius * 1.7, 0);
-    foreground.addColorStop(0, 'rgba(42, 75, 112, .08)');
-    foreground.addColorStop(.32, 'rgba(112, 153, 190, .55)');
-    foreground.addColorStop(.58, 'rgba(237, 186, 133, .88)');
-    foreground.addColorStop(.78, 'rgba(117, 91, 92, .42)');
-    foreground.addColorStop(1, 'rgba(30, 48, 76, .06)');
-    ctx.strokeStyle = foreground;
-    ctx.lineWidth = Math.max(3, radius * .12);
-    ctx.beginPath();
-    ctx.ellipse(0, 0, radius * 1.62, radius * 1.62, 0, .08, Math.PI - .08);
-    ctx.stroke();
-    ctx.restore();
-
-    ctx.globalAlpha = 1;
   }
-
+}
   start() {
     if (this.status === 'running') return;
     if (this.status === 'gameover') this.reset();
