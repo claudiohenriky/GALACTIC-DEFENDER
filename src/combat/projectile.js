@@ -10,7 +10,8 @@ export class Projectile {
     this.vy = Math.sin(angle) * this.speed;
     this.active = true;
     this.piercing = false;
-    this.hitEnemies = new Set();
+    // Most shots are non-piercing and never need a per-projectile Set allocation.
+    this.hitEnemies = null;
     this.palette = 'standard';
   }
 
