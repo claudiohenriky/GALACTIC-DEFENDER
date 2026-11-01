@@ -1,31 +1,42 @@
-# Validação de desempenho — v0.18.1
+# Validação de desempenho — GALACTIC-DEFENDER
 
-Esta rotina ajuda a comparar cenários, mas não substitui teste em dispositivos reais.
+## Estado da versão 1.0.0
 
-## Diagnóstico opcional do ciclo
+A v1.0.0 mantém o Canvas 2D como renderizador principal e adiciona pós-processamento WebGL opcional. Os shaders começam desligados; isso evita impor o custo adicional do pipeline aos dispositivos móveis sem escolha explícita do jogador.
 
-1. Abra a candidata v0.18.1 pelo GitHub Pages no navegador disponível.
-2. Acrescente `?profile=1` ao endereço da página (por exemplo, `index.html?profile=1`).
-3. Inicie uma partida e deixe o jogo funcionar por pelo menos 30 segundos.
-4. No console, procure mensagens `[GALACTIC-DEFENDER profile]`. Cada relatório reúne 180 quadros e mostra:
-   - intervalo médio entre quadros e FPS estimado a partir desse intervalo;
-   - tempo médio gasto em atualização, renderização e trabalho do ciclo;
-   - quantidade atual de inimigos, projéteis e efeitos.
-5. Repita no mesmo dispositivo, navegador, orientação de tela e cenário aproximado, primeiro com a versão de referência e depois com a candidata.
-6. Faça pelo menos três rodadas por versão e compare a mediana dos resultados. Anote modelo do aparelho, navegador, orientação, quantidade aproximada de inimigos e se o aparelho estava aquecido.
+O pipeline de shaders usa a resolução do canvas de origem, não adiciona supersampling e deixa a simulação, colisões, IA e dano fora do passe gráfico. Se WebGL não estiver disponível ou perder o contexto, a renderização 2D continua disponível.
 
-## Cuidados de interpretação
+**Não há uma medição nova de FPS em aparelho físico associada a esta publicação.** Os testes automatizados validam lógica e estrutura, mas não comprovam taxa de quadros ou temperatura em dispositivos reais.
 
-- O profiler só mede quando `?profile=1` está presente; não faz parte da experiência normal de jogo.
-- A medição inclui o custo da instrumentação e é adequada para comparação aproximada, não como benchmark científico.
-- A estimativa de FPS é calculada pelo intervalo dos quadros de `requestAnimationFrame`; não garante que cada quadro tenha sido desenhado na tela.
-- Compare o mesmo cenário. Diferenças de ondas, inimigos, efeitos, economia de energia, temperatura e abas em segundo plano podem distorcer os resultados.
-- Não declare melhoria de desempenho antes de reunir dados reais. Registre também travamentos, erros e qualquer alteração percebida nos controles.
+## Protocolo recomendado
 
-## Critério de aprovação da v0.18.1
+1. Use o mesmo aparelho, navegador, orientação e escala de câmera em todas as rodadas.
+2. Ative o medidor de FPS nas configurações.
+3. Jogue por pelo menos 30 segundos em uma onda normal.
+4. Repita durante combate intenso, com inimigos, projéteis e asteroides.
+5. Repita na luta contra o Encouraçado, incluindo a cutscene, mísseis e habilidades.
+6. Compare Desligado, Baixo, Médio e Alto. Faça três rodadas por preset e registre a mediana.
+7. Registre FPS, tempo médio por quadro, travamentos, erros visuais e resposta dos controles.
 
-- Verificações automáticas de sintaxe e caminhos de imports aprovadas.
-- O usuário confirma no GitHub Pages que a barreira, a barra, a quebra, o dano em área e a recarga continuam funcionando.
-- Comparar a fluidez percebida com a versão de referência no mesmo dispositivo e cenário; não afirmar melhoria medida sem dados.
-- Revisão final do diff e aprovação explícita antes de integrar à `main`.
-- O projeto é validado pelo navegador publicado; não exigir execução local do usuário.
+## Critérios de observação
+
+- O HUD deve permanecer legível e não cobrir diálogos ou alertas.
+- O passe WebGL deve corresponder ao tamanho e à proporção do canvas original.
+- Os controles e a simulação não podem mudar ao alternar presets.
+- Desligar os shaders deve restaurar a exibição Canvas 2D.
+- A ausência de WebGL deve produzir fallback sem impedir o jogo.
+- Efeitos individuais desligados não devem ser enviados como ativos ao shader.
+
+## Diagnóstico opcional
+
+1. Abra a versão de teste e acrescente `?profile=1` ao endereço.
+2. Inicie uma partida e jogue por pelo menos 30 segundos.
+3. No console, procure `[GALACTIC-DEFENDER profile]` para consultar intervalo entre quadros, FPS estimado e tempos de atualização/renderização.
+4. Compare a mesma versão de navegador, orientação, aparelho e cenário; faça três rodadas e use a mediana.
+
+## Limites
+
+- O profiler acrescenta custo de medição e deve ser usado apenas para diagnóstico.
+- Tempo de execução de uma habilidade não mede sozinho os quadros seguintes.
+- Não declare ganhos de FPS sem dados do dispositivo.
+- A aprovação de CI não substitui teste visual e de gameplay em celular e computador.

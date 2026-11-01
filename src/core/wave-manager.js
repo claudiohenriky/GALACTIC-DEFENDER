@@ -1,3 +1,6 @@
+// Normal progression is the default; enable this flag only for isolated boss-development sessions.
+export const BOSS_TEST_MODE = false;
+
 // Controls enemy waves independently from the main game loop.
 export class WaveManager {
   constructor() {
@@ -7,10 +10,21 @@ export class WaveManager {
 
   reset() {
     this.wave = 1;
-    this.enemyCount = 5;
+    this.enemyCount = BOSS_TEST_MODE ? 1 : 5;
     this.spawnedCount = 0;
     this.state = 'spawning';
     // Give the pilot time to orient themselves before the first enemy appears.
+    this.timer = 2.5;
+  }
+
+  // Explicitly opt-in starting point for isolated test builds; normal runs still reset to wave 1.
+  startAtWaveForTesting(wave) {
+    const targetWave = Math.max(1, Math.floor(Number(wave) || 1));
+    this.wave = targetWave;
+    const bossWave = targetWave >= 15 && targetWave % 15 === 0;
+    this.enemyCount = bossWave ? 1 : Math.min(5 + (targetWave - 1) * 2, 18);
+    this.spawnedCount = 0;
+    this.state = 'spawning';
     this.timer = 2.5;
   }
 
@@ -19,10 +33,11 @@ export class WaveManager {
       this.timer -= dt;
       if (this.timer <= 0) {
         this.wave += 1;
-        this.enemyCount = this.wave % 5 === 0 ? 1 : Math.min(5 + (this.wave - 1) * 2, 18);
+        const bossWave = (BOSS_TEST_MODE && this.wave === 1) || (this.wave >= 15 && this.wave % 15 === 0);
+        this.enemyCount = bossWave ? 1 : Math.min(5 + (this.wave - 1) * 2, 18);
         this.spawnedCount = 0;
         this.state = 'spawning';
-        this.timer = this.wave % 5 === 0 ? 2.4 : 1.8;
+        this.timer = bossWave ? 3.2 : 1.8;
       }
       return false;
     }

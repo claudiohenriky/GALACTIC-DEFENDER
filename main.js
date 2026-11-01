@@ -1,9 +1,56 @@
-import { Game } from './src/core/game.js?v=0.27.0';
-import { gameAudio } from './src/audio/game-audio.js?v=0.27.0';
+import { clearLegacyGameStorage } from './src/core/session-reset.js?v=1.0.0';
+import { Game } from './src/core/game.js?v=1.0.0';
+import { gameAudio } from './src/audio/game-audio.js?v=1.0.0';
 
-// Entry point: connect the game engine to the page UI.
+// Entry point: start with a clean, session-only game state.
+clearLegacyGameStorage();
 const canvas = document.querySelector('#game-canvas');
 const game = new Game(canvas);
+// Test-only query switch. The normal game remains wave 1 unless a test URL opts in.
+const requestedTestWave = Number(new URLSearchParams(window.location.search).get('testStartWave'));
+if (requestedTestWave === 9) {
+  game.testStartWave = 9;
+  game.waveManager.startAtWaveForTesting(9);
+}
+const guidedMissileButton = document.querySelector('#guided-missile-button');
+function activateMissileFromControl(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  if (event.type === 'pointerdown' && event.pointerType === 'mouse' && event.button !== 0) return;
+  game.activateGuidedMissile();
+}
+// Fire on pointerdown for immediate touch response; do not wait for a synthetic click.
+guidedMissileButton?.addEventListener('pointerdown', activateMissileFromControl, { passive: false });
+guidedMissileButton?.addEventListener('click', (event) => {
+  if (event.detail === 0) activateMissileFromControl(event);
+  else { event.preventDefault(); event.stopPropagation(); }
+});
+
+const shieldPulseButton = document.querySelector('#shield-pulse-button');
+function activateShieldPulseFromControl(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  if (event.type === 'pointerdown' && event.pointerType === 'mouse' && event.button !== 0) return;
+  game.activateShieldPulse();
+}
+shieldPulseButton?.addEventListener('pointerdown', activateShieldPulseFromControl, { passive: false });
+shieldPulseButton?.addEventListener('click', (event) => {
+  if (event.detail === 0) activateShieldPulseFromControl(event);
+  else { event.preventDefault(); event.stopPropagation(); }
+});
+
+const classAbilityButton = document.querySelector('#class-ability-button');
+function activateClassAbilityFromControl(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  if (event.type === 'pointerdown' && event.pointerType === 'mouse' && event.button !== 0) return;
+  game.activateClassAbility();
+}
+classAbilityButton?.addEventListener('pointerdown', activateClassAbilityFromControl, { passive: false });
+classAbilityButton?.addEventListener('click', (event) => {
+  if (event.detail === 0) activateClassAbilityFromControl(event);
+  else { event.preventDefault(); event.stopPropagation(); }
+});
 
 const mainMenu = document.querySelector('#main-menu');
 const gameLayout = document.querySelector('.game-layout');
@@ -11,19 +58,100 @@ const missionPrep = document.querySelector('#mission-prep');
 const hangarScreen = document.querySelector('#hangar-screen');
 const shipChoiceButtons = [...document.querySelectorAll('[data-ship-choice]')];
 const shipSelectionNote = document.querySelector('#hangar-selection-note');
-const validShipClasses = ['vanguard', 'phantom', 'aegis'];
-let selectedShip = localStorage.getItem('gd-ship-class');
-if (!validShipClasses.includes(selectedShip)) selectedShip = 'vanguard';
-game.selectedShip = selectedShip;
-game.player.shipClass = selectedShip;
-function selectShip(shipClass) {
-  if (!validShipClasses.includes(shipClass)) return;
-  selectedShip = shipClass; game.selectedShip = shipClass; game.player.shipClass = shipClass;
-  localStorage.setItem('gd-ship-class', shipClass);
-  shipChoiceButtons.forEach((button) => { const selected = button.dataset.shipChoice === shipClass; button.classList.toggle('is-selected', selected); button.setAttribute('aria-pressed', String(selected)); });
-  shipSelectionNote.textContent = `${shipClass.charAt(0).toUpperCase() + shipClass.slice(1)} selecionada. A escolha é salva neste navegador.`;
+const commonShipClasses = ['vanguard', 'phantom', 'aegis'];
+const allShipClasses = [...commonShipClasses, 'wraith'];
+const friendShipUnlockCode = 'ORBITAL-ALLY';
+const friendShipCard = document.querySelector('[data-ship-choice="wraith"]');
+const friendShipCodeInput = document.querySelector('#friend-ship-code');
+const friendShipUnlockButton = document.querySelector('#friend-ship-unlock-button');
+const friendShipUnlockNote = document.querySelector('#friend-ship-unlock-note');
+let friendShipUnlocked = false;
+const isShipUnlocked = shipClass => commonShipClasses.includes(shipClass) || (shipClass === 'wraith' && friendShipUnlocked);
+const appearanceInputs = {
+  primary: document.querySelector('#ship-primary-color'),
+  secondary: document.querySelector('#ship-secondary-color'),
+  core: document.querySelector('#ship-core-color'),
+  accent: document.querySelector('#ship-accent-color'),
+  glow: document.querySelector('#ship-glow-toggle')
+};
+const defaultShipAppearance = {
+  vanguard: { primary: '#58e4e8', secondary: '#d9ffff', core: '#f4ffff', accent: '#7c9cff', glow: true },
+  phantom: { primary: '#a78bfa', secondary: '#f0eaff', core: '#ffffff', accent: '#ff77b7', glow: true },
+  aegis: { primary: '#f5b85d', secondary: '#fff0c9', core: '#fff9e8', accent: '#ff718d', glow: true },
+  wraith: { primary: '#76279b', secondary: '#e5a0ff', core: '#f04cff', accent: '#b52be8', glow: true }
+};
+const sessionAppearances = {};
+let selectedShip = 'vanguard';
+if (!allShipClasses.includes(selectedShip) || !isShipUnlocked(selectedShip)) selectedShip = 'vanguard';
+function syncAppearanceControls() {
+  const appearance = game.player.shipAppearance;
+  for (const key of ['primary', 'secondary', 'core', 'accent']) appearanceInputs[key].value = appearance[key];
+  appearanceInputs.glow.checked = appearance.glow;
+  const preview = document.querySelector(`[data-ship-choice="${selectedShip}"] .hangar-ship-preview`);
+  if (preview) {
+    preview.style.setProperty('--ship-primary', appearance.primary);
+    preview.style.setProperty('--ship-secondary', appearance.secondary);
+    preview.style.setProperty('--ship-core', appearance.core);
+    preview.style.setProperty('--ship-accent', appearance.accent);
+  }
 }
+function applyShipAppearance() {
+  const appearance = { ...defaultShipAppearance[selectedShip], ...(sessionAppearances[selectedShip] || {}) };
+  game.player.setShipAppearance(appearance);
+  game.selectedShipAppearance = { ...appearance };
+  syncAppearanceControls();
+}
+function selectShip(shipClass) {
+  if (!allShipClasses.includes(shipClass) || !isShipUnlocked(shipClass)) return;
+  selectedShip = shipClass; game.selectedShip = shipClass;
+  const config = game.player.setShipClass(shipClass);
+  applyShipAppearance();
+  game.applyPermanentSkillBonuses();
+  shipChoiceButtons.forEach((button) => { const selected = button.dataset.shipChoice === shipClass; button.classList.toggle('is-selected', selected); button.setAttribute('aria-pressed', String(selected)); });
+  const stats = document.querySelector(`[data-ship-stats="${shipClass}"]`);
+  if (stats) stats.textContent = `${config.speed} velocidade · ${config.maxHealth} integridade · ${config.acceleration} aceleração`;
+  shipSelectionNote.textContent = `${config.name} selecionada — classe ${config.label.toLowerCase()}. Aparência temporária nesta sessão.`;
+}
+function updateShipAppearance() {
+  const appearance = {
+    primary: appearanceInputs.primary.value,
+    secondary: appearanceInputs.secondary.value,
+    core: appearanceInputs.core.value,
+    accent: appearanceInputs.accent.value,
+    glow: appearanceInputs.glow.checked
+  };
+  sessionAppearances[selectedShip] = appearance;
+  game.player.setShipAppearance(appearance);
+  game.selectedShipAppearance = { ...appearance };
+  syncAppearanceControls();
+}
+for (const input of Object.values(appearanceInputs)) input?.addEventListener('input', updateShipAppearance);
 shipChoiceButtons.forEach((button) => button.addEventListener('click', () => selectShip(button.dataset.shipChoice)));
+friendShipUnlockButton?.addEventListener('click', () => {
+  const enteredCode = (friendShipCodeInput?.value || '').replace(/[\s#]/g, '').toUpperCase();
+  if (enteredCode !== friendShipUnlockCode) {
+    friendShipUnlockNote.textContent = 'Código não reconhecido. Confira e tente novamente.';
+    friendShipUnlockNote.dataset.state = 'error';
+    return;
+  }
+  friendShipUnlocked = true;
+  friendShipCard.disabled = false;
+  friendShipCard.setAttribute('aria-disabled', 'false');
+  friendShipCard.classList.remove('is-locked');
+  const status = friendShipCard.querySelector('.friend-ship-card-status');
+  if (status) status.textContent = 'DISPONÍVEL · ALIADO AUTORIZADO';
+  friendShipUnlockNote.textContent = 'Acesso autorizado. A nave especial está disponível no hangar.';
+  friendShipUnlockNote.dataset.state = 'success';
+  friendShipCodeInput.value = '';
+  selectShip('wraith');
+});
+friendShipCodeInput?.addEventListener('keydown', event => {
+  if (event.key === 'Enter') friendShipUnlockButton?.click();
+});
+game.selectedShip = selectedShip;
+game.player.setShipClass(selectedShip);
+applyShipAppearance();
+game.applyPermanentSkillBonuses();
 selectShip(selectedShip);
 const platformButtons = [...document.querySelectorAll('[data-platform-choice]')];
 const platformNote = document.querySelector('#platform-detection-note');
@@ -31,17 +159,16 @@ const settingsPanel = document.querySelector('#settings-panel');
 const aboutPanel = document.querySelector('#about-panel');
 const versionHistoryPanel = document.querySelector('#version-history-panel');
 const achievementsPanel = document.querySelector('#achievements-panel');
+const skillTreePanel = document.querySelector('#skill-tree-panel');
 const achievementsList = document.querySelector('#achievements-list');
 const achievementSummary = document.querySelector('#achievement-summary');
 document.querySelectorAll('[data-upgrade]').forEach((button) => button.addEventListener('click', () => game.chooseUpgrade(button.dataset.upgrade)));
 document.querySelector('#dismiss-title-toast').addEventListener('click', () => document.querySelector('#title-unlock-toast').classList.add('hidden'));
 
 function detectPlatform() {
-  const saved = localStorage.getItem('gd-platform');
-  if (saved === 'pc' || saved === 'mobile') return saved;
   return window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0 ? 'mobile' : 'pc';
 }
-function setPlatform(platform, persist = true) {
+function setPlatform(platform) {
   document.documentElement.dataset.platform = platform;
   platformButtons.forEach((button) => {
     const selected = button.dataset.platformChoice === platform;
@@ -51,15 +178,26 @@ function setPlatform(platform, persist = true) {
   platformNote.textContent = platform === 'mobile'
     ? 'Modo mobile selecionado. Use o joystick para mover; a nave mira automaticamente no inimigo mais próximo e dispara pelo botão DISPARAR.'
     : 'Modo PC selecionado. Mouse para mirar; W/S avançam e recuam em relação à nave, A/D fazem strafe; botão direito ou Espaço para disparar.';
-  if (persist) localStorage.setItem('gd-platform', platform);
 }
 function closeMenuPanels() {
   settingsPanel.classList.add('hidden');
   aboutPanel.classList.add('hidden');
   versionHistoryPanel.classList.add('hidden');
   achievementsPanel.classList.add('hidden');
+  skillTreePanel.classList.add('hidden');
 }
-setPlatform(detectPlatform(), false);
+setPlatform(detectPlatform());
+
+// The ship's navigation computer confirms menu actions with short, non-intrusive cues.
+// Starting audio on the first menu interaction also allows the background score to begin
+// under the browser's user-gesture audio policy.
+document.addEventListener('click', (event) => {
+  const control = event.target.closest('#main-menu button, #hangar-screen button, #mission-prep button');
+  if (!control || control.disabled) return;
+  gameAudio.setMusicMode(control.id === 'prep-start-button' ? 'combat' : 'ambient');
+  gameAudio.start();
+  gameAudio.playUiConfirm();
+});
 platformButtons.forEach((button) => button.addEventListener('click', () => setPlatform(button.dataset.platformChoice)));
 // JOGAR opens the hangar; gameplay remains stopped until mission confirmation.
 document.querySelector('#menu-play-button').addEventListener('click', () => {
@@ -76,6 +214,7 @@ document.querySelector('#hangar-continue-button').addEventListener('click', () =
 });
 document.querySelector('#prep-back-button').addEventListener('click', () => { missionPrep.classList.add('is-hidden'); hangarScreen.classList.remove('is-hidden'); });
 document.querySelector('#prep-start-button').addEventListener('click', () => {
+  gameAudio.setMusicMode('combat');
   gameAudio.start();
   missionPrep.classList.add('is-hidden');
   mainMenu.classList.add('is-hidden');
@@ -86,10 +225,55 @@ document.querySelector('#prep-start-button').addEventListener('click', () => {
     game.start();
   });
 });
+document.querySelector('#menu-skill-tree-button').addEventListener('click', () => {
+  closeMenuPanels();
+  skillTreePanel.classList.remove('hidden');
+  renderSkillTree();
+});
+document.querySelector('#skill-tree-branches').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-skill-node]');
+  if (!button) return;
+  if (game.skillTree.purchaseNode(button.dataset.skillNode)) {
+    game.applyPermanentSkillBonuses();
+    renderSkillTree();
+  }
+});
+function renderSkillTree() {
+  const tree = game.skillTree;
+  document.querySelector('#skill-tree-summary').textContent = `${tree.researchPoints} PONTOS DE PESQUISA DISPONÍVEIS · ${tree.purchased.size}/15 TECNOLOGIAS`;
+  const root = document.querySelector('#skill-tree-branches');
+  root.replaceChildren();
+  tree.getBranches().forEach((branch) => {
+    const section = document.createElement('section'); section.className = 'skill-branch';
+    const heading = document.createElement('div'); heading.className = 'skill-branch-heading';
+    const icon = document.createElement('span'); icon.className = 'skill-branch-icon'; icon.textContent = branch.icon;
+    const copy = document.createElement('div');
+    const title = document.createElement('strong'); title.textContent = branch.name;
+    const subtitle = document.createElement('small'); subtitle.textContent = branch.subtitle;
+    copy.append(title, subtitle); heading.append(icon, copy); section.append(heading);
+    const nodes = document.createElement('div'); nodes.className = 'skill-node-list';
+    branch.nodes.forEach((node, index) => {
+      const button = document.createElement('button'); button.type = 'button';
+      button.className = 'skill-node'; button.dataset.skillNode = node.id;
+      button.disabled = !node.status.canPurchase;
+      button.classList.toggle('is-purchased', node.status.purchased);
+      button.classList.toggle('is-locked', !node.status.unlocked && !node.status.purchased);
+      const status = node.status.purchased ? 'DESBLOQUEADA' : !node.status.unlocked ? 'BLOQUEADA' : node.status.affordable ? 'DISPONÍVEL' : 'SEM PONTOS';
+      const name = document.createElement('strong'); name.textContent = node.title;
+      const description = document.createElement('small'); description.textContent = node.description;
+      const footer = document.createElement('span'); footer.className = 'skill-node-footer';
+      footer.textContent = node.status.purchased ? status : `${status} · ${node.cost} RP`;
+      button.append(name, description, footer); nodes.append(button);
+      if (index < branch.nodes.length - 1) { const connector = document.createElement('span'); connector.className = 'skill-node-connector'; connector.setAttribute('aria-hidden', 'true'); nodes.append(connector); }
+    });
+    section.append(nodes); root.append(section);
+  });
+}
 document.querySelector('#menu-achievements-button').addEventListener('click', () => {
   settingsPanel.classList.add('hidden');
   aboutPanel.classList.add('hidden');
   versionHistoryPanel.classList.add('hidden');
+  skillTreePanel.classList.add('hidden');
   achievementsPanel.classList.remove('hidden');
   renderAchievements();
 });
@@ -119,18 +303,21 @@ document.querySelector('#menu-settings-button').addEventListener('click', () => 
   aboutPanel.classList.add('hidden');
   versionHistoryPanel.classList.add('hidden');
   achievementsPanel.classList.add('hidden');
+  skillTreePanel.classList.add('hidden');
   settingsPanel.classList.remove('hidden');
 });
 document.querySelector('#menu-about-button').addEventListener('click', () => {
   settingsPanel.classList.add('hidden');
   versionHistoryPanel.classList.add('hidden');
   achievementsPanel.classList.add('hidden');
+  skillTreePanel.classList.add('hidden');
   aboutPanel.classList.remove('hidden');
 });
 document.querySelector('#menu-history-button').addEventListener('click', () => {
   settingsPanel.classList.add('hidden');
   aboutPanel.classList.add('hidden');
   achievementsPanel.classList.add('hidden');
+  skillTreePanel.classList.add('hidden');
   versionHistoryPanel.classList.remove('hidden');
 });
 document.querySelectorAll('[data-close-panel]').forEach((button) => button.addEventListener('click', closeMenuPanels));
@@ -143,29 +330,54 @@ function returnToMainMenu() {
 document.querySelector('#pause-menu-button').addEventListener('click', returnToMainMenu);
 document.querySelector('#gameover-menu-button').addEventListener('click', returnToMainMenu);
 
-const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'effects-setting': 'full', 'sound-setting': 'on', 'sound-volume-setting': '75' };
+const settingDefaults = { 'hud-scale-setting': '100', 'hud-opacity-setting': '100', 'camera-zoom-setting': '75', 'effects-setting': 'auto', 'shader-setting': 'off', 'shader-color-grade-setting': true, 'shader-vignette-setting': true, 'shader-scanlines-setting': false, 'shader-chromatic-setting': false, 'fps-setting': 'off', 'sound-setting': 'on', 'sound-volume-setting': '75', 'music-volume-setting': '65', 'effects-volume-setting': '85', 'voice-volume-setting': '80' };
 function applySettings() {
   const scale = Number(document.querySelector('#hud-scale-setting').value) / 100;
   const opacity = Number(document.querySelector('#hud-opacity-setting').value) / 100;
   document.documentElement.style.setProperty('--hud-scale', String(scale));
   document.documentElement.style.setProperty('--hud-opacity', String(opacity));
+  game.setCameraZoomPreference(Number(document.querySelector('#camera-zoom-setting').value) / 100);
   document.documentElement.dataset.effects = document.querySelector('#effects-setting').value;
+  game.setEffectsMode(document.querySelector('#effects-setting').value);
+  const shaderSettings = {
+    mode: document.querySelector('#shader-setting').value,
+    colorGrade: document.querySelector('#shader-color-grade-setting').checked,
+    vignette: document.querySelector('#shader-vignette-setting').checked,
+    scanlines: document.querySelector('#shader-scanlines-setting').checked,
+    chromaticAberration: document.querySelector('#shader-chromatic-setting').checked
+  };
+  document.documentElement.dataset.shader = shaderSettings.mode;
+  const shaderAvailable = game.setShaderSettings(shaderSettings);
+  const shaderNote = document.querySelector('#shader-support-note');
+  if (shaderNote) shaderNote.textContent = shaderAvailable
+    ? 'Os shaders são opcionais. Baixo limita o custo gráfico; Médio e Alto liberam efeitos adicionais.'
+    : 'WebGL não está disponível neste navegador ou dispositivo. O jogo continua usando a renderização normal.';
+  game.setFpsDisplayEnabled(document.querySelector('#fps-setting').value === 'on');
   document.documentElement.dataset.sound = document.querySelector('#sound-setting').value;
   gameAudio.setVolume(Number(document.querySelector('#sound-volume-setting').value) / 100);
+  gameAudio.setChannelVolume('music', Number(document.querySelector('#music-volume-setting').value) / 100);
+  gameAudio.setChannelVolume('effects', Number(document.querySelector('#effects-volume-setting').value) / 100);
+  gameAudio.setChannelVolume('voice', Number(document.querySelector('#voice-volume-setting').value) / 100);
   gameAudio.setEnabled(document.querySelector('#sound-setting').value === 'on');
-  Object.entries(settingDefaults).forEach(([id]) => localStorage.setItem('gd-setting-' + id, document.querySelector('#' + id).value));
 }
 Object.keys(settingDefaults).forEach((id) => {
   const element = document.querySelector('#' + id);
-  element.value = localStorage.getItem('gd-setting-' + id) ?? settingDefaults[id];
+  const defaultValue = settingDefaults[id];
+  if (element.type === 'checkbox') element.checked = Boolean(defaultValue);
+  else element.value = defaultValue;
   element.addEventListener('input', applySettings);
   element.addEventListener('change', applySettings);
 });
 document.querySelector('#settings-reset-button').addEventListener('click', () => {
-  Object.entries(settingDefaults).forEach(([id, value]) => { document.querySelector('#' + id).value = value; });
+  Object.entries(settingDefaults).forEach(([id, value]) => {
+    const element = document.querySelector('#' + id);
+    if (element.type === 'checkbox') element.checked = value;
+    else element.value = value;
+  });
   applySettings();
 });
 applySettings();
+if (new URLSearchParams(window.location.search).get('fps') === '1') game.setFpsDisplayEnabled(true);
 
 
 // Mouse controls aim on PC; touch dragging sets the mobile facing direction when no enemy is available.

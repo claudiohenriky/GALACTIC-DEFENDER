@@ -10,23 +10,37 @@ export class Projectile {
     this.vy = Math.sin(angle) * this.speed;
     this.active = true;
     this.piercing = false;
-    this.hitEnemies = new Set();
+    // Most shots are non-piercing and never need a per-projectile Set allocation.
+    this.hitEnemies = null;
+    this.palette = 'standard';
   }
 
-  update(dt) {
+  update(dt, width = Infinity, height = Infinity) {
     this.x += this.vx * dt;
     this.y += this.vy * dt;
+    // Cull shots before collision resolution; off-arena projectiles cannot hit anything.
+    if (this.x < -20 || this.x > width + 20 || this.y < -20 || this.y > height + 20) {
+      this.active = false;
+    }
   }
 
   draw(ctx) {
+    // Avoid per-projectile shadowBlur: canvas blur is expensive on mobile GPUs
+    // and every active shot would otherwise trigger a separate blur operation.
     ctx.save();
     ctx.translate(this.x, this.y);
-    // The projectile's long axis points upward at angle -PI/2 by default.
     ctx.rotate(this.angle + Math.PI / 2);
-    ctx.shadowBlur = this.piercing ? 9 : 5;
-    ctx.shadowColor = this.piercing ? '#a68cff' : '#58e4e8';
-    ctx.fillStyle = this.piercing ? '#e0d4ff' : '#c4ffff';
-    ctx.fillRect(this.piercing ? -2 : -1.5, this.piercing ? -12 : -8, this.piercing ? 4 : 3, this.piercing ? 20 : 12);
+    const wraith = this.palette === 'wraith';
+    const width = this.piercing ? 4 : 3;
+    const height = this.piercing ? 20 : 12;
+    ctx.globalAlpha = 0.28;
+    ctx.fillStyle = wraith ? '#c43cff' : '#58e4e8';
+    ctx.fillRect(-width * 0.9, -height * 0.58, width * 1.8, height * 1.16);
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = wraith
+      ? (this.piercing ? '#f4c7ff' : '#e88cff')
+      : (this.piercing ? '#e0d4ff' : '#c4ffff');
+    ctx.fillRect(-width / 2, -height / 2, width, height);
     ctx.restore();
   }
 }

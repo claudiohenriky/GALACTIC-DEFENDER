@@ -75,6 +75,8 @@ html[data-platform="mobile"] .touch-controls{display:flex}html[data-platform="pc
 /* Menus must sit above in-arena controls until the player resumes. */
 .overlay{z-index:5}
 
+.overload-meter{grid-column:1/-1;height:3px;overflow:hidden;border-radius:999px;background:#1b2b3d}.overload-meter #overload-meter-fill{width:0;height:100%;border-radius:inherit;background:#69e5d1;transition:width .12s linear}.overload-meter #overload-meter-fill[data-state=overloaded]{background:#ffc16e}.overload-meter #overload-meter-fill[data-state=critical]{background:#ff637b}
+.overload-status{grid-column:1/-1;padding:4px 7px;border:1px solid #29495a;border-radius:5px;background:#07101bc9;color:#8ce7d3;font-size:7px;font-weight:800;letter-spacing:.08em}.overload-status[data-state=overloaded]{border-color:#bd8a4d;color:#ffd18c}.overload-status[data-state=critical]{border-color:#ff637b;color:#ff9eac}.overload-critical{animation:overload-critical-flash .32s ease-in-out 3}@keyframes overload-critical-flash{50%{opacity:.35}}
 .hud-meta{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 7px;border:1px solid #36516f;border-radius:5px;background:#07101bc9;color:#9eb1d0;font-size:7px;font-weight:800;letter-spacing:.1em;backdrop-filter:blur(6px)}.hud-meta b{margin-left:4px;color:var(--cyan);font-variant-numeric:tabular-nums}
 
 
@@ -334,15 +336,430 @@ html[data-effects="reduced"] .level-up-toast,html[data-effects="reduced"] .damag
 .hangar-screen{max-width:1240px;margin:26px auto;padding:clamp(20px,4vw,46px);border:1px solid var(--line);border-radius:14px;background:radial-gradient(ellipse at 80% 0%,#182b4b 0%,#0b1427 45%,#080e1d 100%);box-shadow:0 22px 70px #0002}
 .hangar-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding-bottom:24px;border-bottom:1px solid var(--line)}
 .hangar-heading h2{margin:0;font-size:clamp(30px,4vw,48px);letter-spacing:-.055em;line-height:1.05}.hangar-heading h2 span{color:var(--cyan)}.hangar-heading .menu-description{max-width:680px;margin-bottom:0}
-.hangar-ship-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:26px 0}
+.hangar-ship-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;padding:26px 0}
 .hangar-ship-card{display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-width:0;padding:16px;border:1px solid #2a3b58;border-radius:11px;background:linear-gradient(160deg,#111e34,#0a1222);color:var(--text);text-align:left;cursor:pointer;transition:border-color .16s,background .16s,transform .16s}
 .hangar-ship-card:hover{transform:translateY(-2px);border-color:#55718f}.hangar-ship-card.is-selected{border-color:var(--cyan);background:linear-gradient(155deg,#143348,#0d1729);box-shadow:inset 0 0 24px #58e4e80b}.hangar-ship-card:focus-visible{outline:2px solid white;outline-offset:3px}
 .hangar-ship-preview{display:grid;place-items:center;width:100%;min-height:150px;border:1px solid #253653;border-radius:8px;background:radial-gradient(ellipse at center,#1b2b46 0%,#0a1120 70%);overflow:hidden}.hangar-ship-preview svg{width:min(100%,160px);height:130px;filter:drop-shadow(0 8px 12px #0008)}
 .hangar-ship-tag{font-size:8px;font-weight:850;letter-spacing:.13em;color:var(--cyan)}.hangar-ship-card strong{font-size:20px;letter-spacing:-.03em}.hangar-ship-description{font-size:11px;line-height:1.6;color:#a8b7d0}.hangar-ship-card small{margin-top:auto;padding-top:6px;font-size:8px;font-weight:850;letter-spacing:.08em;color:var(--green)}
-.ship-preview-phantom{background:radial-gradient(ellipse at center,#2b2148 0%,#0a1120 70%)}.ship-preview-aegis{background:radial-gradient(ellipse at center,#3a2933 0%,#0a1120 70%)}
+.ship-preview-phantom{background:radial-gradient(ellipse at center,#2b2148 0%,#0a1120 70%)}.ship-preview-aegis{background:radial-gradient(ellipse at center,#3a2933 0%,#0a1120 70%)}.ship-preview-wraith{background:radial-gradient(ellipse at center,#183e45 0%,#0a1120 72%)}
 .hangar-footer{display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:20px;border-top:1px solid var(--line)}.hangar-footer p{margin:0;color:var(--muted);font-size:11px;line-height:1.6}.hangar-footer .primary-button{min-height:48px}
 @media(max-width:760px){.hangar-screen{margin:18px 0;padding:20px 16px}.hangar-heading{flex-direction:column;gap:14px}.hangar-ship-grid{grid-template-columns:1fr;padding:20px 0;gap:10px}.hangar-ship-card{display:grid;grid-template-columns:92px minmax(0,1fr);grid-template-rows:auto auto 1fr auto;column-gap:13px;align-items:start;padding:12px}.hangar-ship-preview{grid-column:1;grid-row:1/5;min-height:116px;height:100%}.hangar-ship-preview svg{height:100px}.hangar-ship-tag,.hangar-ship-card strong,.hangar-ship-description,.hangar-ship-card small{grid-column:2}.hangar-ship-card strong{font-size:18px}.hangar-footer{align-items:stretch;flex-direction:column}.hangar-footer .primary-button{width:100%}}
 @media(max-width:390px){.hangar-ship-card{grid-template-columns:76px minmax(0,1fr);column-gap:10px}.hangar-ship-preview{min-height:110px}.hangar-ship-tag{font-size:7px}.hangar-ship-description{font-size:10px}}
 .app-shell:fullscreen #mission-prep{max-height:calc(100dvh - 76px);min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}.app-shell:fullscreen .prep-launch{padding-bottom:max(12px,env(safe-area-inset-bottom))}
 .app-shell:fullscreen .prep-start-button,.app-shell:fullscreen .prep-fullscreen-button,.app-shell:fullscreen #prep-back-button{min-height:48px;touch-action:manipulation}
 @media(max-height:520px) and (orientation:landscape){.app-shell:fullscreen{padding:8px}.app-shell:fullscreen .topbar{padding-bottom:8px}.app-shell:fullscreen #mission-prep{margin:8px auto;padding:14px}.app-shell:fullscreen .prep-heading{flex-direction:row;align-items:center;padding-bottom:12px}.app-shell:fullscreen .prep-content{grid-template-columns:minmax(0,1fr) minmax(210px,.8fr);gap:14px;padding:12px 0}.app-shell:fullscreen .prep-mode-card{min-height:120px;padding:10px}.app-shell:fullscreen .prep-checklist{padding:10px}.app-shell:fullscreen .prep-check-item{padding:7px 0}.app-shell:fullscreen .prep-launch{padding-top:12px;gap:10px}.app-shell:fullscreen .prep-start-button{min-height:44px}}
+
+/* v0.28.0: rarity labels for special ability cards. */
+.upgrade-card-rarity{display:inline-flex;align-items:center;border:1px solid currentColor;border-radius:999px;padding:2px 7px;font-size:8px;font-weight:900;letter-spacing:.1em;line-height:1.4}
+.rarity-common{color:#a9c1d8}
+.rarity-rare{color:#6fcfff}
+.rarity-epic{color:#c6a5ff}
+.rarity-legendary{color:#ffcb70}
+
+/* Keep rarity labels readable in the compact mobile upgrade-card layout. */
+@media(max-width:560px){.upgrade-card-rarity{grid-column:2;grid-row:2;justify-self:start}.upgrade-card strong{grid-row:3}.upgrade-card small{grid-row:4}}
+
+/* v0.28.2: compact, touch-friendly ability card with a clear cooldown state. */
+.ability-card{position:absolute;z-index:8;top:72px;right:10px;display:flex;align-items:center;gap:6px;width:min(136px,32%);min-height:48px;padding:6px 7px;overflow:hidden;text-align:left;border:1px solid #ffb45e;border-radius:9px;background:linear-gradient(145deg,#3a251cf2,#10182bf2);color:#fff0d6;box-shadow:0 4px 14px #0006;cursor:pointer;touch-action:manipulation;pointer-events:auto;user-select:none;-webkit-tap-highlight-color:transparent}
+.ability-card:disabled{cursor:default;opacity:.82}.ability-card:not(:disabled){box-shadow:0 0 0 1px #ffb45e44,0 4px 14px #0006}
+.ability-card-icon{display:grid;place-items:center;flex:0 0 24px;width:24px;height:24px;border:1px solid #ffb45e88;border-radius:7px;background:#6b3827;color:#ffd49b;font-size:17px}
+.ability-card-copy{display:flex;min-width:0;flex-direction:column;gap:3px}.ability-card-copy strong{font-size:8px;letter-spacing:.025em;white-space:nowrap}.ability-card-copy small{font-size:7px;line-height:1.2;color:#ffd49b;white-space:nowrap}
+.ability-cooldown-fill{position:absolute;right:0;bottom:0;left:0;height:3px;width:0;background:#ffb45e;transition:width .1s linear;pointer-events:none}
+@media(max-width:520px){.ability-card{top:auto;right:8px;bottom:88px;width:112px;min-height:44px;padding:6px;gap:5px}.ability-card-icon{flex-basis:22px;width:22px;height:22px;font-size:15px}.ability-card-copy strong{font-size:7px}.ability-card-copy small{font-size:6.5px}}
+/* v0.30.0: stack ability controls in a compact vertical group. */
+.canvas-frame .ability-card-missile{top:calc(50% - 29px);right:8px;bottom:auto;transform:translateY(-50%)}
+.canvas-frame .ability-card-shield{top:calc(50% + 29px);right:8px;bottom:auto;transform:translateY(-50%);border-color:#59dfd0;background:linear-gradient(145deg,#123b3bf2,#10182bf2);color:#d9fff8}
+.canvas-frame .ability-card-shield .ability-card-icon{border-color:#59dfd088;background:#164e4a;color:#9bfff0}
+.canvas-frame .ability-card-shield .ability-card-copy small{color:#9bfff0}
+.canvas-frame .ability-card-shield .ability-cooldown-fill{background:#59dfd0}
+@media(max-width:520px){.canvas-frame .ability-card-missile{top:auto;bottom:142px;transform:none}.canvas-frame .ability-card-shield{top:auto;bottom:88px;transform:none}}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.canvas-frame .ability-card-missile{top:calc(50% - 25px);bottom:auto}.canvas-frame .ability-card-shield{top:calc(50% + 25px);bottom:auto}}
+/* Rarity is communicated by both a prominent badge and a distinct card border/background. */
+.upgrade-card-rarity{display:inline-flex;align-items:center;border:1px solid currentColor;border-radius:999px;padding:4px 8px;font-size:9px;font-weight:950;letter-spacing:.12em;line-height:1.2;background:#0a1020;color:#fff}
+.upgrade-card.rarity-common{border-color:#91a7bd;background:linear-gradient(155deg,#26394b,#0a1426)}.upgrade-card.rarity-common .upgrade-card-icon{border-color:#9eb4c8;background:#30475c;color:#e1edf7}.upgrade-card.rarity-common .upgrade-card-category,.upgrade-card-rarity.rarity-common{color:#d5e4f2}.upgrade-card-rarity.rarity-common{background:#31475c}
+.upgrade-card.rarity-rare{border-color:#49c6ef;background:linear-gradient(155deg,#123d55,#091626)}.upgrade-card.rarity-rare .upgrade-card-icon{border-color:#55d4ff;background:#0e4057;color:#9beaff}.upgrade-card.rarity-rare .upgrade-card-category,.upgrade-card-rarity.rarity-rare{color:#8de6ff}.upgrade-card-rarity.rarity-rare{background:#0d4057}
+.upgrade-card.rarity-epic{border-color:#c28bff;background:linear-gradient(155deg,#3b2259,#101326)}.upgrade-card.rarity-epic .upgrade-card-icon{border-color:#c28bff;background:#432366;color:#ead3ff}.upgrade-card.rarity-epic .upgrade-card-category,.upgrade-card-rarity.rarity-epic{color:#e0bdff}.upgrade-card-rarity.rarity-epic{background:#432366}
+.upgrade-card.rarity-legendary{border-color:#ffc45d;background:linear-gradient(155deg,#53391b,#151326)}.upgrade-card.rarity-legendary .upgrade-card-icon{border-color:#ffc45d;background:#5d3c18;color:#ffe3a6}.upgrade-card.rarity-legendary .upgrade-card-category,.upgrade-card-rarity.rarity-legendary{color:#ffe0a0}.upgrade-card-rarity.rarity-legendary{background:#5d3c18}
+#upgrade-overlay.is-special-choice .upgrade-card-icon{border-radius:10px}
+
+/* Override the older purple special-card theme with the selected rarity palette. */
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-common .upgrade-card-icon{border-color:#9eb4c8;background:#30475c;color:#e1edf7}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-common .upgrade-card-category{color:#d5e4f2}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-common:hover{border-color:#c4d8e8;background:linear-gradient(155deg,#344b60,#101a2c)}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-rare .upgrade-card-icon{border-color:#55d4ff;background:#0e4057;color:#9beaff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-rare .upgrade-card-category{color:#8de6ff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-rare:hover{border-color:#83e5ff;background:linear-gradient(155deg,#16516d,#0b1b2c)}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-epic .upgrade-card-icon{border-color:#c28bff;background:#432366;color:#ead3ff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-epic .upgrade-card-category{color:#e0bdff}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-epic:hover{border-color:#dfbdff;background:linear-gradient(155deg,#4a2b6b,#14162b)}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-legendary .upgrade-card-icon{border-color:#ffc45d;background:#5d3c18;color:#ffe3a6}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-legendary .upgrade-card-category{color:#ffe0a0}
+#upgrade-overlay.is-special-choice .upgrade-card.rarity-legendary:hover{border-color:#ffda8c;background:linear-gradient(155deg,#68471f,#19162b)}
+
+
+/* v0.28.3 — keep ability/reward notifications clear of thumb controls on mobile. */
+@media (hover:none) and (pointer:coarse) {
+  .canvas-frame #guided-missile-button.ability-card {
+    top:50%; right:8px; bottom:auto; left:auto; transform:translateY(-50%);
+    width:112px; min-height:44px; z-index:9;
+  }
+  .canvas-frame #guided-missile-button.ability-card:active { filter:brightness(1.18); }
+}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px) {
+  .canvas-frame .reward-banner { top:8px; right:10px; width:min(30vw,260px); max-height:28%; padding:5px 7px; gap:3px; }
+  .canvas-frame .reward-banner strong { font-size:7px; }
+  .canvas-frame .reward-banner span { -webkit-line-clamp:2; font-size:8px; line-height:1.25; }
+  .canvas-frame #guided-missile-button.ability-card { top:52%; right:8px; width:104px; min-height:42px; }
+}
+
+/* Ensure the ability stack overrides the earlier single-button mobile placement. */
+@media (hover:none) and (pointer:coarse){
+  .canvas-frame #guided-missile-button.ability-card{top:calc(50% - 29px);right:8px;bottom:auto;transform:translateY(-50%)}
+  .canvas-frame #shield-pulse-button.ability-card{top:calc(50% + 29px);right:8px;bottom:auto;transform:translateY(-50%)}
+}
+@media(max-width:520px){
+  .canvas-frame #guided-missile-button.ability-card{top:auto;bottom:142px;transform:none}
+  .canvas-frame #shield-pulse-button.ability-card{top:auto;bottom:88px;transform:none}
+}
+@media (hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){
+  .canvas-frame #guided-missile-button.ability-card{top:calc(50% - 25px);bottom:auto;transform:translateY(-50%)}
+  .canvas-frame #shield-pulse-button.ability-card{top:calc(50% + 25px);bottom:auto;transform:translateY(-50%)}
+}
+
+
+/* v0.30.1: standalone thermal core and opt-in FPS diagnostics. */
+.overload-panel{position:absolute;z-index:3;left:10px;bottom:12px;width:46px;min-height:150px;display:flex;flex-direction:column;align-items:center;gap:7px;padding:9px 5px;border:1px solid #8d542c;border-radius:8px;background:linear-gradient(180deg,#281a20ef,#0b1222f2);box-shadow:inset 0 0 0 1px #ff9a4220,0 0 18px #ff6d2920;pointer-events:none}.overload-panel-title{font-size:7px;font-weight:900;letter-spacing:.13em;color:#ffb46b;writing-mode:vertical-rl;transform:rotate(180deg)}.overload-meter-vertical{position:relative;flex:1;width:15px;min-height:86px;overflow:hidden;border:1px solid #6d3d30;border-radius:4px;background:repeating-linear-gradient(180deg,#111b2c 0 7px,#263047 7px 8px)}.overload-meter-vertical #overload-meter-fill{position:absolute;left:0;right:0;bottom:0;height:0;border-radius:2px;background:linear-gradient(0deg,#ff4c35 0%,#ff873d 48%,#ffd06b 100%);box-shadow:0 0 8px #ff623a70;transition:height .16s linear}.overload-panel[data-state=overloaded]{border-color:#c17c38;box-shadow:inset 0 0 0 1px #ffb04b30,0 0 18px #ff8b3225}.overload-panel[data-state=critical]{border-color:#ff4f4f;animation:overload-panel-alert .65s ease-in-out infinite alternate}.overload-panel[data-state=critical] .overload-panel-title{color:#ff6767}.overload-status{width:100%;font-size:6px;line-height:1.25;text-align:center;overflow-wrap:anywhere;color:#8ce7d3}.overload-status[data-state=overloaded]{color:#ffd18c}.overload-status[data-state=critical]{color:#ff9eac}.overload-meter{display:none}.fps-counter{position:absolute;z-index:4;top:10px;right:10px;padding:6px 8px;border:1px solid #3b5b78;border-radius:5px;background:#06101de8;color:#8df4d5;font:800 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.04em;pointer-events:none;font-variant-numeric:tabular-nums}.fps-counter.hidden{display:none!important}@keyframes overload-panel-alert{from{box-shadow:0 0 7px #ff474722}to{box-shadow:0 0 18px #ff474766}}@media(max-width:700px){.overload-panel{left:6px;bottom:8px;width:38px;min-height:122px;padding:7px 4px;gap:5px}.overload-meter-vertical{width:12px;min-height:66px}.overload-status{font-size:5px}.fps-counter{top:7px;right:7px;font-size:9px}}
+@media(prefers-reduced-motion:reduce){.overload-panel[data-state=critical]{animation:none}}
+
+
+/* v0.30.2: mobile-safe HUD positions and lighter effect budget. */
+.overload-panel{top:116px;bottom:auto;left:10px;width:72px;min-height:0;height:142px;padding:8px 6px;gap:6px;z-index:5;border-color:#8d542c;background:linear-gradient(180deg,#281a20f5,#0b1222f5)}.overload-panel-title{font-size:8px;letter-spacing:.06em;writing-mode:horizontal-tb;transform:none;text-align:center;white-space:nowrap}.overload-meter-vertical{width:20px;min-height:0;flex:1}.overload-status{font-size:8px;line-height:1.2;overflow-wrap:normal;white-space:normal}.fps-counter{top:112px;right:10px;z-index:8}.overload-panel[data-state=critical]{animation:none;box-shadow:0 0 0 1px #ff4f4f55,0 0 10px #ff474733}@media(max-width:700px){.overload-panel{top:116px;left:8px;bottom:auto;width:68px;height:128px;min-height:0;padding:7px 5px;gap:5px}.overload-panel-title{font-size:7px}.overload-meter-vertical{width:17px;min-height:0}.overload-status{font-size:7px}.fps-counter{top:112px;right:8px;font-size:9px}}@media(prefers-reduced-motion:reduce){.overload-panel{animation:none!important}}
+
+/* v0.42.0 — alertas de primeira aparição das Tropas de Elite. */
+.reward-banner-elite{border-color:#8a72b8;background:linear-gradient(135deg,#17152df5,#101a31f5);box-shadow:0 8px 22px #0006,0 0 16px #8b63c733}.reward-banner-elite strong{color:#d2b5ff}
+
+
+/* v0.44.0 — compact boss integrity HUD, updated with the existing throttled HUD pass. */
+.boss-hud{position:absolute;z-index:4;top:12px;right:12px;left:auto;transform:none;width:min(34%,340px);padding:7px 10px 6px;border:1px solid #76518f;border-radius:7px;background:linear-gradient(180deg,#171326ed,#0a1120ed);box-shadow:0 4px 14px #0005;pointer-events:none}
+.boss-hud.hidden{display:none!important}
+.boss-hud-heading,.boss-hud-footer{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.boss-hud-heading strong{color:#e6c4ff;font-size:8px;letter-spacing:.1em}
+.boss-hud-heading span{color:#ffbd83;font-size:7px;font-weight:900;letter-spacing:.08em;white-space:nowrap}
+.boss-health-track{height:7px;margin:6px 0 4px;overflow:hidden;border:1px solid #4d3a62;border-radius:99px;background:#090d19}
+#boss-health-fill{width:100%;height:100%;border-radius:99px;background:linear-gradient(90deg,#8c57c9,#e4a0ff);box-shadow:0 0 8px #b46de777;transition:width .18s linear}
+.boss-hud-footer span{color:#9c91ad;font-size:6px;font-weight:800;letter-spacing:.1em}
+.boss-hud-footer strong{color:#f2e7ff;font-size:8px;font-variant-numeric:tabular-nums}
+@media(max-width:700px){.boss-hud{top:9px;right:8px;width:min(36%,260px);padding:6px 7px 5px}.boss-hud-heading strong{font-size:6px;letter-spacing:.06em}.boss-hud-heading span{font-size:6px}.boss-health-track{height:6px;margin:5px 0 3px}.boss-hud-footer span{font-size:5px}.boss-hud-footer strong{font-size:7px}}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.boss-hud{top:8px;right:8px;width:min(32%,300px);padding:5px 7px}.boss-health-track{height:5px;margin:4px 0 3px}}
+
+
+/* v0.44.0 — visual-only main cannon charge and danger telemetry. */
+.boss-cannon-panel{margin:5px 0 2px;padding:4px 6px;border:1px solid #39748b;background:#071c29}
+.boss-cannon-panel.hidden{display:none!important}
+.boss-cannon-heading{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.boss-cannon-heading strong{color:#9befff;font-size:7px;font-weight:900;letter-spacing:.06em}
+.boss-cannon-heading span{color:#7297a8;font-size:6px;font-weight:800;letter-spacing:.08em}
+.boss-cannon-track{height:5px;margin-top:4px;overflow:hidden;border:1px solid #28566b;background:#06111b}
+#boss-cannon-fill{width:0;height:100%;background:#65dff5;box-shadow:0 0 7px #65dff5;transition:width .12s linear}
+.boss-cannon-panel[data-state="warning"]{border-color:#a84e42;background:#2a1114}
+.boss-cannon-panel[data-state="warning"] .boss-cannon-heading strong{color:#ff9a7e}
+.boss-cannon-panel[data-state="warning"] #boss-cannon-fill{background:#ff765d;box-shadow:0 0 7px #ff765d}
+@media(max-width:700px){.boss-cannon-panel{margin:4px 0 1px;padding:3px 5px}.boss-cannon-heading strong{font-size:6px}.boss-cannon-heading span{font-size:5px}.boss-cannon-track{height:4px;margin-top:3px}}
+@media(prefers-reduced-motion:reduce){#boss-cannon-fill{transition:none}}
+
+/* v0.44.0 — HUD visual foundation for the planned pixel-art direction. */
+.in-game-hud{
+  gap:6px;
+  width:min(60%,420px);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  letter-spacing:0;
+}
+.hud-readout{
+  padding:7px 9px;
+  border:2px solid #536783;
+  border-radius:2px;
+  background:#08111feF;
+  box-shadow:inset 0 0 0 1px #101e31;
+}
+.hud-readout-heading{
+  margin-bottom:6px;
+  color:#c4d3e8;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.hud-readout-heading strong{
+  color:#f4f7ff;
+  font-size:10px;
+  font-variant-numeric:tabular-nums;
+}
+.hud-pip{
+  display:inline-block;
+  width:7px;
+  height:7px;
+  margin-right:5px;
+  vertical-align:1px;
+  background:#8cf5c7;
+  box-shadow:2px 2px 0 #254e4a;
+}
+.hud-pip-xp{background:#8eaaff;box-shadow:2px 2px 0 #344b85}
+.hud-level-tag{
+  display:inline-block;
+  margin-left:5px;
+  padding:2px 4px;
+  border:1px solid #526b91;
+  color:#d7e2ff;
+  background:#172844;
+  font-size:8px;
+}
+.hud-level-tag b{color:#fff;font-variant-numeric:tabular-nums}
+.hud-meter{
+  height:8px;
+  border:1px solid #536783;
+  border-radius:0;
+  background:repeating-linear-gradient(90deg,#1a2940 0 8px,#0b1423 8px 10px);
+}
+.hud-meter>div{
+  border-radius:0;
+  transition:width .18s steps(12,end),background .18s;
+}
+.health-meter>div{
+  background:repeating-linear-gradient(90deg,#70e7b5 0 8px,#39aa88 8px 10px);
+}
+.xp-meter>div{
+  background:repeating-linear-gradient(90deg,#a9baff 0 8px,#7188ff 8px 10px);
+}
+.hud-health.is-critical .health-meter>div{
+  background:repeating-linear-gradient(90deg,#ff9b83 0 8px,#e94e68 8px 10px);
+}
+.hud-meta{
+  gap:6px;
+  padding:0;
+  border:0;
+  background:transparent;
+  backdrop-filter:none;
+}
+.hud-meta>span{
+  display:flex;
+  flex:1;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-width:0;
+  padding:5px 8px;
+  border:2px solid #465b78;
+  border-radius:2px;
+  background:#08111feF;
+  color:#aebfd9;
+  font-size:8px;
+  letter-spacing:.1em;
+}
+.hud-meta small{font-size:7px;font-weight:900}
+.hud-meta b{color:#f4f7ff;font-size:10px;font-variant-numeric:tabular-nums}
+.boss-hud{
+  border:2px solid #a56b82;
+  border-radius:2px;
+  background:#160d1af2;
+  box-shadow:inset 0 0 0 1px #3b1d32;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+.boss-health-track{
+  height:10px;
+  border:1px solid #a56b82;
+  border-radius:0;
+  background:repeating-linear-gradient(90deg,#30182b 0 9px,#170e1b 9px 11px);
+}
+.boss-health-track>div{
+  border-radius:0;
+  background:repeating-linear-gradient(90deg,#ff9a9f 0 9px,#d64e70 9px 11px);
+  transition:width .18s steps(16,end);
+}
+.boss-hud-heading,.boss-hud-footer{font-family:inherit;letter-spacing:.1em}
+@media(max-width:560px){
+  .in-game-hud{width:min(72%,420px);gap:5px}
+  .hud-readout{padding:6px 7px}
+  .hud-meta>span{padding:5px 6px}
+}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape){
+  .in-game-hud{width:min(58%,420px)}
+  .hud-readout{padding:5px 7px}
+}
+@media(prefers-reduced-motion:reduce){
+  .hud-meter>div,.boss-health-track>div{transition:none}
+}
+
+
+/* v0.44.0 — tactical boss HUD: hull, four regional shields and ten weapon modules. */
+.boss-hud{width:min(42%,390px);padding:7px 9px 8px;border:2px solid #a56b82;border-radius:2px;background:#160d1af5;box-shadow:inset 0 0 0 1px #3b1d32; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.boss-hud[data-state="overload"]{border-color:#d18a49;box-shadow:inset 0 0 0 1px #71421f,0 0 12px #ff9b3830}
+.boss-hud[data-state="dying"]{border-color:#d65b68}
+.boss-hud-heading strong{font-size:8px;letter-spacing:.08em}
+.boss-hud-heading span{font-size:7px}
+.boss-health-track{height:9px;margin:5px 0 3px;border:1px solid #a56b82;border-radius:0;background:repeating-linear-gradient(90deg,#30182b 0 9px,#170e1b 9px 11px)}
+#boss-health-fill{height:100%;border-radius:0;background:repeating-linear-gradient(90deg,#ff9a9f 0 9px,#d64e70 9px 11px);transition:width .18s steps(16,end)}
+.boss-section-heading{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:7px 0 4px;color:#bda8c5;font-size:6px;font-weight:900;letter-spacing:.1em}
+.boss-section-heading small{color:#f2d5e5;font-size:6px;font-weight:900;letter-spacing:.04em;text-align:right}
+.boss-shield-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.boss-shield-cell{min-width:0;padding:4px 4px 3px;border:1px solid #42556a;background:#0b1522;color:#b9cce0}
+.boss-shield-cell>span{display:block;overflow:hidden;font-size:6px;font-weight:900;letter-spacing:.04em;text-overflow:ellipsis;white-space:nowrap}
+.boss-shield-track{height:5px;margin:4px 0 2px;overflow:hidden;border:1px solid #34445a;background:#080e18}
+.boss-shield-track>div{height:100%;width:100%;background:#54d8d0;transition:width .16s linear}
+.boss-shield-cell>small{display:block;color:#a9c5d5;font-size:6px;font-weight:900;text-align:right}
+.boss-shield-cell[data-state="damaged"]{border-color:#c38a4e;color:#ffd49b}
+.boss-shield-cell[data-state="damaged"] .boss-shield-track>div{background:#e9a34d}
+.boss-shield-cell[data-state="disabled"]{border-color:#8b4b58;color:#ff9ca8;background:#1b101b}
+.boss-shield-cell[data-state="disabled"] .boss-shield-track>div{background:#8d3d50}
+.boss-shield-cell[data-state="disabled"]>small{color:#ff9ca8}
+.boss-module-heading{margin-top:6px}
+.boss-module-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}
+.boss-module-pip{display:flex;align-items:center;justify-content:center;min-width:0;min-height:15px;padding:2px 1px;border:1px solid #397c6b;background:#15372f;color:#a6f5d3;box-shadow:inset 0 -2px 0 #236a57}
+.boss-module-pip b{overflow:hidden;font-size:6px;font-weight:900;letter-spacing:.02em;text-overflow:ellipsis;white-space:nowrap}
+.boss-module-pip[data-state="damaged"]{border-color:#c38a4e;background:#49351f;color:#ffd49b;box-shadow:inset 0 -2px 0 #885b2d}
+.boss-module-pip[data-state="disabled"]{border-color:#b65c66;background:#421d29;color:#ffb3bd;box-shadow:inset 0 -2px 0 #71323e}
+.boss-module-pip[data-state="destroyed"]{border-color:#694b59;background:#241c28;color:#aa9aa8;box-shadow:none}
+.boss-module-pip[data-state="destroyed"] b{text-decoration:line-through}
+.boss-hud-footer span{font-size:6px}.boss-hud-footer strong{font-size:8px}
+@media(max-width:700px){.boss-hud{top:92px;right:7px;width:min(53%,310px);padding:5px 6px 6px}.boss-hud-heading strong{font-size:6px}.boss-hud-heading span{font-size:6px}.boss-health-track{height:7px;margin:4px 0 3px}.boss-section-heading{margin:5px 0 3px;font-size:5px}.boss-section-heading small{font-size:5px}.boss-shield-grid{gap:3px}.boss-shield-cell{padding:3px 2px 2px}.boss-shield-cell>span,.boss-shield-cell>small{font-size:5px}.boss-shield-track{height:4px;margin:3px 0 2px}.boss-module-grid{gap:2px}.boss-module-pip{min-height:13px;padding:1px}.boss-module-pip b{font-size:5px}.boss-hud-footer span{font-size:5px}.boss-hud-footer strong{font-size:6px}}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.boss-hud{width:min(40%,320px);padding:4px 6px}.boss-section-heading{margin:4px 0 2px}.boss-shield-cell{padding:2px}.boss-module-pip{min-height:11px}.boss-module-pip b{font-size:5px}}
+@media(max-width:380px){.boss-hud{width:min(56%,250px)}.boss-shield-cell>span{letter-spacing:0}}
+@media(prefers-reduced-motion:reduce){#boss-health-fill,.boss-shield-track>div{transition:none}}
+
+/* v0.44.0 — combat feedback for regional shields and weapon modules. */
+.boss-shield-cell[data-feedback="hit"],.boss-module-pip[data-feedback="hit"]{animation:boss-system-hit .34s ease-out}
+.boss-shield-cell[data-feedback="restoring"],.boss-module-pip[data-feedback="restoring"]{animation:boss-system-restore .52s ease-out}
+.boss-rebuild-track{height:5px;margin:4px 0 2px;overflow:hidden;border:1px solid #d18a49;background:#24180f}
+.boss-rebuild-track>div{width:0;height:100%;background:repeating-linear-gradient(90deg,#ffd08a 0 8px,#d8893e 8px 10px);transition:width .1s linear}
+.boss-rebuild-value{display:block;min-height:0;color:#ffd08a;font-size:6px;font-weight:900;letter-spacing:.1em;text-align:right}
+.boss-rebuild-value:empty{display:none}
+.boss-hud.is-rebuilding .boss-rebuild-track{border-color:#ffd08a;box-shadow:0 0 7px #ffb45e66}
+@keyframes boss-system-hit{0%{filter:brightness(2.2);box-shadow:0 0 0 2px #ff6978}100%{filter:brightness(1);box-shadow:none}}
+@keyframes boss-system-restore{0%{filter:brightness(2);box-shadow:0 0 0 2px #70f0c0}100%{filter:brightness(1);box-shadow:none}}
+@media(max-width:700px){.boss-rebuild-track{height:4px;margin:3px 0 1px}.boss-rebuild-value{font-size:5px}}
+@media(prefers-reduced-motion:reduce){.boss-shield-cell[data-feedback],.boss-module-pip[data-feedback]{animation:none!important}.boss-rebuild-track>div{transition:none}}
+
+
+/* v0.44.0 — readable tactical HUD for the enlarged battleship silhouette. */
+@media(max-width:700px){
+ .boss-hud{top:92px;right:7px;width:min(60%,320px);padding:6px 7px}
+ .boss-hud-heading strong{font-size:7px;letter-spacing:.06em}.boss-hud-heading span{font-size:6.5px}
+ .boss-health-track{height:7px;margin:4px 0 3px}
+ .boss-hud-footer span{font-size:6px}.boss-hud-footer strong{font-size:7px}
+ .boss-section-heading{margin:5px 0 3px;font-size:6px}.boss-section-heading small{font-size:6px}
+ .boss-shield-cell{padding:3px 3px 2px}.boss-shield-cell>span,.boss-shield-cell>small{font-size:6px}
+ .boss-shield-track{height:4px}.boss-module-pip{min-height:14px}.boss-module-pip b{font-size:6px}
+}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){
+ .boss-hud{top:70px;width:min(42%,320px);padding:4px 6px}
+ .boss-section-heading{margin:4px 0 2px}.boss-shield-cell>span,.boss-shield-cell>small{font-size:5.5px}
+ .boss-module-pip{min-height:12px}.boss-module-pip b{font-size:5.5px}
+}
+
+
+/* v0.54.0 — the cinematic temporarily hides the complete arena HUD and side telemetry. */
+.game-layout.cinematic-active .side-panel,
+.game-layout.cinematic-active .arena-status,
+.game-layout.cinematic-active .arena-footer,
+.game-layout.cinematic-active .in-game-hud,
+.game-layout.cinematic-active #boss-hud,
+.game-layout.cinematic-active #overload-panel,
+.game-layout.cinematic-active #fps-counter,
+.game-layout.cinematic-active #level-up-toast,
+.game-layout.cinematic-active #guided-missile-button,
+.game-layout.cinematic-active #shield-pulse-button,
+
+.game-layout.cinematic-active #reward-banner,
+.game-layout.cinematic-active #damage-feedback,
+.game-layout.cinematic-active #touch-controls,
+.game-layout.cinematic-active .fullscreen-button,
+.game-layout.cinematic-active .orientation-hint {
+  pointer-events: none;
+}
+
+/* v0.62.0 — real ship-class attributes in the hangar. */
+.hangar-ship-stats{display:block;padding:7px 9px;border:1px solid #31435e;border-radius:6px;background:#07101bc9;color:#d3e2f5;font-size:9px;font-weight:750;line-height:1.5;letter-spacing:.02em}
+.hangar-ship-card.is-selected .hangar-ship-stats{border-color:#4b8d9c;color:#baf6f0}
+@media(max-width:760px){.hangar-ship-stats{grid-column:2;font-size:8px;padding:6px 7px}}
+
+
+/* v0.63.0 — per-ship paint customization in the hangar. */
+.hangar-customizer{padding:20px;border:1px solid #2a3b58;border-radius:10px;background:linear-gradient(145deg,#101c30,#0a1221)}
+.hangar-customizer-heading h3{margin:0;font-size:18px;letter-spacing:-.025em}
+.hangar-customizer-heading p:last-child{margin:7px 0 0;color:#a8b7d0;font-size:11px;line-height:1.6}
+.ship-color-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+.ship-color-control,.ship-glow-control{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;padding:10px 12px;border:1px solid #2b3c57;border-radius:8px;background:#081222;color:#dce8f8;font-size:11px}
+.ship-color-control input{width:38px;height:32px;padding:2px;border:1px solid #51627b;border-radius:6px;background:#0b1425;cursor:pointer}
+.ship-glow-control{justify-content:flex-start}
+.ship-glow-control input{width:17px;height:17px;accent-color:#65dce2}
+.hangar-ship-preview{--ship-primary:#58e4e8;--ship-secondary:#d9ffff;--ship-core:#f4ffff;--ship-accent:#7b9cff}
+.hangar-ship-preview svg path{transition:fill .12s,stroke .12s}
+@media(max-width:760px){.hangar-customizer{padding:15px}.ship-color-controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.ship-color-control,.ship-glow-control{padding:9px;font-size:10px}}
+@media(max-width:390px){.ship-color-controls{grid-template-columns:1fr}.ship-color-control{min-height:44px}}
+
+
+/* v0.64.0 — restricted ally ship and unlock flow. */
+.hangar-ship-card.is-locked{opacity:.7;filter:saturate(.62);cursor:not-allowed}
+.hangar-ship-card.is-locked:hover{transform:none;border-color:#2a3b58}
+.hangar-ship-card:disabled{pointer-events:none}
+.hangar-ship-card.is-locked .friend-ship-card-status{color:#e5b86a}
+.friend-ship-unlock{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.85fr);gap:22px;align-items:center;margin:0 0 18px;padding:20px;border:1px solid #35465f;border-radius:10px;background:linear-gradient(145deg,#17243a,#0a1221)}
+.friend-ship-unlock h3{margin:0;font-size:17px}
+.friend-ship-unlock p{margin:7px 0 0;color:#a8b7d0;font-size:11px;line-height:1.6}
+.friend-ship-unlock-controls>label{display:block;margin-bottom:7px;color:#dce8f8;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.friend-ship-unlock-controls>div{display:flex;gap:8px}
+.friend-ship-unlock-controls input{flex:1;min-width:0;min-height:42px;padding:0 12px;border:1px solid #354963;border-radius:7px;background:#07101d;color:#f0f5ff;font:inherit;letter-spacing:.08em}
+.friend-ship-unlock-controls button{min-height:42px;padding:0 14px;font-size:9px;white-space:nowrap}
+#friend-ship-unlock-note[data-state="error"]{color:#ff9a9a}
+#friend-ship-unlock-note[data-state="success"]{color:#83e4bd}
+@media(max-width:980px){.hangar-ship-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.hangar-ship-grid{grid-template-columns:1fr}.friend-ship-unlock{grid-template-columns:1fr;gap:14px;padding:15px}.friend-ship-unlock-controls>div{flex-direction:column}.friend-ship-unlock-controls button{width:100%}}
+
+
+/* v0.64.1 — Wraith signature palette and aggressive stealth profile. */
+.ship-preview-wraith{background:radial-gradient(ellipse at center,#45205d 0%,#1b1029 42%,#080b16 78%)}
+.hangar-ship-card[data-ship-choice="wraith"]{border-color:#59336f;background:linear-gradient(155deg,#21142f,#0a101d)}
+.hangar-ship-card[data-ship-choice="wraith"].is-selected{border-color:#d36aff;background:linear-gradient(155deg,#3a1c50,#120d20);box-shadow:inset 0 0 26px #c64cff18,0 0 14px #b52be822}
+.hangar-ship-card[data-ship-choice="wraith"] .hangar-ship-tag,
+.hangar-ship-card[data-ship-choice="wraith"] small{color:#df9aff}
+.hangar-ship-card[data-ship-choice="wraith"] .hangar-ship-stats{border-color:#71438a;color:#f0d5ff}
+
+
+/* v0.76.0: Phantom-only class ability, matching the ship's violet identity. */
+.canvas-frame .ability-card-class{top:calc(50% + 87px);right:8px;bottom:auto;transform:translateY(-50%);border-color:#bd83ff;background:linear-gradient(145deg,#35204df2,#10182bf2);color:#f4e6ff}
+.canvas-frame .ability-card-class .ability-card-icon{border-color:#bd83ff88;background:#42235f;color:#e5baff}
+.canvas-frame .ability-card-class .ability-card-copy small{color:#d9b4ff}
+.canvas-frame .ability-card-class .ability-cooldown-fill{background:#bd83ff}
+@media(max-width:520px){.canvas-frame .ability-card-class{top:auto;bottom:194px;transform:none}}
+@media(hover:none) and (pointer:coarse) and (orientation:landscape) and (max-height:600px){.canvas-frame .ability-card-class{top:calc(50% + 75px);bottom:auto;transform:translateY(-50%)}}
+
+
+/* v0.77.0 — Wraith's exclusive offensive ability uses its violet-magenta palette. */
+.canvas-frame .ability-card-class[data-ability-class="wraith"]{border-color:#d77cff;background:linear-gradient(145deg,#3c174ff2,#101322f2);color:#f7e6ff}
+.canvas-frame .ability-card-class[data-ability-class="wraith"] .ability-card-icon{border-color:#d77cff99;background:#4b1d62;color:#f0c1ff}
+.canvas-frame .ability-card-class[data-ability-class="wraith"] .ability-card-copy small{color:#e5b0ff}
+.canvas-frame .ability-card-class[data-ability-class="wraith"] .ability-cooldown-fill{background:#d77cff}
+
+
+/* v0.78.0 — Vanguard tactical synchronization uses its cyan class palette. */
+.canvas-frame .ability-card-class[data-ability-class="vanguard"]{border-color:#58e4e8;background:linear-gradient(145deg,#123b49f2,#101322f2);color:#e8ffff}
+.canvas-frame .ability-card-class[data-ability-class="vanguard"] .ability-card-icon{border-color:#58e4e899;background:#164b59;color:#c9ffff}
+.canvas-frame .ability-card-class[data-ability-class="vanguard"] .ability-card-copy small{color:#9cf5f7}
+.canvas-frame .ability-card-class[data-ability-class="vanguard"] .ability-cooldown-fill{background:#58e4e8}
+
+
+/* v0.79.0 — Aegis Bastion Protocol uses the class's warm gold shield palette. */
+.canvas-frame .ability-card-class[data-ability-class="aegis"]{border-color:#ffd36b;background:linear-gradient(145deg,#4a3518f2,#171522f2);color:#fff5d8}
+.canvas-frame .ability-card-class[data-ability-class="aegis"] .ability-card-icon{border-color:#ffd36b99;background:#59421c;color:#ffe7a1}
+.canvas-frame .ability-card-class[data-ability-class="aegis"] .ability-card-copy small{color:#ffe2a0}
+.canvas-frame .ability-card-class[data-ability-class="aegis"] .ability-cooldown-fill{background:#ffd36b}
+
+
+/* v0.80.0 — optional WebGL post-processing layer; the source canvas remains the layout surface. */
+.canvas-frame .shader-output-canvas{position:absolute;inset:0;z-index:1;display:none;width:100%;height:100%;max-height:none;aspect-ratio:auto;object-fit:fill;pointer-events:none}
+.canvas-frame.shader-enabled .shader-output-canvas{display:block}
+.canvas-frame.shader-enabled #game-canvas{opacity:0}
+.canvas-frame>.overlay{z-index:2}
+#settings-panel{max-height:calc(100% - 20px);overflow-y:auto;overscroll-behavior:contain}
+.setting-toggle-row input[type="checkbox"]{width:20px;min-width:20px;height:20px;accent-color:var(--cyan);cursor:pointer}
+.setting-toggle-row{min-height:58px}
+#shader-support-note{padding:8px 0;border-bottom:1px solid var(--line)}

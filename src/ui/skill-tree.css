@@ -1,0 +1,23 @@
+/* Persistent skill tree — responsive, touch-friendly research interface. */
+.skill-tree-panel{width:min(100%,1080px);max-height:min(88vh,920px);overflow:auto}
+.skill-tree-summary{margin:16px 0;padding:13px 15px;border:1px solid #39758a;border-radius:7px;background:linear-gradient(100deg,#0d2938,#101a30);color:#8feef0;font-size:11px;font-weight:900;letter-spacing:.1em}
+.skill-tree-branches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.skill-branch{min-width:0;padding:14px;border:1px solid #273a57;border-radius:9px;background:linear-gradient(150deg,#111d33,#0a1222)}
+.skill-branch-heading{display:flex;align-items:center;gap:11px;padding-bottom:12px;border-bottom:1px solid #263750}
+.skill-branch-icon{display:grid;place-items:center;flex:0 0 38px;height:38px;border:1px solid #39758a;border-radius:9px;background:#0d2938;color:#7fe8ed;font-size:20px}
+.skill-branch-heading strong,.skill-branch-heading small{display:block}
+.skill-branch-heading strong{font-size:13px;letter-spacing:.06em}
+.skill-branch-heading small{margin-top:4px;color:#8795b2;font-size:10px}
+.skill-node-list{display:grid;grid-template-columns:minmax(0,1fr);gap:0;padding-top:10px}
+.skill-node{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;min-height:76px;padding:11px 12px;border:1px solid #3b5876;border-radius:7px;background:#12233a;color:#edf3ff;text-align:left;cursor:pointer;touch-action:manipulation}
+.skill-node:disabled{cursor:default;opacity:.72}
+.skill-node:not(:disabled):hover{border-color:#70dce7;background:#173149}
+.skill-node.is-purchased{border-color:#3b9b82;background:linear-gradient(110deg,#12372f,#10243a)}
+.skill-node.is-locked{border-style:dashed;background:#0b1425;color:#7786a2}
+.skill-node strong{font-size:11px}
+.skill-node small{color:#a8b7cf;font-size:10px;line-height:1.45}
+.skill-node-footer{color:#7fe8ed;font-size:8px;font-weight:900;letter-spacing:.1em}
+.skill-node.is-purchased .skill-node-footer{color:#8cf5c7}
+.skill-node-connector{display:block;width:2px;height:12px;margin:0 auto;background:linear-gradient(#4d7e9a,#263b55)}
+@media(max-width:700px){.skill-tree-panel{max-height:86vh;padding:16px}.skill-tree-branches{grid-template-columns:1fr;gap:10px}.skill-branch{padding:12px}.skill-node{min-height:68px;padding:10px 11px}.skill-tree-summary{font-size:9px;line-height:1.5}}
+@media(orientation:landscape) and (max-height:520px){.skill-tree-panel{max-height:92vh}.skill-tree-branches{grid-template-columns:repeat(2,minmax(0,1fr))}}

@@ -1,3 +1,741 @@
+## [1.0.0] — lançamento estável
+
+- Consolida a linha de desenvolvimento do GALACTIC-DEFENDER em uma versão oficial estável.
+- Remove a persistência de progresso, configurações, nave selecionada, personalização, árvore de pesquisa, missões, conquistas, recordes e títulos; o estado existe somente durante a sessão atual.
+- Limpa na primeira abertura os dados legados do jogo com prefixo `gd-` em `localStorage` e `sessionStorage`, preservando chaves de outros aplicativos.
+- Mantém a Wraith como nave especial desbloqueável pelo código de aliado `ORBITAL-ALLY`; o código precisa ser inserido novamente a cada sessão.
+- Inclui o pipeline opcional de pós-processamento WebGL, com presets Desligado/Baixo/Médio/Alto e controles individuais de gradação de cor, vinheta, linhas de varredura e aberração cromática.
+- Mantém o Canvas 2D como renderizador principal e fallback quando WebGL não está disponível; shaders desligados por padrão.
+- Atualiza documentação, histórico de versões, cache-busting e validações automatizadas.
+
+## [0.80.0] — shaders configuráveis
+
+- Adiciona pipeline WebGL opcional aplicado após a renderização Canvas 2D.
+- Inclui gradação de cor, vinheta, linhas de varredura e aberração cromática com controles individuais.
+- Adiciona presets de qualidade e fallback para Canvas 2D.
+- Mantém o processamento desligado por padrão para priorizar dispositivos móveis.
+
+## [0.65.0] — reformulação inicial do ambiente espacial
+
+- Substitui a grade quadriculada por um campo de destroços distante, com silhuetas de cascos destruídos e placas flutuantes pré-renderizadas em cache.
+- Remove os gradientes de nebulosa dominantes; mantém o espaço escuro e limpo para priorizar a leitura do combate.
+- Mantém os destroços decorativos estáticos e separados dos asteroides interativos, evitando custo de atualização por quadro.
+- Substitui estrelas quadradas por pontos circulares em duas camadas de profundidade e velocidades distintas.
+- Adiciona campo de asteroides rochosos com geometria determinística, deriva lenta, rotação e colisões.
+- Disparos do jogador podem danificar e destruir asteroides.
+- Inimigos comuns desviam de asteroides próximos; o Encouraçado pode esmagá-los durante o deslocamento.
+- Colisão do jogador com asteroides causa dano moderado e reposiciona a nave para fora do obstáculo.
+- Mantém a HUD e o layout das telas sem alterações; campo limitado a 16 rochas para controlar custo de CPU/renderização.
+
+## [0.64.4] — Wraith baseada na referência original
+
+- Reconstrói a silhueta com asas largas e agressivas, placas de blindagem em camadas e motores duplos elevados integrados à traseira.
+- Adiciona canais luminosos nas asas, entradas de ar e núcleo central violeta alongado, aproximando o desenho da imagem de referência enviada pelo usuário.
+- Atualiza a prévia do hangar para acompanhar a silhueta de combate.
+- Preserva arsenal violeta, atributos, desbloqueio e Impulso de Fase.
+
+## [0.64.3] — refinamento da silhueta da Wraith
+
+- Refina a silhueta de combate para um caça furtivo mais alongado, com asas contínuas e varridas, fuselagem central e motores traseiros integrados.
+- Remove as estruturas traseiras elevadas e segmentadas que davam aparência insetoide.
+- Atualiza a prévia vetorial do hangar para acompanhar o desenho de combate.
+- Preserva paleta roxo-grafite, núcleo violeta, arsenal violeta, atributos, desbloqueio e Impulso de Fase.
+
+## [0.64.2] — arsenal violeta e superioridade da Wraith
+
+- Colore os disparos básicos da Wraith em violeta/magenta, incluindo variações de disparo aprimorado.
+- Aplica identidade roxa aos mísseis teleguiados, rastros, fragmentos e explosões, sem alterar a aparência das outras naves.
+- Buffa o perfil da Wraith para 285 de velocidade, 2750 de aceleração, 105 de integridade e multiplicador de dano de 1,08×.
+- Mantém a Aegis como a nave de maior integridade (125), enquanto a Wraith passa a ser a melhor em mobilidade e dano geral.
+- Atualiza os identificadores de cache dos módulos de combate e adiciona testes de hierarquia dos atributos.
+
+## [0.64.1] — redesign visual da Wraith
+
+- Substitui a silhueta simples por um caça furtivo angular, com asas largas e varridas, blindagem em camadas e motores traseiros elevados.
+- Define a identidade padrão em roxo profundo, grafite/preto e núcleo violeta brilhante.
+- Atualiza a prévia do hangar para refletir a nova silhueta e paleta.
+- Mantém atributos, desbloqueio, habilidade Impulso de Fase e compatibilidade com a oficina de pintura.
+- Adiciona teste automatizado para a paleta padrão exclusiva da Wraith.
+
+## [0.64.0] — nave especial Wraith
+
+- Adiciona a Wraith como quarta nave, separada das três classes comuns e bloqueada por padrão.
+- Implementa validação do código de aliado no hangar e persistência do desbloqueio no navegador.
+- Cria silhueta e paleta exclusivas, mantendo compatibilidade com a oficina de pintura.
+- Adiciona a habilidade passiva Impulso de Fase: ao ativar mísseis teleguiados, recebe 22% de velocidade adicional por 2,2 segundos.
+- Perfil-base: 265 velocidade, 2600 aceleração e 95 integridade.
+- Adiciona testes para atributos, ativação/expiração do impulso e troca de classe.
+
+## [0.63.0] — personalização visual do hangar
+
+- Adiciona controles de cor principal, contorno/detalhes e núcleo, além da opção de brilho.
+- Salva a pintura separadamente para cada classe de nave no navegador.
+- Aplica a aparência escolhida na prévia do hangar e na nave durante a partida.
+- Ajusta a Phantom para velocidade 275, aceleração 2500 e integridade 90, ampliando seu trade-off em relação à Vanguard.
+- Adiciona teste para validação e fallback seguro das cores personalizadas.
+
+## [0.62.0] — classes funcionais para as naves do hangar
+
+- Converte Vanguard, Phantom e Aegis de variações apenas visuais em classes com parâmetros reais de velocidade, aceleração e integridade.
+- Vanguard mantém o perfil equilibrado: velocidade 250, aceleração 2400 e integridade 100.
+- Phantom adota perfil ágil: velocidade 285, aceleração 2500 e integridade 95.
+- Aegis adota perfil blindado: velocidade 215, aceleração 1900 e integridade 125.
+- Atualiza o hangar para explicar os trade-offs e exibir os parâmetros-base de cada nave.
+- Aplica a classe selecionada ao iniciar uma partida e preserva os bônus permanentes da árvore de pesquisa.
+- Ajusta a aplicação da árvore para escalar aceleração a partir do perfil-base da nave, em vez de usar um valor fixo.
+- Adiciona testes de perfis, fallback para identificador inválido e integração com os bônus de mobilidade.
+- A candidata aguarda validação automatizada e testes manuais de balanceamento em dispositivos móveis; não mesclada em `main`.
+
+## [0.61.0] — expansão e persistência das missões
+
+- Salva no navegador a missão atual, o progresso, o tempo acumulado de sobrevivência e a posição da rotação; a partida pode ser reiniciada sem reiniciar o ciclo de objetivos.
+- Expande a rotação de três para seis categorias: eliminações, sobrevivência, ondas, tropas de Elite, ativações de habilidades especiais e derrota de chefe.
+- Integra os eventos reais de eliminação Elite, derrota do DREADNOUGHT e ativação de mísseis/Pulso de Ruptura ao progresso das missões.
+- Mantém XP, pontuação, pontos de pesquisa, títulos e conquistas como recompensas integradas; objetivos mais exigentes concedem valores maiores de XP e pontuação.
+- Adiciona testes para persistência, rotação, escalonamento de objetivos, dados corrompidos e integração dos eventos de gameplay.
+- A validação inicial aprovou sintaxe e 131 de 132 testes; o único teste que falhou tinha uma expectativa incorreta sobre a conclusão da missão Elite. A asserção foi corrigida; nova execução automatizada ainda pendente.
+- A candidata permanece na branch de desenvolvimento e não altera `main`.
+
+## [0.60.0] — imersão audiovisual e identidade dos personagens
+
+- Expande o áudio procedural com três ambientes musicais: menu/hangar, combate e confronto com o DREADNOUGHT; cada transição troca a sequência sem reiniciar o contexto de áudio. Mantém canais independentes de música, efeitos e comunicações.
+- Adiciona perfis sonoros originais para piloto, sistema da nave, Encouraçado e cada classe Elite; falas recebem sinais curtos sincronizados com a revelação do texto.
+- Adiciona efeitos para disparos, dano, absorção e ruptura de escudo, Pulso de Ruptura, lançamento de mísseis, chegadas Elite e explosões.
+- Dá a cada voz um retrato vetorial pixel-inspired próprio nos cartões de diálogo e nas falas de primeiro contato.
+- Cada classe Elite apresenta uma fala própria apenas na primeira aparição da partida; o efeito de chegada e a comunicação são disparados uma única vez por classe.
+- Mantém os efeitos sintetizados localmente, sem baixar arquivos de áudio ou depender de serviços externos; limita a cadência de sons de explosão para reduzir sobreposição.
+- Adiciona controles separados de volume para música, efeitos e comunicações, sinais de navegação do sistema nos menus e alerta sonoro para desestabilização dos sistemas da nave.
+- Inclui testes automatizados para retratos, identidade dos interlocutores, canais de mixagem, alternância de trilha e segurança dos sinais de navegação.
+- O pacote de combate Elite, o Devastador Elite e o design do Encouraçado permanecem sem alterações de balanceamento.
+
+## [0.59.0] — árvore de habilidades e progressão do piloto
+
+- Adiciona uma árvore permanente com cinco ramificações (Integridade, Mobilidade, Arsenal, Energia e Tecnologia) e 15 tecnologias com custos e pré-requisitos.
+- Concede um ponto inicial de pesquisa, pontos adicionais por missões concluídas e um bônus a cada três missões.
+- Salva pesquisa e tecnologias desbloqueadas no navegador; aplica os atributos permanentes ao iniciar ou reiniciar uma partida.
+- Adiciona melhorias permanentes moderadas para integridade, velocidade, aceleração, dano, cadência, escudos, recarga de habilidades e XP.
+- Expande as escolhas durante a partida com especializações para rastreamento e carga de mísseis, fragmentação, capacidade e recarga do escudo e formação de disparo.
+- Cria um painel de pesquisa responsivo no menu e adiciona testes automatizados para compras, dependências, recompensas, atributos e integração.
+
+## [0.58.0] — padronização das tropas Elite e falas de primeiro contato
+
+- Reequilibra velocidade, aceleração, esquiva e vida das tropas Elite para que sigam os padrões de suas classes normais, com bônus moderados em vez de deslocamentos extremos.
+- Dá escudo pessoal a todas as classes Elite, mantendo reservas maiores para Guardião e Devastador.
+- Faz o Artilheiro Elite disparar uma salva de três projéteis, mantendo o padrão de dois tiros da versão normal.
+- Adiciona dois micro-mísseis à Sentinela Elite: orientação curta, depois trajetória reta, com dano baixo e intervalo amplo.
+- Adiciona duas metralhadoras auxiliares de baixa potência ao Devastador Elite, sem substituir o canhão de cerco.
+- Faz o Guardião priorizar tropas Elite ao selecionar aliados para proteção.
+- Reduz o dano base dos mísseis guiados do jogador e impede que o dano atravesse escudos pessoais/escudos de cobertura de Guardiões.
+- Corrige o ciclo de aviso do canhão de plasma do DREADNOUGHT: o disparo só ocorre após a janela de aviso estar ativa e terminar, inclusive ao trocar o jogador de lateral.
+- As falas de primeiro contato com cada classe Elite agora aparecem uma única vez por partida e permanecem por seis segundos.
+- Adiciona testes automatizados para os perfis Elite, habilidades, escudos, prioridade do Guardião, mísseis e avisos do canhão de plasma.
+
+## [0.57.2] — balanceamento do Encouraçado, mísseis e mira do Devastador
+
+- Reduz o armamento de plasma do DREADNOUGHT de quatro para dois canhões, mantendo um módulo por lateral.
+- Substitui os dois módulos traseiros de plasma por emissores iônicos laterais de longo alcance (1.050 unidades), com disparos rápidos e dano individual reduzido.
+- Redesenha os mísseis guiados do chefe como dardos alongados roxos, com velocidade de 280/300/320 unidades/s por fase, correção de trajetória limitada e curvas discretas.
+- Reduz o dano dos mísseis para 10/11/12, amplia o intervalo entre lançamentos para 6,0/5,7/5,4 s e limita a vida útil a 4,2 s para impedir acúmulo indefinido.
+- Move a primeira aparição do Encouraçado para a onda 15 e mantém recorrência a cada 15 ondas (15, 30, 45...).
+- No Devastador, a direção é capturada ao fim da carga; durante o aviso o casco permanece estável e o disparo usa exatamente o ângulo travado.
+- Adiciona cobertura automatizada para quantidade e posição dos canhões, vida útil/curva dos mísseis, agenda de chefes e ângulo de disparo do Devastador.
+
+## [0.57.1] — balanceamento do Encouraçado e flanqueamento
+
+- Aumenta a recarga dos quatro canhões de plasma de 5,4 s para 7,2 s; dano, velocidade do projétil, ruptura de escudo e repulsão permanecem inalterados.
+- Reduz a velocidade máxima e a aceleração do casco para 34/24 na fase 1–2 e 42/30 na fase 3.
+- Diminui a resposta de rotação do casco para que o Encouraçado não acompanhe instantaneamente cada mudança de direção do piloto.
+- Mantém waypoints de patrulha por 3,2 s (2,5 s na fase 3), em vez de recalculá-los continuamente com a posição do jogador.
+- Amplia o deslocamento lateral do reposicionamento e estende sua duração, criando janelas mais claras para atacar os módulos dos flancos e da traseira.
+- Adiciona testes automatizados para recarga dos canhões, perfis de movimento e retenção dos waypoints. A validação real de gameplay e a sensação de flanqueamento ainda dependem de playtest.
+
+## [0.57.0] — reações contextuais das tropas Elite
+
+- Cada aparição de uma tropa Elite agora provoca uma fala curta e específica do piloto.
+- As falas distinguem Artilharia, Sentinela, Guardião e Devastador, com orientação tática imediata.
+- O alerta de descoberta por classe continua aparecendo apenas na primeira ocorrência; o design aprovado das notificações não foi alterado.
+- A caixa de fala é compacta, quebra o texto em linhas e limita sua posição à viewport.
+- Inclui cobertura automatizada para estado, expiração e renderização das falas.
+
+## [0.56.0] — nova tropa pesada: Devastador
+
+- Adiciona o Devastador a partir da onda 8: casco maior, mobilidade muito baixa e canhão de plasma integrado.
+- Implementa ciclo de carga, aquisição preditiva limitada, aviso visual da linha de tiro, disparo a 760 unidades/s e recuperação entre ataques.
+- O impacto causa dano alto, forte repulsão e desestabilização temporária; a variante Elite aparece a partir da onda 21, após a onda de chefe 20, recebe escudo próprio, dano superior e aviso um pouco mais curto.
+- Adiciona recompensa de 80 XP para a unidade normal e alerta tático específico para a variante Elite.
+- **Validação:** testes de construção, perfil de movimento, ciclo de ataque e sinalizadores de impacto adicionados. Nenhum playtest manual ou ganho de desempenho foi declarado.
+
+## [0.55.0] — fundação do combate e defesa direcional
+
+- Remove a carta de Laser Contínuo, seus controles, feixe, dano sustentado e tela de disputa.
+- Remove a carta de Tiros Perfurantes de Plasma: os disparos básicos voltam ao dano normal e deixam de atravessar inimigos por essa habilidade.
+- Remove o Attack Clash entre tiros do jogador e projéteis inimigos; cada projétil volta a seguir sua regra normal de colisão.
+- Corrige a previsão visual do escudo: cada projétil em rota de colisão ativa um único setor estável, usando a direção de chegada quando o ponto previsto fica praticamente no centro da nave.
+- Preserva o Pulso de Ruptura, mísseis, escudo regenerativo, escudos das tropas Elite, cutscene e notificações aprovadas.
+- **Validação:** regressões automatizadas para os quatro setores cardeais, impactos centrais, projéteis fora de rota e ausência das mecânicas removidas. Playtest real e validação visual ainda não realizados.
+
+## [0.54.6] — rebalanceamento de combate e IA do DREADNOUGHT
+
+- Reduz a pressão das tropas comuns: Interceptador, perseguidor e Guardião ficam menos velozes; Sentinela e Artilheiro recebem ajustes mais fortes de mobilidade, esquiva, vida, cadência e dano.
+- Sentinela básico dispara com menor dano e maior intervalo; a variante Elite continua com salva dupla, mas menos punitiva e com maior janela de reação.
+- Artilheiro passa de três para dois projéteis por salva, com dano e velocidade menores, intervalo maior e faixa de patrulha mais contida. A variante Elite mantém dois tiros mais fortes e o escudo próprio.
+- O DREADNOUGHT não usa esquiva de tropas contra tiros do jogador; reposicionamento lateral e estabilização ficam mais curtos, a rotação do casco responde melhor e a cadência de ataque aumenta gradualmente por fase.
+- Mísseis continuam sendo priorizados a longa distância; lançadores mantêm alcance de 980. O plasma mantém velocidade de 760 e repulsão pesada já definida.
+- O renderer do encouraçado agora respeita a escala adaptativa de efeitos: em qualidade reduzida, substitui o gradiente dos propulsores por preenchimento sólido, preservando a silhueta.
+- Corrige a propagação dos sinalizadores `heavyImpact` e `plasmaImpact` dos canhões para o sistema de colisão, garantindo que a ruptura e a repulsão próprias do plasma sejam acionadas.
+- **Validação automatizada:** testes de balanceamento, mobilidade, cadência, esquiva do boss e armamento adicionados. Playtest mobile/desktop e medição real de FPS continuam pendentes.
+
+## [0.54.5] — notificações táticas e posicionamento de diálogo
+
+- Substitui os emojis grandes de reação por indicadores vetoriais compactos, com moldura técnica azul/ciano e glifos desenhados em Canvas.
+- Diferencia suspeita, perigo e ameaça Elite por forma e intensidade, mantendo a mesma linguagem visual.
+- Adiciona entrada rápida, pulsação leve e desaparecimento suave; preserva os gatilhos de alerta e o disparo único por transição de ameaça.
+- Reposiciona o cartão de fala do DREADNOUGHT para uma lateral livre do casco em telas largas; em telas estreitas, escolhe uma posição vertical ou de borda adaptativa.
+- Preserva a cutscene, os diálogos, a câmera, a arena e a lógica de combate.
+- **Validação automatizada:** 72/72 testes aprovados, sintaxe JavaScript, imports relativos e whitespace aprovados. Validação visual em Android/desktop ainda pendente.
+
+## [0.54.4] — refinamento visual dos cartões de diálogo
+
+- Preserva o formato, o tamanho e a hierarquia dos cartões aprovados na v0.54.3.
+- Reduz a saturação e o brilho do azul usado na identificação “COMUNICAÇÃO”, mantendo uma assinatura visual própria para o piloto.
+- Adiciona três barras de sinal com pulsação suave, um brilho de varredura discreto no cabeçalho e pequenos traços técnicos nos cantos.
+- Mantém as animações leves, sem sombras desfocadas por quadro, sem alterar a legibilidade, o posicionamento ou o fluxo da cutscene.
+- Preserva as falas, a entrada, a distância aprovada, a câmera, a arena e o combate.
+- **Validação automatizada:** 69/69 testes aprovados, sintaxe JavaScript, imports relativos e whitespace aprovados. Validação visual em Android/desktop ainda pendente.
+
+## [0.54.3] — diálogos e cartões cinematográficos
+
+- Reescreve as falas do piloto, do sistema de bordo e do DREADNOUGHT para criar uma progressão mais natural: setor aparentemente limpo, anomalia, contato visual, ameaça e identificação.
+- Ajusta as frases para uma comunicação mais direta e coerente com a situação de cada personagem.
+- Amplia os cartões em telas pequenas e aumenta a tipografia mobile; agora o texto pode ocupar até quatro linhas em vez de ser cortado após duas.
+- Centraliza o cálculo de quebra de linhas em uma função testável e adiciona testes para preservar o texto completo e limitar o cartão.
+- Preserva a entrada, a distância aprovada, a câmera, a arena e a duração geral da cutscene.
+- **Validação automatizada:** 68/68 testes aprovados, sintaxe JavaScript, imports relativos e whitespace aprovados. Validação visual em Android/desktop ainda pendente.
+
+## [0.54.2] — ajuste de distância na entrada do DREADNOUGHT
+
+- Ajusta o ponto final da aproximação para usar exatamente o mesmo afastamento vertical definido pela IA de combate.
+- Aumenta o espaço visível entre o casco e a nave do piloto e evita uma mudança brusca de posição quando a cutscene entrega o controle ao combate.
+- Preserva a trajetória central, a duração da revelação, a câmera, os diálogos e a arena aprovados.
+- Adiciona teste de regressão para garantir que a posição final cinematográfica corresponda ao alvo de combate.
+- **Validação automatizada:** 65/65 testes aprovados, sintaxe JavaScript, imports relativos e whitespace aprovados. Validação visual em Android/desktop ainda pendente; não há alteração de balanceamento ou armamentos.
+
+## [0.54.1] — correções de apresentação da cutscene do DREADNOUGHT
+
+- **Patch corretivo da v0.54.0:** preserva a sequência e a duração das fases; não representa uma nova versão minor de funcionalidades.
+- Corrige o fluxo dos diálogos: cada fala recebe tempo suficiente para terminar antes da próxima, inclusive a frase “Parece tranquilo” e a resposta inicial do piloto à anomalia.
+- Aproxima os cartões existentes do jogador: piloto à esquerda e sistema de bordo à direita, ambos ancorados na posição da nave. O design aprovado dos cartões foi preservado.
+- Reestrutura a apresentação da câmera: mantém o piloto centralizado nos diálogos, trava o eixo horizontal durante a revelação e abre o enquadramento progressivamente para mostrar chefe e jogador. Uma fase final amplia discretamente a visão da arena; o zoom de combate permanece em 0,54, sem reduzir o piloto a um ponto.
+- Centraliza o aviso de identificação do chefe no alto da tela: ele surge com fade-in e sai deslizando para cima após a confirmação.
+- Simplifica apenas os indicadores: o ❓ agora é um símbolo vermelho sem círculo azul; o ❗ mantém o destaque vermelho. O ❓ permanece por 8,5 segundos e o ❗ por 30 segundos. Os cartões de diálogo não foram simplificados.
+- Reativa os sinais diegéticos na cutscene: ❓ para a anomalia, ❗ durante a revelação do chefe e ❓❗ para alertas de tropas de Elite.
+- Corrige a comparação temporal dos alertas para tolerar pequenas diferenças de ponto flutuante e adiciona testes de regressão.
+- Corrige o travamento da cutscene ao ativar os indicadores do piloto: o renderizador agora recebe explicitamente o estado da reação e as coordenadas de tela, tanto durante a cinemática quanto no combate.
+- Ao cobrir a tela com o loading, reposiciona o jogador, restaura vida/escudo e limpa projéteis e entidades do confronto anterior, sem substituir a nave nem apagar XP, nível, pontuação, classe ou melhorias adquiridas.
+- Garante uma distância de segurança entre o casco do DREADNOUGHT e o jogador; o chefe desce pelo eixo central e não atravessa a nave do jogador.
+- Preserva o sistema de reações introduzido na v0.49.0: alertas de perigo continuam ligados às telemetrias do canhão principal e dos canhões de plasma do DREADNOUGHT, com acionamento por transição para evitar piscadas repetidas.
+- Adiciona testes de regressão para o desenho dos indicadores, a transição de ameaça e a integração do renderizador.
+- **Validação automatizada:** sintaxe JavaScript, 65 testes, imports relativos e whitespace aprovados no GitHub Actions. A inspeção visual em celular/desktop ainda está pendente.
+
+## [0.54.0] — nova cinemática, chefes recorrentes e revisão de desempenho
+
+- Substitui o controlador antigo da transição da onda 9 para 10 por uma sequência independente, com fade do HUD, carregamento de 10 segundos, diálogos com intervalos definidos, alerta anônimo, revelação distante e identificação final do DREADNOUGHT.
+- A cinemática passa a ser a única proprietária da câmera e da apresentação do chefe até o handoff. O DREADNOUGHT não recebe atualizações de IA durante a cena; seu temporizador de entrada é finalizado antes do primeiro quadro de combate.
+- Remove os módulos antigos `wave-ten-transition.js` e `boss-camera.js`. A função de posicionamento de combate foi separada em `boss-positioning.js`, e a preparação do handoff pertence ao novo módulo de câmera cinematográfica.
+- Ajusta a cadência de chefes para as ondas 10, 20, 30, 40...; ondas intermediárias como 15 e 25 voltam a ser ondas normais. As aparições posteriores à primeira usam falas breves de reconhecimento, sem repetir a introdução longa.
+- Reduz varreduras redundantes de projéteis na IA de Sentinelas e Artilheiros para uma verificação a cada 0,16 s quando não há cooldown ativo.
+- Limita partículas de dano e partículas de evolução a listas com tamanho máximo controlado; efeitos de mísseis e quebra de escudo já tinham limites próprios e foram mantidos.
+- Adiciona testes de regressão para o novo fluxo temporal, enquadramento da câmera, transferência para IA e recorrência de chefes.
+- **Validação pendente:** a branch ainda precisa passar pela suíte automatizada e por teste visual em navegador. Nenhum ganho de FPS foi medido nesta alteração.
+
+## [0.53.2] — correção de câmera no handoff e sinais da cutscene
+
+- Corrige a causa visual restante após a cutscene: o enquadramento cinematográfico terminava em zoom e posição de câmera diferentes dos limites usados por `updateCamera()`. A câmera agora converge para o mesmo zoom mínimo e para os mesmos limites durante o diálogo final, antes de liberar a simulação normal.
+- Mantém o temporizador interno de entrada do DREADNOUGHT encerrado no handoff, preservando a correção anterior.
+- Reposiciona os sinais de reação do piloto para evitar sobreposição com balões de diálogo e substitui os glifos de emoji por ícones vetoriais com moldura própria.
+- Reforça a rolagem vertical do histórico em dispositivos móveis e registra a etapa v0.51.0.
+- **Validação pendente:** testes automatizados e teste visual no navegador/celular ainda precisam ser executados.
+
+## [0.53.1] — correção do handoff e histórico de versões
+
+- Corrige a causa do deslocamento após a cutscene: o DREADNOUGHT é construído antes de entrar na lista normal de inimigos, portanto seu temporizador interno de entrada continuava ativo ao terminar o diálogo. O primeiro quadro de IA repetia a descida cinematográfica. O handoff agora encerra esse temporizador explicitamente antes de liberar a IA.
+- Centraliza a preparação do chefe para combate em uma função testável e adiciona regressão para temporizador, posição, alvo, estado e velocidade.
+- Consolida no histórico visível do menu os marcos de desenvolvimento posteriores à v0.44.0, sem apagar os registros anteriores.
+- Atualiza o identificador de versão e os parâmetros de cache para v0.53.1.
+- **Validação pendente:** a suíte automatizada e o teste visual em navegador/celular ainda precisam ser executados.
+
+## [Unreleased] — câmera cinematográfica e apresentação do DREADNOUGHT
+
+- Ajusta o enquadramento da câmera durante a transição da onda 9 para a onda 10: começa próximo do piloto, recua gradualmente durante o alerta e enquadra piloto e encouraçado na revelação.
+- Durante o combate contra o DREADNOUGHT, desloca o foco vertical para a região entre jogador e chefe, reduzindo cortes da silhueta sem alterar dimensões do mundo, hitboxes ou colisões.
+- Substitui o painel de diálogo grande por balões compactos ancorados ao piloto ou ao chefe, com uma fala por vez e quebra de linha responsiva.
+- Mantém a tela de carregamento, bloqueia a simulação de combate durante a apresentação e libera o chefe somente no handoff final.
+- Adiciona testes unitários para os enquadramentos cinematográficos em telas largas e estreitas. Validação visual em navegador/celular/desktop ainda pendente.
+
+## [Unreleased] — v0.49.0 · reações do piloto e alertas de ameaça
+
+- Adiciona reações diegéticas da nave: ❓ para surpresa diante da chegada do DREADNOUGHT e da primeira aparição de cada classe de Elite; ❗ para sinalizar ataques perigosos.
+- Conecta o alerta de perigo ao aviso do canhão principal do DREADNOUGHT, somente quando a linha de disparo ameaça a posição do jogador.
+- Detecta a janela final de telemetria dos canhões de plasma e verifica a trajetória prevista contra a área da nave do jogador antes de exibir o alerta.
+- Os avisos são acionados por transição de ameaça, evitando piscadas contínuas; a reação aparece ao lado da nave com animação curta e desaparecimento gradual.
+- Adiciona testes unitários para duração das reações e acionamento único dos alertas.
+- **Validação pendente:** executar a suíte automatizada e testar visualmente cutscene, tropas de Elite e ataques do DREADNOUGHT em navegador; ainda não houve playtest.
+
+## [Unreleased] — v0.48.0 · transição cinematográfica do DREADNOUGHT
+
+- Corrige a passagem da cutscene para o combate: o temporizador interno de entrada do chefe é finalizado no handoff, impedindo que a IA reproduza a descida cinematográfica depois do diálogo final.
+- Amplia a área vertical das caixas de diálogo e adapta tamanho de fonte/entrelinha à altura da tela, reduzindo o risco de texto cortado em celulares na horizontal.
+- Adiciona teste de regressão para o handoff entre apresentação e IA normal do chefe.
+- **Validação pendente:** executar a suíte automatizada e testar a transição em celular e desktop; nenhuma validação de navegador foi realizada nesta alteração.
+
+## [Unreleased] — Rebalanceamento de combate e IA do DREADNOUGHT
+
+- Reduz a pressão geral das tropas comuns: deslocamento do Interceptador e do perseguidor mais contido, Guardião menos veloz e perfis básicos de Sentinela/Artilheiro revistos.
+- Sentinela básico recebe novo ajuste de velocidade, esquiva, faixa lateral, cadência e dano; Elite continua superior, mas com mobilidade ligeiramente reduzida.
+- Artilheiro recebe nerf mais forte: menor velocidade/aceleração, faixa de patrulha menor, salva reduzida de três para dois projéteis, cadência mais lenta e projéteis menos rápidos/danosos.
+- Corrige a esquiva involuntária do DREADNOUGHT: projéteis do jogador deixam de acionar deslocamento evasivo lateral do boss.
+- Reposicionamento do encouraçado passa a ser lateral, sem vetor de afastamento do jogador; estabilização mais curta, cooldown menor e rotação do casco mais responsiva.
+- DREADNOUGHT acelera a cadência de combate e prioriza mísseis teleguiados em distâncias maiores; alcance dos lançadores ampliado para 980 unidades.
+- Canhões de plasma acelerados de 620 para 760 unidades/s; repulsão do impacto aumentada para 1.050 com escudo ativo e 1.450 sem escudo.
+- Testes de regressão adicionados para mobilidade das tropas, ausência de esquiva do boss e armamento de longo alcance.
+- **Validação pendente:** testes automatizados e playtest real no navegador; valores de dificuldade ainda são candidatos até a confirmação do usuário.
+
+## [Unreleased] — DREADNOUGHT · escudos e legibilidade dos módulos
+
+- Reduz a integridade dos quatro setores regionais e alonga suas janelas de recarga para tornar o combate contra as defesas mais legível.
+- Disparos que atingem diretamente um hardpoint transferem 42% do dano ao módulo mesmo com o escudo regional ativo; impactos no casco continuam sendo absorvidos normalmente.
+- Reforça a leitura dos quatro arcos de escudo com camadas ciano mais visíveis, mantendo a geometria segmentada.
+- Amplia visualmente plasma, lançadores de mísseis, canhão pesado e metralhadoras em proporções diferentes. As alterações são exclusivamente visuais e não modificam alcance, dano, cadência ou colisões.
+- Adiciona testes de regressão para penetração controlada em hardpoints e absorção integral de impactos comuns no casco.
+- **Validação pendente:** confirmar em gameplay real a precisão do ponto de impacto, a taxa de destruição dos módulos e a legibilidade das armas no zoom tático.
+
+## [Unreleased] — DREADNOUGHT · IA tática e revisão do arsenal
+
+- Define alcances operacionais por módulo e restringe a mira/disparo dos armamentos laterais ao respectivo lado do casco; metralhadoras mantêm capacidade de cobertura cruzada por serem armas de longo alcance.
+- Amplia a bateria de plasma para quatro canhões independentes, dois em cada lateral, mantendo IDs e integridade individual por hardpoint.
+- Cada canhão de plasma possui ciclo de carga de 5,4 s, com telemetria visual intensa nos 1,5 s finais para indicar a preparação do disparo.
+- O projétil de plasma passa a viajar em alta velocidade (620 unidades/s), com 68 pontos de dano e impacto pesado.
+- Ao acertar, o plasma remove imediatamente o escudo ativo; sem escudo, aplica dano elevado. O impacto também arremessa o jogador, com impulso reduzido quando o escudo absorve o golpe.
+- Adiciona cobertura de teste para a quantidade de módulos, distribuição dos quatro canhões e configuração de alcance/telemetria.
+- **Validação pendente:** verificar alinhamento visual dos quatro novos hardpoints, legibilidade da carga, tempo real de reação, colisão do projétil, impacto/knockback e equilíbrio em gameplay. Não houve teste manual de navegador nesta etapa.
+
+## [Unreleased] — v0.45.0 · movimentação precisa e IA tática
+
+- Define a substituição da movimentação excessivamente orgânica por controles mais precisos e previsíveis, com física, decisão tática e animação visual separadas.
+- Tropas comuns poderão buscar posições melhores e cooperar sem perder suas funções-base; o Interceptador permanece a unidade mais básica, com perseguição veloz e sem habilidade especial própria.
+- Flanqueamento coordenado e leitura tática avançada ficam reservados às tropas de Elite existentes: Sentinela, Guardião e Artilheiro. Não existe Interceptador de Elite.
+- O DREADNOUGHT terá controlador próprio, baseado em controle de distância, reposicionamento, proteção de ângulos de armamento e ataques antecipatórios com aviso e oportunidade de reação.
+- Cria `src/movement/motion.js`, núcleo compartilhado sem alocações por quadro para aproximação de velocidade e integração de posição.
+- Migra a movimentação do jogador para o núcleo compartilhado; aceleração sobe de 1800 para 2400 unidades/s², mantendo a velocidade máxima de 250 e a normalização diagonal. A resposta de reversão fica mais rápida sem alterar velocidade de cruzeiro.
+- Adiciona testes para consistência em 30/60/120 FPS, reversão sem overshoot, delta inválido, movimento diagonal e limite de velocidade.
+- A inclinação visual, a rotação, os efeitos de propulsão e a câmera permanecem separados da integração física.
+- Migra Sentinelas e Artilheiros normais/Elite para steering com aceleração, velocidade máxima por perfil e frenagem proporcional à distância até o ponto de combate.
+- Perfis Elite têm capacidades de reposicionamento superiores às versões comuns. O Interceptador continua usando perseguição simples, sem perfil de flanqueamento ou variante Elite.
+- Adiciona coordenador tático dedicado que escolhe uma única Elite por vez, prioriza Sentinelas, seleciona o corredor traseiro menos congestionado e respeita intervalo entre manobras.
+- Sentinelas e Artilheiros Elite suspendem os disparos durante o reposicionamento; Guardião Elite não abandona aliados vivos que estejam sob sua proteção.
+- Tropas comuns recebem uma segunda camada mais simples: um Chaser por vez pode procurar uma posição lateral menos congestionada, sem previsão de trajetória ou manobra traseira; ele também segura o disparo durante a reposição.
+- A coordenação comum aguarda quando um flanqueamento Elite está ativo. Interceptadores não entram em nenhuma dessas decisões e mantêm perseguição direta.
+- DREADNOUGHT recebe estados de patrulha, reposicionamento pesado e estabilização. Ao detectar o jogador fora de seu arco frontal ou próximo demais, escolhe uma posição lateral/oblíqua em vez de tentar persegui-lo diretamente.
+- O chefe usa perfil de aceleração e velocidade máxima próprios e antecipa moderadamente a posição do jogador ao orientar as torres, usando sua velocidade atual como estimativa limitada.
+- Adiciona testes para movimento pesado, limite de velocidade, reposicionamento quando o jogador sai do arco frontal e diferença de mira contra um alvo em movimento.
+- **Estado:** primeira fundação integrada ao jogador, Sentinelas, Artilheiros, Chasers, coordenação Elite e movimento inicial do DREADNOUGHT. O Guardião também foi migrado para steering compartilhado na formação e no fallback sem aliados; a lógica avançada de controle de áreas/ataques antecipatórios do DREADNOUGHT continua pendente. Teste manual ainda não realizado.
+
+## [Unreleased] — Progressão normal de ondas e preparação da revisão de movimentação
+
+- Desativa o modo temporário que fazia o DREADNOUGHT surgir já na primeira onda; a partida volta a começar com cinco inimigos e segue a progressão normal.
+- Mantém o DREADNOUGHT programado para as ondas especiais a partir da onda 10, com recorrência a cada cinco ondas.
+- Adiciona teste de regressão para o início da partida e a transição entre as ondas 9, 10 e 11.
+- Inicia a auditoria da jogabilidade: preservar a movimentação orgânica do jogador e investigar separadamente aceleração, inércia, rotação, inclinação visual, câmera e deslocamento do encouraçado.
+- **Escopo:** ajuste do modo de teste e cobertura da progressão; nenhuma física ou parâmetro de movimentação foi alterado nesta etapa.
+- **Validação pendente:** executar a suíte automatizada e testar a progressão real no navegador antes de iniciar ajustes físicos.
+
+## [Unreleased] — DREADNOUGHT · proa limpa e otimização de renderização
+
+- Remove a antiga passagem de desenho do casco que continuava sendo renderizada por baixo do novo modelo em camadas; o DREADNOUGHT passa a ter uma única passagem principal de casco.
+- Remove a superestrutura central elevada e os detalhes cinza da ponte na proa, mantendo a linha central limpa e reta entre a cavidade aberta do emissor e a ponta da nave.
+- Preserva os detalhes laterais, os condutores de energia e a cavidade frontal; nenhum canhão físico ou peça central foi recolocada.
+- Substitui gradientes criados a cada quadro por preenchimentos sólidos controlados na carcaça, no reator e na cavidade. O contraste passa a vir principalmente da geometria e das placas.
+- Remove arrays temporários de coordenadas em loops do desenho do boss e mantém as armas como módulos independentes.
+- **Escopo:** renderização visual e eficiência do desenho; IA, posições dos módulos, mira, cadência, projéteis, dano, escudos, hitboxes e colisões permanecem inalterados.
+- **Validação pendente:** verificar a leitura da proa e das armas no jogo e medir FPS/tempo de quadro no mesmo aparelho. A redução de operações de desenho é verificável no código; ganho de FPS ainda não foi medido.
+
+## [Unreleased] — DREADNOUGHT · legibilidade do armamento
+
+- Redesenha as silhuetas visuais das metralhadoras, lançadores de mísseis, lasers leves e canhões de plasma, com receptores blindados, bocais/tubos rebaixados e detalhes de emissor próprios por família.
+- Amplia moderadamente os hardpoints e reforça o contraste entre a base mecânica e a arma instalada, mantendo os módulos desenhados acima do casco para evitar que a nova superestrutura os esconda.
+- Mantém posições, IDs, ângulos, arcos de mira, cadência, projéteis, dano, integridade dos módulos, transições e colisões. O canhão principal continua representado pela cavidade frontal aberta.
+- A renderização continua sendo Canvas 2D com geometria vetorial em camadas; não foram adicionadas malhas 3D, filtros de sombra ou gradientes por arma.
+- **Validação pendente:** conferir leitura à distância e em telas pequenas, possíveis sobreposições entre hardpoints, transições de substituição e desempenho real em celular/desktop.
+
+## [Unreleased] — DREADNOUGHT · propulsores e canhão principal
+
+- Remove o núcleo quase branco dos propulsores, que podia parecer uma peça separada; os bocais passam a usar uma escala de cianos coerente com a identidade energética da nave.
+- Substitui a chama rígida em blocos por plumas vetoriais cônicas e suaves, mantendo os dois motores principais visualmente independentes.
+- Refina os propulsores auxiliares com núcleo ciano e halo azul-petróleo, sem acrescentar novos elementos brancos.
+- Redesenha o encaixe do canhão principal com câmara rebaixada, blindagem octogonal, anéis de contenção, dentes de travamento e lente emissora ciano pulsante.
+- Preserva a posição e o módulo funcional do canhão, além de IA, dano, cadência, escudos, colisões e demais sistemas.
+- **Validação pendente:** conferir se o detalhe do canhão permanece legível sob o módulo de arma, se os propulsores estão equilibrados e se o brilho não satura em telas pequenas.
+
+## [Unreleased] — DREADNOUGHT · COLOSSAL WARSHIP — redesign tridimensional
+
+- Retorna o boss à renderização vetorial suave do jogo; a experiência de pixel art permanece apenas como estudo visual e não é usada nesta implementação.
+- Redesenha a apresentação do DREADNOUGHT com geometria em camadas, laterais facetadas, sombras projetadas, chanfros, gradientes direcionais e superestrutura elevada para criar volume 3D em perspectiva superior 2D.
+- Adiciona ponte de comando escalonada, encaixe frontal do canhão principal, poço de reator ciano com iluminação radial, segmentação de blindagem, rebites, grelhas e propulsores auxiliares.
+- Preserva o grafite fosco, o aço escovado, o núcleo ciano, os armamentos de plasma laranja e os traços verdes localizados da fase adaptativa.
+- Atualiza a identificação de entrada e o alerta da arena para **DREADNOUGHT — COLOSSAL WARSHIP**.
+- Mantém os dez módulos, escudos regionais, IA, movimento, dano, cadência, colisões, hitboxes e transições de fase sem alterações intencionais.
+- **Validação pendente:** conferir leitura da silhueta, profundidade dos volumes, sobreposição dos hardpoints, efeitos de dano, escala em celular e desempenho em computador.
+
+## [Unreleased] — Nitidez da pixel art e propulsores do Encouraçado
+
+- Aumentada a resolução interna da arte de 80 × 104 para 100 × 144 pixels, com ampliação exata de 4× e suavização desativada para bordas mais definidas.
+- Ampliado o enquadramento vertical do sprite para acomodar os dois jatos traseiros sem cortar a chama.
+- Substituído o escape central genérico por dois propulsores independentes, com carcaças, bocais e chamas em blocos de pixels ciano, branco e laranja.
+- Reorganizados os bocais para evitar sobreposição visual entre a grelha traseira, a blindagem e as chamas.
+- **Escopo:** ajuste visual; IA, movimento, dano, cadência, colisões e sistemas de combate permanecem inalterados.
+- **Validação pendente:** verificar nitidez em diferentes escalas, alinhamento dos dois propulsores e desempenho em celular.
+
+## [Unreleased] — Encouraçado em pixel art
+
+- Converte toda a renderização do Encouraçado para uma superfície pixelada reutilizável de baixa resolução, ampliada com amostragem nearest-neighbor para formar blocos de pixels nítidos.
+- Afina visualmente a silhueta em 18%, preservando o enquadramento, as dimensões físicas e as regras de colisão existentes.
+- Adiciona placas laterais serrilhadas, dentes de blindagem, marcações de alerta e grelhas de exaustão em blocos de cor.
+- Preserva os dez hardpoints, os estados dos módulos, os escudos regionais, as animações de dano, reconstrução e destruição.
+- **Escopo:** alteração exclusivamente visual; nenhum dano, cadência, IA, movimento ou hitbox foi alterado.
+- **Validação pendente:** conferir a leitura dos pixels, a silhueta mais estreita, a legibilidade dos módulos e o desempenho em celular e computador.
+
+## [0.44.0] — Modo temporário de teste do Encouraçado
+
+- Ativado o surgimento do Encouraçado já na onda 1, sozinho, para permitir testes imediatos do chefe durante o desenvolvimento.
+- As ondas seguintes mantêm a progressão normal; o calendário original de chefes nas ondas 10, 15, 20... continua ativo.
+- O modo fica centralizado em `BOSS_TEST_MODE` no gerenciador de ondas e deverá ser desativado quando o desenvolvimento do Encouraçado for concluído.
+- **Validação pendente:** confirmar início da partida, entrada do chefe na onda 1, derrota e avanço correto para a onda 2.
+
+## [0.44.0] — Identidade visual do Encouraçado
+
+- Reconstruída a silhueta como nave capital completa, com casco largo, blindagem grafite fosca e reforços em aço escovado.
+- Integrado ao casco um canal longitudinal de energia ciano, conduzindo visualmente ao canhão principal fixo.
+- Reposicionados os dez hardpoints para distribuir armamentos pelas laterais, proa e região central.
+- Diferenciadas as identidades cromáticas: energia ciano, plasma laranja-avermelhado e traços verdes localizados durante a reconstrução adaptativa da fase III.
+- Preservadas as rotinas de combate, estados dos módulos, escudos, sobrecarga, dano e IA; as coordenadas dos hardpoints foram atualizadas junto à disposição física.
+- **Validação pendente:** teste visual e de combate em navegador, incluindo hardpoints, colisões dos módulos e enquadramento em celular.
+
+## [0.44.0] — Primeiro chefe: nave de guerra pesada (em desenvolvimento)
+
+- Corrige a geometria de colisão do laser contínuo: o teste agora considera o raio real de projéteis inimigos e entidades (incluindo a hitbox ampliada do boss), somado à largura do feixe. Isso evita falsos negativos em interseções visíveis sem alterar dano, cadência ou alcance.
+- Canhão principal frontal: adiciona ciclo visual de carga, progresso no HUD tático e alerta de energia crítica nas fases II/III. Não há disparo, projétil, dano ou habilidade de Clash nesta etapa; é apenas preparação visual e telemetria.
+
+## [0.43.0] — Evolução da IA inimiga (candidata)
+
+- Rebalanceia a Sentinela normal: esquiva menos frequente e menos intensa, com deslocamento lateral mais contido e reposicionamento menos agressivo.
+- Promove a Sentinela de Elite: esquiva mais longa e forte, recarga menor, curvas laterais mais amplas e reposicionamento mais responsivo; mantém a salva dupla de plasma.
+- Diferencia o Artilheiro de Elite: esquiva lateral mais forte, leque mais concentrado, disparos mais rápidos e ligeiro aumento de dano/velocidade; preserva o escudo de 8 pontos.
+- Evita varrer projéteis durante a recarga da esquiva, reduzindo trabalho repetido sem alterar a janela de reação.
+- Mantém as fases, movimentação e padrões de ataque dos chefes fora do escopo desta atualização.
+- Candidata em desenvolvimento; requer revisão estática e validação natural de gameplay. Não mesclada em `main`.
+
+## [0.42.1] — Guardião de Elite: Égide de Proteção (candidata)
+
+- Guardião de Elite mantém o posicionamento frontal e recebe aumento moderado de integridade (+2 pontos sobre o Guardião normal), além do escudo individual de 12 pontos.
+- Adiciona uma segunda barreira compartilhada de 18 pontos que envolve até duas tropas atribuídas ao Guardião de Elite.
+- A barreira absorve dano destinado às tropas protegidas; quando esgotada, o dano volta a atingir a integridade da tropa.
+- Cada Guardião, normal ou Elite, recebe no máximo duas tropas exclusivas; uma tropa não é atribuída simultaneamente a vários Guardiões.
+- Guardiões de Elite recebem prioridade na distribuição; Sentinelas só usam a cobertura do Guardião que realmente as recebeu como alvo.
+- O escudo externo é finito e não se regenera nesta versão; sem invulnerabilidade permanente.
+- Candidata para teste manual; não mesclada em `main`.
+
+## [0.42.0] — Identidade Elite e Guardião de Elite (candidata)
+
+- Restaura o Artilheiro de Elite com casco predominantemente preto e detalhes verdes, mantendo o escudo de 8 pontos.
+- Diferencia mais a silhueta da Sentinela de Elite, preservando sua salva dupla de plasma e seu papel de combate à distância.
+- Adiciona o Guardião de Elite a partir da onda 16, com placas defensivas próprias, 12 pontos de escudo e função de proteção de aliados preservada.
+- Remove os nomes flutuantes sobre as tropas; a primeira aparição de cada classe Elite em uma partida gera um aviso de ameaça na interface, apenas quando a unidade realmente surge.
+- Substitui a entrada atual por uma distorção espacial breve, feita com poucos traços e sem sistema de partículas.
+- Aplica uma barra de integridade mais larga e destacada às variantes Elite.
+- A queda de FPS relatada permanece como investigação separada; esta candidata não declara a otimização como resolvida.
+- Candidata para teste manual; não mesclada em `main`.
+
+## [0.41.0] — Segunda Tropa de Elite: Sentinela de Elite (candidata)
+
+- Generaliza a identificação de variantes Elite para Artilheiro e Sentinela, sem criar uma nova classe-base.
+- Introduz a Sentinela de Elite ocasionalmente a partir da onda 14, preservando sua movimentação lateral, reposicionamento e mira.
+- Adiciona uma salva dupla de plasma: dois projéteis ligeiramente divergentes, com dano individual reduzido e dano total próximo ao disparo normal da Sentinela.
+- Diferencia a variante com placas escuras, casco roxo, núcleo luminoso azul-claro e identificação temporária na entrada.
+- Mantém o escudo de 8 pontos exclusivo do Artilheiro de Elite; a Sentinela de Elite não recebe esse escudo.
+- Concede pontuação de Elite sem alterar XP, vida ou dano de contato.
+- Candidata para teste manual; desempenho, frequência de aparição e legibilidade ainda precisam de validação. Não mesclada em `main`.
+
+## [0.40.1] — Ajustes nas Tropas de Elite (patch)
+
+- Refina o Artilheiro de Elite: roxo predominante, placas pretas e detalhes verdes discretos.
+- Substitui o anel completo de escudo por segmentos leves, mantendo os 8 pontos de absorção de dano.
+- Adiciona efeito de entrada simples e identificação temporária `ARTILHEIRO DE ELITE`, sem partículas extras.
+- Ajusta a movimentação evasiva do Artilheiro de Elite com deslocamento lateral inspirado na Sentinela, porém mais contido.
+- Faz o Guardião priorizar tropas de Elite ativas antes de Sentinelas ao escolher quem proteger.
+- Otimização visual direcionada; a causa exata da queda de FPS ainda depende de validação no dispositivo do usuário.
+- Candidata para teste geral posterior; não validada manualmente e não mesclada em `main`.
+
+## [0.40.0] — Primeira Tropa de Elite: Artilheiro de Elite (candidata)
+
+- Adiciona o Artilheiro de Elite como variante do Artilheiro existente, não como uma quinta classe.
+- Introduz a variante ocasionalmente a partir da onda 12, preservando o surgimento normal de chefes e classes.
+- Diferencia o casco com armadura escura, detalhes roxos e núcleo verde.
+- Adiciona escudo de energia visível que absorve dano antes da integridade do casco; dano excedente atinge a vida normalmente.
+- Mantém o padrão de movimento e leque de disparos do Artilheiro-base nesta primeira prova de conceito.
+- Candidata para teste manual; ainda não validada pelo usuário e não mesclada em `main`.
+
+## [0.39.0] — Cooperação tática entre Guardião e Sentinela
+
+- Guardiões próximos a Sentinelas passam a buscar uma posição de cobertura entre a unidade aliada e o jogador.
+- Sentinelas próximas a um Guardião ajustam gradualmente seu posicionamento para aproveitar a cobertura e manter uma linha de tiro.
+- A cooperação é apenas de posicionamento nesta primeira etapa; não transfere dano, não cria invulnerabilidade e não altera vida, dano, cadência ou regras de colisão.
+- Candidata experimental; verificar se a formação é legível, se não causa agrupamento/oscilação e se o desempenho permanece estável.
+
+## [0.38.0] — Esquivas mais legíveis e separação entre inimigos
+
+- Aumenta moderadamente o deslocamento lateral de esquiva para sentinelas, artilheiros e chefe; mantém janelas curtas e recargas por classe, sem invulnerabilidade.
+- Adiciona separação suave entre inimigos próximos para reduzir a sobreposição de cascos, distribuindo o deslocamento conforme o tamanho relativo das unidades.
+- Preserva os padrões de mira, disparos, vida, dano e surgimento das classes.
+- Candidata para teste manual; ainda não validada em jogo real nem mesclada em `main`.
+
+## [0.37.0] — Percepção de projéteis e esquivas limitadas
+
+- A IA de sentinelas, artilheiros e chefes estima a aproximação de projéteis do jogador com velocidade relativa e distância prevista de maior aproximação.
+- Introduz esquivas curtas com intensidade e intervalo de reação específicos por classe; os inimigos não ficam invulneráveis e não reagem a todos os disparos.
+- A lógica recebe os projéteis ativos já existentes e não altera dano, vida, cadência de disparo nem regras de colisão.
+- Candidata experimental: requer validação manual de comportamento, dificuldade, fluidez e regressões. Não mesclada em `main`.
+
+## [0.36.0] — Fundação da IA: orientação tática
+
+- Separa a orientação visual da nave da direção do movimento para sentinelas, artilheiros e chefe.
+- Essas classes podem reposicionar-se mantendo o armamento apontado ao jogador, evitando mostrar a traseira enquanto disparam para ele.
+- Não altera dano, integridade, cadência nem regras de projéteis.
+- **Validação manual:** aprovado pelo jogador na prévia; relatou melhora muito significativa, orientação natural e maior agressividade das Sentinelas. Testes completos de artilharia, chefe e outros dispositivos ainda são recomendados.
+- Próxima etapa planejada: percepção de ameaças e esquivas controladas de projéteis.
+
+## [0.35.0] — Laser Contínuo e decisões iniciais de Attack Clash
+
+- Adiciona Laser Contínuo como habilidade especial independente, preservando os Tiros Perfurantes de Plasma.
+- O feixe direcional causa dano sustentado e, ao cruzar um projétil inimigo, inicia uma decisão de Attack Clash.
+- Opções: forçar vitória (dano bônus e maior sobrecarga), sustentar empate (menor custo) ou escapar (sem dano bônus, com recarga maior).
+- O laser gera sobrecarga progressiva, tem eficiência reduzida quando o sistema está quente e pode ser interrompido pelo bloqueio crítico.
+- **Validação manual pendente:** alcance, controles, decisões, balanceamento e desempenho em celular/computador.
+
+## [0.34.0] — Attack Clash e correção de contato com o chefe
+
+- Adiciona a primeira interação direta entre projéteis: tiros da nave e projéteis inimigos se neutralizam quando suas áreas colidem.
+- Corrige um defeito de contato: o chefe não é mais desativado instantaneamente quando a nave encosta nele sem escudo; o dano de contato ao jogador permanece.
+- Mantém a lógica de dano aos inimigos separada da neutralização entre projéteis.
+- **Validação pendente:** testar tiros contra projéteis inimigos, tiros perfurantes, chefe com vida cheia, dano por contato e FPS em celular e computador.
+
+## [0.33.0] — Fundação compartilhada de colisões
+
+- Adiciona `src/combat/collision.js` com testes geométricos reutilizáveis para áreas circulares e segmentos varridos.
+- Centraliza os testes circulares de tiro do jogador contra inimigos, mísseis contra inimigos, contato entre inimigos e nave, e projéteis inimigos contra a nave.
+- Preserva a política de dano, perfuração, repulsão e destruição existente; esta etapa não ativa confrontos entre projéteis.
+- **Validação pendente:** revisar os imports e testar manualmente as colisões existentes em celular e computador. Attack Clash continua para a etapa seguinte.
+
+## [0.32.0] — Chefe com fases de combate
+
+- Introduz três fases para o chefe atual, acionadas ao atingir 66% e 33% de integridade.
+- Fase 1 mantém o disparo único original; fase 2 usa uma salva de três projéteis; fase 3 usa cinco projéteis em leque, com dano individual reduzido.
+- As transições recebem uma pausa curta e um contorno visual para sinalizar a mudança de padrão.
+- O chefe ganha movimento lateral mais intenso na fase final; demais classes e regras de colisão permanecem no sistema existente.
+- **Validação pendente:** executar teste manual no celular, confirmar transições, legibilidade dos padrões, dano, FPS e regressões. A branch oficial `main` não foi alterada.
+
+## [0.31.0] — Nova classe: Artilheiro
+
+- Adiciona o Artilheiro a partir da onda 4, exceto nas ondas de chefe.
+- O Artilheiro mantém uma faixa de tiro distante, desloca-se lateralmente e dispara uma salva de três projéteis em leque.
+- Diferencia visualmente a classe com casco violeta; cada derrota concede 150 pontos e 55 XP.
+- Mantém os padrões das classes existentes e limita a probabilidade inicial do Artilheiro a 12% por surgimento elegível.
+- **Teste manual concluído pelo usuário:** surgimento, leitura visual, leque, equilíbrio, desempenho percebido e regressão das classes existentes aprovados. Não equivale a benchmark de FPS em todos os dispositivos; a versão oficial `main` não foi alterada.
+
+## [0.30.4] — Pulso de Ruptura com plasma leve
+
+- Remove o preenchimento translúcido que pintava uma grande região do campo de jogo ao ativar o Pulso de Ruptura.
+- Mantém o contorno semicircular e substitui o preenchimento por três traços neon de baixa opacidade, sugerindo plasma/fumaça com menos trabalho de preenchimento.
+- Preserva a velocidade gradual, o alcance, a neutralização de projéteis e a repulsão existentes.
+- A redução real de FPS precisa ser medida no dispositivo móvel; a alteração visual diminui a área preenchida, mas não garante sozinha um ganho específico.
+
+## [0.30.3] — Escudo reativo e tiros perfurantes de plasma
+
+- O escudo mantém a proteção lógica de 360°, mas só desenha pequenos arcos na direção de projéteis com trajetória de colisão provável.
+- A detecção de ameaças é limitada a uma verificação a cada 80 ms e reutiliza oito setores angulares para evitar um efeito por projétil.
+- Remove a camada azul contínua sobre a nave; a barra de integridade do escudo continua disponível.
+- Pulso de Ruptura percorre a mesma distância em uma animação mais gradual, com faixa de colisão ligeiramente mais larga.
+- Renomeia a habilidade para Tiros Perfurantes de Plasma; o comportamento de perfuração existente é preservado.
+- O custo real de FPS e a resposta visual ainda precisam ser confirmados em dispositivo móvel.
+
+## [0.30.2] — Correções de HUD e otimização de efeitos
+
+- Reposiciona o medidor de sobrecarga para o canto superior esquerdo, abaixo da HUD principal e fora da área do joystick.
+- Reposiciona o contador de FPS abaixo da área das notificações superiores para evitar sobreposição com conquistas.
+- Torna o medidor térmico mais legível, com estados curtos e porcentagem explícita.
+- Substitui as faíscas de superaquecimento por fumaça discreta somente após permanência no estado crítico.
+- Reserva faíscas de dano para integridade igual ou inferior a 35%, limita a quantidade e reduz o custo visual de cada partícula.
+- Requer teste manual para medir a melhora real de FPS; não foi executado teste de jogo no navegador.
+
+## [0.30.1] — Patch de otimização, pulso semicircular e diagnóstico de FPS
+
+### Escudo e Pulso de Ruptura
+- Simplifica a oscilação visual do escudo normal para reduzir trabalho de renderização.
+- Substitui a barreira retangular por uma frente semicircular de 180°, com alcance ampliado para 480 unidades.
+- Prioriza a neutralização de projéteis e reduz o dano direto aos inimigos; a repulsão aumenta conforme o nível do escudo e é reduzida contra chefes.
+- Limita os testes de colisão à faixa semicircular recém-varrida, usando distância ao quadrado e produto escalar para evitar cálculos angulares repetidos.
+- Aumenta o custo de sobrecarga do pulso para 38.
+
+### Sobrecarga e resposta a impactos
+- Desacelera moderadamente a recuperação térmica: 10/s em estado estável, 6/s sob sobrecarga e 16/s durante o bloqueio crítico.
+- Move o medidor térmico para um painel vertical independente no canto inferior esquerdo, com cores e alertas progressivos.
+- Adiciona faíscas esparsas e limitadas quando a nave permanece em sobrecarga crítica.
+- Aplica recuo curto e amortecido quando o casco recebe dano ou o escudo absorve um impacto.
+
+### Diagnóstico de desempenho
+- Adiciona a opção **Medidor de FPS** às configurações. Quando ativada, exibe FPS estimado e duração média de quadro, atualizados duas vezes por segundo.
+- O medidor é opcional e permanece desativado por padrão para evitar atualizações de interface desnecessárias.
+- A medição representa a cadência de quadros observada pelo navegador, não uma medição isolada de GPU.
+
+### Validação
+- Candidata para teste manual; main permanece inalterada.
+- Ainda é necessário confirmar a jogabilidade, o comportamento de repulsão e o desempenho real no celular. A medição de FPS será usada para comparar situações normais e o uso do Pulso de Ruptura.
+
+## [0.30.0] — Pulso de Ruptura, sobrecarga e fragmentação de mísseis
+
+### Escudo de emergência
+- A antiga Onda do Escudo foi substituída pelo **Pulso de Ruptura**, disponível somente enquanto o escudo estiver quebrado.
+- O pulso percorre a direção atual da nave como uma barreira frontal ampla, neutralizando projéteis e causando dano controlado uma única vez por inimigo atingido.
+- A onda automática da quebra do escudo permanece separada; o pulso tem recarga própria.
+
+### Energia e sobrecarga
+- Adiciona medidor de energia térmica compartilhado por disparos de laser, mísseis e Pulso de Ruptura.
+- A partir de 70%, as habilidades ficam menos eficazes e a nave perde velocidade.
+- Ao atingir 100%, as habilidades especiais ficam bloqueadas temporariamente; a nave desacelera até a recuperação.
+- A energia recupera-se gradualmente. Os valores iniciais ainda precisam de balanceamento manual.
+
+### Mísseis
+- O lançamento seleciona os dois alvos mais próximos sem ordenar toda a lista de inimigos.
+- Mísseis de nível 3 se fragmentam em até três projéteis teleguiados mais fracos, com limite de entidades para controlar o custo de renderização.
+
+### Validação
+- Candidata para teste manual; não mesclada em `main`.
+- O workflow `Validate project` passou nas verificações de sintaxe JavaScript, imports relativos e whitespace para a revisão de código verificada. Testes reais de jogabilidade, equilíbrio e desempenho continuam necessários.
+
+## [0.29.1] — Diagnóstico e otimização de desempenho
+
+### Desempenho
+- Instrumentação opcional por `?profile=1` para separar custos de atualização, renderização e ativação de habilidades.
+- Lançamento de mísseis passa a selecionar até dois alvos próximos sem ordenar a lista inteira de inimigos.
+- Esta candidata ainda precisa de teste real em dispositivos; não há alegação de FPS melhorado sem medições.
+
+## [0.29.0] — Reestruturação do escudo e otimização de combate
+
+### Escudo de energia
+- Redesenha a barreira com silhueta angular e renderização mais simples.
+- Adiciona a Onda do Escudo, ativável pelo botão ou pela tecla Q após desbloquear a carta de escudo.
+- A onda remove projéteis inimigos próximos e causa dano controlado em inimigos dentro do alcance; o nível aumenta o alcance e reduz a recarga.
+- A quebra passiva do escudo continua emitindo sua onda curta e preserva a recarga automática.
+- A interação com feixes contínuos e ataques especiais de bosses fica planejada para a etapa futura de colisões; esses tipos de ataque ainda não existem como entidades de combate.
+
+### Desempenho
+- Remove filtros de desfoque caros dos mísseis e projéteis inimigos.
+- Limita o número de efeitos simultâneos de explosão/onda.
+- Atualiza os estados visuais dos botões junto da atualização da HUD, em vez de alterar o DOM a cada quadro.
+- Remove a renderização síncrona completa disparada no instante da ativação do míssil.
+
+### Validação
+- Candidata em feature/v0.29.0-shield-rework-performance; main permanece inalterada.
+- A validação estática e o teste automatizado serão executados antes da prévia. Desempenho real e equilíbrio ainda precisam de teste manual em celular.
+
+## [0.28.6] — Candidata: carta de míssil disponível para validação
+
+### Correção de seleção
+- A carta **Míssil teleguiado** passa a ser incluída garantidamente nas escolhas de habilidade especial enquanto a habilidade estiver abaixo do nível máximo (3).
+- As outras duas cartas da seleção continuam sendo sorteadas conforme seus pesos de raridade.
+- O ajuste foi usado apenas para diagnóstico. Após a confirmação do usuário de que os mísseis estão visíveis e funcionais, a distribuição ponderada original das cartas especiais foi restaurada na v0.29.0.
+
+### Estado e validação
+- Candidata de diagnóstico substituída pela v0.29.0; não foi mesclada separadamente em `main`.
+- O usuário confirmou que o desenho dos mísseis nas pontas da nave ficou correto. O teste completo de desempenho da candidata v0.29.0 ainda está pendente.
+
+## [0.28.5] — Candidata: lançamento visível pelas asas
+
+### Correções de lançamento
+- Corrige a ordem de renderização: os mísseis são desenhados depois da nave para não ficarem escondidos pelo casco durante a saída.
+- Calcula o ponto de lançamento usando a mesma rotação e inclinação lateral (bank) do desenho da nave.
+- Exibe dois suportes visuais de míssil nas asas quando a habilidade está equipada e pronta; eles somem durante a recarga.
+- No nível 2+, lança primeiro o míssil da asa direita e, 0,2 segundo depois, o da esquerda. A perseguição e a atribuição de alvos existentes são preservadas.
+- Reduz a frequência e o tamanho dos rastros e evita criar arrays/sets temporários a cada atualização para reduzir custo em celulares.
+
+### Estado e validação
+- Candidata na branch feature/v0.28.5-visible-wing-launch; não mesclada em main.
+- A validação automatizada de sintaxe/imports e o teste manual de lançamento em celular ainda precisam ser confirmados. Verificar suportes, os dois disparos, alvos, dano, recarga e fluidez.
+
+## [0.28.4] — Candidata: mísseis duplos nas asas
+
+### Jogabilidade
+- Lança os dois mísseis a partir de pontos laterais alinhados às asas da nave, usando a rotação atual para calcular a posição corretamente.
+- Com pelo menos dois inimigos ativos, atribui alvos distintos aos mísseis; com apenas um inimigo, ambos podem persegui-lo.
+- Quando um alvo deixa de existir, tenta escolher um alvo ainda não reservado pelo outro míssil antes de compartilhar o mesmo alvo.
+- Aplica separação de trajetória quando os mísseis se aproximam e adiciona rastros curtos e leves para tornar cada percurso mais visível.
+
+### Estado e validação
+- Candidata na branch feature/v0.28.4-dual-wing-missiles; não mesclada em main.
+- Verificações estáticas não substituem o teste manual no celular. Confirmar lançamento nas duas asas, seleção de alvos, separação visual, dano e recarga.
+
+## [0.28.3] - Candidata mobile
+
+- Atualiza o estado do botao de habilidade durante a recarga.
+- Ativa a habilidade no inicio do toque para reduzir atraso.
+- Separa a trajetoria dos dois misseis no nivel 2+.
+- Reposiciona o botao para longe dos controles inferiores e compacta avisos em paisagem.
+- Ainda precisa de teste manual no celular; nao mesclada em main.
+
+## [0.28.2] — Candidata: confiabilidade do míssil e interface compacta
+
+### Correções
+- A ativação não depende mais de haver inimigos ativos exatamente no instante do toque; o míssil pode adquirir um alvo quando ele aparecer.
+- A partir do nível 2, são criados dois mísseis mesmo quando ambos precisam perseguir o mesmo inimigo.
+- Atualiza o estado do botão ao iniciar/retomar e impede que o clique da habilidade interfira com outros controles.
+
+### Interface
+- Reduz o botão, o ícone e os textos, com ajuste específico para telas móveis.
+- Mantém o indicador de recarga e melhora a área de toque.
+
+### Estado e validação
+- Candidata na branch `feature/v0.28.2-missile-reliability`; não mesclada em `main`.
+- Verificações estáticas não substituem o teste manual de disparo no celular.
+
+## [0.28.1] — Candidata: habilidade de míssil ativável e ajustes visuais
+
+### Jogabilidade
+- Substitui o disparo automático por ativação manual da habilidade de míssil, por botão na arena ou tecla E.
+- Adiciona recarga longa: 12 segundos no nível 1, 10 segundos no nível 2 e 9 segundos no nível 3.
+- A partir do nível 2, a ativação lança até dois mísseis teleguiados.
+- Aumenta o tamanho dos mísseis e adiciona explosão com dano em área ao atingir inimigos.
+
+### Interface
+- Adiciona uma carta de habilidade na arena com estado disponível/recarga e indicador visual.
+- Destaca as raridades Comum, Raro, Épico e Lendário com cores próprias nas cartas.
+- Atualiza identificadores de cache e histórico de versões.
+
+### Estado e validação
+- Candidata em `feature/v0.28.1-activated-missiles`; não mesclada em `main`.
+- Efeitos sonoros e polimento de áudio permanecem para uma etapa posterior.
+- Requer teste manual no celular pelo link de prévia direta antes de mesclar.
+
+## [0.28.0] — Candidata: míssil teleguiado e raridade das habilidades
+
+### Habilidades especiais
+- Adiciona o Míssil teleguiado, que persegue inimigos ativos e causa dano em colisão direta.
+- O míssil possui três níveis, com dano, velocidade e cadência de disparo ajustados por nível.
+- Introduz raridades visuais Comum, Raro e Épico e pesos de seleção para as cartas de habilidade especial.
+- A raridade altera a probabilidade relativa de seleção; não garante que uma carta apareça em toda escolha.
+
+### Estado e validação
+- Candidata em `feature/v0.28.0-guided-missile-rarity`; não mesclada em `main`.
+- Requer verificações automatizadas e teste manual pelo GitHub Pages antes da publicação.
+
 ## [0.27.0] — Nova classe de inimigo: Guardião
 
 ### Combate e ondas
@@ -308,3 +1046,112 @@ Histórico documentado desde os marcos iniciais. Versões em ordem decrescente; 
 ## Observações
 - Atualizar este arquivo e o histórico dentro do jogo juntos.
 - A v0.14.0 foi validada pelo usuário. A v0.15.0 foi aprovada no teste manual em computador; a v0.15.1 foi aprovada em computador e celular. A v0.16.2 passou nos seis testes manuais de desempenho e regressão no celular informados pelo usuário. A v0.17.0 foi publicada como candidata em `main`. A v0.17.1 adiciona mira por arraste e disparo automático mobile; aguarda validação manual no celular.
+
+- Refinamento do HUD do encouraçado: os dez indicadores de armamento agora exibem abreviações identificáveis em uma grade 5×2, mantendo cores e estados distintos; os nomes completos permanecem disponíveis nos rótulos acessíveis e dicas.
+
+- Corrige a resolução de dano do encouraçado para que habilidades especiais, laser contínuo e ataques de área sem coordenada de impacto explícita atinjam o setor de escudo voltado para o jogador, em vez de ignorarem a defesa regional.
+- Reutiliza o snapshot de integridade do HUD por instância de chefe, evitando recriar objetos de comparação em cada atualização da interface.
+
+
+## v0.44.0 — rodada de reformulação do encouraçado
+
+- Alongada a silhueta do encouraçado e adicionadas geometrias visuais distintas para as famílias de armamentos.
+- Sobrecarga adaptativa preserva módulos intactos, repara os danificados, reconstrói armamentos destruídos recuperáveis e substitui somente montagens classificadas como catastróficas.
+- Arena ampliada para 2× o viewport; zoom de 0,5 enquadra o mapa completo após o surgimento do chefe e permanece até o reinício da partida.
+- Rotação visual do casco reduzida para reforçar a sensação de massa. Mira independente das torres, IA de mísseis, entrada com alerta e finalização estendida permanecem em desenvolvimento.
+
+
+- Torres do encouraçado agora acompanham o jogador de forma independente, respeitando arcos e velocidades de rotação próprios.
+- Lançadores do boss passam a disparar projéteis teleguiados.
+- Attack Clash agora considera resistência dos projéteis inimigos, evitando que ataques pesados sejam neutralizados por um único disparo leve.
+
+
+## [Unreleased] — Balanceamento dos mísseis do DREADNOUGHT
+
+- Mísseis roxos confirmados como projéteis teleguiados dos lançadores laterais. A salva agora dispara apenas um míssil, alternando a asa quando ambos os lados têm linha de tiro.
+- Cadência separada por cooldown: 5,2 s na fase 1, 4,8 s na fase 2 e 4,4 s na fase 3. Velocidade/dano sobem gradualmente de 185/12 para 225/15, com curva de perseguição moderada.
+
+## [Unreleased] — IA tática e canhão principal do DREADNOUGHT
+
+- Cada salva agora escolhe uma família de armas com base na distância, alcance real, lado do jogador, integridade dos módulos e disponibilidade de carga; armas indisponíveis não participam da seleção.
+- O canhão principal ganhou ciclo completo de carga, alinhamento, aviso, disparo e recuperação. O casco acelera o alinhamento, trava a direção durante o aviso e não persegue o jogador depois de fixar a linha de tiro.
+- O feixe possui corredor visual antecipado, duração curta e colisão calculada no mesmo segmento usado pela renderização. O jogador pode sair da linha durante o aviso; cada disparo pode causar no máximo um impacto.
+- A destruição/inoperância do módulo principal cancela o ciclo e impede o disparo.
+- Validação automatizada cobre seleção por alcance/lado/estado, geometria do feixe, transições e bloqueio por módulo destruído. Teste visual e balanceamento em navegador continuam pendentes.
+
+## [Unreleased] — Boss cinematográfico
+- Limpa o estado temporário das animações de reparo, reconstrução e substituição dos módulos ao término de cada transição.
+
+- Entrada do encouraçado mais longa, com armas bloqueadas durante o alerta e identificação visual integrada à nave.
+- Sobrecarga com sinais visuais distintos para reparo, reconstrução e substituição de módulos.
+- Derrota prolongada com perda de estabilidade, rotação e deriva do casco antes da remoção.
+
+
+- Boss: canhões de plasma com carga independente e indicador de energia, projétil pesado de alto dano, ruptura imediata do escudo do jogador e repulsão forte no impacto.
+- Combate: Pulso de Ruptura desestabiliza temporariamente inimigos, suspendendo a perseguição durante o recuo; impactos de plasma também comprometem temporariamente o controle de movimento do jogador.
+
+- Corrige a consistência do arsenal: o canhão principal de energia deixa de causar dano/disparar nas fases 2 e 3 enquanto sua preparação visual e seu contra-jogo ainda não estão implementados; o armamento permanece como elemento visual/rastreamento nesta candidata.
+
+
+### Escudos reativos — atualização visual inicial
+- Jogador: setores preditivos agora apontam para a posição prevista de aproximação do projétil e formam uma barreira localizada com expansão e dissipação; o impacto absorvido reforça o setor correspondente.
+- Encouraçado: os quatro setores regionais exibem pulsos localizados ao absorver dano, mantendo baixa presença visual em repouso.
+- Tropas de elite: segmentos de escudo reagem com flash e expansão curta quando absorvem dano.
+- Mantidas as regras atuais de proteção 360°, integridade, absorção, recarga e colisões; os efeitos são apenas visuais e não usam esfera permanente nem partículas por quadro.
+
+
+### Expansão adicional da arena e enquadramento tático — 30/10/2026
+- Mundo físico ampliado de 2,0× para 2,4× a largura e a altura do viewport (44% mais área de jogo).
+- Zoom mínimo agora é derivado de `1 / arenaScale` em vez de um limite fixo de 0,5; o enquadramento integral acompanha automaticamente a dimensão real do mundo.
+- Câmera, conversão de coordenadas de mouse/toque, spawn de inimigos, renderização e limites de visualização usam o mesmo zoom mínimo calculado.
+- Aumentada a amplitude horizontal de reposicionamento do encouraçado para que o flanqueamento continue legível no enquadramento mais amplo.
+- Nenhuma regra de dano, cadência, colisão, resistência de projéteis ou controle de nave foi alterada nesta etapa.
+- Validação manual mobile/desktop e de flanqueamento ainda pendente; CI automatizado não será tratado como teste de gameplay.
+
+
+### Desprendimento estrutural na destruição do encouraçado — 30/10/2026
+- A finalização agora ejeta quatro placas de blindagem em momentos escalonados, com afastamento lateral, deriva e rotação independentes.
+- Os fragmentos preservam uma silhueta metálica legível e uma linha interna de calor/falha, desaparecendo antes do encerramento da sequência.
+- O efeito usa quatro transformações determinísticas no desenho existente; não cria arrays, entidades físicas ou partículas por quadro.
+- Movimento, colisões e integridade do combate não são alterados; a validação visual da sequência completa permanece pendente.
+
+
+### Revisão da proa e do sistema emissor do DREADNOUGHT — 30/10/2026
+- Remove o canhão físico/barrel projetado na ponta da nave; o módulo lógico principal permanece no sistema, mas sua representação visual passa a ser a abertura central oca e permanentemente aberta.
+- Redesenha a boca emissora como uma cavidade escura com borda de contenção segmentada. O laser futuro será carregado e lançado a partir desse vão, sem uma peça de canhão atravessando ou preenchendo a abertura.
+- Adiciona manifolds laterais de energia com carcaças rebaixadas, conduítes ciano e pequenos nós capacitivos, preparados visualmente para uma futura animação de carga.
+- Remove o realce quase branco/azul-claro do núcleo dos propulsores e mantém a paleta em ciano e azul-petróleo.
+- Escopo exclusivamente visual: não altera disparos, dano, cadência, IA, hitboxes, colisões, escudos ou telemetria de carga. O laser principal continua sem disparo/dano nesta candidata.
+- Validação visual em navegador, celular e desktop ainda pendente.
+
+
+## [Unreleased] — Ajustes de reação do piloto, artilharia e proteção tática
+- Simplifica os sinais de surpresa/perigo do piloto, removendo o emblema circular e os efeitos de pulso.
+- O alerta de perigo é acionado pouco antes da identificação verbal do DREADNOUGHT.
+- Restaura a salva de três projéteis do Artilheiro normal; reduz velocidade, aceleração, amplitude de deslocamento e impulso da esquiva lateral sem reduzir a quantidade de tiros.
+- Reduz também a mobilidade evasiva do Sentinela básico e Elite, e contém o deslocamento lateral do Artilheiro Elite, preservando as funções e os padrões de ataque.
+- Reorganiza a proteção dos Guardiões: Sentinelas e Artilheiros Elite têm prioridade máxima, as versões normais dessas classes vêm em seguida, e demais tropas recebem prioridade inferior.
+- Limita a atribuição de proteção a aliados próximos e evita que mais de um Guardião assuma o mesmo alvo.
+- Testes automatizados adicionados para a salva de três tiros, esquiva do Artilheiro e prioridade/distância das atribuições do Guardião. Validação de gameplay em navegador ainda pendente.
+
+## [Unreleased] — Transição cinematográfica da onda 9 para a onda 10
+- Adiciona um controlador de estados isolado para a passagem de campanha após a limpeza completa da onda 9.
+- Carregamento de 10 segundos com telemetria rotativa, seguido de falas do piloto, alerta de contato desconhecido, entrada gradual do DREADNOUGHT e diálogo de ameaça.
+- A sequência preserva pontuação, jogador e progressão; limpa apenas entidades e projéteis transitórios antes da entrada do chefe.
+- A candidata está isolada em branch própria. A progressão normal continua disponível em uma branch de comparação, sem alterações na versão oficial.
+- Validação automatizada da máquina de estados adicionada; teste visual e de gameplay ainda pendente.
+
+
+## [Unreleased] — Balanceamento do Sentinela e preparação do teste da onda 9
+- Reduz a mobilidade evasiva do Sentinela básico: velocidade máxima e aceleração menores, esquiva lateral menos intensa/curta e deslocamento de patrulha mais contido. O perfil Elite permanece inalterado nesta rodada.
+- Adiciona início de onda configurável apenas por URL de teste; a campanha normal continua iniciando na onda 1.
+- A branch da cutscene aceita testStartWave=9 para jogar a onda inteira antes da transição; a branch de gameplay normal não usa esse atalho.
+- Testes automatizados adicionados para o perfil do Sentinela e a configuração da onda de teste. A validação em navegador e o ajuste fino de dificuldade continuam pendentes.
+
+
+## [Unreleased] — Refinamento de impacto e aparição do DREADNOUGHT
+- Adiciona um anel curto de impacto ao redor da nave do jogador quando ela recebe dano, separado das faíscas e do aviso de integridade; o efeito é posicional, leve e expira em 0,3 s.
+- Limita o novo feedback a um único pulso ativo, sem criar entidades persistentes ou efeitos por quadro.
+- Afasta a posição final da entrada do DREADNOUGHT de 0,62 para 0,92 da altura da tela em relação ao jogador; a posição inicial também recua para 1,42, mantendo a entrada gradual.
+- Centraliza o cálculo das posições de entrada em uma função testável e reutiliza o mesmo cálculo após redimensionamento, evitando divergência entre telas.
+- Não altera hitboxes, colisões, dano, velocidade, IA ou dimensões da arena. Validação visual em navegador ainda pendente.
