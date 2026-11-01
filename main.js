@@ -1,6 +1,6 @@
-import { clearLegacyGameStorage } from './src/core/session-reset.js??v=1.0.0';
-import { Game } from './src/core/game.js??v=1.0.0';
-import { gameAudio } from './src/audio/game-audio.js??v=1.0.0';
+import { clearLegacyGameStorage } from './src/core/session-reset.js?v=1.0.0';
+import { Game } from './src/core/game.js?v=1.0.0';
+import { gameAudio } from './src/audio/game-audio.js?v=1.0.0';
 
 // Entry point: start with a clean, session-only game state.
 clearLegacyGameStorage();
