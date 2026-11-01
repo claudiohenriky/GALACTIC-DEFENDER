@@ -1,3 +1,11 @@
+## [0.63.0] — personalização visual do hangar
+
+- Adiciona controles de cor principal, contorno/detalhes e núcleo, além da opção de brilho.
+- Salva a pintura separadamente para cada classe de nave no navegador.
+- Aplica a aparência escolhida na prévia do hangar e na nave durante a partida.
+- Ajusta a Phantom para velocidade 275, aceleração 2500 e integridade 90, ampliando seu trade-off em relação à Vanguard.
+- Adiciona teste para validação e fallback seguro das cores personalizadas.
+
 ## [0.62.0] — classes funcionais para as naves do hangar
 
 - Converte Vanguard, Phantom e Aegis de variações apenas visuais em classes com parâmetros reais de velocidade, aceleração e integridade.
