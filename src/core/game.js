@@ -12,13 +12,13 @@ import { SkillTree } from '../progression/skill-tree.js?v=0.59.0-skill-tree';
 import { Mission } from '../missions/missions.js?v=0.44.0';
 import { BOSS_TEST_MODE, WaveManager } from './wave-manager.js?v=0.57.2-boss-wave-15';
 import { updateHud } from '../ui/hud.js?v=0.44.0-cannon-telegraph';
-import { gameAudio } from '../audio/game-audio.js?v=0.60.0-audiovisual';
+import { gameAudio } from '../audio/game-audio.js?v=0.60.0-audiovisual-r2';
 import { AchievementTracker } from '../progression/achievements.js?v=0.44.0';
 import { createBossCinematic, advanceBossCinematic, getBossCinematicDialogue, getBossCinematicAlert, getBossCinematicBossOpacity, wrapBossCinematicDialogue, getBossDialogueVisualState, getBossDialoguePlacement } from './boss-cinematic.js?v=0.54.5-dialogue-placement';
 import { getBossCinematicCameraFrame, prepareBossForCombatHandoff, BOSS_CINEMATIC_ARENA_ZOOM } from './boss-cinematic-camera.js?v=0.54.1-camera-rebuild';
 import { getBossCinematicSpawnPositions, preparePlayerForBossCinematic } from './boss-positioning.js?v=0.54.2-combat-aligned-entry';
-import { createPilotReactionState, triggerPilotReaction, triggerElitePilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.60.0-speaker-portraits';
-import { drawDialoguePortrait } from '../ui/dialogue-portraits.js?v=0.60.0-speaker-portraits';
+import { createPilotReactionState, triggerPilotReaction, triggerElitePilotReaction, updatePilotReaction, signalPilotThreat, drawPilotReaction, getPilotReactionPosition } from '../ui/pilot-reactions.js?v=0.60.0-speaker-portraits-r2';
+import { drawDialoguePortrait } from '../ui/dialogue-portraits.js?v=0.60.0-speaker-portraits-r2';
 
 const rand = (min, max) => Math.random() * (max - min) + min;
 
