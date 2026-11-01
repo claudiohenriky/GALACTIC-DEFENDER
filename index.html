@@ -9,13 +9,13 @@
   <link rel="stylesheet" href="./style.css?v=0.65.0-menu-startup-fix-r2">
   <link rel="stylesheet" href="./src/ui/version-history.css?v=0.54.5">
   <link rel="stylesheet" href="./src/ui/skill-tree.css?v=0.59.0">
-  <script type="module" src="./main.js?v=0.72.0-adaptive-effects-balance-r1"></script>
+  <script type="module" src="./main.js?v=0.73.0-graphics-quality-presets-r1"></script>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <a class="brand" href="./" aria-label="GALACTIC-DEFENDER início"><span class="brand-mark">✦</span><span>GALACTIC<span class="brand-accent"> DEFENDER</span></span></a>
-      <span class="build-tag">PRÉ-ALFA · 0.72.0</span>
+      <span class="build-tag">PRÉ-ALFA · 0.73.0</span>
     </header>
 
     <section id="main-menu" class="main-menu" aria-labelledby="menu-title">
@@ -45,7 +45,7 @@
         <div class="panel-heading"><div><p class="eyebrow">PREFERÊNCIAS DO PILOTO</p><h2 id="settings-title">Configurações</h2></div><button class="icon-button" type="button" data-close-panel aria-label="Fechar configurações">×</button></div>
         <label class="setting-row" for="hud-scale-setting"><span><strong>Tamanho da HUD</strong><small>Ajusta o tamanho dos indicadores.</small></span><input id="hud-scale-setting" type="range" min="80" max="130" value="100"></label>
         <label class="setting-row" for="hud-opacity-setting"><span><strong>Transparência da HUD</strong><small>Controla a opacidade da interface.</small></span><input id="hud-opacity-setting" type="range" min="35" max="100" value="100"></label>
-        <label class="setting-row" for="effects-setting"><span><strong>Efeitos visuais</strong><small>Ajusta automaticamente a quantidade de efeitos conforme o desempenho do aparelho.</small></span><select id="effects-setting"><option value="auto">Automáticos</option><option value="full">Completos</option><option value="reduced">Reduzidos</option></select></label>
+        <label class="setting-row" for="effects-setting"><span><strong>Qualidade dos efeitos</strong><small>Escolha um nível fixo ou deixe o jogo adaptar a qualidade ao desempenho.</small></span><select id="effects-setting"><option value="auto">Automática</option><option value="high">Alta</option><option value="medium">Média</option><option value="low">Baixa</option></select></label>
         <label class="setting-row" for="fps-setting"><span><strong>Medidor de FPS</strong><small>Mostra FPS estimado e tempo médio por quadro durante a partida.</small></span><select id="fps-setting"><option value="off">Desativado</option><option value="on">Ativado</option></select></label>
         <label class="setting-row" for="sound-setting"><span><strong>Áudio do jogo</strong><small>Ativa ou desativa a música e os efeitos sonoros.</small></span><select id="sound-setting"><option value="on">Ativado</option><option value="off">Desativado</option></select></label>
         <label class="setting-row" for="sound-volume-setting"><span><strong>Volume geral</strong><small>Controla o volume de todo o áudio.</small></span><input id="sound-volume-setting" type="range" min="0" max="100" step="5" value="75"></label>

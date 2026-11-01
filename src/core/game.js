@@ -140,12 +140,15 @@ export class Game {
   }
 
   setEffectsMode(mode = 'auto') {
-    const nextMode = ['full', 'reduced', 'auto'].includes(mode) ? mode : 'auto';
+    const supportedModes = ['auto', 'high', 'medium', 'low', 'full', 'reduced'];
+    const nextMode = supportedModes.includes(mode) ? mode : 'auto';
     if (nextMode === this.effectsMode) return;
     this.effectsMode = nextMode;
     this.effectsPressure = 0;
     this.effectsRecovery = 0;
-    this.effectsScale = this.effectsMode === 'reduced' ? 0.55 : 1;
+    this.effectsScale = nextMode === 'low' || nextMode === 'reduced' ? 0.55
+      : nextMode === 'medium' ? 0.72
+        : 1;
   }
 
   getEffectLimit(baseLimit) {

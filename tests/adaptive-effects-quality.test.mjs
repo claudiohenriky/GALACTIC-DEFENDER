@@ -43,3 +43,26 @@ test('effect spawn limits scale proportionally with the selected quality level',
   game.effectsScale = 0.5;
   assert.equal(Game.prototype.getEffectLimit.call(game, 20), 10);
 });
+
+test('quality presets map to stable effect budgets and preserve legacy aliases', () => {
+  const cases = [
+    ['high', 1],
+    ['medium', 0.72],
+    ['low', 0.55],
+    ['full', 1],
+    ['reduced', 0.55]
+  ];
+  for (const [mode, expectedScale] of cases) {
+    const game = qualityHarness('auto', 1);
+    Game.prototype.setEffectsMode.call(game, mode);
+    assert.equal(game.effectsMode, mode);
+    assert.equal(game.effectsScale, expectedScale);
+  }
+});
+
+test('unknown quality preset safely falls back to automatic mode', () => {
+  const game = qualityHarness('high', 1);
+  Game.prototype.setEffectsMode.call(game, 'ultra');
+  assert.equal(game.effectsMode, 'auto');
+  assert.equal(game.effectsScale, 1);
+});
