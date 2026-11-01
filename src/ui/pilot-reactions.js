@@ -1,5 +1,5 @@
 // Compact diegetic threat indicators stay near the pilot without covering the ship or HUD.
-import { drawDialoguePortrait, getDialogueActorLabel } from './dialogue-portraits.js?v=0.60.0-speaker-portraits';
+import { drawDialoguePortrait, getDialogueActorLabel } from './dialogue-portraits.js?v=0.60.0-speaker-portraits-r2';
 export function createPilotReactionState() {
   return { symbol: '', remaining: 0, duration: 0, message: '', actor: 'pilot' };
 }
