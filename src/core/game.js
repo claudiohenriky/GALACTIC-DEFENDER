@@ -1,6 +1,6 @@
 import { Player } from '../player/player.js?v=0.65.0-wraith-render-optimization-r1';
 import { selectGuardianProtectionTargets } from '../ai/guardian-protection.js?v=0.58.0-elite-standardization';
-import { Enemy } from '../enemies/enemy.js?v=0.66.0-support-scan-r1';
+import { Enemy } from '../enemies/enemy.js?v=0.69.0-support-link-cache-r1';
 import { Asteroid } from '../environment/asteroid.js?v=0.65.0-dynamic-space';
 import { EnemyTacticalCoordinator } from '../ai/enemy-tactics.js?v=0.45.0-common-reposition';
 import { Projectile } from '../combat/projectile.js?v=0.65.0-mobile-performance-audit-r2';
@@ -2189,6 +2189,11 @@ export class Game {
       // Elite Guardians receive assignments first; protection priority is then
       // based on ally class/rank, with distance as the tie-breaker.
       const assignedAllies = new Set();
+      // Sentinels keep a direct reverse link to their assigned Guardian, avoiding
+      // a full enemy-roster scan in every Sentinel's periodic support update.
+      for (const unit of this.enemies) {
+        if (unit.type === 'sentinel') unit.supportGuardianCache = null;
+      }
       for (let priorityPass = 0; priorityPass < 2; priorityPass += 1) {
         const elitePass = priorityPass === 0;
         for (const guardian of this.enemies) {
@@ -2199,7 +2204,10 @@ export class Game {
           guardian.protectedAllies = selectGuardianProtectionTargets(
             guardian, nearbyAllies, assignedAllies, 360
           );
-          for (const ally of guardian.protectedAllies) assignedAllies.add(ally);
+          for (const ally of guardian.protectedAllies) {
+            assignedAllies.add(ally);
+            if (ally.type === 'sentinel') ally.supportGuardianCache = guardian;
+          }
         }
       }
     }

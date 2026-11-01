@@ -119,3 +119,31 @@ test('a charged plasma cannon starts a visible warning even when the boss cooldo
   cannon.plasmaWarningActive = false;
   assert.equal(isBossPlasmaTelegraphActive(boss, cannon, 300, 500), false);
 });
+
+
+test('Guardian support selection uses only its assigned protected allies', () => {
+  const guardian = new Enemy(300, 300, 10, 'guardian', true);
+  const ordinarySentinel = new Enemy(310, 300, 10, 'sentinel', false);
+  const eliteSentinel = new Enemy(320, 300, 10, 'sentinel', true);
+  guardian.protectedAllies = [ordinarySentinel, eliteSentinel];
+  guardian.supportScanTimer = 0;
+  guardian.fireCooldown = 100;
+
+  guardian.update(1 / 60, 520, 100, 1000, 700, [], []);
+
+  assert.equal(guardian.supportAllyCache, eliteSentinel);
+});
+
+test('Sentinel support selection follows its direct assigned Guardian link', () => {
+  const guardian = new Enemy(300, 300, 10, 'guardian', true);
+  const sentinel = new Enemy(320, 300, 10, 'sentinel', false);
+  guardian.protectedAllies = [sentinel];
+  sentinel.supportGuardianCache = guardian;
+  sentinel.supportScanTimer = 0;
+  sentinel.fireCooldown = 100;
+  sentinel.dodgeScanTimer = 10;
+
+  sentinel.update(1 / 60, 520, 100, 1000, 700, [], []);
+
+  assert.equal(sentinel.supportAllyCache, guardian);
+});
