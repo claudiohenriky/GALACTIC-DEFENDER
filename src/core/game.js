@@ -287,69 +287,106 @@ export class Game {
   cacheBackground() {
     const ratio = this.pixelRatio || 1;
     const canvas = this.backgroundCanvas;
-    // The black-hole scene is rasterized once per resize; gameplay never animates this artwork.
+    // Static artwork is baked once per resize; no black-hole effects run during gameplay frames.
     canvas.width = this.canvas.width;
     canvas.height = this.canvas.height;
     const ctx = canvas.getContext('2d');
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
     const background = ctx.createLinearGradient(0, 0, this.width, this.height);
-    background.addColorStop(0, '#02040b');
-    background.addColorStop(.48, '#070b16');
+    background.addColorStop(0, '#01030a');
+    background.addColorStop(.5, '#070b16');
     background.addColorStop(1, '#01030a');
     ctx.fillStyle = background;
     ctx.fillRect(0, 0, this.width, this.height);
 
-    // A distant black hole with a restrained accretion disk. All gradients are baked into this cache.
+    // Sparse stars are painted first so the lensing artwork sits naturally in front of them.
+    for (let i = 0; i < 72; i += 1) {
+      const x = ((i * 97 + 31) % 997) / 997 * this.width;
+      const y = ((i * 193 + 71) % 991) / 991 * this.height;
+      const size = i % 11 === 0 ? 1.3 : .65;
+      ctx.globalAlpha = i % 11 === 0 ? .58 : .3;
+      ctx.fillStyle = '#c5d6e8';
+      ctx.fillRect(x, y, size, size);
+    }
+    ctx.globalAlpha = 1;
+
     const cx = this.width * .72;
     const cy = this.height * .43;
-    const radius = Math.max(52, Math.min(this.width, this.height) * .205);
+    const radius = Math.max(48, Math.min(this.width, this.height) * .19);
 
+    // Broad, flattened accretion disk with an uneven hot side: this gives it a true orbital silhouette.
     ctx.save();
     ctx.translate(cx, cy);
-    ctx.rotate(-.16);
-    ctx.scale(1, .43);
-
-    const disk = ctx.createRadialGradient(0, 0, radius * .52, 0, 0, radius * 2.05);
-    disk.addColorStop(0, 'rgba(4, 7, 15, 0)');
-    disk.addColorStop(.48, 'rgba(12, 22, 39, .12)');
-    disk.addColorStop(.62, 'rgba(67, 111, 157, .5)');
-    disk.addColorStop(.72, 'rgba(174, 190, 205, .88)');
-    disk.addColorStop(.79, 'rgba(222, 139, 82, .76)');
-    disk.addColorStop(.88, 'rgba(82, 105, 143, .32)');
-    disk.addColorStop(1, 'rgba(3, 7, 15, 0)');
+    ctx.rotate(-.13);
+    ctx.scale(1, .38);
+    const disk = ctx.createRadialGradient(0, 0, radius * .62, 0, 0, radius * 2.35);
+    disk.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    disk.addColorStop(.46, 'rgba(15, 27, 46, .08)');
+    disk.addColorStop(.58, 'rgba(54, 91, 133, .35)');
+    disk.addColorStop(.67, 'rgba(146, 177, 204, .86)');
+    disk.addColorStop(.72, 'rgba(241, 190, 135, .94)');
+    disk.addColorStop(.78, 'rgba(160, 113, 91, .58)');
+    disk.addColorStop(.9, 'rgba(49, 68, 101, .2)');
+    disk.addColorStop(1, 'rgba(0, 0, 0, 0)');
     ctx.fillStyle = disk;
     ctx.beginPath();
-    ctx.arc(0, 0, radius * 2.05, 0, Math.PI * 2);
+    ctx.arc(0, 0, radius * 2.35, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.strokeStyle = 'rgba(130, 174, 210, .36)';
-    ctx.lineWidth = Math.max(2, radius * .045);
+    // A thin bright arc on the far side suggests light bending around the event horizon.
+    ctx.strokeStyle = 'rgba(203, 222, 239, .78)';
+    ctx.lineWidth = Math.max(2, radius * .055);
     ctx.beginPath();
-    ctx.ellipse(0, 0, radius * 1.62, radius * 1.62, 0, Math.PI * 1.04, Math.PI * 1.96);
+    ctx.ellipse(0, 0, radius * 1.45, radius * 1.45, 0, Math.PI * 1.08, Math.PI * 1.92);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(102, 157, 205, .55)';
+    ctx.lineWidth = Math.max(1, radius * .025);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, radius * 1.7, radius * 1.7, 0, Math.PI * 1.03, Math.PI * 1.97);
     ctx.stroke();
     ctx.restore();
 
-    // Event horizon and a narrow photon rim, deliberately without per-frame glow effects.
-    const horizon = ctx.createRadialGradient(cx - radius * .22, cy - radius * .28, radius * .08, cx, cy, radius * 1.12);
-    horizon.addColorStop(0, '#000000');
-    horizon.addColorStop(.82, '#010207');
-    horizon.addColorStop(.94, '#080e19');
-    horizon.addColorStop(1, 'rgba(99, 145, 187, .62)');
-    ctx.fillStyle = horizon;
+    // A soft, static halo separates the silhouette from the dark background.
+    const halo = ctx.createRadialGradient(cx, cy, radius * .86, cx, cy, radius * 1.55);
+    halo.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    halo.addColorStop(.55, 'rgba(8, 15, 28, .22)');
+    halo.addColorStop(.82, 'rgba(94, 143, 190, .2)');
+    halo.addColorStop(1, 'rgba(0, 0, 0, 0)');
+    ctx.fillStyle = halo;
     ctx.beginPath();
-    ctx.arc(cx, cy, radius * 1.08, 0, Math.PI * 2);
+    ctx.arc(cx, cy, radius * 1.55, 0, Math.PI * 2);
     ctx.fill();
 
-    // Sparse, deterministic stars keep the scene readable behind combat.
-    for (let i = 0; i < 54; i += 1) {
-      const x = ((i * 97 + 31) % 997) / 997 * this.width;
-      const y = ((i * 193 + 71) % 991) / 991 * this.height;
-      const size = i % 9 === 0 ? 1.35 : .65;
-      ctx.globalAlpha = i % 9 === 0 ? .62 : .32;
-      ctx.fillStyle = '#b9cce0';
-      ctx.fillRect(x, y, size, size);
-    }
+    // Event horizon: a near-perfect black disk with a narrow photon rim.
+    ctx.fillStyle = '#000000';
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(181, 207, 230, .72)';
+    ctx.lineWidth = Math.max(2, radius * .045);
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius * 1.015, Math.PI * 1.03, Math.PI * 1.97);
+    ctx.stroke();
+
+    // Foreground part of the disk crosses the lower edge of the shadow, enhancing depth.
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(-.13);
+    ctx.scale(1, .38);
+    const foreground = ctx.createLinearGradient(-radius * 1.7, 0, radius * 1.7, 0);
+    foreground.addColorStop(0, 'rgba(42, 75, 112, .08)');
+    foreground.addColorStop(.32, 'rgba(112, 153, 190, .55)');
+    foreground.addColorStop(.58, 'rgba(237, 186, 133, .88)');
+    foreground.addColorStop(.78, 'rgba(117, 91, 92, .42)');
+    foreground.addColorStop(1, 'rgba(30, 48, 76, .06)');
+    ctx.strokeStyle = foreground;
+    ctx.lineWidth = Math.max(3, radius * .12);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, radius * 1.62, radius * 1.62, 0, .08, Math.PI - .08);
+    ctx.stroke();
+    ctx.restore();
+
     ctx.globalAlpha = 1;
   }
 
