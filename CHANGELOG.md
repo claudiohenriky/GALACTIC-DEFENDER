@@ -1,3 +1,10 @@
+## [0.64.4] — Wraith baseada na referência original
+
+- Reconstrói a silhueta com asas largas e agressivas, placas de blindagem em camadas e motores duplos elevados integrados à traseira.
+- Adiciona canais luminosos nas asas, entradas de ar e núcleo central violeta alongado, aproximando o desenho da imagem de referência enviada pelo usuário.
+- Atualiza a prévia do hangar para acompanhar a silhueta de combate.
+- Preserva arsenal violeta, atributos, desbloqueio e Impulso de Fase.
+
 ## [0.64.3] — refinamento da silhueta da Wraith
 
 - Refina a silhueta de combate para um caça furtivo mais alongado, com asas contínuas e varridas, fuselagem central e motores traseiros integrados.
