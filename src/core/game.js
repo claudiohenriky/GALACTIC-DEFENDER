@@ -2267,10 +2267,25 @@ export class Game {
       }
     }
 
-    // Enemy shots deal damage on direct impact and respect the player's invulnerability window.
+    // Enemy fire can be intercepted by the environment: asteroids absorb shots
+    // that cross their surface, giving hostile fire a visible interaction with the field.
     for (const shot of this.enemyProjectiles) {
       if (!shot.active) continue;
-      const impactRadius = (this.player.radius ?? 0) + (shot.radius ?? 0);
+      const shotRadius = shot.radius ?? 0;
+      let intercepted = false;
+      for (const rock of this.asteroids) {
+        if (!rock.active) continue;
+        const impactRadius = rock.radius + shotRadius;
+        const dx = rock.x - shot.x, dy = rock.y - shot.y;
+        if (Math.abs(dx) >= impactRadius || Math.abs(dy) >= impactRadius ||
+            dx * dx + dy * dy >= impactRadius * impactRadius) continue;
+        rock.damage(Math.max(1, (shot.damage ?? 4) * 0.55));
+        shot.active = false;
+        intercepted = true;
+        break;
+      }
+      if (intercepted) continue;
+      const impactRadius = (this.player.radius ?? 0) + shotRadius;
       if (Math.abs(this.player.x - shot.x) >= impactRadius ||
           Math.abs(this.player.y - shot.y) >= impactRadius) continue;
       if (circlesOverlap(this.player, shot)) {
