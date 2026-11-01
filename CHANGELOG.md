@@ -1,3 +1,20 @@
+## [1.0.0] — lançamento estável
+
+- Consolida a linha de desenvolvimento do GALACTIC-DEFENDER em uma versão oficial estável.
+- Remove a persistência de progresso, configurações, nave selecionada, personalização, árvore de pesquisa, missões, conquistas, recordes e títulos; o estado existe somente durante a sessão atual.
+- Limpa na primeira abertura os dados legados do jogo com prefixo `gd-` em `localStorage` e `sessionStorage`, preservando chaves de outros aplicativos.
+- Mantém a Wraith como nave especial desbloqueável pelo código de aliado `ORBITAL-ALLY`; o código precisa ser inserido novamente a cada sessão.
+- Inclui o pipeline opcional de pós-processamento WebGL, com presets Desligado/Baixo/Médio/Alto e controles individuais de gradação de cor, vinheta, linhas de varredura e aberração cromática.
+- Mantém o Canvas 2D como renderizador principal e fallback quando WebGL não está disponível; shaders desligados por padrão.
+- Atualiza documentação, histórico de versões, cache-busting e validações automatizadas.
+
+## [0.80.0] — shaders configuráveis
+
+- Adiciona pipeline WebGL opcional aplicado após a renderização Canvas 2D.
+- Inclui gradação de cor, vinheta, linhas de varredura e aberração cromática com controles individuais.
+- Adiciona presets de qualidade e fallback para Canvas 2D.
+- Mantém o processamento desligado por padrão para priorizar dispositivos móveis.
+
 ## [0.65.0] — reformulação inicial do ambiente espacial
 
 - Substitui a grade quadriculada por um campo de destroços distante, com silhuetas de cascos destruídos e placas flutuantes pré-renderizadas em cache.
